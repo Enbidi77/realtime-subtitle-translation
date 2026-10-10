@@ -1,0 +1,95 @@
+{
+  "app": {
+    "title": "EchoLingo",
+    "subtitle": "Phụ đề & Dịch thuật Thời gian thực",
+    "status": {
+      "idle": "Chờ",
+      "listening": "Đang lắng nghe",
+      "paused": "Tạm dừng",
+      "stopped": "Đã dừng",
+      "error": "Lỗi"
+    }
+  },
+  "nav": {
+    "dashboard": "Trang chủ",
+    "live": "Phụ đề Trực tiếp",
+    "sessions": "Phiên ghi",
+    "history": "Lịch sử dịch",
+    "providers": "Nhà cung cấp & Mô hình",
+    "settings": "Cài đặt"
+  },
+  "dashboard": {
+    "heroTitle": "Chuyển giọng nói thành phụ đề & bản dịch trực tiếp",
+    "heroSubtitle": "Nói tự nhiên hoặc thu âm thanh hệ thống. EchoLingo tự động nhận dạng và dịch thuật theo thời gian thực với AI cục bộ và đám mây.",
+    "startListening": "Bắt đầu Lắng nghe",
+    "stopListening": "Dừng Lắng nghe",
+    "audioSource": "Nguồn âm thanh",
+    "sourceLanguage": "Ngôn ngữ nói",
+    "targetLanguage": "Dịch sang",
+    "recentSessions": "Phiên gần đây",
+    "noSessions": "Chưa có phiên nào. Bấm Bắt đầu Lắng nghe ở trên để trải nghiệm!",
+    "totalSessions": "Tổng số phiên",
+    "totalMinutes": "Phút đã xử lý",
+    "activeEngine": "Bộ máy nhận dạng",
+    "activeTranslator": "Bộ máy dịch"
+  },
+  "live": {
+    "listeningNow": "Đang nhận dạng & Dịch thuật",
+    "pause": "Tạm dừng",
+    "resume": "Tiếp tục",
+    "stop": "Kết thúc phiên",
+    "searchPlaceholder": "Tìm kiếm phụ đề trong phiên này...",
+    "openOverlay": "Cửa sổ Phụ đề Nổi",
+    "copyTranscript": "Sao chép toàn bộ",
+    "export": "Xuất file",
+    "emptyState": "Đang đợi giọng nói... Hãy nói vào microphone của bạn.",
+    "latency": "Độ trễ",
+    "segments": "Đoạn phụ đề"
+  },
+  "sessions": {
+    "title": "Các phiên đã lưu",
+    "subtitle": "Quản lý, tìm kiếm, chỉnh sửa và xuất file phụ đề từ các phiên trước.",
+    "searchPlaceholder": "Tìm kiếm phiên...",
+    "import": "Nhập file SRT/VTT",
+    "export": "Xuất phụ đề",
+    "deleteConfirm": "Bạn có chắc chắn muốn xóa phiên ghi này không?",
+    "duration": "Thời lượng",
+    "noSegments": "Chưa có đoạn phụ đề nào trong phiên này."
+  },
+  "providers": {
+    "title": "Nhà cung cấp & Mô hình Ngôn ngữ",
+    "subtitle": "Cấu hình mô hình giọng nói ngoại tuyến và dịch vụ dịch thuật đám mây.",
+    "speechModels": "Mô hình Nhận dạng Cục bộ",
+    "translationProviders": "Dịch vụ Dịch thuật",
+    "glossary": "Thuật ngữ Tùy chỉnh (Glossary)",
+    "addTerm": "Thêm thuật ngữ",
+    "testConnection": "Kiểm tra kết nối",
+    "apiKeyRequired": "Yêu cầu khóa API",
+    "configured": "Đã cấu hình",
+    "notConfigured": "Chưa cấu hình",
+    "localEngine": "Chạy hoàn toàn cục bộ, bảo mật ngoại tuyến"
+  },
+  "settings": {
+    "title": "Tùy chọn & Cài đặt",
+    "appearance": "Giao diện",
+    "theme": "Chủ đề màu",
+    "themeDark": "Tối than Google (Dark Charcoal)",
+    "themeLight": "Sáng tinh tế (Clean Light)",
+    "language": "Ngôn ngữ ứng dụng",
+    "subtitleStyle": "Kiểu dáng Phụ đề",
+    "fontSize": "Cỡ chữ",
+    "textAlignment": "Căn lề văn bản",
+    "backgroundOpacity": "Độ mờ nền",
+    "displayMode": "Chế độ hiển thị",
+    "bothText": "Cả gốc & bản dịch",
+    "transOnly": "Chỉ bản dịch",
+    "origOnly": "Chỉ văn bản gốc",
+    "overlay": "Cửa sổ Phụ đề Nổi (Overlay)",
+    "alwaysOnTop": "Luôn hiện trên cùng",
+    "clickThrough": "Chế độ Xuyên thấu (Click-Through)",
+    "privacy": "Quyền riêng tư & Lưu trữ",
+    "clearHistory": "Xóa toàn bộ lịch sử",
+    "save": "Lưu thay đổi",
+    "reset": "Khôi phục mặc định"
+  }
+}

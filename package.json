@@ -1,0 +1,22 @@
+{
+  "name": "echo-lingo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Real-Time Subtitle & Translation Desktop App",
+  "author": "EchoLingo Team",
+  "scripts": {
+    "dev": "pnpm --filter @echo-lingo/desktop dev",
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint . --ext .ts,.tsx",
+    "clean:lock": "node scripts/clean-lock.cjs",
+    "package": "pnpm --filter @echo-lingo/desktop package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.4",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.7"
+  }
+}

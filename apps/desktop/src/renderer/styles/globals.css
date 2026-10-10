@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 220 15% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 15% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 15% 15%;
+
+    --primary: 217 91% 50%; /* Google Blue #1A73E8 */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 214 32% 91%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 214 32% 93%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 217 91% 50%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 3% 8%; /* #131314 */
+    --foreground: 220 10% 92%; /* #E8EAED */
+
+    --card: 240 3% 12%; /* #1E1F20 */
+    --card-foreground: 220 10% 92%;
+
+    --popover: 240 3% 14%;
+    --popover-foreground: 220 10% 92%;
+
+    --primary: 217 90% 75%; /* #8AB4F8 */
+    --primary-foreground: 222 47% 11%;
+
+    --secondary: 240 3% 16%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 240 3% 16%;
+    --muted-foreground: 218 8% 63%; /* #9AA0A6 */
+
+    --accent: 240 3% 18%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 5% 25%; /* #3C4043 */
+    --input: 220 5% 25%;
+    --ring: 217 90% 75%;
+  }
+}
+
+/* Electron titlebar drag regions */
+.app-drag {
+  -webkit-app-region: drag;
+}
+
+.app-no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(150, 150, 150, 0.25);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(150, 150, 150, 0.45);
+}
+
+/* Smooth font rendering */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}

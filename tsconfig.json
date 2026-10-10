@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "references": [
+    { "path": "./packages/contracts" },
+    { "path": "./packages/config" },
+    { "path": "./packages/subtitle-core" },
+    { "path": "./packages/translation-core" },
+    { "path": "./packages/speech-core" },
+    { "path": "./packages/provider-adapters" },
+    { "path": "./packages/database" },
+    { "path": "./packages/test-utils" },
+    { "path": "./apps/desktop" }
+  ]
+}

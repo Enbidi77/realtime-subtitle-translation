@@ -1,0 +1,19 @@
+{
+  "name": "@echo-lingo/provider-adapters",
+  "version": "1.0.0",
+  "description": "Speech and translation provider adapters for EchoLingo",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@echo-lingo/contracts": "workspace:*",
+    "@echo-lingo/config": "workspace:*",
+    "@echo-lingo/translation-core": "workspace:*",
+    "@echo-lingo/speech-core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}

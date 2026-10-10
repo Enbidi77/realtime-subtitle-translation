@@ -1,0 +1,95 @@
+{
+  "app": {
+    "title": "EchoLingo",
+    "subtitle": "Real-Time Subtitle & Translation",
+    "status": {
+      "idle": "Idle",
+      "listening": "Listening",
+      "paused": "Paused",
+      "stopped": "Stopped",
+      "error": "Error"
+    }
+  },
+  "nav": {
+    "dashboard": "Home",
+    "live": "Live Subtitles",
+    "sessions": "Sessions",
+    "history": "History",
+    "providers": "Providers & Models",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "heroTitle": "Real-time speech to live subtitles & translation",
+    "heroSubtitle": "Speak freely or capture system audio. EchoLingo transcribes and translates in real-time with local and cloud intelligence.",
+    "startListening": "Start Listening",
+    "stopListening": "Stop Listening",
+    "audioSource": "Audio Source",
+    "sourceLanguage": "Spoken Language",
+    "targetLanguage": "Translate To",
+    "recentSessions": "Recent Sessions",
+    "noSessions": "No sessions yet. Start your first session above!",
+    "totalSessions": "Total Sessions",
+    "totalMinutes": "Minutes Processed",
+    "activeEngine": "Speech Engine",
+    "activeTranslator": "Translator"
+  },
+  "live": {
+    "listeningNow": "Listening & Translating",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "End Session",
+    "searchPlaceholder": "Search subtitle in this session...",
+    "openOverlay": "Floating Overlay",
+    "copyTranscript": "Copy Transcript",
+    "export": "Export",
+    "emptyState": "Waiting for speech... Speak into your microphone.",
+    "latency": "Latency",
+    "segments": "Segments"
+  },
+  "sessions": {
+    "title": "Saved Sessions",
+    "subtitle": "Manage, search, edit, and export past subtitle recordings.",
+    "searchPlaceholder": "Search sessions...",
+    "import": "Import File",
+    "export": "Export Subtitles",
+    "deleteConfirm": "Are you sure you want to delete this session?",
+    "duration": "Duration",
+    "noSegments": "No subtitle segments recorded in this session."
+  },
+  "providers": {
+    "title": "Providers & Language Models",
+    "subtitle": "Configure offline speech engines and cloud translation services.",
+    "speechModels": "Local Speech Models",
+    "translationProviders": "Translation Providers",
+    "glossary": "Custom Glossary",
+    "addTerm": "Add Glossary Term",
+    "testConnection": "Test Connection",
+    "apiKeyRequired": "API Key Required",
+    "configured": "Configured",
+    "notConfigured": "Not Configured",
+    "localEngine": "Runs 100% locally and offline"
+  },
+  "settings": {
+    "title": "Preferences & Settings",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeDark": "Google Dark Charcoal",
+    "themeLight": "Google Clean Light",
+    "language": "UI Language",
+    "subtitleStyle": "Subtitle Appearance",
+    "fontSize": "Font Size",
+    "textAlignment": "Text Alignment",
+    "backgroundOpacity": "Background Opacity",
+    "displayMode": "Display Mode",
+    "bothText": "Original & Translation",
+    "transOnly": "Translation Only",
+    "origOnly": "Original Only",
+    "overlay": "Floating Overlay",
+    "alwaysOnTop": "Always On Top",
+    "clickThrough": "Click-Through Mode",
+    "privacy": "Privacy & Data Storage",
+    "clearHistory": "Clear All History",
+    "save": "Save Changes",
+    "reset": "Reset Defaults"
+  }
+}
