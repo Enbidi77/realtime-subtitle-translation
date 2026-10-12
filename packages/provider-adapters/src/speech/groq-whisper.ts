@@ -44,7 +44,7 @@ export class GroqWhisperProvider implements ISpeechProvider {
     const wavBytes = encodeWav(audioSamples, options.sampleRate || 16000);
 
     const formData = new FormData();
-    const blob = new Blob([wavBytes], { type: 'audio/wav' });
+    const blob = new Blob([wavBytes as any], { type: 'audio/wav' });
     formData.append('file', blob, 'audio.wav');
     formData.append('model', this.model);
 

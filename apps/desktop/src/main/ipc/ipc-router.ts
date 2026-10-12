@@ -15,7 +15,8 @@ import { CredentialsService } from '../services/credentials-service.js';
 import { getTranslationService } from '../services/translation-service.js';
 import { getSpeechService } from '../services/speech-service.js';
 import { getSessionService } from '../services/session-service.js';
-import { toggleOverlay, setOverlayClickThrough } from '../windows/overlay-window.js';
+import { getMainWindow } from '../windows/main-window.js';
+import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '../windows/overlay-window.js';
 
 export function registerIpcHandlers(): void {
   const db = getDatabase();
@@ -233,11 +234,32 @@ export function registerIpcHandlers(): void {
     const merged = { ...current, ...updates };
     const validated = AppSettingsSchema.parse(merged);
     db.setSetting('app_settings', validated);
+
+    // Broadcast updated settings to all open windows (main and overlay)
+    const mainWin = getMainWindow();
+    if (mainWin && !mainWin.isDestroyed() && !mainWin.webContents.isDestroyed()) {
+      mainWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, validated);
+    }
+    const overlayWin = getOverlayWindow();
+    if (overlayWin && !overlayWin.isDestroyed() && !overlayWin.webContents.isDestroyed()) {
+      overlayWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, validated);
+    }
+
     return validated;
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_RESET, async () => {
     db.setSetting('app_settings', DEFAULT_APP_SETTINGS);
+
+    const mainWin = getMainWindow();
+    if (mainWin && !mainWin.isDestroyed() && !mainWin.webContents.isDestroyed()) {
+      mainWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, DEFAULT_APP_SETTINGS);
+    }
+    const overlayWin = getOverlayWindow();
+    if (overlayWin && !overlayWin.isDestroyed() && !overlayWin.webContents.isDestroyed()) {
+      overlayWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, DEFAULT_APP_SETTINGS);
+    }
+
     return DEFAULT_APP_SETTINGS;
   });
 

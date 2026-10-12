@@ -165,6 +165,7 @@ export class TranslationRegistry {
             text,
             sourceLanguage,
             targetLanguage: targetLang,
+            priority: 'high',
           },
           providerId
         );

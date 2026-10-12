@@ -15,7 +15,9 @@ export const TitleBar: React.FC = () => {
       const unsub = window.electronAPI.overlay.onVisibilityChange((visible) => {
         setIsOverlayOpen(visible);
       });
-      return () => unsub();
+      return () => {
+        unsub();
+      };
     }
   }, []);
 

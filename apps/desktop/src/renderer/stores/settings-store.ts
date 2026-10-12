@@ -58,7 +58,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 }));
 
-function applyTheme(theme: 'system' | 'light' | 'dark') {
+export function applyTheme(theme: 'system' | 'light' | 'dark') {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.classList.add('dark');

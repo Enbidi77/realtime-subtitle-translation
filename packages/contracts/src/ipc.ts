@@ -79,6 +79,7 @@ export const IPC_CHANNELS = {
   SETTINGS_GET: 'settings:get',
   SETTINGS_UPDATE: 'settings:update',
   SETTINGS_RESET: 'settings:reset',
+  SETTINGS_UPDATE_STREAM: 'settings:update-stream',
 
   // Overlay
   OVERLAY_TOGGLE: 'overlay:toggle',

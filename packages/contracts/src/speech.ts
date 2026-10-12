@@ -5,6 +5,7 @@ export const SpeechEngineTypeSchema = z.enum([
   'openai-whisper',
   'groq-whisper',
   'mock',
+  'windows-speech',
 ]);
 export type SpeechEngineType = z.infer<typeof SpeechEngineTypeSchema>;
 

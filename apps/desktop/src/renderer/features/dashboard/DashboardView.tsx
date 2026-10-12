@@ -167,13 +167,16 @@ export const DashboardView: React.FC = () => {
               disabled={isListening}
               className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
+              <option value="windows-speech">Windows System Speech (Built-in Offline SAPI)</option>
               <option value="groq-whisper">Groq Whisper (Free & Ultra-Fast Cloud)</option>
               <option value="openai-whisper">OpenAI Whisper (Cloud)</option>
               <option value="mock">Mock Engine (Instant Demo / Testing)</option>
               <option value="whisper-local">Whisper Local (Offline)</option>
             </select>
             <p className="text-[10px] text-muted-foreground leading-tight">
-              {settings.speechEngine === 'groq-whisper'
+              {settings.speechEngine === 'windows-speech'
+                ? '💻 Native Windows built-in SAPI recognition. 100% offline, zero setup.'
+                : settings.speechEngine === 'groq-whisper'
                 ? '⚡ Ultra-fast Whisper Large. Free API key in Providers.'
                 : settings.speechEngine === 'mock'
                 ? '🧪 Generates live sample subtitles on audio for testing.'

@@ -118,6 +118,7 @@ describe('Translation Core', () => {
         text: 'Good morning',
         sourceLanguage: 'en',
         targetLanguage: 'vi',
+        priority: 'high',
       });
 
       expect(res1.translatedText).toBe('[VI] Good morning');
@@ -129,6 +130,7 @@ describe('Translation Core', () => {
         text: 'Good morning',
         sourceLanguage: 'en',
         targetLanguage: 'vi',
+        priority: 'high',
       });
 
       expect(res2.translatedText).toBe('[VI] Good morning');

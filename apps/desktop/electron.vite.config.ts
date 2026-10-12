@@ -2,6 +2,9 @@ import { defineConfig, externalizeDepsPlugin } from 'electron-vite';
 import react from '@vitejs/plugin-react';
 import { resolve } from 'path';
 
+// Prevent Electron from running in Node mode when launched from VS Code debug sessions
+delete process.env.ELECTRON_RUN_AS_NODE;
+
 const workspacePackages = [
   '@echo-lingo/contracts',
   '@echo-lingo/config',
@@ -16,6 +19,9 @@ const workspacePackages = [
 export default defineConfig({
   main: {
     plugins: [externalizeDepsPlugin({ exclude: workspacePackages })],
+    build: {
+      sourcemap: true,
+    },
     resolve: {
       alias: {
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
@@ -30,6 +36,9 @@ export default defineConfig({
   },
   preload: {
     plugins: [externalizeDepsPlugin({ exclude: ['@echo-lingo/contracts', 'zod'] })],
+    build: {
+      sourcemap: true,
+    },
     resolve: {
       alias: {
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
@@ -39,6 +48,7 @@ export default defineConfig({
   renderer: {
     plugins: [react()],
     build: {
+      sourcemap: true,
       rollupOptions: {
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),

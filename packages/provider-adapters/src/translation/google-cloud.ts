@@ -112,6 +112,7 @@ export class GoogleCloudTranslationProvider implements ITranslationProvider {
         text: 'Hello',
         sourceLanguage: 'en',
         targetLanguage: 'vi',
+        priority: 'high',
       });
       return { ok: res.translatedText.length > 0 };
     } catch (err) {

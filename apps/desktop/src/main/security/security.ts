@@ -28,7 +28,8 @@ export function setupMediaPermissions(): void {
 
   // Automatically approve media capture permissions for our desktop app
   ses.setPermissionRequestHandler((_webContents, permission, callback) => {
-    if (permission === 'media' || permission === 'display-capture') {
+    const perm = permission as string;
+    if (perm === 'media' || perm === 'display-capture') {
       return callback(true);
     }
     callback(false);
@@ -36,7 +37,8 @@ export function setupMediaPermissions(): void {
 
   // Verify media permission check queries
   ses.setPermissionCheckHandler((_webContents, permission) => {
-    if (permission === 'media' || permission === 'display-capture') {
+    const perm = permission as string;
+    if (perm === 'media' || perm === 'display-capture') {
       return true;
     }
     return false;

@@ -1,0 +1,66 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "EchoLingo: Dev Server",
+      "type": "shell",
+      "command": "pnpm",
+      "args": [
+        "--filter",
+        "@echo-lingo/desktop",
+        "dev",
+        "--",
+        "--inspect=5858",
+        "--remoteDebuggingPort=9222",
+        "--sourcemap"
+      ],
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "custom",
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*Electron.*|.*ready.*|.*Local:.*"
+        }
+      }
+    },
+    {
+      "label": "EchoLingo: Build",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["build"],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "EchoLingo: Typecheck",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["typecheck"],
+      "problemMatcher": ["$tsc"]
+    },
+    {
+      "label": "EchoLingo: Run Tests",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["test"],
+      "group": {
+        "kind": "test",
+        "isDefault": true
+      }
+    },
+    {
+      "label": "EchoLingo: Package Desktop (Windows)",
+      "type": "shell",
+      "command": "pnpm",
+      "args": ["--filter", "@echo-lingo/desktop", "package:win"]
+    }
+  ]
+}
+

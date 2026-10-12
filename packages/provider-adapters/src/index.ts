@@ -8,4 +8,6 @@ export * from './translation/mock.js';
 export * from './speech/openai-whisper.js';
 export * from './speech/groq-whisper.js';
 export * from './speech/local-whisper.js';
+export * from './speech/windows-speech.js';
 export * from './speech/mock.js';
+

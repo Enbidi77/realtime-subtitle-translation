@@ -4,6 +4,7 @@
 
 | Provider | Type | API Key | Notes |
 |---|---|---|---|
+| **Windows System Speech** | Local / Offline | Not required | Built-in offline Windows SAPI recognition (`System.Speech`). Zero external setup or models needed. |
 | **Local Whisper** | Local / Offline | Not required | Runs locally using ONNX runtime / whisper.cpp with zero external dependencies. |
 | **OpenAI Whisper** | Cloud | Required | Official OpenAI Audio API (`whisper-1`). High accuracy across 99+ languages. |
 | **Groq Whisper** | Cloud | Required | Ultra-low latency Whisper (`whisper-large-v3-turbo`) with response times < 250ms. |

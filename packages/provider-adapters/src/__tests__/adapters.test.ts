@@ -6,6 +6,7 @@ import {
   OpenAIWhisperProvider,
   GroqWhisperProvider,
   LocalWhisperProvider,
+  WindowsSpeechProvider,
 } from '../index.js';
 
 describe('Provider Adapters', () => {
@@ -20,6 +21,7 @@ describe('Provider Adapters', () => {
         text: 'hello',
         sourceLanguage: 'en',
         targetLanguage: 'vi',
+        priority: 'high',
       });
       expect(res.translatedText).toBe('Xin chào');
     });
@@ -64,5 +66,22 @@ describe('Provider Adapters', () => {
       expect(models.length).toBeGreaterThan(1);
       expect(models[0].id).toBe('tiny');
     });
+
+    it('initializes and reports properties for WindowsSpeechProvider', async () => {
+      const winSpeech = new WindowsSpeechProvider();
+      expect(winSpeech.id).toBe('windows-speech');
+      expect(winSpeech.isLocal).toBe(true);
+      expect(winSpeech.isReady()).toBe(process.platform === 'win32');
+
+      // Silent buffer should return empty string without error
+      const res = await winSpeech.transcribe(new Float32Array(16000), { sampleRate: 16000 });
+      expect(res.text).toBe('');
+      expect(res.isFinal).toBe(true);
+
+      const status = await winSpeech.getModelStatus();
+      expect(Array.isArray(status)).toBe(true);
+      expect(status.length).toBeGreaterThan(0);
+    });
   });
 });
+

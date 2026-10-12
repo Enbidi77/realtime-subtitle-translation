@@ -17,6 +17,11 @@ import { getSessionService } from './services/session-service.js';
 
 import { setupMediaPermissions } from './security/security.js';
 
+// Enable Chromium remote debugging in development for VS Code renderer breakpoint attachment
+if (!app.isPackaged) {
+  app.commandLine.appendSwitch('remote-debugging-port', '9222');
+}
+
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
 

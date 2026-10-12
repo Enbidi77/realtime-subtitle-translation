@@ -111,6 +111,11 @@ const api = {
     update: (updates: Partial<AppSettings>): Promise<AppSettings> =>
       ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_UPDATE, updates),
     reset: (): Promise<AppSettings> => ipcRenderer.invoke(IPC_CHANNELS.SETTINGS_RESET),
+    onUpdate: (callback: (settings: AppSettings) => void) => {
+      const handler = (_: unknown, s: AppSettings) => callback(s);
+      ipcRenderer.on(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, handler);
+    },
   },
 
   overlay: {

@@ -64,6 +64,14 @@ export const ProvidersView: React.FC = () => {
       isLocal: true,
     },
     {
+      id: 'windows-speech',
+      name: 'Windows System Speech (SAPI)',
+      description: 'Native Windows built-in speech recognition (SAPI 5.4 / System.Speech). 100% offline, zero setup or downloads required.',
+      requiresApiKey: false,
+      isConfigured: true,
+      isLocal: true,
+    },
+    {
       id: 'whisper-local',
       name: 'Local Whisper Engine',
       description: 'Offline speech inference using managed local worker or whisper.cpp.',
@@ -138,6 +146,7 @@ export const ProvidersView: React.FC = () => {
         text: 'Hello, welcome to EchoLingo!',
         sourceLanguage: 'en',
         targetLanguage: 'vi',
+        priority: 'high',
       });
       setTestResult(`Success: "${res.translatedText}" (${res.durationMs}ms)`);
     } catch (err) {

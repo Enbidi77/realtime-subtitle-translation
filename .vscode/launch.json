@@ -1,0 +1,104 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "EchoLingo: Debug Main Process",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "runtimeExecutable": "pnpm",
+      "windows": {
+        "runtimeExecutable": "pnpm.cmd"
+      },
+      "runtimeArgs": [
+        "--filter",
+        "@echo-lingo/desktop",
+        "dev",
+        "--",
+        "--inspect=5858",
+        "--remoteDebuggingPort=9222",
+        "--sourcemap"
+      ],
+      "env": {
+        "REMOTE_DEBUGGING_PORT": "9222"
+      },
+      "port": 5858,
+      "timeout": 30000,
+      "sourceMaps": true,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "presentation": {
+        "order": 2
+      }
+    },
+    {
+      "name": "EchoLingo: Attach to Renderer",
+      "type": "chrome",
+      "request": "attach",
+      "port": 9222,
+      "timeout": 60000,
+      "urlFilter": "http://localhost:*",
+      "webRoot": "${workspaceFolder}/apps/desktop/src/renderer",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "/@fs/*": "/*",
+        "${workspaceFolder}/*": "${workspaceFolder}/*",
+        "/*": "${workspaceFolder}/apps/desktop/src/renderer/*"
+      },
+      "presentation": {
+        "order": 3
+      }
+    },
+    {
+      "name": "EchoLingo: Attach to Main",
+      "type": "node",
+      "request": "attach",
+      "port": 5858,
+      "timeout": 30000,
+      "sourceMaps": true,
+      "restart": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "presentation": {
+        "order": 4
+      }
+    },
+    {
+      "name": "Vitest: Debug Current Test File",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "console": "integratedTerminal",
+      "presentation": {
+        "order": 5
+      }
+    },
+    {
+      "name": "Vitest: Debug All Tests",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceFolder}/node_modules/vitest/vitest.mjs",
+      "args": ["run"],
+      "console": "integratedTerminal",
+      "presentation": {
+        "order": 6
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "EchoLingo: Full Debug (Main + Renderer)",
+      "configurations": ["EchoLingo: Debug Main Process", "EchoLingo: Attach to Renderer"],
+      "stopAll": true,
+      "presentation": {
+        "order": 1
+      }
+    }
+  ]
+}

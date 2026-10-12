@@ -5,6 +5,7 @@ import {
   OpenAIWhisperProvider,
   GroqWhisperProvider,
   MockSpeechProvider,
+  WindowsSpeechProvider,
 } from '@echo-lingo/provider-adapters';
 import { CredentialsService } from './credentials-service.js';
 
@@ -14,11 +15,13 @@ export class SpeechService {
 
   constructor() {
     const local = new LocalWhisperProvider();
+    const windows = new WindowsSpeechProvider();
     const openai = new OpenAIWhisperProvider();
     const groq = new GroqWhisperProvider();
     const mock = new MockSpeechProvider();
 
     this.providers.set('whisper-local', local);
+    this.providers.set('windows-speech', windows);
     this.providers.set('openai-whisper', openai);
     this.providers.set('groq-whisper', groq);
     this.providers.set('mock', mock);
@@ -52,12 +55,23 @@ export class SpeechService {
     }
   }
 
-  public async getModelStatus(): Promise<SpeechModelStatus[]> {
-    const local = this.providers.get('whisper-local') as LocalWhisperProvider;
-    if (local && local.getModelStatus) {
-      return local.getModelStatus();
+  public async getModelStatus(engine?: SpeechEngineType): Promise<SpeechModelStatus[]> {
+    const selected = engine || this.activeEngine;
+    const provider = this.providers.get(selected);
+    if (provider && provider.getModelStatus) {
+      return provider.getModelStatus();
     }
-    return [];
+
+    const res: SpeechModelStatus[] = [];
+    const windows = this.providers.get('windows-speech');
+    if (windows?.getModelStatus) {
+      res.push(...(await windows.getModelStatus()));
+    }
+    const local = this.providers.get('whisper-local');
+    if (local?.getModelStatus) {
+      res.push(...(await local.getModelStatus()));
+    }
+    return res;
   }
 }
 
