@@ -3,6 +3,7 @@ import { AUDIO_CONSTANTS } from '@echo-lingo/config/audio.js';
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
+  glassIntensity: 'balanced',
   locale: 'en',
   audioSourceType: 'microphone',
   audioDeviceId: 'default',

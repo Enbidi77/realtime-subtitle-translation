@@ -41,6 +41,19 @@ module.exports = {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
         },
+        glass: {
+          surface: 'var(--glass-surface)',
+          elevated: 'var(--glass-surface-elevated)',
+          subtle: 'var(--glass-surface-subtle)',
+          toolbar: 'var(--glass-surface-toolbar)',
+          sidebar: 'var(--glass-surface-sidebar)',
+          modal: 'var(--glass-surface-modal)',
+          input: 'var(--glass-surface-input)',
+          border: 'var(--glass-border)',
+          'border-elevated': 'var(--glass-border-elevated)',
+          'border-subtle': 'var(--glass-border-subtle)',
+          highlight: 'var(--glass-highlight)',
+        },
         google: {
           blue: '#1A73E8',
           'blue-light': '#8AB4F8',
@@ -51,9 +64,42 @@ module.exports = {
         },
       },
       borderRadius: {
+        '3xl': '1.5rem',
+        '2xl': '1rem',
+        xl: '0.875rem',
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      boxShadow: {
+        glass: 'var(--glass-shadow)',
+        'glass-elevated': 'var(--glass-shadow-elevated)',
+        'glass-subtle': 'var(--glass-shadow-subtle)',
+        'glass-glow': 'var(--glass-glow)',
+        'glass-inner': 'inset 0 1px 1px 0 var(--glass-highlight)',
+      },
+      backdropBlur: {
+        glass: 'var(--glass-blur)',
+        'glass-elevated': 'var(--glass-blur-elevated)',
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
+        'pulse-subtle': 'pulseSubtle 2.5s ease-in-out infinite',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        scaleIn: {
+          '0%': { opacity: '0', transform: 'scale(0.96)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        pulseSubtle: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.6' },
+        },
       },
     },
   },

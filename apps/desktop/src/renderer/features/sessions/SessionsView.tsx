@@ -4,6 +4,12 @@ import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { SessionMetadata, SubtitleSegment, SubtitleExportFormat } from '@echo-lingo/contracts';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
+import { GlassCard } from '@/components/ui/GlassCard.js';
+import { GlassButton } from '@/components/ui/GlassButton.js';
+import { GlassInput } from '@/components/ui/GlassInput.js';
+import { GlassSelect } from '@/components/ui/GlassSelect.js';
+import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { GlassModal } from '@/components/ui/GlassModal.js';
 import {
   FolderKanban,
   Download,
@@ -14,7 +20,8 @@ import {
   Layers,
   Search,
   Check,
-  X,
+  ExternalLink,
+  Layers3,
 } from 'lucide-react';
 
 export const SessionsView: React.FC = () => {
@@ -157,21 +164,23 @@ export const SessionsView: React.FC = () => {
   );
 
   return (
-    <div className="flex-1 h-full flex overflow-hidden bg-background">
+    <div className="flex-1 h-full flex overflow-hidden bg-transparent">
       {/* Left Column: Sessions List */}
-      <div className="w-80 h-full border-r border-border flex flex-col bg-card">
+      <div className="w-80 h-full border-r border-glass-border flex flex-col glass-sidebar">
         {/* Header & Search */}
-        <div className="p-3 border-b border-border space-y-2.5">
+        <div className="p-3.5 border-b border-glass-border space-y-3 shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <FolderKanban className="w-4 h-4 text-primary" />
               <span>{t('sessions.title')}</span>
             </h2>
 
             {/* Import Button */}
-            <label className="cursor-pointer flex items-center gap-1 px-2 py-1 rounded-md bg-muted hover:bg-muted/80 text-xs font-medium text-foreground transition-colors">
-              <Upload className="w-3.5 h-3.5" />
-              <span>{t('sessions.import')}</span>
+            <label className="cursor-pointer">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-glass-subtle border border-glass-border text-xs font-medium text-foreground hover:bg-glass transition-colors">
+                <Upload className="w-3.5 h-3.5" />
+                <span>{t('sessions.import')}</span>
+              </span>
               <input
                 type="file"
                 accept=".srt,.vtt"
@@ -181,20 +190,18 @@ export const SessionsView: React.FC = () => {
             </label>
           </div>
 
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder={t('sessions.searchPlaceholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-background border border-border rounded-lg pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-            />
-          </div>
+          <GlassInput
+            type="text"
+            placeholder={t('sessions.searchPlaceholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            onClear={() => setSearchQuery('')}
+            leftIcon={<Search className="w-3.5 h-3.5" />}
+          />
         </div>
 
         {/* Sessions list */}
-        <div className="flex-1 overflow-y-auto divide-y divide-border/40">
+        <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
           {filteredSessions.length === 0 ? (
             <div className="p-6 text-center text-xs text-muted-foreground">
               No sessions found
@@ -206,8 +213,10 @@ export const SessionsView: React.FC = () => {
                 <div
                   key={session.id}
                   onClick={() => setSelectedSessionId(session.id)}
-                  className={`p-3 cursor-pointer transition-colors flex items-start justify-between gap-2 ${
-                    isSelected ? 'bg-primary/10 border-l-2 border-primary' : 'hover:bg-muted/50'
+                  className={`p-3 rounded-xl cursor-pointer transition-all duration-150 flex items-start justify-between gap-2.5 border ${
+                    isSelected
+                      ? 'bg-primary/15 border-primary/40 shadow-sm text-foreground'
+                      : 'border-transparent hover:bg-glass hover:border-glass-border text-muted-foreground hover:text-foreground'
                   }`}
                 >
                   <div className="space-y-1 overflow-hidden">
@@ -215,19 +224,20 @@ export const SessionsView: React.FC = () => {
                       {session.title}
                     </div>
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-1">
+                      <span className="flex items-center gap-1 font-mono">
                         <Clock className="w-3 h-3" />
                         {Math.floor(session.durationSeconds / 60)}m {session.durationSeconds % 60}s
                       </span>
                       <span>•</span>
-                      <span>{session.segmentCount} segs</span>
+                      <span className="font-mono">{session.segmentCount} segs</span>
                     </div>
                   </div>
 
                   <button
                     onClick={(e) => handleDeleteSession(session.id, e)}
-                    className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-muted transition-colors opacity-60 hover:opacity-100"
+                    className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/15 transition-colors opacity-40 hover:opacity-100 shrink-0"
                     title="Delete session"
+                    aria-label="Delete session"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -239,42 +249,50 @@ export const SessionsView: React.FC = () => {
       </div>
 
       {/* Right Column: Segments Viewer & Editor */}
-      <div className="flex-1 h-full flex flex-col overflow-hidden">
+      <div className="flex-1 h-full flex flex-col overflow-hidden bg-transparent">
         {selectedSession ? (
           <>
             {/* Session Toolbar */}
-            <div className="h-12 px-4 border-b border-border flex items-center justify-between bg-card">
-              <div>
-                <h3 className="font-semibold text-xs text-foreground">{selectedSession.title}</h3>
-                <span className="text-[10px] text-muted-foreground">
-                  {selectedSession.sourceLanguage} → {selectedSession.targetLanguages.join(', ')} •{' '}
-                  {selectedSession.speechProvider}
-                </span>
+            <header className="glass-toolbar h-13 px-5 flex items-center justify-between gap-4 shrink-0 z-10">
+              <div className="space-y-0.5 overflow-hidden">
+                <h3 className="font-semibold text-xs text-foreground truncate">
+                  {selectedSession.title}
+                </h3>
+                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                  <span className="font-mono">
+                    {selectedSession.sourceLanguage} → {selectedSession.targetLanguages.join(', ')}
+                  </span>
+                  <span>•</span>
+                  <span>{selectedSession.speechProvider}</span>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <button
+              <div className="flex items-center gap-2 shrink-0">
+                <GlassButton
+                  variant="glass"
+                  size="sm"
                   onClick={() => {
                     loadSession(selectedSession.id);
                     setActivePage('live-subtitles');
                   }}
-                  className="px-2.5 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted transition-colors"
+                  icon={<ExternalLink className="w-3.5 h-3.5" />}
                 >
-                  Open in Workspace
-                </button>
+                  <span>Open in Workspace</span>
+                </GlassButton>
 
-                <button
+                <GlassButton
+                  variant="primary"
+                  size="sm"
                   onClick={() => setShowExportModal(true)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                  icon={<Download className="w-3.5 h-3.5" />}
                 >
-                  <Download className="w-3.5 h-3.5" />
                   <span>{t('sessions.export')}</span>
-                </button>
+                </GlassButton>
               </div>
-            </div>
+            </header>
 
             {/* Segments timeline list */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {segments.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
                   {t('sessions.noSegments')}
@@ -283,158 +301,154 @@ export const SessionsView: React.FC = () => {
                 segments.map((seg) => {
                   const trans = Object.values(seg.translations)[0] || '';
                   return (
-                    <div
+                    <GlassCard
                       key={seg.id}
-                      className="p-3.5 rounded-xl bg-card border border-border/70 hover:border-border transition-all space-y-1 group relative"
+                      variant="default"
+                      className="p-3.5 space-y-1.5 group hover:border-glass-border-elevated"
                     >
                       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                        <span className="font-mono">
-                          [{formatDisplayTime(seg.startTime)} - {formatDisplayTime(seg.endTime)}]
+                        <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-glass-subtle border border-glass-border/40">
+                          {formatDisplayTime(seg.startTime)} - {formatDisplayTime(seg.endTime)}
                         </span>
-                        <button
+                        <GlassButton
+                          variant="ghost"
+                          size="icon-sm"
                           onClick={() => {
                             setEditingSegment(seg);
                             setEditOriginalText(seg.originalText);
                             setEditTransText(trans);
                           }}
-                          className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-foreground rounded hover:bg-muted transition-all"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
                           title="Edit text"
+                          aria-label="Edit text"
                         >
-                          <Edit2 className="w-3 h-3" />
-                        </button>
+                          <Edit2 className="w-3 h-3 text-muted-foreground hover:text-foreground" />
+                        </GlassButton>
                       </div>
 
-                      <div className="text-xs text-foreground">{seg.originalText}</div>
-                      {trans && <div className="text-xs font-medium text-primary">{trans}</div>}
-                    </div>
+                      <div className="text-xs text-foreground font-normal leading-relaxed">
+                        {seg.originalText}
+                      </div>
+                      {trans && (
+                        <div className="text-xs font-semibold text-primary leading-relaxed">
+                          {trans}
+                        </div>
+                      )}
+                    </GlassCard>
                   );
                 })
               )}
             </div>
           </>
         ) : (
-          <div className="h-full flex items-center justify-center text-sm text-muted-foreground">
-            Select a session on the left to view segments
+          <div className="h-full flex flex-col items-center justify-center text-xs text-muted-foreground space-y-2">
+            <Layers3 className="w-8 h-8 opacity-40 text-primary" />
+            <span>Select a session on the left to inspect segments</span>
           </div>
         )}
       </div>
 
-      {/* Export Modal */}
-      {showExportModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Export Subtitles</h3>
-              <button
-                onClick={() => setShowExportModal(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+      {/* Export Glass Modal */}
+      <GlassModal
+        isOpen={showExportModal}
+        onClose={() => setShowExportModal(false)}
+        title="Export Subtitles"
+        description="Download transcription and translation file in your preferred format."
+        maxWidth="sm"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">Format</label>
+            <GlassSelect
+              value={exportFormat}
+              onChange={(e) => setExportFormat(e.target.value as any)}
+            >
+              <option value="srt">SubRip Subtitle (.srt)</option>
+              <option value="vtt">WebVTT (.vtt)</option>
+              <option value="txt">Plain Text Transcript (.txt)</option>
+              <option value="json">JSON Metadata (.json)</option>
+            </GlassSelect>
+          </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="text-muted-foreground font-medium">Format</label>
-                <select
-                  value={exportFormat}
-                  onChange={(e) => setExportFormat(e.target.value as any)}
-                  className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
-                >
-                  <option value="srt">SubRip Subtitle (.srt)</option>
-                  <option value="vtt">WebVTT (.vtt)</option>
-                  <option value="txt">Plain Text Transcript (.txt)</option>
-                  <option value="json">JSON Metadata (.json)</option>
-                </select>
-              </div>
+          <label className="flex items-center gap-2 pt-1 cursor-pointer">
+            <input
+              type="checkbox"
+              id="includeOrig"
+              checked={includeOriginal}
+              onChange={(e) => setIncludeOriginal(e.target.checked)}
+              className="rounded accent-primary"
+            />
+            <span className="text-foreground">Include original spoken text</span>
+          </label>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="includeOrig"
-                  checked={includeOriginal}
-                  onChange={(e) => setIncludeOriginal(e.target.checked)}
-                  className="rounded text-primary"
-                />
-                <label htmlFor="includeOrig" className="text-foreground">
-                  Include original spoken text
-                </label>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
-              <button
-                onClick={() => setShowExportModal(false)}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleExport}
-                disabled={isExporting}
-                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 shadow-sm"
-              >
-                {isExporting ? 'Exporting...' : 'Export'}
-              </button>
-            </div>
+          <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
+            <GlassButton
+              variant="subtle"
+              size="sm"
+              onClick={() => setShowExportModal(false)}
+            >
+              Cancel
+            </GlassButton>
+            <GlassButton
+              variant="primary"
+              size="sm"
+              onClick={handleExport}
+              isLoading={isExporting}
+            >
+              Export
+            </GlassButton>
           </div>
         </div>
-      )}
+      </GlassModal>
 
-      {/* Edit Segment Modal */}
-      {editingSegment && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-card border border-border p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">Edit Subtitle Segment</h3>
-              <button
-                onClick={() => setEditingSegment(null)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+      {/* Edit Segment Glass Modal */}
+      <GlassModal
+        isOpen={!!editingSegment}
+        onClose={() => setEditingSegment(null)}
+        title="Edit Subtitle Segment"
+        description="Fine-tune transcription or translation accuracy."
+        maxWidth="md"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">Original Spoken Text</label>
+            <textarea
+              rows={3}
+              value={editOriginalText}
+              onChange={(e) => setEditOriginalText(e.target.value)}
+              className="glass-input w-full p-2.5 text-xs text-foreground focus:outline-none"
+            />
+          </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="text-muted-foreground font-medium">Original Spoken Text</label>
-                <textarea
-                  rows={3}
-                  value={editOriginalText}
-                  onChange={(e) => setEditOriginalText(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">Translated Text</label>
+            <textarea
+              rows={3}
+              value={editTransText}
+              onChange={(e) => setEditTransText(e.target.value)}
+              className="glass-input w-full p-2.5 text-xs text-foreground focus:outline-none"
+            />
+          </div>
 
-              <div className="space-y-1">
-                <label className="text-muted-foreground font-medium">Translated Text</label>
-                <textarea
-                  rows={3}
-                  value={editTransText}
-                  onChange={(e) => setEditTransText(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg p-2 text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
-              <button
-                onClick={() => setEditingSegment(null)}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveEditSegment}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 shadow-sm"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Save</span>
-              </button>
-            </div>
+          <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
+            <GlassButton
+              variant="subtle"
+              size="sm"
+              onClick={() => setEditingSegment(null)}
+            >
+              Cancel
+            </GlassButton>
+            <GlassButton
+              variant="primary"
+              size="sm"
+              onClick={handleSaveEditSegment}
+              icon={<Check className="w-3.5 h-3.5" />}
+            >
+              Save
+            </GlassButton>
           </div>
         </div>
-      )}
+      </GlassModal>
     </div>
   );
 };

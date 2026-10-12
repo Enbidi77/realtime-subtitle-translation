@@ -60,7 +60,7 @@ export const OverlayView: React.FC = () => {
     if (window.electronAPI) {
       window.electronAPI.settings.get().then((loaded) => {
         setSettings(loaded);
-        applyTheme(loaded.theme);
+        applyTheme(loaded.theme, loaded.glassIntensity);
         if (loaded.overlaySettings?.captionMode === 'history') {
           setIsYouTubeMode(false);
         }
@@ -69,7 +69,7 @@ export const OverlayView: React.FC = () => {
       // Subscribe to real-time settings update stream
       const unsubSettings = window.electronAPI.settings.onUpdate?.((updated) => {
         setSettings(updated);
-        applyTheme(updated.theme);
+        applyTheme(updated.theme, updated.glassIntensity);
         if (updated.overlaySettings?.captionMode) {
           setIsYouTubeMode(updated.overlaySettings.captionMode !== 'history');
         }
@@ -140,7 +140,6 @@ export const OverlayView: React.FC = () => {
   const { subtitleAppearance } = settings;
   const recentSegments = segments.slice(-Math.max(1, settings.overlaySettings?.maxLines || 3));
 
-  // Determine active theme colors matching the app's charcoal / light design system
   const isDark =
     settings.theme === 'dark' ||
     (settings.theme === 'system' &&
@@ -154,12 +153,12 @@ export const OverlayView: React.FC = () => {
     subtitleAppearance.backgroundColor === '#000000';
 
   const cardBgColor = isDark
-    ? (isDefaultDarkBg ? '#1E1F20' : subtitleAppearance.backgroundColor)
-    : (isDefaultDarkBg ? '#FFFFFF' : subtitleAppearance.backgroundColor);
+    ? (isDefaultDarkBg ? 'rgba(15, 20, 32, 0.78)' : subtitleAppearance.backgroundColor)
+    : (isDefaultDarkBg ? 'rgba(255, 255, 255, 0.85)' : subtitleAppearance.backgroundColor);
 
   const originalTextColor = isDark
     ? (subtitleAppearance.textColor || '#FFFFFF')
-    : (subtitleAppearance.textColor === '#FFFFFF' ? '#1F242D' : subtitleAppearance.textColor || '#1F242D');
+    : (subtitleAppearance.textColor === '#FFFFFF' ? '#0F172A' : subtitleAppearance.textColor || '#0F172A');
 
   const isDefaultBlue =
     !subtitleAppearance.translatedTextColor ||
@@ -169,8 +168,8 @@ export const OverlayView: React.FC = () => {
     subtitleAppearance.translatedTextColor === '#FDE047';
 
   const translatedTextColor = isDark
-    ? (isDefaultBlue ? '#8AB4F8' : subtitleAppearance.translatedTextColor)
-    : (isDefaultBlue ? '#1A73E8' : subtitleAppearance.translatedTextColor);
+    ? (isDefaultBlue ? '#60A5FA' : subtitleAppearance.translatedTextColor)
+    : (isDefaultBlue ? '#2563EB' : subtitleAppearance.translatedTextColor);
 
   return (
     <div
@@ -178,15 +177,15 @@ export const OverlayView: React.FC = () => {
       onMouseMove={resetControlsTimer}
       className="w-full h-full flex flex-col justify-end items-center p-3 select-none relative group"
     >
-      {/* 1. Overlay Drag & Action Controls (matches app card & border theme) */}
+      {/* 1. Overlay Floating Glass Drag & Action Controls */}
       <div
-        className={`app-drag absolute top-1 left-2 right-2 h-7 flex items-center justify-between px-2.5 rounded-lg bg-card/90 border border-border/80 backdrop-blur-md transition-opacity duration-200 z-50 shadow-lg ${
+        className={`app-drag absolute top-1 left-2 right-2 h-8 flex items-center justify-between px-3 rounded-xl glass-toolbar border border-glass-border/70 shadow-glass backdrop-blur-xl transition-opacity duration-200 z-50 ${
           showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex items-center gap-1.5 text-[11px] text-foreground">
+        <div className="flex items-center gap-2 text-[11px] text-foreground font-medium">
           <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
-          <span className="font-semibold tracking-wide">
+          <span className="tracking-tight">
             {isYouTubeMode ? 'YouTube Subtitle Mode' : 'History Transcript Mode'}
           </span>
         </div>
@@ -195,10 +194,10 @@ export const OverlayView: React.FC = () => {
           {/* Toggle YouTube Mode vs History Mode */}
           <button
             onClick={handleToggleMode}
-            className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-colors ${
+            className={`px-2 py-0.5 rounded-lg text-[10px] font-medium flex items-center gap-1 transition-colors border ${
               isYouTubeMode
-                ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
-                : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-xs'
+                : 'bg-glass-subtle text-muted-foreground hover:text-foreground border-glass-border'
             }`}
             title={isYouTubeMode ? 'Switch to Multi-Line History' : 'Switch to YouTube Single-Caption Mode'}
           >
@@ -209,15 +208,17 @@ export const OverlayView: React.FC = () => {
           {/* Font scale buttons */}
           <button
             onClick={() => handleAdjustFontSize(-2)}
-            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border transition-colors"
             title="Decrease font size"
+            aria-label="Decrease font size"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleAdjustFontSize(2)}
-            className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border transition-colors"
             title="Increase font size"
+            aria-label="Increase font size"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
@@ -225,10 +226,13 @@ export const OverlayView: React.FC = () => {
           {/* Click-through toggle */}
           <button
             onClick={handleToggleClickThrough}
-            className={`p-1 rounded transition-colors ${
-              isClickThrough ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+            className={`p-1 rounded-lg transition-colors border ${
+              isClickThrough
+                ? 'bg-primary text-primary-foreground border-primary/40'
+                : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border-transparent hover:border-glass-border'
             }`}
             title={isClickThrough ? 'Disable click-through' : 'Enable click-through mode'}
+            aria-label="Toggle click-through mode"
           >
             <MousePointer className="w-3.5 h-3.5" />
           </button>
@@ -236,8 +240,9 @@ export const OverlayView: React.FC = () => {
           {/* Close button */}
           <button
             onClick={handleCloseOverlay}
-            className="p-1 rounded text-muted-foreground hover:text-destructive-foreground hover:bg-destructive/90 transition-colors"
+            className="p-1 rounded-lg text-muted-foreground hover:text-white hover:bg-destructive/80 transition-colors"
             title="Close overlay"
+            aria-label="Close overlay"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -260,10 +265,11 @@ export const OverlayView: React.FC = () => {
         >
           {activeSegment ? (
             <div
-              className="inline-block px-5 py-2.5 rounded-xl shadow-2xl backdrop-blur-md transition-all text-center leading-relaxed border border-border/60"
+              className="inline-block px-6 py-3 rounded-2xl shadow-glass-elevated backdrop-blur-2xl transition-all text-center leading-relaxed border border-glass-border/80"
               style={{
                 backgroundColor: cardBgColor,
                 opacity: subtitleAppearance.backgroundOpacity ?? 0.88,
+                boxShadow: 'var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)',
               }}
             >
               {/* Original Speech Line */}
@@ -294,8 +300,8 @@ export const OverlayView: React.FC = () => {
                 )}
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-card/95 border border-border text-foreground shadow-2xl backdrop-blur-md text-xs select-none">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl glass-panel text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold text-foreground">EchoLingo Subtitle Overlay</span>
               <span className="text-muted-foreground text-[11px]">• Ready for speech</span>
             </div>
@@ -304,19 +310,20 @@ export const OverlayView: React.FC = () => {
       ) : (
         /* ================= Multi-Line History Mode ================= */
         <div
-          className={`w-full max-w-[94%] rounded-xl p-3 shadow-2xl transition-all duration-150 backdrop-blur-md space-y-1.5 border border-border/60 ${
+          className={`w-full max-w-[94%] rounded-2xl p-4 shadow-glass-elevated transition-all duration-150 backdrop-blur-2xl space-y-1.5 border border-glass-border/80 ${
             recentSegments.length > 0 || showControls ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             backgroundColor: cardBgColor,
             opacity: subtitleAppearance.backgroundOpacity ?? 0.88,
             textAlign: subtitleAppearance.textAlignment,
+            boxShadow: 'var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)',
           }}
         >
           {recentSegments.length === 0 ? (
             <div className="flex items-center justify-center gap-2 py-1 text-muted-foreground text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="font-medium text-foreground">EchoLingo History Mode</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="font-semibold text-foreground">EchoLingo History Mode</span>
               <span className="text-muted-foreground text-[11px]">• Waiting for speech...</span>
             </div>
           ) : (

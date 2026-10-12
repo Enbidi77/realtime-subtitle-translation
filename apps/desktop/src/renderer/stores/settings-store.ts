@@ -19,10 +19,10 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
       if (window.electronAPI?.settings) {
         const loaded = await window.electronAPI.settings.get();
         set({ settings: loaded, isLoading: false });
-        applyTheme(loaded.theme);
+        applyTheme(loaded.theme, loaded.glassIntensity);
       } else {
         set({ isLoading: false });
-        applyTheme(DEFAULT_APP_SETTINGS.theme);
+        applyTheme(DEFAULT_APP_SETTINGS.theme, DEFAULT_APP_SETTINGS.glassIntensity);
       }
     } catch (e) {
       console.error('Failed to load settings:', e);
@@ -33,8 +33,8 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   updateSettings: async (updates) => {
     const next = { ...get().settings, ...updates };
     set({ settings: next });
-    if (updates.theme) {
-      applyTheme(updates.theme);
+    if (updates.theme || updates.glassIntensity) {
+      applyTheme(next.theme, next.glassIntensity);
     }
     if (window.electronAPI?.settings) {
       try {
@@ -50,15 +50,18 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     if (window.electronAPI?.settings) {
       const reset = await window.electronAPI.settings.reset();
       set({ settings: reset });
-      applyTheme(reset.theme);
+      applyTheme(reset.theme, reset.glassIntensity);
     } else {
       set({ settings: DEFAULT_APP_SETTINGS });
-      applyTheme(DEFAULT_APP_SETTINGS.theme);
+      applyTheme(DEFAULT_APP_SETTINGS.theme, DEFAULT_APP_SETTINGS.glassIntensity);
     }
   },
 }));
 
-export function applyTheme(theme: 'system' | 'light' | 'dark') {
+export function applyTheme(
+  theme: 'system' | 'light' | 'dark',
+  glassIntensity: 'subtle' | 'balanced' | 'strong' = 'balanced'
+) {
   const root = document.documentElement;
   if (theme === 'dark') {
     root.classList.add('dark');
@@ -69,5 +72,9 @@ export function applyTheme(theme: 'system' | 'light' | 'dark') {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     if (prefersDark) root.classList.add('dark');
     else root.classList.remove('dark');
+  }
+
+  if (glassIntensity) {
+    root.setAttribute('data-glass-intensity', glassIntensity);
   }
 }

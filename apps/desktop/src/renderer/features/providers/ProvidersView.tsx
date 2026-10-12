@@ -2,6 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { TranslationCapability, SpeechModelStatus, GlossaryEntry } from '@echo-lingo/contracts';
 import { useI18n } from '@/app/i18n/index.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import { GlassCard } from '@/components/ui/GlassCard.js';
+import { GlassButton } from '@/components/ui/GlassButton.js';
+import { GlassInput } from '@/components/ui/GlassInput.js';
+import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { GlassModal } from '@/components/ui/GlassModal.js';
 import {
   Cpu,
   Globe,
@@ -11,9 +16,9 @@ import {
   Plus,
   Trash2,
   BookA,
-  X,
   Check,
   ExternalLink,
+  Sparkles,
 } from 'lucide-react';
 
 interface ConfigurableProvider {
@@ -181,7 +186,7 @@ export const ProvidersView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 space-y-6 max-w-5xl mx-auto">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-5xl mx-auto">
       <div>
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Cpu className="w-5 h-5 text-primary" />
@@ -201,34 +206,33 @@ export const ProvidersView: React.FC = () => {
 
         <div className="space-y-2.5">
           {speechEngines.map((eng) => (
-            <div
+            <GlassCard
               key={eng.id}
-              className="p-4 rounded-xl bg-card border border-border flex items-center justify-between gap-4"
+              variant="default"
+              className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center flex-wrap gap-2">
                   <span className="font-semibold text-xs text-foreground">{eng.name}</span>
-                  {speechEngine === eng.id ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-primary bg-primary/15 border border-primary/30 px-2 py-0.5 rounded-full">
+                  {speechEngine === eng.id && (
+                    <GlassBadge variant="accent" className="font-semibold">
                       <Check className="w-3 h-3" />
                       ACTIVE
-                    </span>
-                  ) : null}
+                    </GlassBadge>
+                  )}
                   {eng.isConfigured ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    <GlassBadge variant="success">
                       <CheckCircle2 className="w-3 h-3" />
                       {t('providers.configured')}
-                    </span>
+                    </GlassBadge>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                    <GlassBadge variant="warning">
                       <AlertCircle className="w-3 h-3" />
                       {t('providers.notConfigured')}
-                    </span>
+                    </GlassBadge>
                   )}
                   {eng.isLocal && (
-                    <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                      Local
-                    </span>
+                    <GlassBadge variant="neutral">Local</GlassBadge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{eng.description}</p>
@@ -236,12 +240,13 @@ export const ProvidersView: React.FC = () => {
 
               <div className="flex items-center gap-2 shrink-0">
                 {speechEngine !== eng.id && (eng.isConfigured || !eng.requiresApiKey) && (
-                  <button
+                  <GlassButton
+                    variant="glass"
+                    size="sm"
                     onClick={() => updateSettings({ speechEngine: eng.id as any })}
-                    className="px-2.5 py-1.5 rounded-lg border border-primary/40 text-primary hover:bg-primary/10 text-xs font-medium transition-colors"
                   >
                     Activate
-                  </button>
+                  </GlassButton>
                 )}
 
                 {eng.signupUrl && (
@@ -249,7 +254,7 @@ export const ProvidersView: React.FC = () => {
                     href={eng.signupUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border text-xs text-primary hover:bg-muted transition-colors"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-glass-border bg-glass-subtle text-xs text-primary hover:bg-glass hover:border-glass-border-elevated transition-colors"
                   >
                     <span>Get Key</span>
                     <ExternalLink className="w-3 h-3" />
@@ -257,19 +262,20 @@ export const ProvidersView: React.FC = () => {
                 )}
 
                 {eng.requiresApiKey && (
-                  <button
+                  <GlassButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       setEditingProvider(eng);
                       setApiKeyInput('');
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                    icon={<Key className="w-3.5 h-3.5" />}
                   >
-                    <Key className="w-3.5 h-3.5" />
                     <span>API Key</span>
-                  </button>
+                  </GlassButton>
                 )}
               </div>
-            </div>
+            </GlassCard>
           ))}
         </div>
       </div>
@@ -283,63 +289,64 @@ export const ProvidersView: React.FC = () => {
 
         <div className="space-y-2.5">
           {providers.map((p) => (
-            <div
+            <GlassCard
               key={p.id}
-              className="p-4 rounded-xl bg-card border border-border flex items-center justify-between gap-4"
+              variant="default"
+              className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
             >
               <div className="space-y-1">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center flex-wrap gap-2">
                   <span className="font-semibold text-xs text-foreground">{p.name}</span>
                   {p.isConfigured ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                    <GlassBadge variant="success">
                       <CheckCircle2 className="w-3 h-3" />
                       {t('providers.configured')}
-                    </span>
+                    </GlassBadge>
                   ) : (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-medium text-amber-500 bg-amber-500/10 px-2 py-0.5 rounded-full">
+                    <GlassBadge variant="warning">
                       <AlertCircle className="w-3 h-3" />
                       {t('providers.notConfigured')}
-                    </span>
+                    </GlassBadge>
                   )}
                   {p.isLocal && (
-                    <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                      Local
-                    </span>
+                    <GlassBadge variant="neutral">Local</GlassBadge>
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{p.description}</p>
               </div>
 
               <div className="flex items-center gap-2 shrink-0">
-                <button
+                <GlassButton
+                  variant="glass"
+                  size="sm"
                   onClick={() => handleTestConnection(p)}
                   disabled={isTesting || (!p.isConfigured && p.requiresApiKey)}
-                  className="px-2.5 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted transition-colors disabled:opacity-40"
                 >
                   {isTesting ? 'Testing...' : t('providers.testConnection')}
-                </button>
+                </GlassButton>
 
                 {p.requiresApiKey && (
-                  <button
+                  <GlassButton
+                    variant="primary"
+                    size="sm"
                     onClick={() => {
                       setEditingProvider(p);
                       setApiKeyInput('');
                     }}
-                    className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                    icon={<Key className="w-3.5 h-3.5" />}
                   >
-                    <Key className="w-3.5 h-3.5" />
                     <span>API Key</span>
-                  </button>
+                  </GlassButton>
                 )}
               </div>
-            </div>
+            </GlassCard>
           ))}
         </div>
 
         {testResult && (
-          <div className="p-3 rounded-lg bg-muted text-xs text-foreground font-mono">
+          <GlassCard variant="subtle" className="p-3 text-xs text-foreground font-mono">
             {testResult}
-          </div>
+          </GlassCard>
         )}
       </div>
 
@@ -350,24 +357,26 @@ export const ProvidersView: React.FC = () => {
             <BookA className="w-4 h-4 text-primary" />
             <span>{t('providers.glossary')}</span>
           </h2>
-          <button
+          <GlassButton
+            variant="glass"
+            size="sm"
             onClick={() => setShowAddGlossary(true)}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-muted hover:bg-muted/80 text-xs font-medium text-foreground transition-colors"
+            icon={<Plus className="w-3.5 h-3.5" />}
           >
-            <Plus className="w-3.5 h-3.5" />
             <span>{t('providers.addTerm')}</span>
-          </button>
+          </GlassButton>
         </div>
 
         {glossary.length === 0 ? (
-          <div className="p-6 text-center rounded-xl bg-card border border-border text-xs text-muted-foreground">
+          <GlassCard className="p-6 text-center text-xs text-muted-foreground">
             No custom terms defined. Add domain-specific terms or company names for consistent translations.
-          </div>
+          </GlassCard>
         ) : (
-          <div className="rounded-xl bg-card border border-border overflow-hidden divide-y divide-border">
+          <div className="space-y-1.5">
             {glossary.map((entry) => (
-              <div
+              <GlassCard
                 key={entry.id}
+                variant="default"
                 className="p-3 flex items-center justify-between text-xs"
               >
                 <div className="flex items-center gap-3">
@@ -375,154 +384,137 @@ export const ProvidersView: React.FC = () => {
                   <span className="text-muted-foreground">→</span>
                   <span className="font-medium text-primary">{entry.targetTerm}</span>
                   {entry.caseSensitive && (
-                    <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                    <GlassBadge variant="neutral" className="text-[10px]">
                       Case-sensitive
-                    </span>
+                    </GlassBadge>
                   )}
                 </div>
-                <button
+                <GlassButton
+                  variant="ghost"
+                  size="icon-sm"
                   onClick={() => handleDeleteGlossary(entry.id)}
-                  className="p-1 text-muted-foreground hover:text-destructive rounded transition-colors"
+                  title="Delete term"
+                  aria-label="Delete term"
+                  className="text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
+                </GlassButton>
+              </GlassCard>
             ))}
           </div>
         )}
       </div>
 
       {/* API Key Modal */}
-      {editingProvider && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">
-                Set API Key: {editingProvider.name}
-              </h3>
-              <button
-                onClick={() => setEditingProvider(null)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+      <GlassModal
+        isOpen={!!editingProvider}
+        onClose={() => setEditingProvider(null)}
+        title={`Configure ${editingProvider?.name}`}
+        description="Enter your API credentials. Encrypted safely in local system storage."
+        maxWidth="sm"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">API Key / Token</label>
+            <GlassInput
+              type="password"
+              placeholder="Paste your API key here..."
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              autoFocus
+            />
+          </div>
 
-            <div className="space-y-2 text-xs">
-              <p className="text-muted-foreground leading-relaxed">
-                Credentials are encrypted with your operating system keychain and never stored in plain text.
-              </p>
-              <input
-                type="password"
-                placeholder="Enter API key..."
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                className="w-full bg-background border border-border rounded-lg p-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono text-[11px]"
-              />
-              {editingProvider.signupUrl && (
-                <div className="pt-1">
-                  <a
-                    href={editingProvider.signupUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-primary hover:underline inline-flex items-center gap-1 font-medium text-[11px]"
-                  >
-                    <span>Get a free API key here</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              )}
-            </div>
+          {editingProvider?.signupUrl && (
+            <p className="text-[11px] text-muted-foreground">
+              Don't have a key?{' '}
+              <a
+                href={editingProvider.signupUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-primary hover:underline font-medium inline-flex items-center gap-0.5"
+              >
+                Get one here <ExternalLink className="w-2.5 h-2.5" />
+              </a>
+            </p>
+          )}
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
-              <button
-                onClick={() => setEditingProvider(null)}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSaveKey}
-                className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 shadow-sm"
-              >
-                Save Encrypted
-              </button>
-            </div>
+          <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
+            <GlassButton
+              variant="subtle"
+              size="sm"
+              onClick={() => setEditingProvider(null)}
+            >
+              Cancel
+            </GlassButton>
+            <GlassButton
+              variant="primary"
+              size="sm"
+              onClick={handleSaveKey}
+              disabled={!apiKeyInput.trim()}
+            >
+              Save Key
+            </GlassButton>
           </div>
         </div>
-      )}
+      </GlassModal>
 
       {/* Add Glossary Modal */}
-      {showAddGlossary && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-card border border-border p-5 space-y-4 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-foreground">
-                {t('providers.addTerm')}
-              </h3>
-              <button
-                onClick={() => setShowAddGlossary(false)}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+      <GlassModal
+        isOpen={showAddGlossary}
+        onClose={() => setShowAddGlossary(false)}
+        title="Add Custom Glossary Term"
+        description="Define preferred translations for product names, jargon, or brand terms."
+        maxWidth="sm"
+      >
+        <div className="space-y-4 text-xs">
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">Source Term (Original)</label>
+            <GlassInput
+              placeholder="e.g. EchoLingo, Kubernetes"
+              value={sourceTerm}
+              onChange={(e) => setSourceTerm(e.target.value)}
+            />
+          </div>
 
-            <div className="space-y-3 text-xs">
-              <div className="space-y-1">
-                <label className="text-muted-foreground font-medium">Source Term</label>
-                <input
-                  type="text"
-                  placeholder="e.g. EchoLingo"
-                  value={sourceTerm}
-                  onChange={(e) => setSourceTerm(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
-                />
-              </div>
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium">Target Term (Replacement)</label>
+            <GlassInput
+              placeholder="e.g. EchoLingo, Kubernetes"
+              value={targetTerm}
+              onChange={(e) => setTargetTerm(e.target.value)}
+            />
+          </div>
 
-              <div className="space-y-1">
-                <label className="text-muted-foreground font-medium">Target Replacement Term</label>
-                <input
-                  type="text"
-                  placeholder="e.g. EchoLingo App"
-                  value={targetTerm}
-                  onChange={(e) => setTargetTerm(e.target.value)}
-                  className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
-                />
-              </div>
+          <label className="flex items-center gap-2 pt-1 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={caseSensitive}
+              onChange={(e) => setCaseSensitive(e.target.checked)}
+              className="rounded accent-primary"
+            />
+            <span className="text-foreground">Case sensitive match</span>
+          </label>
 
-              <div className="flex items-center gap-2 pt-1">
-                <input
-                  type="checkbox"
-                  id="caseSens"
-                  checked={caseSensitive}
-                  onChange={(e) => setCaseSensitive(e.target.checked)}
-                  className="rounded text-primary"
-                />
-                <label htmlFor="caseSens" className="text-foreground">
-                  Match exact case
-                </label>
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2 border-t border-border">
-              <button
-                onClick={() => setShowAddGlossary(false)}
-                className="px-3 py-1.5 rounded-lg border border-border text-xs text-foreground hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleAddGlossary}
-                className="flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 shadow-sm"
-              >
-                <Check className="w-3.5 h-3.5" />
-                <span>Save</span>
-              </button>
-            </div>
+          <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
+            <GlassButton
+              variant="subtle"
+              size="sm"
+              onClick={() => setShowAddGlossary(false)}
+            >
+              Cancel
+            </GlassButton>
+            <GlassButton
+              variant="primary"
+              size="sm"
+              onClick={handleAddGlossary}
+              disabled={!sourceTerm.trim() || !targetTerm.trim()}
+            >
+              Add Term
+            </GlassButton>
           </div>
         </div>
-      )}
+      </GlassModal>
     </div>
   );
 };

@@ -3,6 +3,10 @@ import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
+import { GlassCard } from '@/components/ui/GlassCard.js';
+import { GlassButton } from '@/components/ui/GlassButton.js';
+import { GlassInput } from '@/components/ui/GlassInput.js';
+import { GlassBadge } from '@/components/ui/GlassBadge.js';
 import {
   Play,
   Pause,
@@ -13,6 +17,10 @@ import {
   Check,
   Zap,
   AlertTriangle,
+  Radio,
+  Mic,
+  Activity,
+  Sparkles,
 } from 'lucide-react';
 
 export const LiveSubtitlesView: React.FC = () => {
@@ -95,95 +103,98 @@ export const LiveSubtitlesView: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 h-full flex flex-col overflow-hidden bg-background">
-      {/* Top Toolbar */}
-      <div className="h-12 px-4 border-b border-border flex items-center justify-between gap-4 bg-card select-none">
-        {/* Playback Controls */}
+    <div className="flex-1 h-full flex flex-col overflow-hidden bg-transparent">
+      {/* Top Glass Toolbar */}
+      <header className="glass-toolbar h-13 px-4 flex items-center justify-between gap-3 select-none shrink-0 z-20">
+        {/* Playback Controls & Status */}
         <div className="flex items-center gap-2">
           {isListening && (
             <>
               {isPaused ? (
-                <button
+                <GlassButton
+                  variant="primary"
+                  size="sm"
                   onClick={resumeSession}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                  icon={<Play className="w-3.5 h-3.5 fill-current" />}
                 >
-                  <Play className="w-3.5 h-3.5 fill-current" />
-                  <span>{t('live.resume')}</span>
-                </button>
+                  {t('live.resume')}
+                </GlassButton>
               ) : (
-                <button
+                <GlassButton
+                  variant="glass"
+                  size="sm"
                   onClick={pauseSession}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-muted text-foreground hover:bg-muted/80 text-xs font-medium transition-colors"
+                  icon={<Pause className="w-3.5 h-3.5 fill-current" />}
                 >
-                  <Pause className="w-3.5 h-3.5 fill-current" />
-                  <span>{t('live.pause')}</span>
-                </button>
+                  {t('live.pause')}
+                </GlassButton>
               )}
 
-              <button
+              <GlassButton
+                variant="destructive"
+                size="sm"
                 onClick={stopSession}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-destructive/10 text-destructive hover:bg-destructive/20 text-xs font-medium transition-colors"
+                icon={<Square className="w-3.5 h-3.5 fill-current" />}
               >
-                <Square className="w-3.5 h-3.5 fill-current" />
-                <span>{t('live.stop')}</span>
-              </button>
+                {t('live.stop')}
+              </GlassButton>
             </>
           )}
 
           {/* Audio signal indicator */}
           {isListening && !isPaused && (
-            <div className="flex items-center gap-1 ml-2 px-2 py-1 rounded bg-muted/50 text-[11px] text-muted-foreground">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>RMS: {(audioRms * 100).toFixed(0)}%</span>
-            </div>
+            <GlassBadge variant="live" pulse className="ml-1 hidden sm:inline-flex">
+              RMS: {(audioRms * 100).toFixed(0)}%
+            </GlassBadge>
           )}
 
           {/* Active Engine Badge */}
           {isListening && (
-            <div className="flex items-center gap-1 ml-1 px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] text-primary font-medium">
-              <span>{speechEngine === 'groq-whisper' ? '⚡ Groq Whisper' : speechEngine}</span>
-            </div>
+            <GlassBadge variant="accent" className="hidden md:inline-flex font-mono text-[10px]">
+              {speechEngine === 'groq-whisper' ? '⚡ Groq Whisper' : speechEngine}
+            </GlassBadge>
           )}
         </div>
 
         {/* Search within session */}
-        <div className="flex-1 max-w-xs relative">
-          <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
+        <div className="flex-1 max-w-xs">
+          <GlassInput
             type="text"
             placeholder={t('live.searchPlaceholder')}
             value={searchFilter}
             onChange={(e) => setSearchFilter(e.target.value)}
-            className="w-full bg-background border border-border rounded-lg pl-8 pr-3 py-1 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+            onClear={() => setSearchFilter('')}
+            leftIcon={<Search className="w-3.5 h-3.5" />}
           />
         </div>
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
           {pipelineLatencyMs > 0 && (
-            <div className="flex items-center gap-1 text-[11px] text-muted-foreground px-2 py-1 rounded bg-muted/40">
-              <Zap className="w-3 h-3 text-emerald-500" />
+            <GlassBadge variant="neutral" className="hidden lg:inline-flex text-emerald-400 font-mono">
+              <Zap className="w-3 h-3 text-emerald-400" />
               <span>{pipelineLatencyMs}ms</span>
-            </div>
+            </GlassBadge>
           )}
 
-          <button
+          <GlassButton
+            variant="glass"
+            size="sm"
             onClick={handleCopyAll}
             disabled={segments.length === 0}
             title={t('live.copyTranscript')}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border hover:bg-muted text-xs text-foreground transition-colors disabled:opacity-40"
+            icon={copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
             <span className="hidden sm:inline">{t('live.copyTranscript')}</span>
-          </button>
+          </GlassButton>
 
           <button
             onClick={() => window.electronAPI?.overlay.toggle()}
             title={isOverlayOpen ? 'Hide Subtitle Overlay' : t('live.openOverlay')}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 border ${
               isOverlayOpen
-                ? 'bg-primary text-primary-foreground shadow-sm'
-                : 'bg-primary/10 text-primary hover:bg-primary/20'
+                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-semibold'
+                : 'bg-glass-subtle text-foreground hover:bg-glass border-glass-border hover:border-glass-border-elevated'
             }`}
           >
             <ExternalLink className="w-3.5 h-3.5" />
@@ -192,24 +203,31 @@ export const LiveSubtitlesView: React.FC = () => {
             </span>
           </button>
         </div>
-      </div>
+      </header>
 
       {/* Audio Error Alert Banner */}
       {audioError && (
-        <div className="mx-6 mt-4 p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-start justify-between gap-3 animate-fadeIn">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-destructive" />
-            <div>
-              <div className="text-xs font-semibold text-destructive">Audio Capture Notice</div>
-              <div className="text-xs mt-1 text-foreground/90 leading-relaxed">{audioError}</div>
-            </div>
-          </div>
-          <button
-            onClick={() => setAudioError(null)}
-            className="text-xs px-2.5 py-1 rounded bg-background/50 hover:bg-background border border-border text-foreground transition-colors flex-shrink-0"
+        <div className="mx-6 mt-4">
+          <GlassCard
+            variant="elevated"
+            className="p-4 bg-destructive/15 border-destructive/30 text-destructive flex items-start justify-between gap-3 animate-fade-in"
           >
-            Dismiss
-          </button>
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-destructive" />
+              <div>
+                <div className="text-xs font-semibold text-destructive">Audio Capture Notice</div>
+                <div className="text-xs mt-1 text-foreground/90 leading-relaxed">{audioError}</div>
+              </div>
+            </div>
+            <GlassButton
+              variant="glass"
+              size="xs"
+              onClick={() => setAudioError(null)}
+              className="shrink-0"
+            >
+              Dismiss
+            </GlassButton>
+          </GlassCard>
         </div>
       )}
 
@@ -217,61 +235,66 @@ export const LiveSubtitlesView: React.FC = () => {
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-6 space-y-4"
+        className="flex-1 overflow-y-auto p-6 space-y-3.5"
       >
+        {/* Empty State */}
         {filteredSegments.length === 0 && !activePartial && (
-          <div className="h-full flex flex-col items-center justify-center text-center p-8 text-muted-foreground space-y-4 max-w-md mx-auto">
-            <div className="w-14 h-14 rounded-2xl bg-card border border-border flex items-center justify-center shadow-sm">
-              <span className="text-2xl">{audioSourceType === 'system' ? '🔊' : '🎙️'}</span>
-            </div>
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-foreground">{t('live.emptyState')}</div>
+          <div className="h-full flex flex-col items-center justify-center text-center p-8 space-y-4 max-w-md mx-auto">
+            <GlassCard variant="elevated" className="w-16 h-16 rounded-3xl flex items-center justify-center shadow-lg border-white/25">
+              <span className="text-3xl">{audioSourceType === 'system' ? '🔊' : '🎙️'}</span>
+            </GlassCard>
+
+            <div className="space-y-1.5">
+              <div className="text-base font-semibold text-foreground tracking-tight">
+                {t('live.emptyState')}
+              </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isListening
                   ? audioSourceType === 'system'
-                    ? 'Listening to system audio. Play your YouTube video or meeting to see live subtitles and translations.'
-                    : 'Listening to microphone. Speak into your mic, or switch to System Audio if you are playing video or media.'
+                    ? 'Listening to system audio. Play your YouTube video, call, or media to see live subtitles and translations.'
+                    : 'Listening to microphone. Speak clearly into your mic, or switch to System Audio in Dashboard if watching video.'
                   : 'Start listening to begin real-time speech recognition and subtitle translation.'}
               </p>
             </div>
 
             {isListening && audioSourceType === 'microphone' && (
-              <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 text-xs text-left space-y-1.5 w-full">
+              <GlassCard variant="subtle" className="p-3.5 text-xs text-left space-y-1.5 w-full">
                 <div className="font-semibold text-primary flex items-center gap-1.5">
-                  <span>💡 Watching a YouTube video or meeting?</span>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Watching a YouTube video or meeting?</span>
                 </div>
                 <p className="text-muted-foreground text-[11px] leading-relaxed">
-                  Microphone captures your room's voice. To capture YouTube sound cleanly without background noise, choose <strong>System Audio</strong> in the Dashboard.
+                  Microphone captures ambient room acoustics. For pristine direct audio without room echo, select <strong>System Audio</strong> on the Dashboard.
                 </p>
-              </div>
+              </GlassCard>
             )}
           </div>
         )}
 
-        {/* Finalized Segments */}
+        {/* Finalized Segments List */}
         {filteredSegments.map((segment) => {
-          const transText =
-            Object.values(segment.translations)[0] || '';
+          const transText = Object.values(segment.translations)[0] || '';
 
           return (
-            <div
+            <GlassCard
               key={segment.id}
-              className="p-4 rounded-xl bg-card border border-border/70 hover:border-border transition-all shadow-sm space-y-1.5 group"
+              variant="default"
+              className="p-4 space-y-2 group transition-all duration-150 hover:border-glass-border-elevated"
             >
-              {/* Header: timestamp and language badges */}
+              {/* Header: timestamp and speech provider */}
               <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                <span className="font-mono">
-                  [{formatDisplayTime(segment.startTime)} - {formatDisplayTime(segment.endTime)}]
+                <span className="font-mono px-2 py-0.5 rounded-md bg-glass-subtle border border-glass-border/40 text-[10px]">
+                  {formatDisplayTime(segment.startTime)} - {formatDisplayTime(segment.endTime)}
                 </span>
-                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                <span className="opacity-0 group-hover:opacity-100 transition-opacity text-[10px] text-muted-foreground/75 font-mono">
                   {segment.speechProvider}
                 </span>
               </div>
 
-              {/* Subtitle Text Content */}
+              {/* Subtitle Content (Source Text) */}
               {subtitleAppearance.displayMode !== 'translation-only' && (
                 <div
-                  className="text-foreground leading-relaxed"
+                  className="text-foreground font-normal leading-relaxed selection:bg-primary/20"
                   style={{
                     fontSize: `${Math.max(14, subtitleAppearance.fontSize * 0.7)}px`,
                     textAlign: subtitleAppearance.textAlignment,
@@ -281,29 +304,35 @@ export const LiveSubtitlesView: React.FC = () => {
                 </div>
               )}
 
+              {/* Subtitle Content (Translated Text) */}
               {subtitleAppearance.displayMode !== 'original-only' && transText && (
                 <div
-                  className="text-primary font-medium leading-relaxed"
+                  className="font-semibold leading-relaxed selection:bg-primary/20"
                   style={{
-                    fontSize: `${Math.max(14, subtitleAppearance.fontSize * 0.75)}px`,
+                    fontSize: `${Math.max(15, subtitleAppearance.fontSize * 0.78)}px`,
                     textAlign: subtitleAppearance.textAlignment,
+                    color: subtitleAppearance.translatedTextColor || undefined,
                   }}
                 >
                   {transText}
                 </div>
               )}
-            </div>
+            </GlassCard>
           );
         })}
 
-        {/* Live Active Partial Stream */}
+        {/* Live Active Interim Stream */}
         {activePartial && (
-          <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-1.5 animate-pulse">
-            <div className="text-[11px] text-primary/75 font-mono">
-              [Live Partial • {formatDisplayTime(activePartial.startTime)}]
+          <GlassCard
+            variant="elevated"
+            className="p-4 space-y-2 border-primary/30 shadow-glass-glow animate-pulse-subtle"
+          >
+            <div className="flex items-center gap-2 text-[10px] font-mono text-primary">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
+              <span>[Live Speech Stream • {formatDisplayTime(activePartial.startTime)}]</span>
             </div>
             <div
-              className="text-foreground/90 italic"
+              className="text-foreground/90 italic leading-relaxed"
               style={{
                 fontSize: `${Math.max(14, subtitleAppearance.fontSize * 0.7)}px`,
                 textAlign: subtitleAppearance.textAlignment,
@@ -311,7 +340,7 @@ export const LiveSubtitlesView: React.FC = () => {
             >
               {activePartial.originalText}
             </div>
-          </div>
+          </GlassCard>
         )}
       </div>
     </div>

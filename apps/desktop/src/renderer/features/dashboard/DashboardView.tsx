@@ -5,6 +5,10 @@ import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from '@echo-lingo/config';
 import { SessionMetadata } from '@echo-lingo/contracts';
+import { GlassCard } from '@/components/ui/GlassCard.js';
+import { GlassButton } from '@/components/ui/GlassButton.js';
+import { GlassSelect } from '@/components/ui/GlassSelect.js';
+import { GlassBadge } from '@/components/ui/GlassBadge.js';
 import {
   Mic,
   Square,
@@ -16,6 +20,9 @@ import {
   Sparkles,
   AlertTriangle,
   Cpu,
+  Activity,
+  CheckCircle2,
+  Headphones,
 } from 'lucide-react';
 
 export const DashboardView: React.FC = () => {
@@ -59,10 +66,39 @@ export const DashboardView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 space-y-6 max-w-6xl mx-auto">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-6xl mx-auto">
+      {/* Header Greeting & Live Status */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
+            <span>Welcome to EchoLingo</span>
+            <span className="text-xl">✨</span>
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            Real-time speech recognition, live subtitling, and AI translation pipeline.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {isListening ? (
+            <GlassBadge variant="live" pulse>
+              Live Session Active
+            </GlassBadge>
+          ) : (
+            <GlassBadge variant="neutral">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary/70 mr-1" />
+              Pipeline Standby
+            </GlassBadge>
+          )}
+        </div>
+      </div>
+
       {/* Audio Error Alert Banner */}
       {audioError && (
-        <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive flex items-start justify-between gap-3 animate-fadeIn">
+        <GlassCard
+          variant="elevated"
+          className="p-4 bg-destructive/15 border-destructive/30 text-destructive flex items-start justify-between gap-4 animate-fade-in"
+        >
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-destructive" />
             <div>
@@ -70,39 +106,47 @@ export const DashboardView: React.FC = () => {
               <div className="text-xs mt-1 text-foreground/90 leading-relaxed">{audioError}</div>
             </div>
           </div>
-          <button
+          <GlassButton
+            size="xs"
+            variant="glass"
             onClick={() => setAudioError(null)}
-            className="text-xs px-2.5 py-1 rounded bg-background/50 hover:bg-background border border-border text-foreground transition-colors flex-shrink-0"
+            className="flex-shrink-0"
           >
             Dismiss
-          </button>
-        </div>
+          </GlassButton>
+        </GlassCard>
       )}
 
-      {/* Hero Action Card */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-card via-card to-primary/5 border border-border p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary border border-primary/20">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Real-Time Intelligence</span>
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">
+      {/* Hero Action Card (Lumina reference inspired) */}
+      <GlassCard
+        variant="elevated"
+        className="relative overflow-hidden p-6 md:p-8 space-y-6 border-white/20 dark:border-white/10"
+      >
+        {/* Subtle accent light wash in hero corner */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-primary/15 via-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
+
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+          <div className="space-y-2.5 max-w-xl">
+            <GlassBadge variant="accent" className="font-semibold">
+              <Sparkles className="w-3.5 h-3.5 mr-1" />
+              Real-Time Intelligence
+            </GlassBadge>
+            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
               {t('dashboard.heroTitle')}
-            </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            </h2>
+            <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
               {t('dashboard.heroSubtitle')}
             </p>
           </div>
 
           {/* Primary Action Button */}
-          <div>
+          <div className="shrink-0">
             <button
               onClick={handleToggleListening}
-              className={`flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-xl font-semibold text-sm shadow-md transition-all active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-3 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
                 isListening
-                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-destructive/20'
-                  : 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-primary/25'
+                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/25 border border-destructive/40'
+                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-primary text-white hover:brightness-110 shadow-lg shadow-indigo-500/30 border border-white/25'
               }`}
             >
               {isListening ? (
@@ -121,187 +165,266 @@ export const DashboardView: React.FC = () => {
         </div>
 
         {/* Configuration Quick Selectors */}
-        <div className="mt-6 pt-5 border-t border-border/60 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+        <div className="pt-6 border-t border-glass-border/60 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs relative z-10">
           {/* Audio Source */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-foreground/90 font-semibold">
                 <Radio className="w-3.5 h-3.5 text-primary" />
                 {t('dashboard.audioSource')}
               </span>
             </label>
-            <select
+            <GlassSelect
               value={settings.audioSourceType}
               onChange={(e) => updateSettings({ audioSourceType: e.target.value as any })}
               disabled={isListening}
-              className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
-              <option value="system">🔊 System Audio (YouTube, Meetings, PC)</option>
-              <option value="microphone">🎙️ Microphone (Your Voice)</option>
-            </select>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+              <option value="system">🔊 System Audio (YouTube, PC)</option>
+              <option value="microphone">🎙️ Microphone (Voice)</option>
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80 leading-tight">
               {settings.audioSourceType === 'system'
-                ? '⚡ Captures YouTube, meetings & browser video directly.'
-                : '🎙️ Captures physical microphone. For YouTube, choose System Audio.'}
+                ? '⚡ Captures YouTube, meetings & PC audio directly.'
+                : '🎙️ Physical mic. For YouTube, choose System Audio.'}
             </p>
           </div>
 
           {/* Speech Engine */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1.5 text-foreground/90 font-semibold">
                 <Cpu className="w-3.5 h-3.5 text-primary" />
                 Speech Engine
               </span>
               <button
                 type="button"
                 onClick={() => setActivePage('providers')}
-                className="text-[10px] text-primary hover:underline"
+                className="text-[10px] text-primary hover:underline font-medium"
               >
                 Keys
               </button>
             </label>
-            <select
+            <GlassSelect
               value={settings.speechEngine}
               onChange={(e) => updateSettings({ speechEngine: e.target.value as any })}
               disabled={isListening}
-              className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
-              <option value="windows-speech">Windows System Speech (Built-in Offline SAPI)</option>
-              <option value="groq-whisper">Groq Whisper (Free & Ultra-Fast Cloud)</option>
+              <option value="windows-speech">Windows System Speech (Built-in SAPI)</option>
+              <option value="groq-whisper">Groq Whisper (Free & Fast)</option>
               <option value="openai-whisper">OpenAI Whisper (Cloud)</option>
-              <option value="mock">Mock Engine (Instant Demo / Testing)</option>
+              <option value="mock">Mock Engine (Instant Demo)</option>
               <option value="whisper-local">Whisper Local (Offline)</option>
-            </select>
-            <p className="text-[10px] text-muted-foreground leading-tight">
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80 leading-tight">
               {settings.speechEngine === 'windows-speech'
-                ? '💻 Native Windows built-in SAPI recognition. 100% offline, zero setup.'
+                ? '💻 Native Windows SAPI. 100% offline, zero setup.'
                 : settings.speechEngine === 'groq-whisper'
-                ? '⚡ Ultra-fast Whisper Large. Free API key in Providers.'
+                ? '⚡ Ultra-fast Whisper Large cloud. Free key.'
                 : settings.speechEngine === 'mock'
-                ? '🧪 Generates live sample subtitles on audio for testing.'
+                ? '🧪 Simulates subtitles on sound energy.'
                 : settings.speechEngine === 'openai-whisper'
-                ? 'OpenAI whisper-1 model. Configure key in Providers.'
-                : 'Offline Whisper engine.'}
+                ? 'OpenAI whisper-1 model.'
+                : 'Offline Whisper inference.'}
             </p>
           </div>
 
           {/* Source Language */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5 text-foreground/90 font-semibold">
               <Globe className="w-3.5 h-3.5 text-primary" />
               {t('dashboard.sourceLanguage')}
             </label>
-            <select
+            <GlassSelect
               value={settings.sourceLanguage}
               onChange={(e) => updateSettings({ sourceLanguage: e.target.value })}
               disabled={isListening}
-              className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
                   {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ''}
                 </option>
               ))}
-            </select>
-            <p className="text-[10px] text-muted-foreground">Original language of the speaker.</p>
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">Spoken language of the audio.</p>
           </div>
 
           {/* Target Language */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5 text-foreground/90 font-semibold">
               <Globe className="w-3.5 h-3.5 text-primary" />
               {t('dashboard.targetLanguage')}
             </label>
-            <select
+            <GlassSelect
               value={settings.targetLanguages[0] || 'vi'}
               onChange={(e) => updateSettings({ targetLanguages: [e.target.value] })}
               disabled={isListening}
-              className="w-full bg-background border border-border rounded-lg px-2.5 py-1.5 text-foreground focus:outline-none focus:ring-1 focus:ring-primary font-medium"
             >
               {TARGET_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
                   {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ''}
                 </option>
               ))}
-            </select>
-            <p className="text-[10px] text-muted-foreground">Language translated in real time.</p>
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">Real-time translated subtitle.</p>
           </div>
         </div>
+      </GlassCard>
+
+      {/* Metrics & System Health (Lumina 4-card metric row) */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {/* Metric 1: Total Sessions */}
+        <GlassCard className="p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-indigo-500/15 border border-indigo-500/25 flex items-center justify-center text-indigo-400 shrink-0">
+            <Layers className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <div className="text-[11px] font-medium text-muted-foreground">
+              {t('dashboard.totalSessions')}
+            </div>
+            <div className="text-xl font-bold tracking-tight text-foreground">
+              {recentSessions.length}
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Metric 2: Total Minutes */}
+        <GlassCard className="p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-sky-500/15 border border-sky-500/25 flex items-center justify-center text-sky-400 shrink-0">
+            <Clock className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <div className="text-[11px] font-medium text-muted-foreground">
+              {t('dashboard.totalMinutes')}
+            </div>
+            <div className="text-xl font-bold tracking-tight text-foreground">
+              {totalMinutes}m
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Metric 3: Active Engine */}
+        <GlassCard className="p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center text-emerald-400 shrink-0">
+            <Cpu className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <div className="text-[11px] font-medium text-muted-foreground">
+              {t('dashboard.activeEngine')}
+            </div>
+            <div className="text-xs font-semibold text-foreground truncate mt-1">
+              {settings.speechEngine}
+            </div>
+          </div>
+        </GlassCard>
+
+        {/* Metric 4: Active Translator */}
+        <GlassCard className="p-4 flex items-center gap-3.5">
+          <div className="w-10 h-10 rounded-2xl bg-purple-500/15 border border-purple-500/25 flex items-center justify-center text-purple-400 shrink-0">
+            <Globe className="w-5 h-5" />
+          </div>
+          <div className="overflow-hidden">
+            <div className="text-[11px] font-medium text-muted-foreground">
+              {t('dashboard.activeTranslator')}
+            </div>
+            <div className="text-xs font-semibold text-foreground truncate mt-1">
+              {settings.translationProvider}
+            </div>
+          </div>
+        </GlassCard>
       </div>
 
-      {/* Metrics & System Health */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <div className="p-4 rounded-xl bg-card border border-border">
-          <div className="text-xs text-muted-foreground mb-1">{t('dashboard.totalSessions')}</div>
-          <div className="text-2xl font-bold text-foreground">{recentSessions.length}</div>
+      {/* System Status Indicators (Lumina bottom bar inspired) */}
+      <GlassCard variant="subtle" className="px-5 py-3 flex flex-wrap items-center justify-between gap-4 text-xs">
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-muted-foreground">Speech Engine:</span>
+            <span className="font-semibold text-foreground">{settings.speechEngine}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-muted-foreground">Database:</span>
+            <span className="font-semibold text-foreground">Operational</span>
+          </div>
+
+          <div className="flex items-center gap-2 hidden md:flex">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="text-muted-foreground">Audio Driver:</span>
+            <span className="font-semibold text-foreground">{settings.audioSourceType}</span>
+          </div>
         </div>
-        <div className="p-4 rounded-xl bg-card border border-border">
-          <div className="text-xs text-muted-foreground mb-1">{t('dashboard.totalMinutes')}</div>
-          <div className="text-2xl font-bold text-foreground">{totalMinutes}m</div>
+
+        <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Local Whisper Ready</span>
         </div>
-        <div className="p-4 rounded-xl bg-card border border-border">
-          <div className="text-xs text-muted-foreground mb-1">{t('dashboard.activeEngine')}</div>
-          <div className="text-sm font-semibold text-foreground truncate">{settings.speechEngine}</div>
-        </div>
-        <div className="p-4 rounded-xl bg-card border border-border">
-          <div className="text-xs text-muted-foreground mb-1">{t('dashboard.activeTranslator')}</div>
-          <div className="text-sm font-semibold text-foreground truncate">{settings.translationProvider}</div>
-        </div>
-      </div>
+      </GlassCard>
 
       {/* Recent Sessions */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground">
-            {t('dashboard.recentSessions')}
+          <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
+            <Layers className="w-4 h-4 text-primary" />
+            <span>{t('dashboard.recentSessions')}</span>
           </h2>
-          <button
+          <GlassButton
+            variant="ghost"
+            size="sm"
             onClick={() => setActivePage('sessions')}
-            className="text-xs font-medium text-primary hover:underline flex items-center gap-1"
+            className="text-xs font-medium text-primary hover:text-primary gap-1"
           >
             <span>View all</span>
             <ArrowRight className="w-3.5 h-3.5" />
-          </button>
+          </GlassButton>
         </div>
 
         {recentSessions.length === 0 ? (
-          <div className="p-8 text-center rounded-xl bg-card border border-border/80 text-muted-foreground text-sm">
-            {t('dashboard.noSessions')}
-          </div>
+          <GlassCard className="p-8 text-center text-muted-foreground text-sm space-y-2">
+            <Headphones className="w-8 h-8 mx-auto opacity-40 text-primary" />
+            <div className="font-medium text-foreground">{t('dashboard.noSessions')}</div>
+            <p className="text-xs text-muted-foreground/80 max-w-sm mx-auto">
+              Start listening to capture live audio and transcribe subtitles in real-time.
+            </p>
+          </GlassCard>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {recentSessions.map((session) => (
-              <div
+              <GlassCard
                 key={session.id}
+                variant="interactive"
                 onClick={() => {
                   useSessionStore.getState().loadSession(session.id);
                   setActivePage('live-subtitles');
                 }}
-                className="flex items-center justify-between p-3.5 rounded-xl bg-card hover:bg-muted/50 border border-border/70 transition-all cursor-pointer"
+                className="flex items-center justify-between p-4"
               >
-                <div className="space-y-0.5">
-                  <div className="font-medium text-xs text-foreground">{session.title}</div>
-                  <div className="text-[11px] text-muted-foreground flex items-center gap-2">
+                <div className="space-y-1 overflow-hidden">
+                  <div className="font-medium text-xs text-foreground truncate">
+                    {session.title}
+                  </div>
+                  <div className="text-[11px] text-muted-foreground flex items-center gap-2.5">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                      <Clock className="w-3 h-3 text-muted-foreground/80" />
                       {Math.floor(session.durationSeconds / 60)}m {session.durationSeconds % 60}s
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
-                      <Layers className="w-3 h-3" />
+                      <Layers className="w-3 h-3 text-muted-foreground/80" />
                       {session.segmentCount} segments
                     </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <span className="px-2 py-0.5 rounded bg-muted text-[11px]">
+                <div className="flex items-center gap-3 shrink-0">
+                  <span className="px-2.5 py-1 rounded-lg bg-glass-subtle border border-glass-border text-[11px] font-mono text-muted-foreground">
                     {session.sourceLanguage} → {session.targetLanguages.join(', ')}
                   </span>
-                  <ArrowRight className="w-4 h-4" />
+                  <div className="w-7 h-7 rounded-lg bg-glass-subtle border border-glass-border flex items-center justify-center text-muted-foreground">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
                 </div>
-              </div>
+              </GlassCard>
             ))}
           </div>
         )}

@@ -13,6 +13,8 @@ import { useSettingsStore } from '@/stores/settings-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useAudioCapture } from '@/hooks/useAudioCapture.js';
 
+import { AmbientBackground } from '@/components/ui/AmbientBackground.js';
+
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
@@ -64,22 +66,25 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground select-none">
-      {/* 1. Custom Frameless TitleBar */}
+    <div className="h-screen w-screen flex flex-col overflow-hidden bg-background text-foreground select-none relative">
+      {/* Ambient background lighting */}
+      <AmbientBackground />
+
+      {/* 1. Custom Frameless Glass TitleBar */}
       <TitleBar />
 
       {/* 2. Workspace Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Navigation Sidebar */}
+      <div className="flex-1 flex overflow-hidden relative z-10">
+        {/* Left Navigation Glass Sidebar */}
         <Sidebar />
 
         {/* Center Main Workspace */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-background">
+        <main className="flex-1 flex flex-col overflow-hidden relative z-10 bg-transparent">
           {renderActivePage()}
         </main>
       </div>
 
-      {/* 3. Bottom Status Bar */}
+      {/* 3. Bottom Glass Status Bar */}
       <StatusBar />
     </div>
   );

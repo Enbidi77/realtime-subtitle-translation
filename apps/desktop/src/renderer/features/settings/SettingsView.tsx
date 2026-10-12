@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useI18n } from '@/app/i18n/index.js';
+import { GlassCard } from '@/components/ui/GlassCard.js';
+import { GlassButton } from '@/components/ui/GlassButton.js';
+import { GlassSelect } from '@/components/ui/GlassSelect.js';
+import { GlassBadge } from '@/components/ui/GlassBadge.js';
 import {
   Settings,
   Palette,
@@ -11,6 +15,8 @@ import {
   Shield,
   RotateCcw,
   Check,
+  Sparkles,
+  Sliders,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -31,7 +37,7 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 space-y-6 max-w-4xl mx-auto">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-4xl mx-auto bg-transparent">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -44,77 +50,95 @@ export const SettingsView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {savedBanner && (
-            <span className="flex items-center gap-1 text-xs text-emerald-500 font-medium animate-fadeIn">
+            <GlassBadge variant="success" className="animate-fade-in font-medium">
               <Check className="w-3.5 h-3.5" />
               <span>Saved</span>
-            </span>
+            </GlassBadge>
           )}
-          <button
+          <GlassButton
+            variant="glass"
+            size="sm"
             onClick={handleReset}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            icon={<RotateCcw className="w-3.5 h-3.5" />}
           >
-            <RotateCcw className="w-3.5 h-3.5" />
             <span>{t('settings.reset')}</span>
-          </button>
+          </GlassButton>
         </div>
       </div>
 
-      {/* 1. Appearance & Language */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4">
+      {/* 1. Appearance & Theme */}
+      <GlassCard variant="default" className="p-6 space-y-5">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Palette className="w-4 h-4 text-primary" />
           <span>{t('settings.appearance')}</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           {/* Theme */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium">{t('settings.theme')}</label>
-            <select
+            <GlassSelect
               value={settings.theme}
               onChange={(e) => {
                 updateSettings({ theme: e.target.value as any });
                 showSaved();
               }}
-              className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
             >
               <option value="dark">{t('settings.themeDark')}</option>
               <option value="light">{t('settings.themeLight')}</option>
               <option value="system">Follow System</option>
-            </select>
+            </GlassSelect>
+          </div>
+
+          {/* Glass Intensity */}
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-primary" />
+              <span>Glass Intensity</span>
+            </label>
+            <GlassSelect
+              value={settings.glassIntensity || 'balanced'}
+              onChange={(e) => {
+                updateSettings({ glassIntensity: e.target.value as any });
+                showSaved();
+              }}
+            >
+              <option value="subtle">Subtle (Softer Blur & High Contrast)</option>
+              <option value="balanced">Balanced (Recommended Default)</option>
+              <option value="strong">Strong (Vibrant Refraction & Deep Blur)</option>
+            </GlassSelect>
           </div>
 
           {/* UI Language */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium">{t('settings.language')}</label>
-            <select
+            <GlassSelect
               value={settings.locale}
               onChange={(e) => {
                 updateSettings({ locale: e.target.value as any });
                 showSaved();
               }}
-              className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
             >
               <option value="en">English</option>
               <option value="vi">Tiếng Việt (Vietnamese)</option>
-            </select>
+            </GlassSelect>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* 2. Subtitle Appearance & Live Interactive Preview */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4">
+      <GlassCard variant="default" className="p-6 space-y-5">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Captions className="w-4 h-4 text-primary" />
           <span>{t('settings.subtitleStyle')}</span>
         </h2>
 
         {/* Live Subtitle Preview Box */}
-        <div className="p-6 rounded-xl border border-dashed border-border flex items-center justify-center bg-black/20">
+        <div className="p-6 rounded-2xl border border-dashed border-glass-border flex items-center justify-center bg-black/25 backdrop-blur-md">
           <div
-            className="p-4 rounded-xl shadow-lg transition-all duration-150 max-w-lg w-full"
+            className="p-5 rounded-2xl shadow-xl transition-all duration-150 max-w-lg w-full border border-white/20"
             style={{
               backgroundColor: settings.subtitleAppearance.backgroundColor,
               opacity: settings.subtitleAppearance.backgroundOpacity,
@@ -127,7 +151,7 @@ export const SettingsView: React.FC = () => {
                   fontSize: `${settings.subtitleAppearance.fontSize * 0.7}px`,
                   color: settings.subtitleAppearance.textColor,
                 }}
-                className="font-medium"
+                className="font-medium leading-relaxed"
               >
                 Welcome to EchoLingo real-time translation.
               </div>
@@ -138,7 +162,7 @@ export const SettingsView: React.FC = () => {
                   fontSize: `${settings.subtitleAppearance.fontSize * 0.75}px`,
                   color: settings.subtitleAppearance.translatedTextColor,
                 }}
-                className="font-semibold mt-1"
+                className="font-semibold mt-1 leading-relaxed"
               >
                 Chào mừng bạn đến với bản dịch thời gian thực EchoLingo.
               </div>
@@ -147,9 +171,9 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* Customization Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs pt-2">
           {/* Font size */}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex justify-between">
               <label className="text-muted-foreground font-medium">{t('settings.fontSize')}</label>
               <span className="font-mono text-muted-foreground">{settings.subtitleAppearance.fontSize}px</span>
@@ -174,7 +198,7 @@ export const SettingsView: React.FC = () => {
           </div>
 
           {/* Background Opacity */}
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex justify-between">
               <label className="text-muted-foreground font-medium">{t('settings.backgroundOpacity')}</label>
               <span className="font-mono text-muted-foreground">
@@ -203,7 +227,7 @@ export const SettingsView: React.FC = () => {
           {/* Text Alignment */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium">{t('settings.textAlignment')}</label>
-            <select
+            <GlassSelect
               value={settings.subtitleAppearance.textAlignment}
               onChange={(e) => {
                 updateSettings({
@@ -214,18 +238,17 @@ export const SettingsView: React.FC = () => {
                 });
                 showSaved();
               }}
-              className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
             >
               <option value="center">Center</option>
               <option value="left">Left</option>
               <option value="right">Right</option>
-            </select>
+            </GlassSelect>
           </div>
 
           {/* Display Mode */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium">{t('settings.displayMode')}</label>
-            <select
+            <GlassSelect
               value={settings.subtitleAppearance.displayMode}
               onChange={(e) => {
                 updateSettings({
@@ -236,25 +259,24 @@ export const SettingsView: React.FC = () => {
                 });
                 showSaved();
               }}
-              className="w-full bg-background border border-border rounded-lg p-2 text-foreground"
             >
               <option value="both">{t('settings.bothText')}</option>
               <option value="translation-only">{t('settings.transOnly')}</option>
               <option value="original-only">{t('settings.origOnly')}</option>
-            </select>
+            </GlassSelect>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* 3. Floating Overlay Settings */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4">
+      <GlassCard variant="default" className="p-6 space-y-4">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Layers className="w-4 h-4 text-primary" />
           <span>{t('settings.overlay')}</span>
         </h2>
 
-        <div className="space-y-3 text-xs">
-          <div className="flex items-center justify-between">
+        <div className="space-y-3.5 text-xs">
+          <label className="flex items-center justify-between cursor-pointer">
             <div>
               <div className="font-medium text-foreground">{t('settings.alwaysOnTop')}</div>
               <div className="text-[11px] text-muted-foreground">Keep subtitle overlay floating over other windows</div>
@@ -273,9 +295,9 @@ export const SettingsView: React.FC = () => {
               }}
               className="rounded accent-primary w-4 h-4"
             />
-          </div>
+          </label>
 
-          <div className="flex items-center justify-between pt-2 border-t border-border">
+          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
             <div>
               <div className="font-medium text-foreground">{t('settings.clickThrough')}</div>
               <div className="text-[11px] text-muted-foreground">Clicks pass through directly to background windows</div>
@@ -295,42 +317,43 @@ export const SettingsView: React.FC = () => {
               }}
               className="rounded accent-primary w-4 h-4"
             />
-          </div>
+          </label>
 
-          <div className="flex items-center justify-between pt-2 border-t border-border">
+          <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">Overlay Subtitle Style</div>
               <div className="text-[11px] text-muted-foreground">Choose between YouTube-style single caption or multi-line transcript</div>
             </div>
-            <select
-              value={settings.overlaySettings.captionMode || 'youtube'}
-              onChange={(e) => {
-                updateSettings({
-                  overlaySettings: {
-                    ...settings.overlaySettings,
-                    captionMode: e.target.value as any,
-                  },
-                });
-                showSaved();
-              }}
-              className="bg-background border border-border rounded-lg p-1.5 text-xs text-foreground"
-            >
-              <option value="youtube">YouTube CC (Active sentence with auto-fade)</option>
-              <option value="history">Multi-Line History (Stacked lines)</option>
-            </select>
+            <div className="w-56">
+              <GlassSelect
+                value={settings.overlaySettings.captionMode || 'youtube'}
+                onChange={(e) => {
+                  updateSettings({
+                    overlaySettings: {
+                      ...settings.overlaySettings,
+                      captionMode: e.target.value as any,
+                    },
+                  });
+                  showSaved();
+                }}
+              >
+                <option value="youtube">YouTube CC (Active auto-fade)</option>
+                <option value="history">Multi-Line History (Stacked)</option>
+              </GlassSelect>
+            </div>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* 4. Audio Input & Sensitivity */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4">
+      <GlassCard variant="default" className="p-6 space-y-4">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Mic className="w-4 h-4 text-primary" />
-          <span>Audio Processing</span>
+          <span>Audio Processing & VAD</span>
         </h2>
 
         <div className="space-y-3 text-xs">
-          <div className="space-y-1.5">
+          <div className="space-y-2">
             <div className="flex justify-between">
               <label className="text-muted-foreground font-medium">Voice Activity Threshold (VAD Sensitivity)</label>
               <span className="font-mono text-muted-foreground">{settings.vadSensitivity.toFixed(3)}</span>
@@ -347,15 +370,15 @@ export const SettingsView: React.FC = () => {
               }}
               className="w-full accent-primary"
             />
-            <p className="text-[11px] text-muted-foreground">
-              0.008 is recommended for system audio & YouTube videos. Lower values detect quiet dialogue; higher values filter loud room noise.
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              0.008 is recommended for system audio & YouTube videos. Lower values detect quiet speech; higher values filter background noise.
             </p>
           </div>
         </div>
-      </div>
+      </GlassCard>
 
       {/* 5. Keyboard Shortcuts */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-4">
+      <GlassCard variant="default" className="p-6 space-y-4">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Keyboard className="w-4 h-4 text-primary" />
           <span>Keyboard Shortcuts</span>
@@ -363,27 +386,27 @@ export const SettingsView: React.FC = () => {
 
         <div className="space-y-2 text-xs">
           {Object.entries(settings.keyboardShortcuts).map(([key, shortcut]) => (
-            <div key={key} className="flex items-center justify-between py-1 border-b border-border/50">
+            <div key={key} className="flex items-center justify-between py-1.5 border-b border-glass-border/40">
               <span className="capitalize text-muted-foreground">{key.replace(/-/g, ' ')}</span>
-              <kbd className="px-2 py-1 rounded bg-muted font-mono text-[11px] text-foreground border border-border/70">
+              <kbd className="px-2.5 py-1 rounded-lg bg-glass-subtle font-mono text-[11px] text-foreground border border-glass-border">
                 {shortcut}
               </kbd>
             </div>
           ))}
         </div>
-      </div>
+      </GlassCard>
 
       {/* 6. Privacy & Storage */}
-      <div className="p-5 rounded-2xl bg-card border border-border space-y-3">
+      <GlassCard variant="subtle" className="p-6 space-y-2">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Shield className="w-4 h-4 text-primary" />
           <span>{t('settings.privacy')}</span>
         </h2>
 
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          EchoLingo does not record or store raw audio files by default. All speech models can run fully offline, and API keys are protected using your operating system's hardware-backed key store.
+        <p className="text-xs text-muted-foreground/80 leading-relaxed">
+          EchoLingo processes audio directly through in-memory streams. Offline models run entirely on your local machine, and API keys are protected using your operating system's hardware-backed credential vault.
         </p>
-      </div>
+      </GlassCard>
     </div>
   );
 };

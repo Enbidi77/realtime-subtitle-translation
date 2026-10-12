@@ -36,6 +36,7 @@ export type OverlaySettings = z.infer<typeof OverlaySettingsSchema>;
 
 export const AppSettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).default('dark'),
+  glassIntensity: z.enum(['subtle', 'balanced', 'strong']).default('balanced'),
   locale: z.enum(['en', 'vi']).default('en'),
   audioSourceType: AudioSourceTypeSchema.default('microphone'),
   audioDeviceId: z.string().default('default'),
