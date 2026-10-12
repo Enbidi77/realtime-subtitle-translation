@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import audioCaptureProcessorCode from './audio-capture-processor.js?raw';
 
 function getHumanReadableAudioError(err: unknown): string {
   if (err instanceof DOMException || (typeof err === 'object' && err !== null && 'name' in err)) {
@@ -25,69 +26,6 @@ function getHumanReadableAudioError(err: unknown): string {
   }
   return err instanceof Error ? err.message : 'Unknown audio capture error';
 }
-
-const WORKLET_PROCESSOR_CODE = `
-class AudioCaptureProcessor extends AudioWorkletProcessor {
-  constructor() {
-    super();
-    this.bufferSize = 4096;
-    this.buffer = new Float32Array(this.bufferSize);
-    this.bufferIndex = 0;
-  }
-
-  process(inputs) {
-    const input = inputs[0];
-    if (!input || input.length === 0) return true;
-    const channelData = input[0];
-    if (!channelData || channelData.length === 0) return true;
-
-    let offset = 0;
-    while (offset < channelData.length) {
-      const remaining = this.bufferSize - this.bufferIndex;
-      const toCopy = Math.min(remaining, channelData.length - offset);
-      this.buffer.set(channelData.subarray(offset, offset + toCopy), this.bufferIndex);
-      this.bufferIndex += toCopy;
-      offset += toCopy;
-
-      if (this.bufferIndex === this.bufferSize) {
-        let sum = 0;
-        let peak = 0;
-        for (let i = 0; i < this.bufferSize; i++) {
-          const val = this.buffer[i];
-          sum += val * val;
-          const abs = Math.abs(val);
-          if (abs > peak) peak = abs;
-        }
-        const rms = Math.sqrt(sum / this.bufferSize);
-
-        const inRate = sampleRate;
-        const outRate = 16000;
-        const ratio = inRate / outRate;
-        const outLength = Math.round(this.bufferSize / ratio);
-        const resampled = new Float32Array(outLength);
-
-        for (let i = 0; i < outLength; i++) {
-          const origIdx = i * ratio;
-          const low = Math.min(Math.floor(origIdx), this.bufferSize - 1);
-          const high = Math.min(low + 1, this.bufferSize - 1);
-          const frac = origIdx - low;
-          resampled[i] = this.buffer[low] * (1 - frac) + this.buffer[high] * frac;
-        }
-
-        this.port.postMessage(
-          { rms, peak, resampled: resampled.buffer },
-          [resampled.buffer]
-        );
-
-        this.bufferIndex = 0;
-      }
-    }
-    return true;
-  }
-}
-
-registerProcessor('audio-capture-processor', AudioCaptureProcessor);
-`;
 
 export function useAudioCapture() {
   const isListening = useSessionStore((s) => s.isListening);
@@ -188,7 +126,7 @@ export function useAudioCapture() {
       const sourceNode = audioCtx.createMediaStreamSource(stream);
 
       // Register audio worklet processor via blob URL
-      const workletBlob = new Blob([WORKLET_PROCESSOR_CODE], { type: 'application/javascript' });
+      const workletBlob = new Blob([audioCaptureProcessorCode], { type: 'application/javascript' });
       const workletUrl = URL.createObjectURL(workletBlob);
       try {
         await audioCtx.audioWorklet.addModule(workletUrl);
