@@ -1,5 +1,5 @@
 import { SubtitleSegment } from '@echo-lingo/contracts';
-import { parseTimestamp } from './timestamps.js';
+import { parseTimestamp } from '@echo-lingo/subtitle-core/timestamps.js';
 
 export interface ParseOptions {
   sessionId?: string;

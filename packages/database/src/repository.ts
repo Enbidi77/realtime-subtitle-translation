@@ -3,7 +3,7 @@ import {
   SessionMetadata,
   SubtitleSegment,
 } from '@echo-lingo/contracts';
-import { IDatabaseDriver } from './driver.js';
+import { IDatabaseDriver } from '@echo-lingo/database/driver.js';
 
 export class DatabaseRepository {
   private driver: IDatabaseDriver;

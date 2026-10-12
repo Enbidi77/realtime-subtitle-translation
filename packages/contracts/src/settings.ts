@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { AudioSourceTypeSchema } from './audio.js';
-import { SpeechEngineTypeSchema } from './speech.js';
-import { TranslationProviderIdSchema } from './translation.js';
+import { AudioSourceTypeSchema } from '@echo-lingo/contracts/audio.js';
+import { SpeechEngineTypeSchema } from '@echo-lingo/contracts/speech.js';
+import { TranslationProviderIdSchema } from '@echo-lingo/contracts/translation.js';
 
 export const SubtitleAppearanceSchema = z.object({
   fontSize: z.number().min(12).max(72).default(24),

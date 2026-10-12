@@ -7,7 +7,7 @@ import {
   MockSpeechProvider,
   WindowsSpeechProvider,
 } from '@echo-lingo/provider-adapters';
-import { CredentialsService } from './credentials-service.js';
+import { CredentialsService } from '@/services/credentials-service.js';
 
 export class SpeechService {
   private providers = new Map<SpeechEngineType, ISpeechProvider>();

@@ -4,7 +4,7 @@ import {
   GlossaryEngine,
   TranslationRegistry,
   ITranslationProvider,
-} from '../index.js';
+} from '@echo-lingo/translation-core';
 import {
   TranslationCapability,
   TranslationRequest,

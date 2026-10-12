@@ -9,7 +9,7 @@ import {
   TranslationCapability,
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
-import { SAMPLE_SEGMENTS } from './fixtures.js';
+import { SAMPLE_SEGMENTS } from '@echo-lingo/test-utils/fixtures.js';
 
 export function createMockElectronBridge() {
   let settings: AppSettings = { ...DEFAULT_APP_SETTINGS };

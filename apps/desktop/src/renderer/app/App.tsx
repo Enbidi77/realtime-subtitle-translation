@@ -1,17 +1,17 @@
 import React, { useEffect } from 'react';
-import { TitleBar } from '../components/layout/TitleBar.js';
-import { Sidebar } from '../components/layout/Sidebar.js';
-import { StatusBar } from '../components/layout/StatusBar.js';
-import { DashboardView } from '../features/dashboard/DashboardView.js';
-import { LiveSubtitlesView } from '../features/live-subtitles/LiveSubtitlesView.js';
-import { SessionsView } from '../features/sessions/SessionsView.js';
-import { TranslationHistoryView } from '../features/history/TranslationHistoryView.js';
-import { ProvidersView } from '../features/providers/ProvidersView.js';
-import { SettingsView } from '../features/settings/SettingsView.js';
-import { useNavigationStore } from '../stores/navigation-store.js';
-import { useSettingsStore } from '../stores/settings-store.js';
-import { useSessionStore } from '../stores/session-store.js';
-import { useAudioCapture } from '../hooks/useAudioCapture.js';
+import { TitleBar } from '@/components/layout/TitleBar.js';
+import { Sidebar } from '@/components/layout/Sidebar.js';
+import { StatusBar } from '@/components/layout/StatusBar.js';
+import { DashboardView } from '@/features/dashboard/DashboardView.js';
+import { LiveSubtitlesView } from '@/features/live-subtitles/LiveSubtitlesView.js';
+import { SessionsView } from '@/features/sessions/SessionsView.js';
+import { TranslationHistoryView } from '@/features/history/TranslationHistoryView.js';
+import { ProvidersView } from '@/features/providers/ProvidersView.js';
+import { SettingsView } from '@/features/settings/SettingsView.js';
+import { useNavigationStore } from '@/stores/navigation-store.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useAudioCapture } from '@/hooks/useAudioCapture.js';
 
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { NodeSqliteDriver, runMigrations, DatabaseRepository } from '../index.js';
+import { NodeSqliteDriver, runMigrations, DatabaseRepository } from '@echo-lingo/database';
 import { SessionMetadata, SubtitleSegment, GlossaryEntry } from '@echo-lingo/contracts';
 
 describe('Database Module', () => {

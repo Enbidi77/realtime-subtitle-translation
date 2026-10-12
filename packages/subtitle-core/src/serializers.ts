@@ -1,5 +1,5 @@
 import { SubtitleSegment } from '@echo-lingo/contracts';
-import { formatSrtTimestamp, formatVttTimestamp, formatDisplayTime } from './timestamps.js';
+import { formatSrtTimestamp, formatVttTimestamp, formatDisplayTime } from '@echo-lingo/subtitle-core/timestamps.js';
 
 export interface ExportFormatOptions {
   includeOriginal?: boolean;

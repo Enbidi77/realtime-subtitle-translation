@@ -1,3 +1,3 @@
-export * from './languages.js';
-export * from './audio.js';
-export * from './defaults.js';
+export * from '@echo-lingo/config/languages.js';
+export * from '@echo-lingo/config/audio.js';
+export * from '@echo-lingo/config/defaults.js';

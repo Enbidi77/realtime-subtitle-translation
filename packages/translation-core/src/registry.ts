@@ -4,9 +4,9 @@ import {
   TranslationRequest,
   TranslationResult,
 } from '@echo-lingo/contracts';
-import { ITranslationProvider } from './provider.interface.js';
-import { TranslationCache } from './cache.js';
-import { GlossaryEngine } from './glossary.js';
+import { ITranslationProvider } from '@echo-lingo/translation-core/provider.interface.js';
+import { TranslationCache } from '@echo-lingo/translation-core/cache.js';
+import { GlossaryEngine } from '@echo-lingo/translation-core/glossary.js';
 
 export interface TranslationRegistryOptions {
   cache?: TranslationCache;

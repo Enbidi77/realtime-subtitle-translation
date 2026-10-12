@@ -24,6 +24,7 @@ export default defineConfig({
     },
     resolve: {
       alias: {
+        '@': resolve(__dirname, 'src/main'),
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),
@@ -41,6 +42,8 @@ export default defineConfig({
     },
     resolve: {
       alias: {
+        '@': resolve(__dirname, 'src/preload'),
+        '@preload': resolve(__dirname, 'src/preload'),
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
       },
     },
@@ -59,6 +62,7 @@ export default defineConfig({
     resolve: {
       alias: {
         '@': resolve(__dirname, 'src/renderer'),
+        '@preload': resolve(__dirname, 'src/preload'),
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),

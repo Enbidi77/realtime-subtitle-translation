@@ -7,7 +7,7 @@ import {
   GroqWhisperProvider,
   LocalWhisperProvider,
   WindowsSpeechProvider,
-} from '../index.js';
+} from '@echo-lingo/provider-adapters';
 
 describe('Provider Adapters', () => {
   describe('Translation Providers', () => {

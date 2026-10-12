@@ -1,7 +1,7 @@
 import React from 'react';
-import { useNavigationStore, AppPage } from '../../stores/navigation-store.js';
-import { useSessionStore } from '../../stores/session-store.js';
-import { useI18n } from '../../app/i18n/index.js';
+import { useNavigationStore, AppPage } from '@/stores/navigation-store.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import {
   LayoutDashboard,
   Mic,

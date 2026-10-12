@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { useSessionStore } from '../../stores/session-store.js';
-import { useSettingsStore } from '../../stores/settings-store.js';
-import { useNavigationStore } from '../../stores/navigation-store.js';
-import { useI18n } from '../../app/i18n/index.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
+import { useNavigationStore } from '@/stores/navigation-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from '@echo-lingo/config';
 import { SessionMetadata } from '@echo-lingo/contracts';
 import {

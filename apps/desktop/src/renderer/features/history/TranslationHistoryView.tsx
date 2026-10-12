@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { SubtitleSegment } from '@echo-lingo/contracts';
-import { useI18n } from '../../app/i18n/index.js';
+import { useI18n } from '@/app/i18n/index.js';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
 import { History, Search, Copy, Check } from 'lucide-react';
 

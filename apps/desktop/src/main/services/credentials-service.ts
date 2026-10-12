@@ -1,5 +1,5 @@
 import { safeStorage } from 'electron';
-import { getDatabase } from '../database/db-instance.js';
+import { getDatabase } from '@/database/db-instance.js';
 
 export class CredentialsService {
   private static readonly KEY_PREFIX = 'cred_secret_';

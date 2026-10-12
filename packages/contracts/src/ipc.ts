@@ -3,29 +3,29 @@ import {
   AudioDeviceInfoSchema,
   AudioLevelEventSchema,
   AudioPipelineStatusSchema,
-} from './audio.js';
+} from '@echo-lingo/contracts/audio.js';
 import {
   SpeechModelStatusSchema,
   TranscriptionEventSchema,
-} from './speech.js';
+} from '@echo-lingo/contracts/speech.js';
 import {
   GlossaryEntrySchema,
   TranslationCapabilitySchema,
   TranslationRequestSchema,
   TranslationResultSchema,
-} from './translation.js';
+} from '@echo-lingo/contracts/translation.js';
 import {
   SubtitleExportOptionsSchema,
   SubtitleSegmentSchema,
-} from './subtitle.js';
+} from '@echo-lingo/contracts/subtitle.js';
 import {
   CreateSessionRequestSchema,
   SessionMetadataSchema,
-} from './session.js';
+} from '@echo-lingo/contracts/session.js';
 import {
   AppSettingsSchema,
   OverlaySettingsSchema,
-} from './settings.js';
+} from '@echo-lingo/contracts/settings.js';
 
 export const IPC_CHANNELS = {
   // App

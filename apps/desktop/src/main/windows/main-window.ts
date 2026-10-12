@@ -1,6 +1,6 @@
 import { BrowserWindow, app } from 'electron';
 import path from 'path';
-import { setupSecurityPolicies } from '../security/security.js';
+import { setupSecurityPolicies } from '@/security/security.js';
 
 let mainWindow: BrowserWindow | null = null;
 

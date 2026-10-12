@@ -11,7 +11,7 @@ import {
   parseSrt,
   parseVtt,
   SubtitleTimeline,
-} from '../index.js';
+} from '@echo-lingo/subtitle-core';
 import { SubtitleSegment } from '@echo-lingo/contracts';
 
 describe('Subtitle Core', () => {

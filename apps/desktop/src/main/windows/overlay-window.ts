@@ -1,7 +1,7 @@
 import { BrowserWindow, screen, app } from 'electron';
 import path from 'path';
-import { setupSecurityPolicies } from '../security/security.js';
-import { getMainWindow } from './main-window.js';
+import { setupSecurityPolicies } from '@/security/security.js';
+import { getMainWindow } from '@/windows/main-window.js';
 import { IPC_CHANNELS } from '@echo-lingo/contracts';
 
 let overlayWindow: BrowserWindow | null = null;

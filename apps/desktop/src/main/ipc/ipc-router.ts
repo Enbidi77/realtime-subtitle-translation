@@ -10,13 +10,13 @@ import {
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { exportToSrt, exportToVtt, exportToTxt, exportToJson, parseSubtitles } from '@echo-lingo/subtitle-core';
-import { getDatabase } from '../database/db-instance.js';
-import { CredentialsService } from '../services/credentials-service.js';
-import { getTranslationService } from '../services/translation-service.js';
-import { getSpeechService } from '../services/speech-service.js';
-import { getSessionService } from '../services/session-service.js';
-import { getMainWindow } from '../windows/main-window.js';
-import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '../windows/overlay-window.js';
+import { getDatabase } from '@/database/db-instance.js';
+import { CredentialsService } from '@/services/credentials-service.js';
+import { getTranslationService } from '@/services/translation-service.js';
+import { getSpeechService } from '@/services/speech-service.js';
+import { getSessionService } from '@/services/session-service.js';
+import { getMainWindow } from '@/windows/main-window.js';
+import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '@/windows/overlay-window.js';
 
 export function registerIpcHandlers(): void {
   const db = getDatabase();

@@ -1,7 +1,7 @@
 import { TranscriptionSegment } from '@echo-lingo/contracts';
-import { VoiceActivityDetector, VadChunkEvent } from './vad.js';
-import { BoundedAudioQueue } from './buffer.js';
-import { ISpeechProvider } from './provider.interface.js';
+import { VoiceActivityDetector, VadChunkEvent } from '@echo-lingo/speech-core/vad.js';
+import { BoundedAudioQueue } from '@echo-lingo/speech-core/buffer.js';
+import { ISpeechProvider } from '@echo-lingo/speech-core/provider.interface.js';
 
 export interface SpeechPipelineConfig {
   sessionId: string;

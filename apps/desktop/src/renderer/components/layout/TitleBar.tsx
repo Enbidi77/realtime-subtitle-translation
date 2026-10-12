@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useSessionStore } from '../../stores/session-store.js';
-import { useI18n } from '../../app/i18n/index.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import { Sparkles, Minus, Square, X, ExternalLink } from 'lucide-react';
 
 export const TitleBar: React.FC = () => {

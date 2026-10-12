@@ -7,9 +7,9 @@ import {
 } from '@echo-lingo/contracts';
 import { SpeechPipeline } from '@echo-lingo/speech-core';
 import { SubtitleTimeline } from '@echo-lingo/subtitle-core';
-import { getDatabase } from '../database/db-instance.js';
-import { getSpeechService } from './speech-service.js';
-import { getTranslationService } from './translation-service.js';
+import { getDatabase } from '@/database/db-instance.js';
+import { getSpeechService } from '@/services/speech-service.js';
+import { getTranslationService } from '@/services/translation-service.js';
 import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '@echo-lingo/contracts';
 

@@ -10,7 +10,18 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "src/renderer/*",
+        "src/main/*",
+        "src/*"
+      ],
+      "@preload/*": [
+        "src/preload/*"
+      ]
+    }
   },
   "include": [
     "src/**/*.ts",

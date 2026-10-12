@@ -8,14 +8,14 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('[Main CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-import { createMainWindow, getMainWindow } from './windows/main-window.js';
-import { getOverlayWindow, setOverlayCallbacks } from './windows/overlay-window.js';
-import { registerIpcHandlers } from './ipc/ipc-router.js';
-import { registerGlobalShortcuts, unregisterGlobalShortcuts } from './services/shortcuts-service.js';
-import { getDatabase, initDatabase, closeDatabase } from './database/db-instance.js';
-import { getSessionService } from './services/session-service.js';
+import { createMainWindow, getMainWindow } from '@/windows/main-window.js';
+import { getOverlayWindow, setOverlayCallbacks } from '@/windows/overlay-window.js';
+import { registerIpcHandlers } from '@/ipc/ipc-router.js';
+import { registerGlobalShortcuts, unregisterGlobalShortcuts } from '@/services/shortcuts-service.js';
+import { getDatabase, initDatabase, closeDatabase } from '@/database/db-instance.js';
+import { getSessionService } from '@/services/session-service.js';
 
-import { setupMediaPermissions } from './security/security.js';
+import { setupMediaPermissions } from '@/security/security.js';
 
 // Enable Chromium remote debugging in development for VS Code renderer breakpoint attachment
 if (!app.isPackaged) {

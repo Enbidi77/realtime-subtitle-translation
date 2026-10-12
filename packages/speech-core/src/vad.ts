@@ -1,4 +1,4 @@
-import { calculateRms } from './resampler.js';
+import { calculateRms } from '@echo-lingo/speech-core/resampler.js';
 
 export interface VadConfig {
   threshold: number; // energy threshold (default 0.02)

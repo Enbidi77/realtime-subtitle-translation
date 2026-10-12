@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useSettingsStore } from '../../stores/settings-store.js';
-import { useI18n } from '../../app/i18n/index.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import {
   Settings,
   Palette,

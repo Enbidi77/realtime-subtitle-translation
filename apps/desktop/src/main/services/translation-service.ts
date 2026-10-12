@@ -13,8 +13,8 @@ import {
   OllamaTranslationProvider,
   MockTranslationProvider,
 } from '@echo-lingo/provider-adapters';
-import { CredentialsService } from './credentials-service.js';
-import { getDatabase } from '../database/db-instance.js';
+import { CredentialsService } from '@/services/credentials-service.js';
+import { getDatabase } from '@/database/db-instance.js';
 
 export class TranslationService {
   private registry: TranslationRegistry;

@@ -1,6 +1,6 @@
 import React from 'react';
-import { useSessionStore } from '../../stores/session-store.js';
-import { useSettingsStore } from '../../stores/settings-store.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
 import { Mic, Radio, Cpu, Globe, Zap } from 'lucide-react';
 
 export const StatusBar: React.FC = () => {

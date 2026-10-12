@@ -1,5 +1,5 @@
 import { AppSettings } from '@echo-lingo/contracts';
-import { AUDIO_CONSTANTS } from './audio.js';
+import { AUDIO_CONSTANTS } from '@echo-lingo/config/audio.js';
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',

@@ -1,4 +1,4 @@
-import { IDatabaseDriver } from './driver.js';
+import { IDatabaseDriver } from '@echo-lingo/database/driver.js';
 
 export interface Migration {
   id: number;

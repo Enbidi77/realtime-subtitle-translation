@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AudioSourceTypeSchema } from './audio.js';
+import { AudioSourceTypeSchema } from '@echo-lingo/contracts/audio.js';
 
 export const SessionStatusSchema = z.enum(['active', 'paused', 'ended']);
 export type SessionStatus = z.infer<typeof SessionStatusSchema>;

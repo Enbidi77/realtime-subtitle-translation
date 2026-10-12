@@ -10,7 +10,7 @@ import {
   BoundedAudioQueue,
   SpeechPipeline,
   ISpeechProvider,
-} from '../index.js';
+} from '@echo-lingo/speech-core';
 import { TranscriptionSegment } from '@echo-lingo/contracts';
 
 describe('Speech Core', () => {

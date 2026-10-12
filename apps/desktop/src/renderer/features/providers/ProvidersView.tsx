@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { TranslationCapability, SpeechModelStatus, GlossaryEntry } from '@echo-lingo/contracts';
-import { useI18n } from '../../app/i18n/index.js';
-import { useSettingsStore } from '../../stores/settings-store.js';
+import { useI18n } from '@/app/i18n/index.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
 import {
   Cpu,
   Globe,

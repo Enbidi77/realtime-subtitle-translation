@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
-import { useSessionStore } from '../stores/session-store.js';
-import { useSettingsStore } from '../stores/settings-store.js';
+import { useSessionStore } from '@/stores/session-store.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
 
 function getHumanReadableAudioError(err: unknown): string {
   if (err instanceof DOMException || (typeof err === 'object' && err !== null && 'name' in err)) {
