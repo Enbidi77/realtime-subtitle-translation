@@ -44,9 +44,9 @@ export const TitleBar: React.FC = () => {
   };
 
   return (
-    <header className="app-drag glass-toolbar h-11 w-full flex items-center justify-between px-3.5 select-none z-50">
+    <header className="glass-toolbar h-11 w-full flex items-center justify-between px-3.5 select-none z-50">
       {/* Brand & Status */}
-      <div className="flex items-center gap-2.5">
+      <div className="app-no-drag flex items-center gap-2.5">
         {/* Luminous prism logo icon inspired by reference */}
         <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 text-white shadow-sm shadow-indigo-500/25 border border-white/25">
           <Sparkles className="w-3.5 h-3.5" />
@@ -81,8 +81,8 @@ export const TitleBar: React.FC = () => {
         )}
       </div>
 
-      {/* Center title / drag space */}
-      <div className="flex-1 text-center text-xs text-muted-foreground font-medium truncate px-4 pointer-events-none">
+      {/* Center title / dedicated drag space */}
+      <div className="app-drag flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium truncate px-4 cursor-default">
         {activeSession?.title || ''}
       </div>
 
@@ -90,9 +90,10 @@ export const TitleBar: React.FC = () => {
       <div className="app-no-drag flex items-center gap-1.5">
         {/* Floating Subtitle Overlay Toggle Button */}
         <button
+          type="button"
           onClick={handleToggleOverlay}
           title={isOverlayOpen ? 'Hide Subtitle Overlay' : t('live.openOverlay')}
-          className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl transition-all duration-150 border ${
+          className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl cursor-pointer transition-all duration-150 border ${
             isOverlayOpen
               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-medium'
               : 'bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border-glass-border'
@@ -106,9 +107,10 @@ export const TitleBar: React.FC = () => {
 
         {/* Quick Theme Switcher */}
         <button
+          type="button"
           onClick={handleToggleTheme}
           title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          className="w-7 h-7 flex items-center justify-center rounded-lg bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
+          className="w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
         >
           {theme === 'dark' ? (
             <Sun className="w-3.5 h-3.5 text-amber-300" />
@@ -121,24 +123,27 @@ export const TitleBar: React.FC = () => {
 
         {/* Window controls */}
         <button
+          type="button"
           onClick={handleMinimize}
-          className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
+          className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
           title="Minimize"
           aria-label="Minimize"
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
         <button
+          type="button"
           onClick={handleMaximize}
-          className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
+          className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
           title="Maximize"
           aria-label="Maximize"
         >
           <Square className="w-3 h-3" />
         </button>
         <button
+          type="button"
           onClick={handleClose}
-          className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-white hover:bg-destructive/90 rounded-lg transition-colors"
+          className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-white hover:bg-destructive/90 rounded-lg transition-colors"
           title="Close"
           aria-label="Close"
         >

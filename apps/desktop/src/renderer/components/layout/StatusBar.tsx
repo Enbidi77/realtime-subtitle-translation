@@ -15,7 +15,7 @@ export const StatusBar: React.FC = () => {
   const bars = [0.01, 0.03, 0.06, 0.12, 0.2];
 
   return (
-    <footer className="glass-toolbar border-t border-glass-border h-8 w-full flex items-center justify-between px-4 select-none text-[11px] text-muted-foreground z-40">
+    <footer className="glass-toolbar border-t border-glass-border h-8 w-full flex items-center justify-between px-4 select-none text-[11px] text-muted-foreground relative z-20 pointer-events-auto">
       {/* Left: Audio signal meter */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-glass-subtle border border-glass-border/50 text-foreground/80 font-medium">

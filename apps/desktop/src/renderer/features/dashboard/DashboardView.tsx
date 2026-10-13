@@ -142,8 +142,9 @@ export const DashboardView: React.FC = () => {
           {/* Primary Action Button */}
           <div className="shrink-0">
             <button
+              type="button"
               onClick={handleToggleListening}
-              className={`flex items-center justify-center gap-3 px-7 py-3.5 rounded-2xl font-semibold text-sm transition-all duration-200 active:scale-[0.98] ${
+              className={`flex items-center justify-center gap-3 px-7 py-3.5 rounded-2xl font-semibold text-sm cursor-pointer app-no-drag transition-all duration-200 active:scale-[0.98] ${
                 isListening
                   ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/25 border border-destructive/40'
                   : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-primary text-white hover:brightness-110 shadow-lg shadow-indigo-500/30 border border-white/25'

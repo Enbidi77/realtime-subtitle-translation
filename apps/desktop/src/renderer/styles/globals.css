@@ -272,8 +272,14 @@
   -webkit-app-region: drag;
 }
 
-.app-no-drag {
-  -webkit-app-region: no-drag;
+.app-no-drag,
+button,
+input,
+select,
+textarea,
+a,
+[role="button"] {
+  -webkit-app-region: no-drag !important;
 }
 
 /* Custom scrollbars with refined translucent styling */

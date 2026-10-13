@@ -21,7 +21,7 @@ export const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
           ref={ref}
           value={value}
           className={clsx(
-            'glass-input w-full py-2 text-xs placeholder:text-muted-foreground/70 transition-all',
+            'glass-input w-full py-2 text-xs placeholder:text-muted-foreground/70 app-no-drag transition-all',
             leftIcon ? 'pl-9' : 'pl-3.5',
             rightIcon || onClear ? 'pr-9' : 'pr-3.5',
             className
@@ -32,7 +32,7 @@ export const GlassInput = React.forwardRef<HTMLInputElement, GlassInputProps>(
           <button
             type="button"
             onClick={onClear}
-            className="absolute right-2.5 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-glass-subtle transition-colors"
+            className="absolute right-2.5 p-1 rounded-full cursor-pointer app-no-drag text-muted-foreground hover:text-foreground hover:bg-glass-subtle transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>

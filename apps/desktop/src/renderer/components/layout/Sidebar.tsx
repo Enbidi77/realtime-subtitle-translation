@@ -43,7 +43,7 @@ export const Sidebar: React.FC = () => {
 
   return (
     <aside
-      className={`glass-sidebar h-full flex flex-col justify-between select-none p-3 transition-all duration-300 ${
+      className={`glass-sidebar h-full flex flex-col justify-between select-none p-3 transition-all duration-300 relative z-20 pointer-events-auto ${
         isCollapsed ? 'w-16' : 'w-56'
       }`}
     >
@@ -56,8 +56,9 @@ export const Sidebar: React.FC = () => {
             </span>
           )}
           <button
+            type="button"
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className={`p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-glass-border transition-colors ${
+            className={`p-1.5 rounded-lg cursor-pointer app-no-drag text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-glass-border transition-colors ${
               isCollapsed ? 'mx-auto' : ''
             }`}
             title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
@@ -78,12 +79,13 @@ export const Sidebar: React.FC = () => {
             const isActive = activePage === item.id;
             return (
               <button
+                type="button"
                 key={item.id}
                 onClick={() => setActivePage(item.id)}
                 title={isCollapsed ? t(item.labelKey) : undefined}
                 className={`w-full flex items-center ${
                   isCollapsed ? 'justify-center px-0' : 'justify-between px-3'
-                } py-2.5 rounded-xl text-xs font-medium transition-all duration-150 ${
+                } py-2.5 rounded-xl text-xs font-medium cursor-pointer app-no-drag transition-all duration-150 ${
                   isActive
                     ? 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white shadow-md shadow-indigo-500/20 border border-white/20 font-semibold'
                     : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border/40'

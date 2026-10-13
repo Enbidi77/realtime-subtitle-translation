@@ -12,7 +12,7 @@ export function createMainWindow(): BrowserWindow {
     minHeight: 640,
     show: false,
     frame: false, // Custom Google-inspired titlebar
-    titleBarStyle: 'hidden',
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const } : {}),
     backgroundColor: '#131314',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),

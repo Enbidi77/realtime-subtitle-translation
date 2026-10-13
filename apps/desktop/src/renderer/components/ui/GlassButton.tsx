@@ -27,7 +27,7 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-xl select-none transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-40 disabled:pointer-events-none active:scale-[0.98]';
+      'inline-flex items-center justify-center font-medium rounded-xl select-none transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:opacity-40 disabled:pointer-events-none active:scale-[0.98] cursor-pointer app-no-drag';
 
     const variantStyles: Record<GlassButtonVariant, string> = {
       primary:
@@ -54,6 +54,7 @@ export const GlassButton = React.forwardRef<HTMLButtonElement, GlassButtonProps>
     return (
       <button
         ref={ref}
+        type={props.type || 'button'}
         disabled={disabled || isLoading}
         className={clsx(baseStyles, variantStyles[variant], sizeStyles[size], className)}
         {...props}

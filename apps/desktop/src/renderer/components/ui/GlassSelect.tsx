@@ -19,7 +19,7 @@ export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>
           ref={ref}
           disabled={disabled}
           className={clsx(
-            'glass-input w-full py-2 pr-9 text-xs appearance-none font-medium cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 transition-all',
+            'glass-input w-full py-2 pr-9 text-xs appearance-none font-medium cursor-pointer app-no-drag disabled:cursor-not-allowed disabled:opacity-50 transition-all',
             leftIcon ? 'pl-9' : 'pl-3.5',
             className
           )}

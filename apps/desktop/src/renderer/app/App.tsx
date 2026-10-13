@@ -74,12 +74,12 @@ export const App: React.FC = () => {
       <TitleBar />
 
       {/* 2. Workspace Layout */}
-      <div className="flex-1 flex overflow-hidden relative z-10">
+      <div className="flex-1 flex overflow-hidden relative z-10 pointer-events-auto">
         {/* Left Navigation Glass Sidebar */}
         <Sidebar />
 
         {/* Center Main Workspace */}
-        <main className="flex-1 flex flex-col overflow-hidden relative z-10 bg-transparent">
+        <main className="flex-1 flex flex-col overflow-hidden relative z-10 bg-transparent pointer-events-auto">
           {renderActivePage()}
         </main>
       </div>
