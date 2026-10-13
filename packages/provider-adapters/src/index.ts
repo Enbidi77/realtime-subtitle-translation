@@ -11,3 +11,5 @@ export * from '@echo-lingo/provider-adapters/speech/local-whisper.js';
 export * from '@echo-lingo/provider-adapters/speech/windows-speech.js';
 export * from '@echo-lingo/provider-adapters/speech/mock.js';
 
+export * from '@echo-lingo/provider-adapters/ocr/index.js';
+

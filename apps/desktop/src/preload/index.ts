@@ -16,6 +16,19 @@ import {
   TranslationResult,
   CreateSessionRequest,
   SubtitleExportOptions,
+  DisplayInfo,
+  ScreenCaptureRegion,
+  OcrPreprocessOptions,
+  OcrProviderCapability,
+  OcrRecognizeRequest,
+  OcrResponse,
+  ScreenTranslateRequest,
+  ContinuousOcrConfig,
+  ContinuousOcrState,
+  ContinuousOcrStats,
+  OcrHistoryItem,
+  OcrHistoryQuery,
+  FloatingPanelPayload,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -133,6 +146,67 @@ const api = {
       ipcRenderer.on(IPC_CHANNELS.OVERLAY_VISIBILITY_STREAM, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.OVERLAY_VISIBILITY_STREAM, handler);
     },
+  },
+
+  screenTranslation: {
+    getDisplays: (): Promise<DisplayInfo[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_GET_DISPLAYS),
+    selectRegion: (displayId?: number): Promise<ScreenCaptureRegion | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_SELECT_REGION, { displayId }),
+    cancelCapture: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CANCEL_CAPTURE),
+    captureRegion: (region: ScreenCaptureRegion, preprocessOptions?: OcrPreprocessOptions) =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CAPTURE_REGION, { region, preprocessOptions }),
+    getOcrProviders: (): Promise<OcrProviderCapability[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_GET_PROVIDERS),
+    recognize: (req: OcrRecognizeRequest): Promise<OcrResponse> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_RECOGNIZE, req),
+    translateRegion: (req: ScreenTranslateRequest): Promise<{
+      ocrResult: OcrResponse;
+      translationResult: TranslationResult;
+      historyItem: OcrHistoryItem;
+    }> => ipcRenderer.invoke(IPC_CHANNELS.SCREEN_TRANSLATE_REGION, req),
+    startContinuous: (config: ContinuousOcrConfig): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CONTINUOUS_START, config),
+    stopContinuous: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CONTINUOUS_STOP),
+    pauseContinuous: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CONTINUOUS_PAUSE),
+    resumeContinuous: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_CONTINUOUS_RESUME),
+    onContinuousStatus: (callback: (data: { state: ContinuousOcrState; stats: ContinuousOcrStats }) => void) => {
+      const handler = (_: unknown, data: { state: ContinuousOcrState; stats: ContinuousOcrStats }) => callback(data);
+      ipcRenderer.on(IPC_CHANNELS.SCREEN_CONTINUOUS_STATUS_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SCREEN_CONTINUOUS_STATUS_STREAM, handler);
+    },
+    onContinuousEvent: (callback: (data: { historyItem: OcrHistoryItem; isChange: boolean }) => void) => {
+      const handler = (_: unknown, data: { historyItem: OcrHistoryItem; isChange: boolean }) => callback(data);
+      ipcRenderer.on(IPC_CHANNELS.SCREEN_CONTINUOUS_EVENT_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SCREEN_CONTINUOUS_EVENT_STREAM, handler);
+    },
+    showFloatingPanel: (payload: FloatingPanelPayload): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_FLOATING_PANEL_SHOW, payload),
+    hideFloatingPanel: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SCREEN_FLOATING_PANEL_HIDE),
+    onFloatingPanelData: (callback: (payload: FloatingPanelPayload) => void) => {
+      const handler = (_: unknown, payload: FloatingPanelPayload) => callback(payload);
+      ipcRenderer.on(IPC_CHANNELS.SCREEN_FLOATING_PANEL_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SCREEN_FLOATING_PANEL_STREAM, handler);
+    },
+    completeSelection: (region: ScreenCaptureRegion | null) => {
+      ipcRenderer.send('screen:selection-complete', region);
+    },
+    cancelSelectionWindow: () => {
+      ipcRenderer.send('screen:selection-cancel');
+    },
+    getHistory: (query?: OcrHistoryQuery): Promise<OcrHistoryItem[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_LIST, query),
+    getHistoryItem: (id: string): Promise<OcrHistoryItem | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_GET, { id }),
+    deleteHistoryItem: (id: string): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_DELETE, { id }),
+    clearHistory: (): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_CLEAR),
   },
 };
 

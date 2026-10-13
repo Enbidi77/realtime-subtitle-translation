@@ -8,6 +8,7 @@ import { SessionsView } from '@/features/sessions/SessionsView.js';
 import { TranslationHistoryView } from '@/features/history/TranslationHistoryView.js';
 import { ProvidersView } from '@/features/providers/ProvidersView.js';
 import { SettingsView } from '@/features/settings/SettingsView.js';
+import { ScreenTranslationView } from '@/features/screen-translation/index.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
@@ -58,6 +59,8 @@ export const App: React.FC = () => {
         return <TranslationHistoryView />;
       case 'providers':
         return <ProvidersView />;
+      case 'ocr-translate':
+        return <ScreenTranslationView />;
       case 'settings':
         return <SettingsView />;
       default:

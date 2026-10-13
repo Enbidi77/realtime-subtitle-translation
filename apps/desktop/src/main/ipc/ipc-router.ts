@@ -7,6 +7,12 @@ import {
   GlossaryEntrySchema,
   SubtitleExportOptionsSchema,
   TranslationRequestSchema,
+  ScreenCaptureRegionSchema,
+  ScreenTranslateRequestSchema,
+  ContinuousOcrConfigSchema,
+  OcrRecognizeRequestSchema,
+  OcrHistoryQuerySchema,
+  FloatingPanelPayloadSchema,
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { exportToSrt, exportToVtt, exportToTxt, exportToJson, parseSubtitles } from '@echo-lingo/subtitle-core';
@@ -17,6 +23,10 @@ import { getSpeechService } from '@/services/speech-service.js';
 import { getSessionService } from '@/services/session-service.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '@/windows/overlay-window.js';
+import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
+import { getScreenTranslationService } from '@/services/screen-translation-service.js';
+import { closeSelectionOverlay } from '@/windows/selection-window.js';
+import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
 
 export function registerIpcHandlers(): void {
   const db = getDatabase();
@@ -274,5 +284,105 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.OVERLAY_GET_SEGMENTS, async () => {
     return sessionService.getTimeline().getSegments(true).slice(-5);
+  });
+
+  // ================= Screen & Capture =================
+  const screenCaptureManager = getScreenCaptureManager();
+  const screenTranslationService = getScreenTranslationService();
+
+  ipcMain.on('screen:selection-complete', (_, region) => {
+    const parsed = region ? ScreenCaptureRegionSchema.parse(region) : null;
+    closeSelectionOverlay(parsed);
+  });
+
+  ipcMain.on('screen:selection-cancel', () => {
+    closeSelectionOverlay(null);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_GET_DISPLAYS, async () => {
+    return screenCaptureManager.getDisplays();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_SELECT_REGION, async (_, payload?: { displayId?: number }) => {
+    return screenTranslationService.selectRegion(payload?.displayId);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CANCEL_CAPTURE, async () => {
+    screenTranslationService.cancelSelection();
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CAPTURE_REGION, async (_, { region, preprocessOptions }) => {
+    const validRegion = ScreenCaptureRegionSchema.parse(region);
+    return screenCaptureManager.captureRegion(validRegion, preprocessOptions);
+  });
+
+  // ================= OCR =================
+  ipcMain.handle(IPC_CHANNELS.OCR_GET_PROVIDERS, async () => {
+    return screenTranslationService.getOcrCapabilities();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.OCR_RECOGNIZE, async (_, req) => {
+    const parsed = OcrRecognizeRequestSchema.parse(req);
+    return screenTranslationService.getOcrRegistry().recognize(parsed, parsed.providerId);
+  });
+
+  // ================= Screen Translation & Continuous =================
+  ipcMain.handle(IPC_CHANNELS.SCREEN_TRANSLATE_REGION, async (_, req) => {
+    const parsed = ScreenTranslateRequestSchema.parse(req);
+    return screenTranslationService.captureAndTranslate(parsed);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CONTINUOUS_START, async (_, config) => {
+    const parsed = ContinuousOcrConfigSchema.parse(config);
+    screenTranslationService.startContinuous(parsed);
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CONTINUOUS_STOP, async () => {
+    screenTranslationService.stopContinuous();
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CONTINUOUS_PAUSE, async () => {
+    screenTranslationService.pauseContinuous();
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_CONTINUOUS_RESUME, async () => {
+    screenTranslationService.resumeContinuous();
+    return { ok: true };
+  });
+
+  // ================= Floating Result Panel =================
+  ipcMain.handle(IPC_CHANNELS.SCREEN_FLOATING_PANEL_SHOW, async (_, payload) => {
+    const valid = FloatingPanelPayloadSchema.parse(payload);
+    showOcrFloatingPanel(valid);
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SCREEN_FLOATING_PANEL_HIDE, async () => {
+    hideOcrFloatingPanel();
+    return { ok: true };
+  });
+
+  // ================= OCR History =================
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_LIST, async (_, query) => {
+    const parsed = query ? OcrHistoryQuerySchema.parse(query) : undefined;
+    return screenTranslationService.getHistory(parsed);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_GET, async (_, { id }: { id: string }) => {
+    return screenTranslationService.getHistoryItem(id);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_DELETE, async (_, { id }: { id: string }) => {
+    screenTranslationService.deleteHistoryItem(id);
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_CLEAR, async () => {
+    screenTranslationService.clearHistory();
+    return { ok: true };
   });
 }

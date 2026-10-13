@@ -13,6 +13,7 @@ const workspacePackages = [
   '@echo-lingo/speech-core',
   '@echo-lingo/provider-adapters',
   '@echo-lingo/database',
+  '@echo-lingo/ocr-core',
   'zod',
 ];
 
@@ -32,6 +33,7 @@ export default defineConfig({
         '@echo-lingo/speech-core': resolve(__dirname, '../../packages/speech-core/src'),
         '@echo-lingo/provider-adapters': resolve(__dirname, '../../packages/provider-adapters/src'),
         '@echo-lingo/database': resolve(__dirname, '../../packages/database/src'),
+        '@echo-lingo/ocr-core': resolve(__dirname, '../../packages/ocr-core/src'),
       },
     },
   },
@@ -45,6 +47,7 @@ export default defineConfig({
         '@': resolve(__dirname, 'src/preload'),
         '@preload': resolve(__dirname, 'src/preload'),
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
+        '@echo-lingo/ocr-core': resolve(__dirname, '../../packages/ocr-core/src'),
       },
     },
   },
@@ -56,6 +59,8 @@ export default defineConfig({
         input: {
           index: resolve(__dirname, 'src/renderer/index.html'),
           overlay: resolve(__dirname, 'src/renderer/overlay.html'),
+          selection: resolve(__dirname, 'src/renderer/selection.html'),
+          'ocr-panel': resolve(__dirname, 'src/renderer/ocr-panel.html'),
         },
       },
     },
@@ -66,6 +71,7 @@ export default defineConfig({
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),
+        '@echo-lingo/ocr-core': resolve(__dirname, '../../packages/ocr-core/src'),
       },
     },
   },

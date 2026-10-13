@@ -19,14 +19,15 @@
 ```
 echo-lingo/
 ├── apps/
-│   └── desktop/            # Electron main, preload, and React renderer
+│   └── desktop/            # Electron main, preload, and React renderer (includes Selection & OCR panel windows)
 ├── packages/
-│   ├── contracts/          # Pure TypeScript types & Zod schemas
-│   ├── config/             # Constants, language lists, and default settings
+│   ├── contracts/          # Pure TypeScript types & Zod schemas (Audio, Subtitles, OCR, Settings, IPC)
+│   ├── config/             # Constants, language lists, default settings, and OCR presets
+│   ├── ocr-core/           # Coordinate mapping, image preprocessing, deduplication, normalizer, scheduler
 │   ├── subtitle-core/      # SRT/VTT formatters, parsers, and timeline
 │   ├── translation-core/   # Translation registry, LRU cache, glossary
 │   ├── speech-core/        # 16kHz resampling, VAD, audio queues
-│   ├── provider-adapters/  # Google, DeepL, Libre, Ollama, Whisper adapters
+│   ├── provider-adapters/  # OCR (Windows, Tesseract), Speech, and Translation adapters
 │   ├── database/           # SQLite driver, schema migrations, repositories
 │   └── test-utils/         # Test fixtures, mock bridges, audio generators
 ├── docs/                   # Architectural & operational documentation

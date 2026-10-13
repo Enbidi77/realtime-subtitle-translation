@@ -1,5 +1,6 @@
 import { AppSettings } from '@echo-lingo/contracts';
 import { AUDIO_CONSTANTS } from '@echo-lingo/config/audio.js';
+import { DEFAULT_SCREEN_TRANSLATION_SETTINGS } from '@echo-lingo/config/ocr.js';
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
@@ -46,10 +47,15 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
     captionMode: 'youtube',
     autoHideTimeoutMs: 4000,
   },
+  screenTranslation: DEFAULT_SCREEN_TRANSLATION_SETTINGS,
   keyboardShortcuts: {
     'toggle-listening': 'CommandOrControl+Shift+Space',
     'pause-listening': 'CommandOrControl+Shift+P',
     'toggle-overlay': 'CommandOrControl+Shift+O',
     'copy-latest': 'CommandOrControl+Shift+C',
+    'capture-and-translate': 'CommandOrControl+Shift+T',
+    'capture-ocr-only': 'CommandOrControl+Shift+X',
+    'toggle-continuous-ocr': 'CommandOrControl+Shift+R',
+    'toggle-ocr-panel': 'CommandOrControl+Shift+H',
   },
 };

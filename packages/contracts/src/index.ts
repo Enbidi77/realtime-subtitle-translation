@@ -5,3 +5,5 @@ export * from '@echo-lingo/contracts/subtitle.js';
 export * from '@echo-lingo/contracts/session.js';
 export * from '@echo-lingo/contracts/settings.js';
 export * from '@echo-lingo/contracts/ipc.js';
+export * from '@echo-lingo/contracts/ocr.js';
+export * from '@echo-lingo/contracts/screen-translation.js';

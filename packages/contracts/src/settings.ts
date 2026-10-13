@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { AudioSourceTypeSchema } from '@echo-lingo/contracts/audio.js';
 import { SpeechEngineTypeSchema } from '@echo-lingo/contracts/speech.js';
 import { TranslationProviderIdSchema } from '@echo-lingo/contracts/translation.js';
+import { OcrProviderIdSchema, OcrProfileSchema } from '@echo-lingo/contracts/ocr.js';
 
 export const SubtitleAppearanceSchema = z.object({
   fontSize: z.number().min(12).max(72).default(24),
@@ -34,6 +35,23 @@ export const OverlaySettingsSchema = z.object({
 });
 export type OverlaySettings = z.infer<typeof OverlaySettingsSchema>;
 
+export const ScreenTranslationSettingsSchema = z.object({
+  ocrProvider: OcrProviderIdSchema.default('windows-native'),
+  ocrLanguage: z.string().default('auto'),
+  skipPreview: z.boolean().default(false),
+  profile: OcrProfileSchema.default('general'),
+  continuousIntervalMs: z.number().min(500).max(10000).default(2000),
+  changeThreshold: z.number().min(0).max(1).default(0.15),
+  ignoreUnchanged: z.boolean().default(true),
+  translateOnlyDiff: z.boolean().default(false),
+  autoHideFloatingPanel: z.boolean().default(false),
+  floatingPanelAutoHideTimeoutMs: z.number().min(1000).max(30000).default(6000),
+  floatingPanelAlwaysOnTop: z.boolean().default(true),
+  saveHistory: z.boolean().default(true),
+  persistScreenshots: z.boolean().default(false),
+});
+export type ScreenTranslationSettings = z.infer<typeof ScreenTranslationSettingsSchema>;
+
 export const AppSettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).default('dark'),
   glassIntensity: z.enum(['subtle', 'balanced', 'strong']).default('balanced'),
@@ -54,11 +72,16 @@ export const AppSettingsSchema = z.object({
   autoScrollLiveSubtitles: z.boolean().default(true),
   subtitleAppearance: SubtitleAppearanceSchema.default({}),
   overlaySettings: OverlaySettingsSchema.default({}),
+  screenTranslation: ScreenTranslationSettingsSchema.default({}),
   keyboardShortcuts: z.record(z.string(), z.string()).default({
     'toggle-listening': 'CommandOrControl+Shift+Space',
     'pause-listening': 'CommandOrControl+Shift+P',
     'toggle-overlay': 'CommandOrControl+Shift+O',
     'copy-latest': 'CommandOrControl+Shift+C',
+    'capture-and-translate': 'CommandOrControl+Shift+T',
+    'capture-ocr-only': 'CommandOrControl+Shift+X',
+    'toggle-continuous-ocr': 'CommandOrControl+Shift+R',
+    'toggle-ocr-panel': 'CommandOrControl+Shift+H',
   }),
 });
 export type AppSettings = z.infer<typeof AppSettingsSchema>;

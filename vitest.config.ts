@@ -20,6 +20,7 @@ export default defineConfig({
       '@echo-lingo/speech-core': path.resolve(__dirname, 'packages/speech-core/src'),
       '@echo-lingo/provider-adapters': path.resolve(__dirname, 'packages/provider-adapters/src'),
       '@echo-lingo/database': path.resolve(__dirname, 'packages/database/src'),
+      '@echo-lingo/ocr-core': path.resolve(__dirname, 'packages/ocr-core/src'),
       '@echo-lingo/test-utils': path.resolve(__dirname, 'packages/test-utils/src'),
     },
   },

@@ -1,4 +1,4 @@
-import { calculateRms } from '@echo-lingo/speech-core/resampler.js';
+import { calculateRms } from "@echo-lingo/speech-core/resampler.js";
 
 export interface VadConfig {
   threshold: number; // energy threshold (default 0.02)
@@ -72,7 +72,9 @@ export class VoiceActivityDetector {
         };
 
         // Keep 200ms overlap for continuity
-        const overlapSamples = Math.floor((200 / 1000) * this.config.sampleRate);
+        const overlapSamples = Math.floor(
+          (200 / 1000) * this.config.sampleRate,
+        );
         this.speechBuffer = this.speechBuffer.slice(-overlapSamples);
         this.currentSpeechDurationMs = 200;
         return event;

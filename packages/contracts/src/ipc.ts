@@ -13,6 +13,7 @@ import {
   TranslationCapabilitySchema,
   TranslationRequestSchema,
   TranslationResultSchema,
+  TranslationProviderIdSchema,
 } from '@echo-lingo/contracts/translation.js';
 import {
   SubtitleExportOptionsSchema,
@@ -26,6 +27,15 @@ import {
   AppSettingsSchema,
   OverlaySettingsSchema,
 } from '@echo-lingo/contracts/settings.js';
+import {
+  OcrProviderIdSchema,
+  OcrProfileSchema,
+  OcrPreprocessOptionsSchema,
+} from '@echo-lingo/contracts/ocr.js';
+import {
+  ScreenCaptureRegionSchema,
+  ContinuousOcrConfigSchema,
+} from '@echo-lingo/contracts/screen-translation.js';
 
 export const IPC_CHANNELS = {
   // App
@@ -88,6 +98,39 @@ export const IPC_CHANNELS = {
   OVERLAY_SEGMENTS_STREAM: 'overlay:segments-stream',
   OVERLAY_GET_SEGMENTS: 'overlay:get-segments',
   OVERLAY_VISIBILITY_STREAM: 'overlay:visibility-stream',
+
+  // Screen & Capture
+  SCREEN_GET_DISPLAYS: 'screen:get-displays',
+  SCREEN_SELECT_REGION: 'screen:select-region',
+  SCREEN_CAPTURE_REGION: 'screen:capture-region',
+  SCREEN_CANCEL_CAPTURE: 'screen:cancel-capture',
+
+  // OCR
+  OCR_GET_PROVIDERS: 'ocr:get-providers',
+  OCR_GET_LANGUAGES: 'ocr:get-languages',
+  OCR_RECOGNIZE: 'ocr:recognize',
+
+  // Screen Translation & Continuous
+  SCREEN_TRANSLATE_REGION: 'screen-translate:region',
+  SCREEN_CONTINUOUS_START: 'screen-translate:continuous-start',
+  SCREEN_CONTINUOUS_STOP: 'screen-translate:continuous-stop',
+  SCREEN_CONTINUOUS_PAUSE: 'screen-translate:continuous-pause',
+  SCREEN_CONTINUOUS_RESUME: 'screen-translate:continuous-resume',
+  SCREEN_CONTINUOUS_STATUS_STREAM: 'screen-translate:continuous-status-stream',
+  SCREEN_CONTINUOUS_EVENT_STREAM: 'screen-translate:continuous-event-stream',
+
+  // Floating Result Panel
+  SCREEN_FLOATING_PANEL_SHOW: 'screen-translate:floating-panel-show',
+  SCREEN_FLOATING_PANEL_HIDE: 'screen-translate:floating-panel-hide',
+  SCREEN_FLOATING_PANEL_STREAM: 'screen-translate:floating-panel-stream',
+
+  // OCR History
+  OCR_HISTORY_LIST: 'ocr-history:list',
+  OCR_HISTORY_GET: 'ocr-history:get',
+  OCR_HISTORY_INSERT: 'ocr-history:insert',
+  OCR_HISTORY_DELETE: 'ocr-history:delete',
+  OCR_HISTORY_CLEAR: 'ocr-history:clear',
+  OCR_HISTORY_SEARCH: 'ocr-history:search',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
@@ -124,3 +167,31 @@ export const ImportSubtitlesRequestSchema = z.object({
   sourceLanguage: z.string().default('en'),
   targetLanguage: z.string().default('vi'),
 });
+
+export const ScreenCaptureRegionRequestSchema = z.object({
+  displayId: z.number().optional(),
+  x: z.number(),
+  y: z.number(),
+  width: z.number(),
+  height: z.number(),
+  preprocessOptions: OcrPreprocessOptionsSchema.optional(),
+});
+
+export const ScreenTranslateRequestSchema = z.object({
+  region: ScreenCaptureRegionSchema,
+  ocrLanguage: z.string().optional(),
+  targetLanguages: z.array(z.string()).optional(),
+  sourceLanguage: z.string().optional(),
+  ocrProviderId: OcrProviderIdSchema.optional(),
+  translationProviderId: TranslationProviderIdSchema.optional(),
+  profile: OcrProfileSchema.optional(),
+  skipPreview: z.boolean().optional(),
+});
+export type ScreenTranslateRequest = z.infer<typeof ScreenTranslateRequestSchema>;
+
+export const OcrHistoryQuerySchema = z.object({
+  query: z.string().optional(),
+  limit: z.number().min(1).max(500).optional(),
+  offset: z.number().min(0).optional(),
+});
+export type OcrHistoryQuery = z.infer<typeof OcrHistoryQuerySchema>;

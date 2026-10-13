@@ -77,6 +77,33 @@ export const MIGRATIONS: Migration[] = [
       `);
     },
   },
+  {
+    id: 2,
+    name: 'ocr_history_schema',
+    up(driver: IDatabaseDriver) {
+      driver.exec(`
+        CREATE TABLE IF NOT EXISTS ocr_history (
+          id TEXT PRIMARY KEY,
+          created_at INTEGER NOT NULL,
+          ocr_provider TEXT NOT NULL,
+          ocr_language TEXT NOT NULL,
+          source_language TEXT NOT NULL,
+          target_language TEXT NOT NULL,
+          original_text TEXT NOT NULL,
+          corrected_text TEXT,
+          translated_text TEXT NOT NULL,
+          confidence REAL NOT NULL DEFAULT 1,
+          duration_ms INTEGER NOT NULL DEFAULT 0,
+          session_type TEXT NOT NULL DEFAULT 'single',
+          image_data TEXT,
+          metadata TEXT
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_ocr_history_created_at ON ocr_history(created_at DESC);
+        CREATE INDEX IF NOT EXISTS idx_ocr_history_session_type ON ocr_history(session_type);
+      `);
+    },
+  },
 ];
 
 export function runMigrations(driver: IDatabaseDriver): void {

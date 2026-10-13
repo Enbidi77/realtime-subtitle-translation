@@ -6,6 +6,7 @@ export type AppPage =
   | 'sessions'
   | 'history'
   | 'providers'
+  | 'ocr-translate'
   | 'settings';
 
 interface NavigationStore {

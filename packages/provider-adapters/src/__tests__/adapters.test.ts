@@ -7,7 +7,10 @@ import {
   GroqWhisperProvider,
   LocalWhisperProvider,
   WindowsSpeechProvider,
+  MockOcrProvider,
+  WindowsNativeOcrProvider,
 } from '@echo-lingo/provider-adapters';
+import { OcrRegistry } from '@echo-lingo/ocr-core';
 
 describe('Provider Adapters', () => {
   describe('Translation Providers', () => {
@@ -81,6 +84,62 @@ describe('Provider Adapters', () => {
       const status = await winSpeech.getModelStatus();
       expect(Array.isArray(status)).toBe(true);
       expect(status.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('OCR Providers', () => {
+    it('initializes and recognizes mock text with MockOcrProvider', async () => {
+      const mock = new MockOcrProvider();
+      expect(mock.id).toBe('mock');
+      expect(mock.isLocal).toBe(true);
+      expect(await mock.healthCheck()).toBe(true);
+
+      const cap = mock.getCapability();
+      expect(cap.supportedLanguages.length).toBeGreaterThan(0);
+
+      const result = await mock.recognize({
+        imageBuffer: 'fake-base64',
+        language: 'en',
+      });
+
+      expect(result.text).toBe('EchoLingo On-Screen OCR Translation');
+      expect(result.blocks.length).toBeGreaterThan(0);
+      expect(result.lines.length).toBeGreaterThan(0);
+      expect(result.confidence).toBeGreaterThan(0.9);
+    });
+
+    it('reports capability and readiness for WindowsNativeOcrProvider', async () => {
+      const winOcr = new WindowsNativeOcrProvider();
+      expect(winOcr.id).toBe('windows-native');
+      expect(winOcr.isLocal).toBe(true);
+      expect(await winOcr.healthCheck()).toBe(process.platform === 'win32');
+
+      const cap = winOcr.getCapability();
+      expect(cap.id).toBe('windows-native');
+      expect(cap.isLocal).toBe(true);
+      expect(cap.supportedLanguages.length).toBeGreaterThan(0);
+    });
+
+    it('integrates OCR providers into OcrRegistry', async () => {
+      const registry = new OcrRegistry();
+      const mock = new MockOcrProvider();
+      const winOcr = new WindowsNativeOcrProvider();
+
+      registry.register(mock);
+      registry.register(winOcr);
+
+      registry.setActiveProvider('mock');
+      const active = registry.getActiveProvider();
+      expect(active.id).toBe('mock');
+
+      const res = await registry.recognize({
+        imageBuffer: 'fake-base64',
+        language: 'en',
+      });
+      expect(res.text).toBe('EchoLingo On-Screen OCR Translation');
+
+      const caps = registry.getAllCapabilities();
+      expect(caps).toHaveLength(2);
     });
   });
 });

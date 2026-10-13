@@ -1,5 +1,6 @@
 import {
   GlossaryEntry,
+  OcrHistoryItem,
   SessionMetadata,
   SubtitleSegment,
 } from '@echo-lingo/contracts';
@@ -235,7 +236,94 @@ export class DatabaseRepository {
     return res.changes;
   }
 
+  // ==================== OCR History ====================
+
+  public insertOcrHistoryItem(item: OcrHistoryItem): void {
+    const stmt = this.driver.prepare(`
+      INSERT OR REPLACE INTO ocr_history (
+        id, created_at, ocr_provider, ocr_language, source_language, target_language,
+        original_text, corrected_text, translated_text, confidence, duration_ms,
+        session_type, image_data, metadata
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+
+    stmt.run(
+      item.id,
+      item.createdAt,
+      item.ocrProvider,
+      item.ocrLanguage,
+      item.sourceLanguage,
+      item.targetLanguage,
+      item.originalText,
+      item.correctedText || null,
+      item.translatedText,
+      item.confidence,
+      item.durationMs,
+      item.sessionType || 'single',
+      item.imageData || null,
+      item.metadata ? JSON.stringify(item.metadata) : null
+    );
+  }
+
+  public getOcrHistoryItem(id: string): OcrHistoryItem | null {
+    const row = this.driver.prepare('SELECT * FROM ocr_history WHERE id = ?').get(id) as any;
+    if (!row) return null;
+    return this.mapOcrHistoryRow(row);
+  }
+
+  public getAllOcrHistory(limit = 100, offset = 0): OcrHistoryItem[] {
+    const rows = this.driver
+      .prepare('SELECT * FROM ocr_history ORDER BY created_at DESC LIMIT ? OFFSET ?')
+      .all(limit, offset) as any[];
+    return rows.map((r) => this.mapOcrHistoryRow(r));
+  }
+
+  public searchOcrHistory(query: string, limit = 100, offset = 0): OcrHistoryItem[] {
+    const pattern = `%${query}%`;
+    const rows = this.driver
+      .prepare(`
+        SELECT * FROM ocr_history
+        WHERE original_text LIKE ? OR translated_text LIKE ? OR (corrected_text IS NOT NULL AND corrected_text LIKE ?)
+        ORDER BY created_at DESC LIMIT ? OFFSET ?
+      `)
+      .all(pattern, pattern, pattern, limit, offset) as any[];
+    return rows.map((r) => this.mapOcrHistoryRow(r));
+  }
+
+  public deleteOcrHistoryItem(id: string): void {
+    this.driver.prepare('DELETE FROM ocr_history WHERE id = ?').run(id);
+  }
+
+  public clearAllOcrHistory(): void {
+    this.driver.prepare('DELETE FROM ocr_history').run();
+  }
+
+  public pruneOldOcrHistory(retentionDays: number): number {
+    if (retentionDays <= 0) return 0;
+    const cutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
+    const res = this.driver.prepare('DELETE FROM ocr_history WHERE created_at < ?').run(cutoffMs);
+    return res.changes;
+  }
+
   // Helpers
+  private mapOcrHistoryRow(r: any): OcrHistoryItem {
+    return {
+      id: r.id,
+      createdAt: r.created_at,
+      ocrProvider: r.ocr_provider,
+      ocrLanguage: r.ocr_language,
+      sourceLanguage: r.source_language,
+      targetLanguage: r.target_language,
+      originalText: r.original_text,
+      correctedText: r.corrected_text || undefined,
+      translatedText: r.translated_text,
+      confidence: r.confidence,
+      durationMs: r.duration_ms,
+      sessionType: (r.session_type as 'single' | 'continuous') || 'single',
+      imageData: r.image_data || undefined,
+      metadata: r.metadata ? JSON.parse(r.metadata) : undefined,
+    };
+  }
   private mapSessionRow(r: any): SessionMetadata {
     return {
       id: r.id,

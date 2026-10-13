@@ -121,4 +121,56 @@ describe('Database Module', () => {
     expect(repo.getSetting('theme', 'light')).toBe('dark');
     expect(repo.getSetting('non_existing', 'fallback')).toBe('fallback');
   });
+
+  it('manages OCR history persistence, search, and deletion', () => {
+    const item1 = {
+      id: 'ocr-1',
+      createdAt: 1000,
+      ocrProvider: 'windows-native',
+      ocrLanguage: 'en',
+      sourceLanguage: 'en',
+      targetLanguage: 'vi',
+      originalText: 'Press start to begin the game',
+      correctedText: 'Press Start to begin the game',
+      translatedText: 'Nhấn Bắt đầu để vào trò chơi',
+      confidence: 0.95,
+      durationMs: 42,
+      sessionType: 'single' as const,
+    };
+
+    const item2 = {
+      id: 'ocr-2',
+      createdAt: 2000,
+      ocrProvider: 'tesseract',
+      ocrLanguage: 'ja',
+      sourceLanguage: 'ja',
+      targetLanguage: 'en',
+      originalText: 'ゲームオーバー',
+      translatedText: 'Game Over',
+      confidence: 0.99,
+      durationMs: 120,
+      sessionType: 'continuous' as const,
+    };
+
+    repo.insertOcrHistoryItem(item1);
+    repo.insertOcrHistoryItem(item2);
+
+    expect(repo.getOcrHistoryItem('ocr-1')?.originalText).toBe('Press start to begin the game');
+    expect(repo.getOcrHistoryItem('ocr-1')?.correctedText).toBe('Press Start to begin the game');
+    expect(repo.getOcrHistoryItem('ocr-2')?.translatedText).toBe('Game Over');
+
+    const all = repo.getAllOcrHistory();
+    expect(all).toHaveLength(2);
+    expect(all[0].id).toBe('ocr-2'); // ordered by created_at DESC
+
+    const searchRes = repo.searchOcrHistory('Game Over');
+    expect(searchRes).toHaveLength(1);
+    expect(searchRes[0].id).toBe('ocr-2');
+
+    repo.deleteOcrHistoryItem('ocr-1');
+    expect(repo.getAllOcrHistory()).toHaveLength(1);
+
+    repo.clearAllOcrHistory();
+    expect(repo.getAllOcrHistory()).toHaveLength(0);
+  });
 });
