@@ -10,6 +10,22 @@
       "error": "Error"
     }
   },
+  "layout": {
+    "workspace": "Workspace",
+    "localPrivate": "Local & Private",
+    "localPrivateDesc": "Whisper offline inference & zero data harvesting.",
+    "expandSidebar": "Expand Sidebar",
+    "collapseSidebar": "Collapse Sidebar",
+    "overlayActive": "Overlay Active",
+    "hideOverlay": "Hide Subtitle Overlay",
+    "switchToLight": "Switch to light mode",
+    "switchToDark": "Switch to dark mode",
+    "minimize": "Minimize",
+    "maximize": "Maximize",
+    "close": "Close",
+    "audioNotice": "Audio Capture Notice",
+    "dismiss": "Dismiss"
+  },
   "nav": {
     "dashboard": "Home",
     "live": "Live Subtitles",
@@ -20,19 +36,51 @@
     "settings": "Settings"
   },
   "dashboard": {
+    "welcome": "Welcome to EchoLingo",
+    "tagline": "Real-time speech recognition, live subtitling, and AI translation pipeline.",
+    "pipelineStandby": "Pipeline Standby",
+    "liveSessionActive": "Live Session Active",
+    "realtimeIntelligence": "Real-Time Intelligence",
     "heroTitle": "Real-time speech to live subtitles & translation",
     "heroSubtitle": "Speak freely or capture system audio. EchoLingo transcribes and translates in real-time with local and cloud intelligence.",
     "startListening": "Start Listening",
     "stopListening": "Stop Listening",
     "audioSource": "Audio Source",
+    "audioSources": {
+      "system": "🔊 System Audio (YouTube, PC)",
+      "microphone": "🎙️ Microphone (Voice)",
+      "systemHint": "⚡ Captures YouTube, meetings & PC audio directly.",
+      "microphoneHint": "🎙️ Physical mic. For YouTube, choose System Audio."
+    },
+    "speechEngine": "Speech Engine",
+    "keys": "Keys",
+    "engineDescriptions": {
+      "windowsSpeech": "💻 Native Windows SAPI. 100% offline, zero setup.",
+      "groqWhisper": "⚡ Ultra-fast Whisper Large cloud. Free key.",
+      "mock": "🧪 Simulates subtitles on sound energy.",
+      "openaiWhisper": "OpenAI whisper-1 model.",
+      "whisperLocal": "Offline Whisper inference."
+    },
     "sourceLanguage": "Spoken Language",
+    "sourceLanguageHint": "Spoken language of the audio.",
     "targetLanguage": "Translate To",
-    "recentSessions": "Recent Sessions",
-    "noSessions": "No sessions yet. Start your first session above!",
+    "targetLanguageHint": "Real-time translated subtitle.",
     "totalSessions": "Total Sessions",
     "totalMinutes": "Minutes Processed",
     "activeEngine": "Speech Engine",
-    "activeTranslator": "Translator"
+    "activeTranslator": "Translator",
+    "systemStatus": {
+      "speechEngine": "Speech Engine:",
+      "database": "Database:",
+      "operational": "Operational",
+      "audioDriver": "Audio Driver:",
+      "localWhisperReady": "Local Whisper Ready"
+    },
+    "recentSessions": "Recent Sessions",
+    "viewAll": "View all",
+    "noSessions": "No sessions yet. Start your first session above!",
+    "noSessionsSubtitle": "Start listening to capture live audio and transcribe subtitles in real-time.",
+    "segmentsCount": "segments"
   },
   "live": {
     "listeningNow": "Listening & Translating",
@@ -41,11 +89,129 @@
     "stop": "End Session",
     "searchPlaceholder": "Search subtitle in this session...",
     "openOverlay": "Floating Overlay",
+    "overlayActive": "Overlay Active",
+    "hideOverlay": "Hide Subtitle Overlay",
     "copyTranscript": "Copy Transcript",
     "export": "Export",
     "emptyState": "Waiting for speech... Speak into your microphone.",
+    "emptyStateSystem": "Listening to system audio. Play your YouTube video, call, or media to see live subtitles and translations.",
+    "emptyStateMic": "Listening to microphone. Speak clearly into your mic, or switch to System Audio in Dashboard if watching video.",
+    "emptyStateIdle": "Start listening to begin real-time speech recognition and subtitle translation.",
+    "hintCardTitle": "Watching a YouTube video or meeting?",
+    "hintCardDesc": "Microphone captures ambient room acoustics. For pristine direct audio without room echo, select System Audio on the Dashboard.",
+    "liveSpeechStream": "Live Speech Stream",
     "latency": "Latency",
     "segments": "Segments"
+  },
+  "ocr": {
+    "title": "On-Screen OCR & Real-Time Translation",
+    "subtitle": "Capture dialogue from video games, stream subtitles, documents, or apps and translate in place.",
+    "captureRegion": "Capture Region",
+    "tabs": {
+      "capture": "One-Time Capture",
+      "continuous": "Continuous Monitoring",
+      "history": "History"
+    },
+    "engine": "Engine:",
+    "ocrLang": "OCR Lang:",
+    "target": "Target:",
+    "presets": {
+      "label": "Preprocessing Preset",
+      "general": "General Desktop Text (Default)",
+      "gameSubtitles": "Game Subtitles (High Contrast)",
+      "smallUi": "Small UI Text (2x Upscale)",
+      "highContrast": "High Contrast (Otsu Binarize)",
+      "cjk": "Japanese & Chinese Characters",
+      "none": "No Preprocessing"
+    },
+    "ocrLangHint": "OCR Language Hint",
+    "translateInto": "Translate Into",
+    "skipPreview": "Skip preview & translate instantly",
+    "editor": {
+      "recognizedTitle": "Recognized Text (Editable)",
+      "conf": "Conf",
+      "copy": "Copy",
+      "copied": "Copied",
+      "placeholder": "Captured OCR text will appear here. You can manually edit or correct any words before re-translating...",
+      "characters": "characters",
+      "words": "words",
+      "retranslate": "Re-Translate"
+    },
+    "result": {
+      "title": "Translation",
+      "copy": "Copy",
+      "copyBoth": "Copy Both",
+      "copied": "Copied",
+      "copiedBoth": "Copied Both",
+      "readyTitle": "Ready to translate",
+      "readyDesc": "Press \"Capture Region\" or press Ctrl+Shift+T anytime",
+      "provider": "Provider:",
+      "openFloatingPanel": "Open Floating Panel"
+    },
+    "continuous": {
+      "title": "Real-Time Screen Text Monitoring",
+      "subtitle": "Continuously scans a target region (e.g. video subtitles or game dialogue) and translates only meaningful changes.",
+      "selectRegion": "Select Region",
+      "changeRegion": "Change Region",
+      "start": "Start Monitoring",
+      "stop": "Stop Monitoring",
+      "pause": "Pause",
+      "resume": "Resume",
+      "interval": "Capture Interval",
+      "fast": "Fast (0.5s)",
+      "balanced": "Balanced (2.0s)",
+      "eco": "Eco (5.0s)",
+      "sensitivity": "Change Sensitivity Threshold",
+      "sensitive": "Sensitive (5%)",
+      "normal": "Normal (15%)",
+      "distinct": "Distinct Only (50%)",
+      "state": "State",
+      "framesScanned": "Frames Scanned",
+      "translated": "Translated",
+      "duplicatesSkipped": "Duplicates Skipped",
+      "avgLatency": "Avg Latency",
+      "states": {
+        "idle": "Idle",
+        "capturing": "Capturing",
+        "recognizing": "Recognizing",
+        "translating": "Translating",
+        "paused": "Paused",
+        "stopping": "Stopping"
+      },
+      "streamChanges": "Detected Stream Changes",
+      "emptyStream": "Start continuous monitoring to view real-time text detections."
+    },
+    "history": {
+      "searchPlaceholder": "Search captured text or translations...",
+      "exportTxt": "Export TXT",
+      "exportJson": "Export JSON",
+      "clearHistory": "Clear History",
+      "clearConfirm": "Are you sure you want to clear all OCR translation history?",
+      "originalText": "Original Text",
+      "translation": "Translation",
+      "copyBothTooltip": "Copy Original and Translation",
+      "deleteTooltip": "Delete Record",
+      "noHistory": "No translation history found",
+      "noHistoryDesc": "Captured OCR translations will be persisted here for easy searching and export."
+    },
+    "messages": {
+      "selectRegionFirst": "Please select a screen region first.",
+      "captureFailed": "Capture failed",
+      "retranslateFailed": "Retranslation failed",
+      "bridgeUnavailable": "Screen translation bridge is not available",
+      "dismiss": "Dismiss"
+    },
+    "overlay": {
+      "selectInstruction": "Click & drag to select region",
+      "cancelInstruction": "Press Esc to cancel"
+    },
+    "floatingPanel": {
+      "waiting": "Waiting for translation result...",
+      "captureNext": "Capture Next",
+      "dismiss": "Dismiss Panel",
+      "copied": "Copied",
+      "copiedBoth": "Copied Both"
+    }
   },
   "sessions": {
     "title": "Saved Sessions",
@@ -56,6 +222,13 @@
     "deleteConfirm": "Are you sure you want to delete this session?",
     "duration": "Duration",
     "noSegments": "No subtitle segments recorded in this session."
+  },
+  "history": {
+    "title": "Translation History",
+    "subtitle": "Searchable historical archive of all transcribed speech segments.",
+    "searchPlaceholder": "Search keywords or translations...",
+    "noHistory": "No translation history found.",
+    "copySegment": "Copy segment"
   },
   "providers": {
     "title": "Providers & Language Models",

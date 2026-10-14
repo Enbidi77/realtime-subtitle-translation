@@ -10,6 +10,22 @@
       "error": "Lỗi"
     }
   },
+  "layout": {
+    "workspace": "Không gian làm việc",
+    "localPrivate": "Cục bộ & Riêng tư",
+    "localPrivateDesc": "Nhận dạng ngoại tuyến với Whisper & không thu thập dữ liệu.",
+    "expandSidebar": "Mở rộng thanh bên",
+    "collapseSidebar": "Thu gọn thanh bên",
+    "overlayActive": "Cửa sổ nổi đang bật",
+    "hideOverlay": "Ẩn Cửa sổ Phụ đề Nổi",
+    "switchToLight": "Chuyển sang giao diện sáng",
+    "switchToDark": "Chuyển sang giao diện tối",
+    "minimize": "Thu nhỏ",
+    "maximize": "Phóng to",
+    "close": "Đóng",
+    "audioNotice": "Thông báo thu âm",
+    "dismiss": "Đóng"
+  },
   "nav": {
     "dashboard": "Trang chủ",
     "live": "Phụ đề Trực tiếp",
@@ -20,19 +36,51 @@
     "settings": "Cài đặt"
   },
   "dashboard": {
+    "welcome": "Chào mừng đến với EchoLingo",
+    "tagline": "Nhận dạng giọng nói thời gian thực, phụ đề trực tiếp và quy trình dịch thuật AI.",
+    "pipelineStandby": "Hệ thống đang chờ",
+    "liveSessionActive": "Phiên trực tiếp đang chạy",
+    "realtimeIntelligence": "Trí tuệ nhân tạo thời gian thực",
     "heroTitle": "Chuyển giọng nói thành phụ đề & bản dịch trực tiếp",
     "heroSubtitle": "Nói tự nhiên hoặc thu âm thanh hệ thống. EchoLingo tự động nhận dạng và dịch thuật theo thời gian thực với AI cục bộ và đám mây.",
     "startListening": "Bắt đầu Lắng nghe",
     "stopListening": "Dừng Lắng nghe",
     "audioSource": "Nguồn âm thanh",
+    "audioSources": {
+      "system": "🔊 Âm thanh hệ thống (YouTube, PC)",
+      "microphone": "🎙️ Microphone (Giọng nói)",
+      "systemHint": "⚡ Thu âm thanh YouTube, cuộc họp & ứng dụng máy tính trực tiếp.",
+      "microphoneHint": "🎙️ Microphone vật lý. Đối với YouTube, hãy chọn Âm thanh hệ thống."
+    },
+    "speechEngine": "Bộ máy nhận dạng",
+    "keys": "Khóa API",
+    "engineDescriptions": {
+      "windowsSpeech": "💻 Windows SAPI tích hợp. Ngoại tuyến 100%, không cần cài đặt.",
+      "groqWhisper": "⚡ Whisper Large đám mây siêu nhanh. Miễn phí khóa API.",
+      "mock": "🧪 Mô phỏng phụ đề theo mức âm lượng.",
+      "openaiWhisper": "Mô hình OpenAI whisper-1.",
+      "whisperLocal": "Nhận dạng Whisper cục bộ ngoại tuyến."
+    },
     "sourceLanguage": "Ngôn ngữ nói",
+    "sourceLanguageHint": "Ngôn ngữ giọng nói của âm thanh.",
     "targetLanguage": "Dịch sang",
-    "recentSessions": "Phiên gần đây",
-    "noSessions": "Chưa có phiên nào. Bấm Bắt đầu Lắng nghe ở trên để trải nghiệm!",
+    "targetLanguageHint": "Phụ đề dịch theo thời gian thực.",
     "totalSessions": "Tổng số phiên",
     "totalMinutes": "Phút đã xử lý",
     "activeEngine": "Bộ máy nhận dạng",
-    "activeTranslator": "Bộ máy dịch"
+    "activeTranslator": "Bộ máy dịch",
+    "systemStatus": {
+      "speechEngine": "Bộ máy nhận dạng:",
+      "database": "Cơ sở dữ liệu:",
+      "operational": "Đang hoạt động",
+      "audioDriver": "Trình điều khiển âm thanh:",
+      "localWhisperReady": "Whisper cục bộ sẵn sàng"
+    },
+    "recentSessions": "Phiên gần đây",
+    "viewAll": "Xem tất cả",
+    "noSessions": "Chưa có phiên nào. Bấm Bắt đầu Lắng nghe ở trên để trải nghiệm!",
+    "noSessionsSubtitle": "Bắt đầu lắng nghe để thu âm thanh trực tiếp và tạo phụ đề thời gian thực.",
+    "segmentsCount": "đoạn"
   },
   "live": {
     "listeningNow": "Đang nhận dạng & Dịch thuật",
@@ -41,11 +89,129 @@
     "stop": "Kết thúc phiên",
     "searchPlaceholder": "Tìm kiếm phụ đề trong phiên này...",
     "openOverlay": "Cửa sổ Phụ đề Nổi",
+    "overlayActive": "Cửa sổ nổi đang bật",
+    "hideOverlay": "Ẩn Cửa sổ Phụ đề Nổi",
     "copyTranscript": "Sao chép toàn bộ",
     "export": "Xuất file",
     "emptyState": "Đang đợi giọng nói... Hãy nói vào microphone của bạn.",
+    "emptyStateSystem": "Đang thu âm thanh hệ thống. Hãy phát video YouTube, cuộc gọi hoặc phương tiện để xem phụ đề và bản dịch trực tiếp.",
+    "emptyStateMic": "Đang lắng nghe microphone. Hãy nói rõ vào mic, hoặc chuyển sang Âm thanh hệ thống tại Trang chủ nếu đang xem video.",
+    "emptyStateIdle": "Bắt đầu lắng nghe để nhận dạng giọng nói và dịch phụ đề theo thời gian thực.",
+    "hintCardTitle": "Đang xem video YouTube hoặc họp trực tuyến?",
+    "hintCardDesc": "Microphone thu cả tiếng vang trong phòng. Để có âm thanh trực tiếp trong trẻo không bị vọng, hãy chọn Âm thanh hệ thống tại Trang chủ.",
+    "liveSpeechStream": "Dòng giọng nói trực tiếp",
     "latency": "Độ trễ",
     "segments": "Đoạn phụ đề"
+  },
+  "ocr": {
+    "title": "Dịch màn hình (OCR) Thời gian thực",
+    "subtitle": "Chụp và dịch lời thoại trò chơi, phụ đề livestream, tài liệu hoặc ứng dụng ngay tại chỗ.",
+    "captureRegion": "Chụp vùng màn hình",
+    "tabs": {
+      "capture": "Chụp một lần",
+      "continuous": "Giám sát liên tục",
+      "history": "Lịch sử"
+    },
+    "engine": "Bộ máy:",
+    "ocrLang": "Ngôn ngữ OCR:",
+    "target": "Đích:",
+    "presets": {
+      "label": "Mẫu tiền xử lý hình ảnh",
+      "general": "Văn bản màn hình chung (Mặc định)",
+      "gameSubtitles": "Phụ đề Game (Tương phản cao)",
+      "smallUi": "Chữ giao diện nhỏ (Phóng đại 2x)",
+      "highContrast": "Tương phản cao (Nhị phân hóa Otsu)",
+      "cjk": "Ký tự tiếng Nhật & tiếng Trung",
+      "none": "Không tiền xử lý"
+    },
+    "ocrLangHint": "Gợi ý ngôn ngữ OCR",
+    "translateInto": "Dịch sang",
+    "skipPreview": "Bỏ qua xem trước & dịch ngay lập tức",
+    "editor": {
+      "recognizedTitle": "Văn bản nhận dạng (Có thể chỉnh sửa)",
+      "conf": "Độ tin cậy",
+      "copy": "Sao chép",
+      "copied": "Đã sao chép",
+      "placeholder": "Văn bản OCR nhận diện được sẽ xuất hiện ở đây. Bạn có thể tự chỉnh sửa trước khi bấm Dịch lại...",
+      "characters": "ký tự",
+      "words": "từ",
+      "retranslate": "Dịch lại"
+    },
+    "result": {
+      "title": "Bản dịch",
+      "copy": "Sao chép",
+      "copyBoth": "Sao chép cả hai",
+      "copied": "Đã sao chép",
+      "copiedBoth": "Đã sao chép cả hai",
+      "readyTitle": "Sẵn sàng dịch thuật",
+      "readyDesc": "Nhấn \"Chụp vùng màn hình\" hoặc bấm Ctrl+Shift+T bất cứ lúc nào",
+      "provider": "Nhà cung cấp:",
+      "openFloatingPanel": "Mở cửa sổ nổi"
+    },
+    "continuous": {
+      "title": "Giám sát văn bản màn hình thời gian thực",
+      "subtitle": "Liên tục quét vùng màn hình mục tiêu (ví dụ: phụ đề video, hội thoại game) và chỉ dịch khi phát hiện nội dung thay đổi.",
+      "selectRegion": "Chọn vùng",
+      "changeRegion": "Đổi vùng",
+      "start": "Bắt đầu giám sát",
+      "stop": "Dừng giám sát",
+      "pause": "Tạm dừng",
+      "resume": "Tiếp tục",
+      "interval": "Khoảng thời gian chụp",
+      "fast": "Nhanh (0.5s)",
+      "balanced": "Cân bằng (2.0s)",
+      "eco": "Tiết kiệm (5.0s)",
+      "sensitivity": "Ngưỡng độ nhạy thay đổi",
+      "sensitive": "Nhạy (5%)",
+      "normal": "Bình thường (15%)",
+      "distinct": "Chỉ khác biệt lớn (50%)",
+      "state": "Trạng thái",
+      "framesScanned": "Số khung hình đã quét",
+      "translated": "Đã dịch",
+      "duplicatesSkipped": "Bỏ qua trùng lặp",
+      "avgLatency": "Độ trễ TB",
+      "states": {
+        "idle": "Chờ",
+        "capturing": "Đang chụp",
+        "recognizing": "Đang nhận dạng",
+        "translating": "Đang dịch",
+        "paused": "Tạm dừng",
+        "stopping": "Đang dừng"
+      },
+      "streamChanges": "Thay đổi văn bản phát hiện được",
+      "emptyStream": "Bắt đầu giám sát liên tục để xem các văn bản được phát hiện theo thời gian thực."
+    },
+    "history": {
+      "searchPlaceholder": "Tìm kiếm văn bản hoặc bản dịch đã lưu...",
+      "exportTxt": "Xuất TXT",
+      "exportJson": "Xuất JSON",
+      "clearHistory": "Xóa lịch sử",
+      "clearConfirm": "Bạn có chắc chắn muốn xóa toàn bộ lịch sử dịch màn hình không?",
+      "originalText": "Văn bản gốc",
+      "translation": "Bản dịch",
+      "copyBothTooltip": "Sao chép văn bản gốc và bản dịch",
+      "deleteTooltip": "Xóa bản ghi",
+      "noHistory": "Không tìm thấy lịch sử dịch thuật",
+      "noHistoryDesc": "Các bản dịch OCR sẽ được lưu trữ tại đây để bạn dễ dàng tìm kiếm và xuất dữ liệu."
+    },
+    "messages": {
+      "selectRegionFirst": "Vui lòng chọn một vùng màn hình trước.",
+      "captureFailed": "Chụp màn hình thất bại",
+      "retranslateFailed": "Dịch lại thất bại",
+      "bridgeUnavailable": "Kết nối dịch màn hình hiện không khả dụng",
+      "dismiss": "Đóng"
+    },
+    "overlay": {
+      "selectInstruction": "Nhấp & kéo để chọn vùng",
+      "cancelInstruction": "Nhấn Esc để hủy"
+    },
+    "floatingPanel": {
+      "waiting": "Đang chờ kết quả dịch thuật...",
+      "captureNext": "Chụp tiếp",
+      "dismiss": "Đóng bảng điều khiển",
+      "copied": "Đã sao chép",
+      "copiedBoth": "Đã sao chép cả hai"
+    }
   },
   "sessions": {
     "title": "Các phiên đã lưu",
@@ -56,6 +222,13 @@
     "deleteConfirm": "Bạn có chắc chắn muốn xóa phiên ghi này không?",
     "duration": "Thời lượng",
     "noSegments": "Chưa có đoạn phụ đề nào trong phiên này."
+  },
+  "history": {
+    "title": "Lịch sử Dịch thuật",
+    "subtitle": "Kho lưu trữ có thể tìm kiếm của tất cả các đoạn giọng nói đã được phiên âm.",
+    "searchPlaceholder": "Tìm kiếm từ khóa hoặc bản dịch...",
+    "noHistory": "Chưa có lịch sử dịch thuật nào.",
+    "copySegment": "Sao chép đoạn"
   },
   "providers": {
     "title": "Nhà cung cấp & Mô hình Ngôn ngữ",

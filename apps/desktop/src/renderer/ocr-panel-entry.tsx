@@ -18,19 +18,22 @@ import {
 const FloatingResultPanel: React.FC = () => {
   const [data, setData] = useState<FloatingPanelPayload | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [locale, setLocale] = useState<string>('en');
 
   useEffect(() => {
-    // Sync theme and glass intensity from settings
+    // Sync theme, glass intensity, and locale from settings
     if (window.electronAPI?.settings) {
       window.electronAPI.settings
         .get()
         .then((loaded) => {
           applyTheme(loaded.theme, loaded.glassIntensity);
+          if (loaded.locale) setLocale(loaded.locale);
         })
         .catch(console.error);
 
       const unsubSettings = window.electronAPI.settings.onUpdate?.((updated) => {
         applyTheme(updated.theme, updated.glassIntensity);
+        if (updated.locale) setLocale(updated.locale);
       });
 
       return () => {
@@ -104,7 +107,9 @@ const FloatingResultPanel: React.FC = () => {
           <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
           <span className="font-semibold text-foreground">EchoLingo OCR</span>
         </div>
-        <span className="text-[11px] text-muted-foreground">Waiting for translation result...</span>
+        <span className="text-[11px] text-muted-foreground">
+          {locale === 'vi' ? 'Đang chờ kết quả dịch thuật...' : 'Waiting for translation result...'}
+        </span>
       </div>
     );
   }
@@ -143,7 +148,7 @@ const FloatingResultPanel: React.FC = () => {
             type="button"
             onClick={handleClose}
             className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-glass hover:text-foreground text-muted-foreground cursor-pointer transition-colors border border-transparent hover:border-glass-border"
-            title="Dismiss Panel"
+            title={locale === 'vi' ? 'Đóng bảng điều khiển' : 'Dismiss Panel'}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -180,7 +185,11 @@ const FloatingResultPanel: React.FC = () => {
               )
             }
           >
-            <span>{copiedKey === 'trans' ? 'Copied' : 'Copy'}</span>
+            <span>
+              {copiedKey === 'trans'
+                ? (locale === 'vi' ? 'Đã sao chép' : 'Copied')
+                : (locale === 'vi' ? 'Sao chép' : 'Copy')}
+            </span>
           </GlassButton>
 
           <GlassButton
@@ -188,7 +197,11 @@ const FloatingResultPanel: React.FC = () => {
             variant="subtle"
             onClick={() => handleCopy(`${data.originalText}\n\n${data.translatedText}`, 'both')}
           >
-            <span>{copiedKey === 'both' ? 'Copied Both' : 'Copy Both'}</span>
+            <span>
+              {copiedKey === 'both'
+                ? (locale === 'vi' ? 'Đã sao chép cả hai' : 'Copied Both')
+                : (locale === 'vi' ? 'Sao chép cả hai' : 'Copy Both')}
+            </span>
           </GlassButton>
         </div>
 
@@ -198,7 +211,7 @@ const FloatingResultPanel: React.FC = () => {
           onClick={handleCaptureAnother}
           icon={<Crop className="w-3 h-3" />}
         >
-          <span>Capture Next</span>
+          <span>{locale === 'vi' ? 'Chụp tiếp' : 'Capture Next'}</span>
         </GlassButton>
       </div>
     </div>

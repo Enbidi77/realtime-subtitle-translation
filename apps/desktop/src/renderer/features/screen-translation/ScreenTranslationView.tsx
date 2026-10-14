@@ -21,6 +21,7 @@ import {
   GlassInput,
 } from '@/components/ui/index.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import {
   Crop,
   Copy,
@@ -45,6 +46,7 @@ import {
 } from 'lucide-react';
 
 export const ScreenTranslationView: React.FC = () => {
+  const { t } = useI18n();
   const { settings, updateSettings } = useSettingsStore();
 
   // Active Tab
@@ -160,7 +162,7 @@ export const ScreenTranslationView: React.FC = () => {
 
     try {
       if (!window.electronAPI?.screenTranslation) {
-        throw new Error('Screen translation bridge is not available');
+        throw new Error(t('ocr.messages.bridgeUnavailable', 'Screen translation bridge is not available'));
       }
 
       // Step 1: Open interactive transparent selection overlay
@@ -193,7 +195,7 @@ export const ScreenTranslationView: React.FC = () => {
       loadHistory();
     } catch (err: any) {
       console.error('Capture failed:', err);
-      setErrorMessage(err.message || 'Capture failed');
+      setErrorMessage(err.message || t('ocr.messages.captureFailed', 'Capture failed'));
     } finally {
       setIsCapturing(false);
       setIsTranslating(false);
@@ -217,7 +219,7 @@ export const ScreenTranslationView: React.FC = () => {
       setTranslatedText(res.translatedText);
       setDurationMs(res.durationMs);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Retranslation failed');
+      setErrorMessage(err.message || t('ocr.messages.retranslateFailed', 'Retranslation failed'));
     } finally {
       setIsTranslating(false);
     }
@@ -244,7 +246,7 @@ export const ScreenTranslationView: React.FC = () => {
 
   const handleToggleContinuous = async () => {
     if (!continuousRegion) {
-      setErrorMessage('Please select a screen region first.');
+      setErrorMessage(t('ocr.messages.selectRegionFirst', 'Please select a screen region first.'));
       return;
     }
 
@@ -283,7 +285,7 @@ export const ScreenTranslationView: React.FC = () => {
   };
 
   const handleClearHistory = async () => {
-    if (confirm('Are you sure you want to clear all OCR translation history?')) {
+    if (confirm(t('ocr.history.clearConfirm', 'Are you sure you want to clear all OCR translation history?'))) {
       await window.electronAPI?.screenTranslation.clearHistory();
       setHistoryItems([]);
     }
@@ -328,11 +330,11 @@ export const ScreenTranslationView: React.FC = () => {
               <Crop className="w-5 h-5" />
             </div>
             <h1 className="text-xl font-bold tracking-tight text-foreground">
-              On-Screen OCR & Real-Time Translation
+              {t('ocr.title', 'On-Screen OCR & Real-Time Translation')}
             </h1>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Capture dialogue from video games, stream subtitles, documents, or apps and translate in place.
+            {t('ocr.subtitle', 'Capture dialogue from video games, stream subtitles, documents, or apps and translate in place.')}
           </p>
         </div>
 
@@ -346,7 +348,7 @@ export const ScreenTranslationView: React.FC = () => {
             onClick={handleStartCapture}
             className="shadow-lg shadow-primary/20"
           >
-            <span>Capture Region</span>
+            <span>{t('ocr.captureRegion', 'Capture Region')}</span>
             <kbd className="ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-white/20 rounded text-white border border-white/30">
               Ctrl+Shift+T
             </kbd>
@@ -366,7 +368,7 @@ export const ScreenTranslationView: React.FC = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent'
             }`}
           >
-            One-Time Capture
+            {t('ocr.tabs.capture', 'One-Time Capture')}
           </button>
           <button
             type="button"
@@ -377,7 +379,7 @@ export const ScreenTranslationView: React.FC = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent'
             }`}
           >
-            <span>Continuous Monitoring</span>
+            <span>{t('ocr.tabs.continuous', 'Continuous Monitoring')}</span>
             {continuousState !== 'idle' && (
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             )}
@@ -394,7 +396,7 @@ export const ScreenTranslationView: React.FC = () => {
                 : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent'
             }`}
           >
-            <span>History</span>
+            <span>{t('ocr.tabs.history', 'History')}</span>
             <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-glass-subtle border border-glass-border">
               {historyItems.length}
             </span>
@@ -404,7 +406,7 @@ export const ScreenTranslationView: React.FC = () => {
         {/* Engine and Languages Pills */}
         <div className="hidden lg:flex items-center gap-2.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-muted-foreground">Engine:</span>
+            <span className="text-[11px] font-medium text-muted-foreground">{t('ocr.engineLabel', 'Engine:')}</span>
             <GlassSelect
               size="xs"
               containerClassName="w-auto"
@@ -421,7 +423,7 @@ export const ScreenTranslationView: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-muted-foreground">OCR Lang:</span>
+            <span className="text-[11px] font-medium text-muted-foreground">{t('ocr.ocrLangLabel', 'OCR Lang:')}</span>
             <GlassSelect
               size="xs"
               containerClassName="w-auto"
@@ -431,14 +433,14 @@ export const ScreenTranslationView: React.FC = () => {
             >
               {OCR_SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
-                  {l.name}
+                  {l.name} {l.nativeName && l.nativeName !== l.name ? `(${l.nativeName})` : ''}
                 </option>
               ))}
             </GlassSelect>
           </div>
 
           <div className="flex items-center gap-1.5">
-            <span className="text-[11px] font-medium text-muted-foreground">Target:</span>
+            <span className="text-[11px] font-medium text-muted-foreground">{t('ocr.targetLabel', 'Target:')}</span>
             <GlassSelect
               size="xs"
               containerClassName="w-auto"
@@ -448,7 +450,7 @@ export const ScreenTranslationView: React.FC = () => {
             >
               {TARGET_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
-                  {l.name}
+                  {l.name} {l.nativeName ? `(${l.nativeName})` : ''}
                 </option>
               ))}
             </GlassSelect>
@@ -468,7 +470,7 @@ export const ScreenTranslationView: React.FC = () => {
             onClick={() => setErrorMessage(null)}
             className="hover:underline text-[11px]"
           >
-            Dismiss
+            {t('ocr.messages.dismiss', 'Dismiss')}
           </button>
         </div>
       )}
@@ -483,24 +485,24 @@ export const ScreenTranslationView: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    Preprocessing Preset
+                    {t('ocr.presets.label', 'Preprocessing Preset')}
                   </label>
                   <GlassSelect
                     value={profile}
                     onChange={(e) => setProfile(e.target.value as OcrProfile)}
                   >
-                    <option value="general">General Desktop Text (Default)</option>
-                    <option value="game-subtitles">Game Subtitles (High Contrast)</option>
-                    <option value="small-ui">Small UI Text (2x Upscale)</option>
-                    <option value="high-contrast">High Contrast (Otsu Binarize)</option>
-                    <option value="cjk">Japanese & Chinese Characters</option>
-                    <option value="none">No Preprocessing</option>
+                    <option value="general">{t('ocr.presets.general', 'General Desktop Text (Default)')}</option>
+                    <option value="game-subtitles">{t('ocr.presets.gameSubtitles', 'Game Subtitles (High Contrast)')}</option>
+                    <option value="small-ui">{t('ocr.presets.smallUi', 'Small UI Text (2x Upscale)')}</option>
+                    <option value="high-contrast">{t('ocr.presets.highContrast', 'High Contrast (Otsu Binarize)')}</option>
+                    <option value="cjk">{t('ocr.presets.cjk', 'Japanese & Chinese Characters')}</option>
+                    <option value="none">{t('ocr.presets.none', 'No Preprocessing')}</option>
                   </GlassSelect>
                 </div>
 
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    OCR Language Hint
+                    {t('ocr.ocrLangHint', 'OCR Language Hint')}
                   </label>
                   <GlassSelect
                     value={ocrLanguage}
@@ -508,7 +510,7 @@ export const ScreenTranslationView: React.FC = () => {
                   >
                     {OCR_SUPPORTED_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.name}
+                        {l.name} {l.nativeName && l.nativeName !== l.name ? `(${l.nativeName})` : ''}
                       </option>
                     ))}
                   </GlassSelect>
@@ -516,7 +518,7 @@ export const ScreenTranslationView: React.FC = () => {
 
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    Translate Into
+                    {t('ocr.translateInto', 'Translate Into')}
                   </label>
                   <GlassSelect
                     value={targetLanguage}
@@ -524,7 +526,7 @@ export const ScreenTranslationView: React.FC = () => {
                   >
                     {TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
-                        {l.name}
+                        {l.name} {l.nativeName ? `(${l.nativeName})` : ''}
                       </option>
                     ))}
                   </GlassSelect>
@@ -538,7 +540,7 @@ export const ScreenTranslationView: React.FC = () => {
                       onChange={(e) => setSkipPreview(e.target.checked)}
                       className="rounded accent-primary w-4 h-4 cursor-pointer"
                     />
-                    <span className="text-foreground">Skip preview & translate instantly</span>
+                    <span className="text-foreground">{t('ocr.skipPreview', 'Skip preview & translate instantly')}</span>
                   </label>
                 </div>
               </div>
@@ -551,11 +553,11 @@ export const ScreenTranslationView: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-foreground">
-                      Recognized Text (Editable)
+                      {t('ocr.editor.recognizedTitle', 'Recognized Text (Editable)')}
                     </span>
                     {confidence > 0 && (
                       <GlassBadge variant={confidence > 0.8 ? 'success' : 'warning'}>
-                        {Math.round(confidence * 100)}% Conf
+                        {Math.round(confidence * 100)}% {t('ocr.editor.conf', 'Conf')}
                       </GlassBadge>
                     )}
                   </div>
@@ -574,7 +576,7 @@ export const ScreenTranslationView: React.FC = () => {
                         }
                         onClick={() => handleCopy(editedText, 'ocr')}
                       >
-                        Copy
+                        {copiedKey === 'ocr' ? t('ocr.editor.copied', 'Copied') : t('ocr.editor.copy', 'Copy')}
                       </GlassButton>
                     )}
                   </div>
@@ -583,14 +585,14 @@ export const ScreenTranslationView: React.FC = () => {
                 <textarea
                   value={editedText}
                   onChange={(e) => setEditedText(e.target.value)}
-                  placeholder="Captured OCR text will appear here. You can manually edit or correct any words before re-translating..."
+                  placeholder={t('ocr.editor.placeholder', 'Captured OCR text will appear here. You can manually edit or correct any words before re-translating...')}
                   rows={8}
                   className="glass-input w-full flex-1 p-3 text-xs text-foreground font-mono resize-none leading-relaxed"
                 />
 
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
                   <span>
-                    {editedText.length} characters • {editedText.trim() ? editedText.trim().split(/\s+/).length : 0} words
+                    {editedText.length} {t('ocr.editor.characters', 'characters')} • {editedText.trim() ? editedText.trim().split(/\s+/).length : 0} {t('ocr.editor.words', 'words')}
                   </span>
 
                   <GlassButton
@@ -601,7 +603,7 @@ export const ScreenTranslationView: React.FC = () => {
                     disabled={!editedText.trim()}
                     onClick={handleRetranslate}
                   >
-                    Re-Translate
+                    {t('ocr.editor.retranslate', 'Re-Translate')}
                   </GlassButton>
                 </div>
               </GlassCard>
@@ -611,7 +613,7 @@ export const ScreenTranslationView: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-semibold text-foreground">
-                      Translation ({targetLanguage.toUpperCase()})
+                      {t('ocr.result.title', 'Translation')} ({targetLanguage.toUpperCase()})
                     </span>
                     {durationMs > 0 && (
                       <GlassBadge variant="neutral">
@@ -636,14 +638,14 @@ export const ScreenTranslationView: React.FC = () => {
                           }
                           onClick={() => handleCopy(translatedText, 'trans')}
                         >
-                          Copy
+                          {copiedKey === 'trans' ? t('ocr.result.copied', 'Copied') : t('ocr.result.copy', 'Copy')}
                         </GlassButton>
                         <GlassButton
                           variant="subtle"
                           size="xs"
                           onClick={() => handleCopy(`${editedText}\n\n${translatedText}`, 'both')}
                         >
-                          Copy Both
+                          {copiedKey === 'both' ? t('ocr.result.copiedBoth', 'Copied Both') : t('ocr.result.copyBoth', 'Copy Both')}
                         </GlassButton>
                       </>
                     )}
@@ -658,9 +660,9 @@ export const ScreenTranslationView: React.FC = () => {
                   ) : (
                     <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
                       <Sparkles className="w-8 h-8 opacity-20 mb-2" />
-                      <p className="text-xs font-medium">Ready to translate</p>
+                      <p className="text-xs font-medium">{t('ocr.result.readyTitle', 'Ready to translate')}</p>
                       <p className="text-[11px] text-muted-foreground/75 mt-0.5">
-                        Press "Capture Region" or press Ctrl+Shift+T anytime
+                        {t('ocr.result.readyDesc', 'Press "Capture Region" or press Ctrl+Shift+T anytime')}
                       </p>
                     </div>
                   )}
@@ -669,7 +671,7 @@ export const ScreenTranslationView: React.FC = () => {
                 {/* Floating panel trigger */}
                 {translatedText && (
                   <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-                    <span>Provider: {settings.translationProvider || 'Google Web'}</span>
+                    <span>{t('ocr.result.provider', 'Provider:')} {settings.translationProvider || 'Google Web'}</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -685,7 +687,7 @@ export const ScreenTranslationView: React.FC = () => {
                       className="text-primary hover:underline flex items-center gap-1"
                     >
                       <ExternalLink className="w-3 h-3" />
-                      <span>Open Floating Panel</span>
+                      <span>{t('ocr.result.openFloatingPanel', 'Open Floating Panel')}</span>
                     </button>
                   </div>
                 )}
@@ -702,10 +704,10 @@ export const ScreenTranslationView: React.FC = () => {
                 <div>
                   <h3 className="text-xs font-semibold text-foreground flex items-center gap-2">
                     <Activity className="w-4 h-4 text-primary" />
-                    <span>Real-Time Screen Text Monitoring</span>
+                    <span>{t('ocr.continuous.title', 'Real-Time Screen Text Monitoring')}</span>
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5">
-                    Continuously scans a target region (e.g. video subtitles or game dialogue) and translates only meaningful changes.
+                    {t('ocr.continuous.subtitle', 'Continuously scans a target region (e.g. video subtitles or game dialogue) and translates only meaningful changes.')}
                   </p>
                 </div>
 
@@ -716,7 +718,7 @@ export const ScreenTranslationView: React.FC = () => {
                     icon={<Crop className="w-3.5 h-3.5" />}
                     onClick={handleSelectContinuousRegion}
                   >
-                    {continuousRegion ? 'Change Region' : 'Select Region'}
+                    {continuousRegion ? t('ocr.continuous.changeRegion', 'Change Region') : t('ocr.continuous.selectRegion', 'Select Region')}
                   </GlassButton>
 
                   <GlassButton
@@ -725,7 +727,7 @@ export const ScreenTranslationView: React.FC = () => {
                     icon={continuousState !== 'idle' && continuousState !== 'stopping' ? <Square className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
                     onClick={handleToggleContinuous}
                   >
-                    {continuousState !== 'idle' && continuousState !== 'stopping' ? 'Stop Monitoring' : 'Start Monitoring'}
+                    {continuousState !== 'idle' && continuousState !== 'stopping' ? t('ocr.continuous.stopMonitoring', 'Stop Monitoring') : t('ocr.continuous.startMonitoring', 'Start Monitoring')}
                   </GlassButton>
 
                   {continuousState !== 'idle' && continuousState !== 'stopping' && (
@@ -735,7 +737,7 @@ export const ScreenTranslationView: React.FC = () => {
                       icon={continuousState === 'paused' ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
                       onClick={handlePauseResumeContinuous}
                     >
-                      {continuousState === 'paused' ? 'Resume' : 'Pause'}
+                      {continuousState === 'paused' ? t('ocr.continuous.resume', 'Resume') : t('ocr.continuous.pause', 'Pause')}
                     </GlassButton>
                   )}
                 </div>
@@ -745,7 +747,7 @@ export const ScreenTranslationView: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-glass-border">
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Capture Interval</span>
+                    <span className="text-muted-foreground">{t('ocr.continuous.interval', 'Capture Interval')}</span>
                     <span className="font-semibold text-foreground">{(intervalMs / 1000).toFixed(1)}s</span>
                   </div>
                   <input
@@ -758,15 +760,15 @@ export const ScreenTranslationView: React.FC = () => {
                     className="w-full accent-primary cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground/75">
-                    <span>Fast (0.5s)</span>
-                    <span>Balanced (2.0s)</span>
-                    <span>Eco (5.0s)</span>
+                    <span>{t('ocr.continuous.fast', 'Fast (0.5s)')}</span>
+                    <span>{t('ocr.continuous.balanced', 'Balanced (2.0s)')}</span>
+                    <span>{t('ocr.continuous.eco', 'Eco (5.0s)')}</span>
                   </div>
                 </div>
 
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">Change Sensitivity Threshold</span>
+                    <span className="text-muted-foreground">{t('ocr.continuous.sensitivity', 'Change Sensitivity Threshold')}</span>
                     <span className="font-semibold text-foreground">{Math.round(changeThreshold * 100)}%</span>
                   </div>
                   <input
@@ -779,9 +781,9 @@ export const ScreenTranslationView: React.FC = () => {
                     className="w-full accent-primary cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] text-muted-foreground/75">
-                    <span>Sensitive (5%)</span>
-                    <span>Normal (15%)</span>
-                    <span>Distinct Only (50%)</span>
+                    <span>{t('ocr.continuous.sensitive', 'Sensitive (5%)')}</span>
+                    <span>{t('ocr.continuous.normal', 'Normal (15%)')}</span>
+                    <span>{t('ocr.continuous.distinct', 'Distinct Only (50%)')}</span>
                   </div>
                 </div>
               </div>
@@ -789,23 +791,23 @@ export const ScreenTranslationView: React.FC = () => {
               {/* Live Statistics Cards */}
               <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-2">
                 <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">State</span>
-                  <p className="text-sm font-bold text-primary capitalize mt-0.5">{continuousState}</p>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ocr.continuous.state', 'State')}</span>
+                  <p className="text-sm font-bold text-primary capitalize mt-0.5">{t(`ocr.continuous.states.${continuousState}`, continuousState)}</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Frames Scanned</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ocr.continuous.framesScanned', 'Frames Scanned')}</span>
                   <p className="text-sm font-bold text-foreground mt-0.5">{continuousStats.capturedCount}</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Translated</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ocr.continuous.translated', 'Translated')}</span>
                   <p className="text-sm font-bold text-emerald-400 mt-0.5">{continuousStats.translatedCount}</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Duplicates Skipped</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ocr.continuous.duplicatesSkipped', 'Duplicates Skipped')}</span>
                   <p className="text-sm font-bold text-amber-400 mt-0.5">{continuousStats.skippedCount}</p>
                 </div>
                 <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">Avg Latency</span>
+                  <span className="text-[10px] uppercase font-bold text-muted-foreground">{t('ocr.continuous.avgLatency', 'Avg Latency')}</span>
                   <p className="text-sm font-bold text-foreground mt-0.5">{continuousStats.averageDurationMs}ms</p>
                 </div>
               </div>
@@ -813,14 +815,14 @@ export const ScreenTranslationView: React.FC = () => {
 
             {/* Continuous Live Translation Stream */}
             <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-foreground">Detected Stream Changes</h4>
+              <h4 className="text-xs font-semibold text-foreground">{t('ocr.continuous.streamChanges', 'Detected Stream Changes')}</h4>
               {continuousHistory.length > 0 ? (
                 <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                   {continuousHistory.map((item) => (
                     <GlassCard key={item.id} variant="subtle" className="p-3 text-xs space-y-1">
                       <div className="flex justify-between text-[10px] text-muted-foreground">
                         <span>{new Date(item.createdAt).toLocaleTimeString()}</span>
-                        <span>{Math.round(item.confidence * 100)}% Conf • {item.durationMs}ms</span>
+                        <span>{Math.round(item.confidence * 100)}% {t('ocr.editor.conf', 'Conf')} • {item.durationMs}ms</span>
                       </div>
                       <p className="text-muted-foreground font-mono text-[11px]">{item.originalText}</p>
                       <p className="text-foreground font-semibold text-xs text-primary">{item.translatedText}</p>
@@ -829,7 +831,7 @@ export const ScreenTranslationView: React.FC = () => {
                 </div>
               ) : (
                 <div className="p-8 text-center text-xs text-muted-foreground bg-glass-subtle rounded-xl border border-glass-border">
-                  Start continuous monitoring to view real-time text detections.
+                  {t('ocr.continuous.emptyStream', 'Start continuous monitoring to view real-time text detections.')}
                 </div>
               )}
             </div>
@@ -842,7 +844,7 @@ export const ScreenTranslationView: React.FC = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex-1 max-w-sm">
                 <GlassInput
-                  placeholder="Search captured text or translations..."
+                  placeholder={t('ocr.history.searchPlaceholder', 'Search captured text or translations...')}
                   value={historySearch}
                   leftIcon={<Search className="w-3.5 h-3.5" />}
                   onChange={(e) => {
@@ -863,7 +865,7 @@ export const ScreenTranslationView: React.FC = () => {
                   icon={<Download className="w-3 h-3" />}
                   onClick={() => handleExportHistory('txt')}
                 >
-                  Export TXT
+                  {t('ocr.history.exportTxt', 'Export TXT')}
                 </GlassButton>
                 <GlassButton
                   variant="subtle"
@@ -871,7 +873,7 @@ export const ScreenTranslationView: React.FC = () => {
                   icon={<Download className="w-3 h-3" />}
                   onClick={() => handleExportHistory('json')}
                 >
-                  Export JSON
+                  {t('ocr.history.exportJson', 'Export JSON')}
                 </GlassButton>
                 <GlassButton
                   variant="destructive"
@@ -879,7 +881,7 @@ export const ScreenTranslationView: React.FC = () => {
                   icon={<Trash2 className="w-3 h-3" />}
                   onClick={handleClearHistory}
                 >
-                  Clear History
+                  {t('ocr.history.clearHistory', 'Clear History')}
                 </GlassButton>
               </div>
             </div>
@@ -906,7 +908,7 @@ export const ScreenTranslationView: React.FC = () => {
                           type="button"
                           onClick={() => handleCopy(`${item.originalText}\n\n${item.translatedText}`, item.id)}
                           className="p-1 hover:text-foreground text-muted-foreground"
-                          title="Copy Original and Translation"
+                          title={t('ocr.history.copyBothTooltip', 'Copy Original and Translation')}
                         >
                           {copiedKey === item.id ? (
                             <Check className="w-3.5 h-3.5 text-emerald-400" />
@@ -918,7 +920,7 @@ export const ScreenTranslationView: React.FC = () => {
                           type="button"
                           onClick={() => handleDeleteHistoryItem(item.id)}
                           className="p-1 hover:text-destructive text-muted-foreground"
-                          title="Delete Record"
+                          title={t('ocr.history.deleteTooltip', 'Delete Record')}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
@@ -928,7 +930,7 @@ export const ScreenTranslationView: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-glass-subtle p-2.5 rounded-lg border border-glass-border/40">
                       <div>
                         <span className="text-[10px] font-bold uppercase text-muted-foreground block mb-0.5">
-                          Original Text
+                          {t('ocr.history.originalText', 'Original Text')}
                         </span>
                         <p className="text-foreground/90 font-mono text-[11px] whitespace-pre-wrap">
                           {item.originalText}
@@ -936,7 +938,7 @@ export const ScreenTranslationView: React.FC = () => {
                       </div>
                       <div>
                         <span className="text-[10px] font-bold uppercase text-primary block mb-0.5">
-                          Translation
+                          {t('ocr.history.translation', 'Translation')}
                         </span>
                         <p className="text-foreground font-medium text-xs whitespace-pre-wrap">
                           {item.translatedText}
@@ -949,9 +951,9 @@ export const ScreenTranslationView: React.FC = () => {
             ) : (
               <div className="p-12 text-center text-xs text-muted-foreground bg-glass-subtle rounded-2xl border border-glass-border">
                 <History className="w-8 h-8 opacity-25 mx-auto mb-2" />
-                <p className="font-medium text-foreground">No translation history found</p>
+                <p className="font-medium text-foreground">{t('ocr.history.noHistory', 'No translation history found')}</p>
                 <p className="text-[11px] text-muted-foreground/80 mt-1">
-                  Captured OCR translations will be persisted here for easy searching and export.
+                  {t('ocr.history.noHistoryDesc', 'Captured OCR translations will be persisted here for easy searching and export.')}
                 </p>
               </div>
             )}

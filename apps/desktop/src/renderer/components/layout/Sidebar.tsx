@@ -54,7 +54,7 @@ export const Sidebar: React.FC = () => {
         <div className="flex items-center justify-between px-1">
           {!isCollapsed && (
             <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/75">
-              Workspace
+              {t('layout.workspace', 'Workspace')}
             </span>
           )}
           <button
@@ -63,8 +63,8 @@ export const Sidebar: React.FC = () => {
             className={`p-1.5 rounded-lg cursor-pointer app-no-drag text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-glass-border transition-colors ${
               isCollapsed ? 'mx-auto' : ''
             }`}
-            title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-            aria-label={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+            title={isCollapsed ? t('layout.expandSidebar', 'Expand Sidebar') : t('layout.collapseSidebar', 'Collapse Sidebar')}
+            aria-label={isCollapsed ? t('layout.expandSidebar', 'Expand Sidebar') : t('layout.collapseSidebar', 'Collapse Sidebar')}
           >
             {isCollapsed ? (
               <ChevronRight className="w-3.5 h-3.5" />
@@ -123,16 +123,16 @@ export const Sidebar: React.FC = () => {
         <div className="p-3 rounded-xl glass-panel-subtle text-[11px] text-muted-foreground space-y-1">
           <div className="flex items-center gap-1.5 font-medium text-foreground text-xs">
             <ShieldCheck className="w-3.5 h-3.5 text-primary" />
-            <span>Local & Private</span>
+            <span>{t('layout.localPrivate', 'Local & Private')}</span>
           </div>
           <p className="text-[10px] text-muted-foreground/80 leading-relaxed">
-            Whisper offline inference & zero data harvesting.
+            {t('layout.localPrivateDesc', 'Whisper offline inference & zero data harvesting.')}
           </p>
         </div>
       ) : (
         <div
           className="flex justify-center p-2 text-muted-foreground hover:text-primary transition-colors"
-          title="Local & Private: Whisper offline inference & zero data harvesting"
+          title={`${t('layout.localPrivate', 'Local & Private')}: ${t('layout.localPrivateDesc', 'Whisper offline inference & zero data harvesting.')}`}
         >
           <ShieldCheck className="w-4 h-4 text-primary" />
         </div>

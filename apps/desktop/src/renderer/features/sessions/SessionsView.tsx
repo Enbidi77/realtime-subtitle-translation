@@ -1,15 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import { useSessionStore } from '@/stores/session-store.js';
-import { useNavigationStore } from '@/stores/navigation-store.js';
-import { useI18n } from '@/app/i18n/index.js';
-import { SessionMetadata, SubtitleSegment, SubtitleExportFormat } from '@echo-lingo/contracts';
-import { formatDisplayTime } from '@echo-lingo/subtitle-core';
-import { GlassCard } from '@/components/ui/GlassCard.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { GlassInput } from '@/components/ui/GlassInput.js';
-import { GlassSelect } from '@/components/ui/GlassSelect.js';
-import { GlassBadge } from '@/components/ui/GlassBadge.js';
-import { GlassModal } from '@/components/ui/GlassModal.js';
+import React, { useEffect, useState } from "react";
+import { useSessionStore } from "@/stores/session-store.js";
+import { useNavigationStore } from "@/stores/navigation-store.js";
+import { useI18n } from "@/app/i18n/index.js";
+import {
+  SessionMetadata,
+  SubtitleSegment,
+  SubtitleExportFormat,
+} from "@echo-lingo/contracts";
+import { formatDisplayTime } from "@echo-lingo/subtitle-core";
+import { GlassCard } from "@/components/ui/GlassCard.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { GlassInput } from "@/components/ui/GlassInput.js";
+import { GlassSelect } from "@/components/ui/GlassSelect.js";
+import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { GlassModal } from "@/components/ui/GlassModal.js";
 import {
   FolderKanban,
   Download,
@@ -22,7 +26,7 @@ import {
   Check,
   ExternalLink,
   Layers3,
-} from 'lucide-react';
+} from "lucide-react";
 
 export const SessionsView: React.FC = () => {
   const { t } = useI18n();
@@ -30,20 +34,24 @@ export const SessionsView: React.FC = () => {
   const { loadSession } = useSessionStore();
 
   const [sessions, setSessions] = useState<SessionMetadata[]>([]);
-  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
+    null,
+  );
   const [segments, setSegments] = useState<SubtitleSegment[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Export dialog state
   const [showExportModal, setShowExportModal] = useState(false);
-  const [exportFormat, setExportFormat] = useState<SubtitleExportFormat>('srt');
+  const [exportFormat, setExportFormat] = useState<SubtitleExportFormat>("srt");
   const [includeOriginal, setIncludeOriginal] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
 
   // Edit segment modal
-  const [editingSegment, setEditingSegment] = useState<SubtitleSegment | null>(null);
-  const [editOriginalText, setEditOriginalText] = useState('');
-  const [editTransText, setEditTransText] = useState('');
+  const [editingSegment, setEditingSegment] = useState<SubtitleSegment | null>(
+    null,
+  );
+  const [editOriginalText, setEditOriginalText] = useState("");
+  const [editTransText, setEditTransText] = useState("");
 
   const refreshSessions = async () => {
     if (window.electronAPI) {
@@ -67,7 +75,8 @@ export const SessionsView: React.FC = () => {
     async function loadSegments() {
       if (selectedSessionId && window.electronAPI) {
         try {
-          const segs = await window.electronAPI.sessions.getSegments(selectedSessionId);
+          const segs =
+            await window.electronAPI.sessions.getSegments(selectedSessionId);
           setSegments(segs);
         } catch (e) {
           console.error(e);
@@ -79,7 +88,7 @@ export const SessionsView: React.FC = () => {
 
   const handleDeleteSession = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (confirm(t('sessions.deleteConfirm'))) {
+    if (confirm(t("sessions.deleteConfirm"))) {
       if (window.electronAPI) {
         await window.electronAPI.sessions.delete(id);
         if (selectedSessionId === id) setSelectedSessionId(null);
@@ -92,23 +101,26 @@ export const SessionsView: React.FC = () => {
     if (!selectedSessionId || !window.electronAPI) return;
     setIsExporting(true);
     try {
-      const output = await window.electronAPI.sessions.export(selectedSessionId, {
-        format: exportFormat,
-        includeOriginal,
-        includeTimestamps: true,
-      });
+      const output = await window.electronAPI.sessions.export(
+        selectedSessionId,
+        {
+          format: exportFormat,
+          includeOriginal,
+          includeTimestamps: true,
+        },
+      );
 
       // Trigger browser/renderer file download
-      const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
+      const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = `subtitles_${selectedSessionId}.${exportFormat}`;
       a.click();
       URL.revokeObjectURL(url);
       setShowExportModal(false);
     } catch (e) {
-      alert('Export failed: ' + (e instanceof Error ? e.message : String(e)));
+      alert("Export failed: " + (e instanceof Error ? e.message : String(e)));
     } finally {
       setIsExporting(false);
     }
@@ -125,15 +137,17 @@ export const SessionsView: React.FC = () => {
       await refreshSessions();
       setSelectedSessionId(res.sessionId);
     } catch (err) {
-      alert('Import failed: ' + (err instanceof Error ? err.message : String(err)));
+      alert(
+        "Import failed: " + (err instanceof Error ? err.message : String(err)),
+      );
     }
-    e.target.value = '';
+    e.target.value = "";
   };
 
   const handleSaveEditSegment = async () => {
     if (!editingSegment || !window.electronAPI) return;
     try {
-      const targetLang = editingSegment.targetLanguages[0] || 'vi';
+      const targetLang = editingSegment.targetLanguages[0] || "vi";
       const updatedTranslations = {
         ...editingSegment.translations,
         [targetLang]: editTransText,
@@ -147,9 +161,13 @@ export const SessionsView: React.FC = () => {
       setSegments((prev) =>
         prev.map((s) =>
           s.id === editingSegment.id
-            ? { ...s, originalText: editOriginalText, translations: updatedTranslations }
-            : s
-        )
+            ? {
+                ...s,
+                originalText: editOriginalText,
+                translations: updatedTranslations,
+              }
+            : s,
+        ),
       );
       setEditingSegment(null);
     } catch (err) {
@@ -160,7 +178,7 @@ export const SessionsView: React.FC = () => {
   const selectedSession = sessions.find((s) => s.id === selectedSessionId);
 
   const filteredSessions = sessions.filter((s) =>
-    s.title.toLowerCase().includes(searchQuery.toLowerCase())
+    s.title.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -172,14 +190,14 @@ export const SessionsView: React.FC = () => {
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <FolderKanban className="w-4 h-4 text-primary" />
-              <span>{t('sessions.title')}</span>
+              <span>{t("sessions.title")}</span>
             </h2>
 
             {/* Import Button */}
             <label className="cursor-pointer">
               <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-glass-subtle border border-glass-border text-xs font-medium text-foreground hover:bg-glass transition-colors">
                 <Upload className="w-3.5 h-3.5" />
-                <span>{t('sessions.import')}</span>
+                <span>{t("sessions.import")}</span>
               </span>
               <input
                 type="file"
@@ -192,10 +210,10 @@ export const SessionsView: React.FC = () => {
 
           <GlassInput
             type="text"
-            placeholder={t('sessions.searchPlaceholder')}
+            placeholder={t("sessions.searchPlaceholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            onClear={() => setSearchQuery('')}
+            onClear={() => setSearchQuery("")}
             leftIcon={<Search className="w-3.5 h-3.5" />}
           />
         </div>
@@ -215,8 +233,8 @@ export const SessionsView: React.FC = () => {
                   onClick={() => setSelectedSessionId(session.id)}
                   className={`p-3 rounded-xl cursor-pointer transition-all duration-150 flex items-start justify-between gap-2.5 border ${
                     isSelected
-                      ? 'bg-primary/15 border-primary/40 shadow-sm text-foreground'
-                      : 'border-transparent hover:bg-glass hover:border-glass-border text-muted-foreground hover:text-foreground'
+                      ? "bg-primary/15 border-primary/40 shadow-sm text-foreground"
+                      : "border-transparent hover:bg-glass hover:border-glass-border text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   <div className="space-y-1 overflow-hidden">
@@ -226,10 +244,13 @@ export const SessionsView: React.FC = () => {
                     <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                       <span className="flex items-center gap-1 font-mono">
                         <Clock className="w-3 h-3" />
-                        {Math.floor(session.durationSeconds / 60)}m {session.durationSeconds % 60}s
+                        {Math.floor(session.durationSeconds / 60)}m{" "}
+                        {session.durationSeconds % 60}s
                       </span>
                       <span>•</span>
-                      <span className="font-mono">{session.segmentCount} segs</span>
+                      <span className="font-mono">
+                        {session.segmentCount} segs
+                      </span>
                     </div>
                   </div>
 
@@ -253,14 +274,15 @@ export const SessionsView: React.FC = () => {
         {selectedSession ? (
           <>
             {/* Session Toolbar */}
-            <header className="glass-toolbar h-13 px-5 flex items-center justify-between gap-4 shrink-0 z-10">
+            <header className="glass-toolbar h-13 px-5 py-3 flex items-center justify-between gap-4 shrink-0 z-10">
               <div className="space-y-0.5 overflow-hidden">
                 <h3 className="font-semibold text-xs text-foreground truncate">
                   {selectedSession.title}
                 </h3>
                 <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
                   <span className="font-mono">
-                    {selectedSession.sourceLanguage} → {selectedSession.targetLanguages.join(', ')}
+                    {selectedSession.sourceLanguage} →{" "}
+                    {selectedSession.targetLanguages.join(", ")}
                   </span>
                   <span>•</span>
                   <span>{selectedSession.speechProvider}</span>
@@ -273,7 +295,7 @@ export const SessionsView: React.FC = () => {
                   size="sm"
                   onClick={() => {
                     loadSession(selectedSession.id);
-                    setActivePage('live-subtitles');
+                    setActivePage("live-subtitles");
                   }}
                   icon={<ExternalLink className="w-3.5 h-3.5" />}
                 >
@@ -286,7 +308,7 @@ export const SessionsView: React.FC = () => {
                   onClick={() => setShowExportModal(true)}
                   icon={<Download className="w-3.5 h-3.5" />}
                 >
-                  <span>{t('sessions.export')}</span>
+                  <span>{t("sessions.export")}</span>
                 </GlassButton>
               </div>
             </header>
@@ -295,11 +317,11 @@ export const SessionsView: React.FC = () => {
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {segments.length === 0 ? (
                 <div className="h-full flex items-center justify-center text-xs text-muted-foreground">
-                  {t('sessions.noSegments')}
+                  {t("sessions.noSegments")}
                 </div>
               ) : (
                 segments.map((seg) => {
-                  const trans = Object.values(seg.translations)[0] || '';
+                  const trans = Object.values(seg.translations)[0] || "";
                   return (
                     <GlassCard
                       key={seg.id}
@@ -308,7 +330,8 @@ export const SessionsView: React.FC = () => {
                     >
                       <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                         <span className="font-mono text-[10px] px-2 py-0.5 rounded bg-glass-subtle border border-glass-border/40">
-                          {formatDisplayTime(seg.startTime)} - {formatDisplayTime(seg.endTime)}
+                          {formatDisplayTime(seg.startTime)} -{" "}
+                          {formatDisplayTime(seg.endTime)}
                         </span>
                         <GlassButton
                           variant="ghost"
@@ -378,7 +401,9 @@ export const SessionsView: React.FC = () => {
               onChange={(e) => setIncludeOriginal(e.target.checked)}
               className="rounded accent-primary"
             />
-            <span className="text-foreground">Include original spoken text</span>
+            <span className="text-foreground">
+              Include original spoken text
+            </span>
           </label>
 
           <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
@@ -411,7 +436,9 @@ export const SessionsView: React.FC = () => {
       >
         <div className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">Original Spoken Text</label>
+            <label className="text-muted-foreground font-medium">
+              Original Spoken Text
+            </label>
             <textarea
               rows={3}
               value={editOriginalText}
@@ -421,7 +448,9 @@ export const SessionsView: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">Translated Text</label>
+            <label className="text-muted-foreground font-medium">
+              Translated Text
+            </label>
             <textarea
               rows={3}
               value={editTransText}

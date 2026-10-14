@@ -13,9 +13,16 @@ const SelectionOverlay: React.FC = () => {
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
+  const [locale, setLocale] = useState<string>('en');
   const displayIdRef = useRef<number>(0);
 
   useEffect(() => {
+    if (window.electronAPI?.settings) {
+      window.electronAPI.settings.get().then((s) => {
+        if (s?.locale) setLocale(s.locale);
+      }).catch(console.error);
+    }
+
     // Parse target display ID from URL query
     const params = new URLSearchParams(window.location.search);
     const dId = params.get('displayId');
@@ -99,11 +106,13 @@ const SelectionOverlay: React.FC = () => {
       <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full glass-panel-elevated shadow-glass-elevated border border-white/20 text-white text-xs font-medium flex items-center gap-3 pointer-events-none z-50 backdrop-blur-2xl">
         <div className="flex items-center gap-1.5 text-primary-foreground font-semibold">
           <Crop className="w-3.5 h-3.5 text-primary" />
-          <span>Click & drag to select region</span>
+          <span>{locale === 'vi' ? 'Nhấp & kéo để chọn vùng' : 'Click & drag to select region'}</span>
         </div>
         <span className="text-white/40">•</span>
         <span className="text-white/80 text-[11px]">
-          Press <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">Esc</kbd> to cancel
+          {locale === 'vi' ? 'Nhấn ' : 'Press '}
+          <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">Esc</kbd>
+          {locale === 'vi' ? ' để hủy' : ' to cancel'}
         </span>
       </div>
 

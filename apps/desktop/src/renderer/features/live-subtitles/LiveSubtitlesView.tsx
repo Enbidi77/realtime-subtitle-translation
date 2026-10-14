@@ -190,7 +190,7 @@ export const LiveSubtitlesView: React.FC = () => {
 
           <button
             onClick={() => window.electronAPI?.overlay.toggle()}
-            title={isOverlayOpen ? 'Hide Subtitle Overlay' : t('live.openOverlay')}
+            title={isOverlayOpen ? t('live.hideOverlay', 'Hide Subtitle Overlay') : t('live.openOverlay')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-150 border ${
               isOverlayOpen
                 ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-semibold'
@@ -199,7 +199,7 @@ export const LiveSubtitlesView: React.FC = () => {
           >
             <ExternalLink className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">
-              {isOverlayOpen ? 'Overlay Active' : t('live.openOverlay')}
+              {isOverlayOpen ? t('live.overlayActive', 'Overlay Active') : t('live.openOverlay')}
             </span>
           </button>
         </div>
@@ -215,7 +215,7 @@ export const LiveSubtitlesView: React.FC = () => {
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-destructive" />
               <div>
-                <div className="text-xs font-semibold text-destructive">Audio Capture Notice</div>
+                <div className="text-xs font-semibold text-destructive">{t('layout.audioNotice', 'Audio Capture Notice')}</div>
                 <div className="text-xs mt-1 text-foreground/90 leading-relaxed">{audioError}</div>
               </div>
             </div>
@@ -225,7 +225,7 @@ export const LiveSubtitlesView: React.FC = () => {
               onClick={() => setAudioError(null)}
               className="shrink-0"
             >
-              Dismiss
+              {t('layout.dismiss', 'Dismiss')}
             </GlassButton>
           </GlassCard>
         </div>
@@ -251,9 +251,9 @@ export const LiveSubtitlesView: React.FC = () => {
               <p className="text-xs text-muted-foreground leading-relaxed">
                 {isListening
                   ? audioSourceType === 'system'
-                    ? 'Listening to system audio. Play your YouTube video, call, or media to see live subtitles and translations.'
-                    : 'Listening to microphone. Speak clearly into your mic, or switch to System Audio in Dashboard if watching video.'
-                  : 'Start listening to begin real-time speech recognition and subtitle translation.'}
+                    ? t('live.emptyStateSystem', 'Listening to system audio. Play your YouTube video, call, or media to see live subtitles and translations.')
+                    : t('live.emptyStateMic', 'Listening to microphone. Speak clearly into your mic, or switch to System Audio in Dashboard if watching video.')
+                  : t('live.emptyStateIdle', 'Start listening to begin real-time speech recognition and subtitle translation.')}
               </p>
             </div>
 
@@ -261,10 +261,10 @@ export const LiveSubtitlesView: React.FC = () => {
               <GlassCard variant="subtle" className="p-3.5 text-xs text-left space-y-1.5 w-full">
                 <div className="font-semibold text-primary flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Watching a YouTube video or meeting?</span>
+                  <span>{t('live.hintCardTitle', 'Watching a YouTube video or meeting?')}</span>
                 </div>
                 <p className="text-muted-foreground text-[11px] leading-relaxed">
-                  Microphone captures ambient room acoustics. For pristine direct audio without room echo, select <strong>System Audio</strong> on the Dashboard.
+                  {t('live.hintCardDesc', 'Microphone captures ambient room acoustics. For pristine direct audio without room echo, select System Audio on the Dashboard.')}
                 </p>
               </GlassCard>
             )}
@@ -329,7 +329,7 @@ export const LiveSubtitlesView: React.FC = () => {
           >
             <div className="flex items-center gap-2 text-[10px] font-mono text-primary">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping" />
-              <span>[Live Speech Stream • {formatDisplayTime(activePartial.startTime)}]</span>
+              <span>[{t('live.liveSpeechStream', 'Live Speech Stream')} • {formatDisplayTime(activePartial.startTime)}]</span>
             </div>
             <div
               className="text-foreground/90 italic leading-relaxed"

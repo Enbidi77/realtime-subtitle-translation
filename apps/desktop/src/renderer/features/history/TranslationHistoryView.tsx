@@ -54,17 +54,17 @@ export const TranslationHistoryView: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
             <History className="w-5 h-5 text-primary" />
-            <span>Translation History</span>
+            <span>{t('history.title', 'Translation History')}</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Searchable historical archive of all transcribed speech segments.
+            {t('history.subtitle', 'Searchable historical archive of all transcribed speech segments.')}
           </p>
         </div>
 
         <div className="w-full sm:w-80">
           <GlassInput
             type="text"
-            placeholder="Search keywords or translations..."
+            placeholder={t('history.searchPlaceholder', 'Search keywords or translations...')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onClear={() => setSearch('')}
@@ -78,7 +78,7 @@ export const TranslationHistoryView: React.FC = () => {
         {filtered.length === 0 ? (
           <GlassCard className="h-64 flex flex-col items-center justify-center text-xs text-muted-foreground space-y-2">
             <History className="w-8 h-8 opacity-40 text-primary" />
-            <span>No translation history found.</span>
+            <span>{t('history.noHistory', 'No translation history found.')}</span>
           </GlassCard>
         ) : (
           filtered.map((seg) => {
@@ -117,8 +117,8 @@ export const TranslationHistoryView: React.FC = () => {
                   variant="glass"
                   size="icon-sm"
                   onClick={() => handleCopy(seg.id, `${seg.originalText}\n${trans}`)}
-                  title="Copy segment"
-                  aria-label="Copy segment"
+                  title={t('history.copySegment', 'Copy segment')}
+                  aria-label={t('history.copySegment', 'Copy segment')}
                   className="shrink-0"
                 >
                   {isCopied ? (

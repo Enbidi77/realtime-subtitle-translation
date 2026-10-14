@@ -120,7 +120,7 @@ export const TitleBar: React.FC = () => {
         <button
           type="button"
           onClick={handleToggleOverlay}
-          title={isOverlayOpen ? 'Hide Subtitle Overlay' : t('live.openOverlay')}
+          title={isOverlayOpen ? t('layout.hideOverlay', 'Hide Subtitle Overlay') : t('live.openOverlay')}
           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl cursor-pointer transition-all duration-150 border ${
             isOverlayOpen
               ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-medium'
@@ -129,7 +129,7 @@ export const TitleBar: React.FC = () => {
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span className="hidden lg:inline text-[11px]">
-            {isOverlayOpen ? 'Overlay Active' : t('live.openOverlay')}
+            {isOverlayOpen ? t('layout.overlayActive', 'Overlay Active') : t('live.openOverlay')}
           </span>
         </button>
 
@@ -137,7 +137,7 @@ export const TitleBar: React.FC = () => {
         <button
           type="button"
           onClick={handleToggleTheme}
-          title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+          title={theme === 'dark' ? t('layout.switchToLight', 'Switch to light mode') : t('layout.switchToDark', 'Switch to dark mode')}
           className="w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
         >
           {theme === 'dark' ? (
@@ -154,8 +154,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleMinimize}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
-          title="Minimize"
-          aria-label="Minimize"
+          title={t('layout.minimize', 'Minimize')}
+          aria-label={t('layout.minimize', 'Minimize')}
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
@@ -163,8 +163,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleMaximize}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
-          title="Maximize"
-          aria-label="Maximize"
+          title={t('layout.maximize', 'Maximize')}
+          aria-label={t('layout.maximize', 'Maximize')}
         >
           <Square className="w-3 h-3" />
         </button>
@@ -172,8 +172,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleClose}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-white hover:bg-destructive/90 rounded-lg transition-colors"
-          title="Close"
-          aria-label="Close"
+          title={t('layout.close', 'Close')}
+          aria-label={t('layout.close', 'Close')}
         >
           <X className="w-3.5 h-3.5" />
         </button>
