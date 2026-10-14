@@ -43,7 +43,11 @@ export const IPC_CHANNELS = {
   APP_MINIMIZE: 'app:minimize',
   APP_MAXIMIZE: 'app:maximize',
   APP_CLOSE: 'app:close',
+  APP_QUIT: 'app:quit',
+  APP_MINIMIZE_TO_TRAY: 'app:minimize-to-tray',
   APP_MOVE_WINDOW: 'app:move-window',
+  APP_NAVIGATE_TO: 'app:navigate-to',
+  APP_REQUEST_CLOSE_CONFIRM: 'app:request-close-confirm',
 
   // Audio & Devices
   AUDIO_GET_DEVICES: 'audio:get-devices',

@@ -264,6 +264,38 @@
     "privacy": "Privacy & Data Storage",
     "clearHistory": "Clear All History",
     "save": "Save Changes",
-    "reset": "Reset Defaults"
+    "reset": "Reset Defaults",
+    "windowAndTray": "Application & System Tray",
+    "closeBehavior": "When Closing Application",
+    "closeBehaviorDesc": "Choose whether closing the window minimizes EchoLingo to the system tray or exits completely.",
+    "minimizeToTrayTitle": "Minimize to Tray",
+    "minimizeToTrayDesc": "Stays running in background for hotkeys and overlay.",
+    "quitAppTitle": "Close Application",
+    "quitAppDesc": "Completely terminates app and background tasks.",
+    "askEveryTimeTitle": "Ask Every Time",
+    "askEveryTimeDesc": "Prompts with dialog options before closing.",
+    "minimizeNow": "Minimize to Tray Now",
+    "trayHint": "When running in the system tray, right-click the EchoLingo icon in your taskbar to start/stop live subtitles, toggle floating overlay, capture & translate screen, or quit the app.",
+    "exitModal": {
+      "title": "Closing EchoLingo",
+      "desc": "Choose what happens when you close the application:",
+      "minimizeTitle": "Minimize to System Tray (Recommended)",
+      "minimizeDesc": "Keeps EchoLingo active in your notification area. Global shortcuts and subtitle overlay stay available.",
+      "quitTitle": "Quit Application Completely",
+      "quitDesc": "Stop all active sessions, speech recognition, and close all windows.",
+      "rememberChoice": "Remember my choice (You can change this anytime in Settings)",
+      "confirm": "Confirm",
+      "cancel": "Cancel"
+    }
+  },
+  "tray": {
+    "openApp": "Open EchoLingo",
+    "startListening": "Start Live Subtitles",
+    "stopListening": "Stop Live Subtitles",
+    "subtitleOverlay": "Floating Subtitle Overlay",
+    "captureTranslate": "Capture Screen & Translate (Ctrl+Shift+T)",
+    "continuousOcr": "Continuous Screen OCR",
+    "settings": "Preferences / Settings...",
+    "quit": "Quit EchoLingo"
   }
 }

@@ -17,6 +17,11 @@ import {
   Check,
   Sparkles,
   Sliders,
+  AppWindow,
+  Minimize2,
+  Power,
+  HelpCircle,
+  Info,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -377,7 +382,133 @@ export const SettingsView: React.FC = () => {
         </div>
       </GlassCard>
 
-      {/* 5. Keyboard Shortcuts */}
+      {/* 5. Application & System Tray */}
+      <GlassCard variant="default" className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <AppWindow className="w-4 h-4 text-primary" />
+            <span>{t('settings.windowAndTray', 'Application & System Tray')}</span>
+          </h2>
+
+          <GlassButton
+            variant="glass"
+            size="sm"
+            onClick={() => window.electronAPI?.app.minimizeToTray()}
+            icon={<Minimize2 className="w-3.5 h-3.5" />}
+          >
+            <span>{t('settings.minimizeNow', 'Minimize to Tray Now')}</span>
+          </GlassButton>
+        </div>
+
+        <div className="space-y-3 text-xs">
+          <div>
+            <label className="text-muted-foreground font-medium block mb-1">
+              {t('settings.closeBehavior', 'When Closing Application')}
+            </label>
+            <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
+              {t(
+                'settings.closeBehaviorDesc',
+                'Choose whether closing the window minimizes EchoLingo to the system tray or exits completely.'
+              )}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Option 1: Minimize to Tray */}
+            <button
+              type="button"
+              onClick={() => {
+                updateSettings({ closeBehavior: 'minimize-to-tray' });
+                showSaved();
+              }}
+              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+                settings.closeBehavior === 'minimize-to-tray'
+                  ? 'bg-primary/10 border-primary/50 text-foreground shadow-sm shadow-primary/10'
+                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                  <Minimize2 className="w-3.5 h-3.5 text-primary" />
+                  <span>{t('settings.minimizeToTrayTitle', 'Minimize to Tray')}</span>
+                </span>
+                {settings.closeBehavior === 'minimize-to-tray' && (
+                  <Check className="w-3.5 h-3.5 text-primary" />
+                )}
+              </div>
+              <span className="text-[11px] text-muted-foreground leading-relaxed">
+                {t('settings.minimizeToTrayDesc', 'Stays running in background for hotkeys and overlay.')}
+              </span>
+            </button>
+
+            {/* Option 2: Close Application */}
+            <button
+              type="button"
+              onClick={() => {
+                updateSettings({ closeBehavior: 'quit' });
+                showSaved();
+              }}
+              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+                settings.closeBehavior === 'quit'
+                  ? 'bg-destructive/10 border-destructive/50 text-foreground shadow-sm shadow-destructive/10'
+                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                  <Power className="w-3.5 h-3.5 text-destructive" />
+                  <span>{t('settings.quitAppTitle', 'Close Application')}</span>
+                </span>
+                {settings.closeBehavior === 'quit' && (
+                  <Check className="w-3.5 h-3.5 text-destructive" />
+                )}
+              </div>
+              <span className="text-[11px] text-muted-foreground leading-relaxed">
+                {t('settings.quitAppDesc', 'Completely terminates app and background tasks.')}
+              </span>
+            </button>
+
+            {/* Option 3: Always Ask */}
+            <button
+              type="button"
+              onClick={() => {
+                updateSettings({ closeBehavior: 'ask' });
+                showSaved();
+              }}
+              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
+                settings.closeBehavior === 'ask'
+                  ? 'bg-amber-500/10 border-amber-500/50 text-foreground shadow-sm shadow-amber-500/10'
+                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <div className="flex items-center justify-between w-full mb-1.5">
+                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                  <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{t('settings.askEveryTimeTitle', 'Ask Every Time')}</span>
+                </span>
+                {settings.closeBehavior === 'ask' && (
+                  <Check className="w-3.5 h-3.5 text-amber-400" />
+                )}
+              </div>
+              <span className="text-[11px] text-muted-foreground leading-relaxed">
+                {t('settings.askEveryTimeDesc', 'Prompts with dialog options before closing.')}
+              </span>
+            </button>
+          </div>
+
+          <div className="flex items-start gap-2.5 p-3 rounded-xl bg-glass-subtle border border-glass-border mt-3">
+            <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {t(
+                'settings.trayHint',
+                'When minimized to system tray, right-click the EchoLingo tray icon anytime to toggle live subtitles, open the subtitle overlay, trigger screen OCR capture, or open preferences.'
+              )}
+            </p>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* 6. Keyboard Shortcuts */}
       <GlassCard variant="default" className="p-6 space-y-4">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Keyboard className="w-4 h-4 text-primary" />

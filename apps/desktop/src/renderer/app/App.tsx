@@ -40,9 +40,25 @@ export const App: React.FC = () => {
         }
       });
 
+      const unsubNavigate = window.electronAPI.app.onNavigate?.((page) => {
+        if (page === 'settings') {
+          useNavigationStore.getState().setActivePage('settings');
+        } else if (
+          page === 'dashboard' ||
+          page === 'live-subtitles' ||
+          page === 'ocr-translate' ||
+          page === 'sessions' ||
+          page === 'history' ||
+          page === 'providers'
+        ) {
+          useNavigationStore.getState().setActivePage(page as any);
+        }
+      });
+
       return () => {
         if (unsubSpeech) unsubSpeech();
         if (unsubStatus) unsubStatus();
+        if (unsubNavigate) unsubNavigate();
       };
     }
   }, [loadSettings, handleTranscriptionEvent]);

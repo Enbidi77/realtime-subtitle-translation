@@ -37,8 +37,20 @@ const api = {
     minimize: () => ipcRenderer.send(IPC_CHANNELS.APP_MINIMIZE),
     maximize: () => ipcRenderer.send(IPC_CHANNELS.APP_MAXIMIZE),
     close: () => ipcRenderer.send(IPC_CHANNELS.APP_CLOSE),
+    quit: () => ipcRenderer.send(IPC_CHANNELS.APP_QUIT),
+    minimizeToTray: () => ipcRenderer.send(IPC_CHANNELS.APP_MINIMIZE_TO_TRAY),
     moveWindow: (deltaX: number, deltaY: number) =>
       ipcRenderer.send(IPC_CHANNELS.APP_MOVE_WINDOW, { deltaX, deltaY }),
+    onNavigate: (callback: (page: string) => void) => {
+      const handler = (_: unknown, page: string) => callback(page);
+      ipcRenderer.on(IPC_CHANNELS.APP_NAVIGATE_TO, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_NAVIGATE_TO, handler);
+    },
+    onRequestCloseConfirm: (callback: () => void) => {
+      const handler = () => callback();
+      ipcRenderer.on(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM, handler);
+    },
   },
 
   audio: {

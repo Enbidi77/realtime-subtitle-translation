@@ -8,12 +8,13 @@ process.on('unhandledRejection', (reason, promise) => {
   console.error('[Main CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
-import { createMainWindow, getMainWindow } from '@/windows/main-window.js';
+import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
 import { getOverlayWindow, setOverlayCallbacks } from '@/windows/overlay-window.js';
 import { registerIpcHandlers } from '@/ipc/ipc-router.js';
 import { registerGlobalShortcuts, unregisterGlobalShortcuts } from '@/services/shortcuts-service.js';
 import { getDatabase, initDatabase, closeDatabase } from '@/database/db-instance.js';
 import { getSessionService } from '@/services/session-service.js';
+import { initTray, destroyTray, updateTrayMenu } from '@/services/tray-service.js';
 
 import { setupMediaPermissions } from '@/security/security.js';
 
@@ -32,6 +33,7 @@ if (!gotTheLock) {
   app.on('second-instance', () => {
     const mainWin = getMainWindow();
     if (mainWin) {
+      if (!mainWin.isVisible()) mainWin.show();
       if (mainWin.isMinimized()) mainWin.restore();
       mainWin.focus();
     }
@@ -54,31 +56,48 @@ if (!gotTheLock) {
     // 3. Create Main Window
     const mainWin = createMainWindow();
 
-    mainWin.on('close', () => console.log('[MainWindow Lifecycle] close event fired'));
-    mainWin.on('closed', () => console.log('[MainWindow Lifecycle] closed event fired'));
-
     // 4. Connect windows to SessionService
     getSessionService().setWindows(mainWin, getOverlayWindow());
     setOverlayCallbacks({
-      onCreated: (win) => getSessionService().setOverlayWindow(win),
+      onCreated: (win) => {
+        getSessionService().setOverlayWindow(win);
+        updateTrayMenu();
+      },
       onToggled: (win) => {
         getSessionService().setOverlayWindow(win);
         getSessionService().broadcastToOverlay();
+        updateTrayMenu();
       },
-      onClosed: () => getSessionService().setOverlayWindow(null),
+      onClosed: () => {
+        getSessionService().setOverlayWindow(null);
+        updateTrayMenu();
+      },
     });
 
     // 5. Register global keyboard shortcuts
     registerGlobalShortcuts();
 
+    // 6. Initialize System Tray
+    initTray();
+
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
         createMainWindow();
+      } else {
+        const win = getMainWindow();
+        if (win) {
+          if (!win.isVisible()) win.show();
+          if (win.isMinimized()) win.restore();
+          win.focus();
+        }
       }
     });
   });
 
-  app.on('before-quit', () => console.log('[App Lifecycle] before-quit event fired'));
+  app.on('before-quit', () => {
+    console.log('[App Lifecycle] before-quit event fired');
+    setIsQuitting(true);
+  });
 
   app.on('window-all-closed', () => {
     console.log('[App Lifecycle] window-all-closed event fired');
@@ -90,6 +109,7 @@ if (!gotTheLock) {
   app.on('will-quit', () => {
     console.log('[App Lifecycle] will-quit event fired');
     unregisterGlobalShortcuts();
+    destroyTray();
     closeDatabase();
   });
 

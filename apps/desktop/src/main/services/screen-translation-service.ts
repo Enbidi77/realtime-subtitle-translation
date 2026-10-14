@@ -275,6 +275,12 @@ export class ScreenTranslationService {
     this.continuousScheduler.start();
   }
 
+  public isContinuousActive(): boolean {
+    if (!this.continuousScheduler) return false;
+    const state = this.continuousScheduler.getState();
+    return state !== 'idle' && state !== 'stopping';
+  }
+
   public stopContinuous(): void {
     if (this.continuousScheduler) {
       this.continuousScheduler.stop();

@@ -264,6 +264,38 @@
     "privacy": "Quyền riêng tư & Lưu trữ",
     "clearHistory": "Xóa toàn bộ lịch sử",
     "save": "Lưu thay đổi",
-    "reset": "Khôi phục mặc định"
+    "reset": "Khôi phục mặc định",
+    "windowAndTray": "Ứng dụng & Khay Hệ thống",
+    "closeBehavior": "Hành vi khi đóng ứng dụng",
+    "closeBehaviorDesc": "Chọn thu nhỏ EchoLingo vào khay hệ thống hoặc thoát ứng dụng hoàn toàn khi đóng cửa sổ.",
+    "minimizeToTrayTitle": "Thu nhỏ vào khay",
+    "minimizeToTrayDesc": "Tiếp tục chạy ngầm để phục vụ phím tắt và phụ đề nổi.",
+    "quitAppTitle": "Thoát ứng dụng",
+    "quitAppDesc": "Thoát hoàn toàn ứng dụng và dừng các tác vụ nền.",
+    "askEveryTimeTitle": "Hỏi mỗi khi đóng",
+    "askEveryTimeDesc": "Hiển thị hộp thoại lựa chọn mỗi khi bạn đóng cửa sổ.",
+    "minimizeNow": "Thu nhỏ vào khay ngay",
+    "trayHint": "Khi ứng dụng đang chạy ở khay hệ thống, nhấp chuột phải vào biểu tượng EchoLingo trên thanh tác vụ để bật/tắt phụ đề, mở phụ đề nổi, chụp dịch OCR hoặc thoát.",
+    "exitModal": {
+      "title": "Đóng ứng dụng EchoLingo",
+      "desc": "Chọn thao tác bạn muốn thực hiện khi đóng ứng dụng:",
+      "minimizeTitle": "Thu nhỏ vào khay hệ thống (Khuyên dùng)",
+      "minimizeDesc": "Duy trì EchoLingo trong vùng thông báo. Các phím tắt toàn cục và phụ đề nổi vẫn hoạt động bình thường.",
+      "quitTitle": "Thoát hoàn toàn ứng dụng",
+      "quitDesc": "Dừng mọi phiên thu âm, nhận diện giọng nói và đóng tất cả cửa sổ.",
+      "rememberChoice": "Ghi nhớ lựa chọn này (có thể đổi lại trong Cài đặt)",
+      "confirm": "Xác nhận",
+      "cancel": "Hủy bỏ"
+    }
+  },
+  "tray": {
+    "openApp": "Mở EchoLingo",
+    "startListening": "Bắt đầu Phụ đề Trực tiếp",
+    "stopListening": "Dừng Phụ đề Trực tiếp",
+    "subtitleOverlay": "Cửa sổ Phụ đề Nổi",
+    "captureTranslate": "Chụp màn hình & Dịch (Ctrl+Shift+T)",
+    "continuousOcr": "Giám sát OCR Liên tục",
+    "settings": "Tùy chọn / Cài đặt...",
+    "quit": "Thoát EchoLingo"
   }
 }

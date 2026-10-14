@@ -21,12 +21,13 @@ import { CredentialsService } from '@/services/credentials-service.js';
 import { getTranslationService } from '@/services/translation-service.js';
 import { getSpeechService } from '@/services/speech-service.js';
 import { getSessionService } from '@/services/session-service.js';
-import { getMainWindow } from '@/windows/main-window.js';
+import { getMainWindow, setIsQuitting } from '@/windows/main-window.js';
 import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '@/windows/overlay-window.js';
 import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
 import { closeSelectionOverlay } from '@/windows/selection-window.js';
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
+import { notifyMinimizedToTray } from '@/services/tray-service.js';
 
 export function registerIpcHandlers(): void {
   const db = getDatabase();
@@ -60,6 +61,17 @@ export function registerIpcHandlers(): void {
   ipcMain.on(IPC_CHANNELS.APP_CLOSE, (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win?.close();
+  });
+
+  ipcMain.on(IPC_CHANNELS.APP_QUIT, () => {
+    setIsQuitting(true);
+    app.quit();
+  });
+
+  ipcMain.on(IPC_CHANNELS.APP_MINIMIZE_TO_TRAY, (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    win?.hide();
+    notifyMinimizedToTray();
   });
 
   ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, { deltaX, deltaY }: { deltaX: number; deltaY: number }) => {

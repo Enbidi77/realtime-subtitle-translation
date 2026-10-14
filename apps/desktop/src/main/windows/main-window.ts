@@ -1,8 +1,21 @@
 import { BrowserWindow, app } from 'electron';
 import path from 'path';
 import { setupSecurityPolicies } from '@/security/security.js';
+import { IPC_CHANNELS } from '@echo-lingo/contracts';
+import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+import { getDatabase } from '@/database/db-instance.js';
+import { notifyMinimizedToTray } from '@/services/tray-service.js';
 
 let mainWindow: BrowserWindow | null = null;
+let isQuitting = false;
+
+export function setIsQuitting(quitting: boolean): void {
+  isQuitting = quitting;
+}
+
+export function getIsQuitting(): boolean {
+  return isQuitting;
+}
 
 export function createMainWindow(): BrowserWindow {
   mainWindow = new BrowserWindow({
@@ -57,6 +70,42 @@ export function createMainWindow(): BrowserWindow {
     console.log('[MainWindow] Loading production index.html');
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
+
+  // Intercept window close to implement closeBehavior
+  mainWindow.on('close', (event) => {
+    if (isQuitting) {
+      console.log('[MainWindow Lifecycle] Application quitting, closing window cleanly.');
+      return;
+    }
+
+    try {
+      const db = getDatabase();
+      const settings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+
+      if (settings.closeBehavior === 'minimize-to-tray') {
+        event.preventDefault();
+        mainWindow?.hide();
+        notifyMinimizedToTray();
+        console.log('[MainWindow Lifecycle] Window hidden to system tray.');
+      } else if (settings.closeBehavior === 'ask') {
+        event.preventDefault();
+        if (mainWindow?.isMinimized()) mainWindow.restore();
+        mainWindow?.show();
+        mainWindow?.focus();
+        mainWindow?.webContents.send(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM);
+        console.log('[MainWindow Lifecycle] Close confirmation prompted to user.');
+      } else {
+        // settings.closeBehavior === 'quit'
+        console.log('[MainWindow Lifecycle] Quitting application as configured.');
+        isQuitting = true;
+        app.quit();
+      }
+    } catch (err) {
+      console.error('[MainWindow Lifecycle] Error evaluating closeBehavior:', err);
+      event.preventDefault();
+      mainWindow?.hide();
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;

@@ -52,10 +52,14 @@ export const ScreenTranslationSettingsSchema = z.object({
 });
 export type ScreenTranslationSettings = z.infer<typeof ScreenTranslationSettingsSchema>;
 
+export const CloseBehaviorSchema = z.enum(['minimize-to-tray', 'quit', 'ask']).default('minimize-to-tray');
+export type CloseBehavior = z.infer<typeof CloseBehaviorSchema>;
+
 export const AppSettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).default('dark'),
   glassIntensity: z.enum(['subtle', 'balanced', 'strong']).default('balanced'),
   locale: z.enum(['en', 'vi']).default('en'),
+  closeBehavior: CloseBehaviorSchema,
   audioSourceType: AudioSourceTypeSchema.default('microphone'),
   audioDeviceId: z.string().default('default'),
   speechEngine: SpeechEngineTypeSchema.default('whisper-local'),

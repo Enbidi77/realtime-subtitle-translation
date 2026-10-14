@@ -6,6 +6,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
   glassIntensity: 'balanced',
   locale: 'en',
+  closeBehavior: 'minimize-to-tray',
   audioSourceType: 'microphone',
   audioDeviceId: 'default',
   speechEngine: 'whisper-local',

@@ -43,6 +43,11 @@ export function createMockElectronBridge() {
       minimize: () => {},
       maximize: () => {},
       close: () => {},
+      quit: () => {},
+      minimizeToTray: () => {},
+      moveWindow: () => {},
+      onNavigate: (cb: (page: string) => void) => on('app:navigate-to', cb),
+      onRequestCloseConfirm: (cb: () => void) => on('app:request-close-confirm', cb),
     },
     audio: {
       getDevices: async (): Promise<AudioDeviceInfo[]> => [

@@ -20,6 +20,25 @@ export class SessionService {
   private mainWindow: BrowserWindow | null = null;
   private overlayWindow: BrowserWindow | null = null;
   private sessionTimer: NodeJS.Timeout | null = null;
+  private sessionStateCallbacks: Array<(active: boolean) => void> = [];
+
+  public onSessionStateChange(cb: (active: boolean) => void): () => void {
+    this.sessionStateCallbacks.push(cb);
+    return () => {
+      this.sessionStateCallbacks = this.sessionStateCallbacks.filter((c) => c !== cb);
+    };
+  }
+
+  private notifySessionStateChange(): void {
+    const isActive = this.activeSession?.status === 'active';
+    for (const cb of this.sessionStateCallbacks) {
+      try {
+        cb(isActive);
+      } catch (err) {
+        console.error('[SessionService] Error in session state callback:', err);
+      }
+    }
+  }
 
   public setWindows(mainWin: BrowserWindow | null, overlayWin: BrowserWindow | null): void {
     this.mainWindow = mainWin;
@@ -105,6 +124,7 @@ export class SessionService {
     });
 
     this.pipeline.start();
+    this.notifySessionStateChange();
 
     // Start duration ticker
     if (this.sessionTimer) clearInterval(this.sessionTimer);
@@ -238,6 +258,7 @@ export class SessionService {
     if (this.activeSession) {
       this.activeSession.status = 'paused';
       getDatabase().updateSession(this.activeSession.id, { status: 'paused' });
+      this.notifySessionStateChange();
     }
   }
 
@@ -245,6 +266,7 @@ export class SessionService {
     if (this.activeSession) {
       this.activeSession.status = 'active';
       getDatabase().updateSession(this.activeSession.id, { status: 'active' });
+      this.notifySessionStateChange();
     }
   }
 
@@ -265,6 +287,7 @@ export class SessionService {
       });
     }
     this.broadcastToOverlay();
+    this.notifySessionStateChange();
   }
 }
 
