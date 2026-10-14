@@ -15,9 +15,12 @@ import { useSessionStore } from '@/stores/session-store.js';
 import { useAudioCapture } from '@/hooks/useAudioCapture.js';
 
 import { AmbientBackground } from '@/components/ui/AmbientBackground.js';
+import { ExitConfirmationModal } from '@/components/ExitConfirmationModal.js';
 
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);
+  const isExitModalOpen = useNavigationStore((s) => s.isExitModalOpen);
+  const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
   const handleTranscriptionEvent = useSessionStore((s) => s.handleTranscriptionEvent);
 
@@ -55,10 +58,15 @@ export const App: React.FC = () => {
         }
       });
 
+      const unsubCloseConfirm = window.electronAPI.app.onRequestCloseConfirm?.(() => {
+        useNavigationStore.getState().setIsExitModalOpen(true);
+      });
+
       return () => {
         if (unsubSpeech) unsubSpeech();
         if (unsubStatus) unsubStatus();
         if (unsubNavigate) unsubNavigate();
+        if (unsubCloseConfirm) unsubCloseConfirm();
       };
     }
   }, [loadSettings, handleTranscriptionEvent]);
@@ -105,6 +113,12 @@ export const App: React.FC = () => {
 
       {/* 3. Bottom Glass Status Bar */}
       <StatusBar />
+
+      {/* Global Exit Confirmation Dialog */}
+      <ExitConfirmationModal
+        isOpen={isExitModalOpen}
+        onClose={() => setIsExitModalOpen(false)}
+      />
     </div>
   );
 };

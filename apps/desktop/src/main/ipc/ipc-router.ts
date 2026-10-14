@@ -256,12 +256,14 @@ export function registerIpcHandlers(): void {
 
   // ================= Settings =================
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, async () => {
-    return db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+    const raw = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+    const parsed = AppSettingsSchema.safeParse({ ...DEFAULT_APP_SETTINGS, ...raw });
+    return parsed.success ? parsed.data : DEFAULT_APP_SETTINGS;
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_UPDATE, async (_, updates) => {
     const current = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
-    const merged = { ...current, ...updates };
+    const merged = { ...DEFAULT_APP_SETTINGS, ...current, ...updates };
     const validated = AppSettingsSchema.parse(merged);
     db.setSetting('app_settings', validated);
 

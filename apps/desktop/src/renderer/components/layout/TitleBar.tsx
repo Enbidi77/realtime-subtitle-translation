@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
-import { ExitConfirmationModal } from '@/components/ExitConfirmationModal.js';
 import {
   Sparkles,
   Minus,
@@ -22,8 +22,8 @@ export const TitleBar: React.FC = () => {
   const theme = useSettingsStore((s) => s.settings.theme);
   const closeBehavior = useSettingsStore((s) => s.settings.closeBehavior);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
+  const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
-  const [isExitModalOpen, setIsExitModalOpen] = useState(false);
 
   useEffect(() => {
     if (window.electronAPI?.overlay?.onVisibilityChange) {
@@ -36,27 +36,17 @@ export const TitleBar: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    if (window.electronAPI?.app?.onRequestCloseConfirm) {
-      const unsub = window.electronAPI.app.onRequestCloseConfirm(() => {
-        setIsExitModalOpen(true);
-      });
-      return () => {
-        unsub();
-      };
-    }
-  }, []);
-
   const handleMinimize = () => window.electronAPI?.app.minimize();
   const handleMaximize = () => window.electronAPI?.app.maximize();
   const handleClose = () => {
-    if (closeBehavior === 'ask') {
+    const behavior = closeBehavior || 'ask';
+    if (behavior === 'ask') {
       setIsExitModalOpen(true);
-    } else if (closeBehavior === 'quit') {
+    } else if (behavior === 'quit') {
       window.electronAPI?.app.quit();
     } else {
       // 'minimize-to-tray'
-      window.electronAPI?.app.close();
+      window.electronAPI?.app.minimizeToTray();
     }
   };
   const handleToggleOverlay = () => window.electronAPI?.overlay.toggle();
@@ -201,11 +191,6 @@ export const TitleBar: React.FC = () => {
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
-
-      <ExitConfirmationModal
-        isOpen={isExitModalOpen}
-        onClose={() => setIsExitModalOpen(false)}
-      />
     </header>
   );
 };

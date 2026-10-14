@@ -4,10 +4,10 @@ import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { zlibSyncCheck } from './png-helper.js';
 
 describe('App Settings & Close Behavior Contracts', () => {
-  it('validates default closeBehavior as minimize-to-tray', () => {
-    expect(DEFAULT_APP_SETTINGS.closeBehavior).toBe('minimize-to-tray');
+  it('validates default closeBehavior as ask', () => {
+    expect(DEFAULT_APP_SETTINGS.closeBehavior).toBe('ask');
     const parsed = AppSettingsSchema.parse(DEFAULT_APP_SETTINGS);
-    expect(parsed.closeBehavior).toBe('minimize-to-tray');
+    expect(parsed.closeBehavior).toBe('ask');
   });
 
   it('accepts valid closeBehavior options', () => {

@@ -1,7 +1,7 @@
 import { BrowserWindow, app } from 'electron';
 import path from 'path';
 import { setupSecurityPolicies } from '@/security/security.js';
-import { IPC_CHANNELS } from '@echo-lingo/contracts';
+import { IPC_CHANNELS, AppSettingsSchema } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { getDatabase } from '@/database/db-instance.js';
 import { notifyMinimizedToTray } from '@/services/tray-service.js';
@@ -80,30 +80,36 @@ export function createMainWindow(): BrowserWindow {
 
     try {
       const db = getDatabase();
-      const settings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+      const rawSettings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+      const parsed = AppSettingsSchema.safeParse(rawSettings);
+      const settings = parsed.success ? parsed.data : DEFAULT_APP_SETTINGS;
+      const behavior = settings.closeBehavior || 'ask';
 
-      if (settings.closeBehavior === 'minimize-to-tray') {
+      if (behavior === 'minimize-to-tray') {
         event.preventDefault();
         mainWindow?.hide();
         notifyMinimizedToTray();
         console.log('[MainWindow Lifecycle] Window hidden to system tray.');
-      } else if (settings.closeBehavior === 'ask') {
+      } else if (behavior === 'quit') {
+        console.log('[MainWindow Lifecycle] Quitting application as configured.');
+        isQuitting = true;
+        app.quit();
+      } else {
+        // behavior === 'ask' (or anything unset)
         event.preventDefault();
         if (mainWindow?.isMinimized()) mainWindow.restore();
         mainWindow?.show();
         mainWindow?.focus();
         mainWindow?.webContents.send(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM);
         console.log('[MainWindow Lifecycle] Close confirmation prompted to user.');
-      } else {
-        // settings.closeBehavior === 'quit'
-        console.log('[MainWindow Lifecycle] Quitting application as configured.');
-        isQuitting = true;
-        app.quit();
       }
     } catch (err) {
       console.error('[MainWindow Lifecycle] Error evaluating closeBehavior:', err);
       event.preventDefault();
-      mainWindow?.hide();
+      if (mainWindow?.isMinimized()) mainWindow.restore();
+      mainWindow?.show();
+      mainWindow?.focus();
+      mainWindow?.webContents.send(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM);
     }
   });
 

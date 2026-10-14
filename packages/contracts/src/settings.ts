@@ -52,7 +52,7 @@ export const ScreenTranslationSettingsSchema = z.object({
 });
 export type ScreenTranslationSettings = z.infer<typeof ScreenTranslationSettingsSchema>;
 
-export const CloseBehaviorSchema = z.enum(['minimize-to-tray', 'quit', 'ask']).default('minimize-to-tray');
+export const CloseBehaviorSchema = z.enum(['minimize-to-tray', 'quit', 'ask']).default('ask');
 export type CloseBehavior = z.infer<typeof CloseBehaviorSchema>;
 
 export const AppSettingsSchema = z.object({
