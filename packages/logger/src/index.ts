@@ -11,6 +11,7 @@ export interface LoggerOptions {
   silent?: boolean;
   maxFiles?: number;
   maxSize?: number;
+  colorize?: boolean;
 }
 
 export interface ILogger {
@@ -19,6 +20,44 @@ export interface ILogger {
   warn(...args: unknown[]): void;
   error(...args: unknown[]): void;
   child(scope: string): ILogger;
+}
+
+export const ANSI = {
+  reset: '\x1b[0m',
+  bold: '\x1b[1m',
+  dim: '\x1b[2m',
+  gray: '\x1b[90m',
+  red: '\x1b[31m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  cyan: '\x1b[36m',
+  brightRed: '\x1b[91m',
+  brightGreen: '\x1b[92m',
+  brightYellow: '\x1b[93m',
+  brightBlue: '\x1b[94m',
+  brightMagenta: '\x1b[95m',
+  brightCyan: '\x1b[96m',
+} as const;
+
+export const ANSI_REGEX = /\x1b\[[0-9;]*[a-zA-Z]/g;
+
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI_REGEX, '');
+}
+
+export function shouldColorize(optionsColorize?: boolean): boolean {
+  if (typeof optionsColorize === 'boolean') {
+    return optionsColorize;
+  }
+  if (process.env.NO_COLOR !== undefined && process.env.NO_COLOR !== '0') {
+    return false;
+  }
+  if (process.env.TERM === 'dumb') {
+    return false;
+  }
+  return true;
 }
 
 function getDefaultLogDirectory(): string {
@@ -73,16 +112,63 @@ function formatArgs(args: unknown[]): { message: string; stack?: string } {
   };
 }
 
-const consoleFormat = winston.format.printf(({ timestamp, level, message, label, stack }) => {
-  const scopeTag = label ? `[${label}] ` : '';
-  const stackInfo = stack ? `\n${stack}` : '';
-  return `${timestamp} [${level.toUpperCase()}] ${scopeTag}${message}${stackInfo}`;
-});
+export function createConsoleFormat(colorize: boolean): winston.Logform.Format {
+  return winston.format.printf(({ timestamp, level, message, label, stack }) => {
+    const rawLevel = String(level).replace(ANSI_REGEX, '').toLowerCase().trim();
+    const upperLevel = rawLevel.toUpperCase();
+    const scope = label ? String(label) : '';
+    const rawMsg = String(message ?? '');
 
-const fileFormat = winston.format.printf(({ timestamp, level, message, label, stack }) => {
-  const scopeTag = label ? `[${label}] ` : '';
-  const stackInfo = stack ? `\n${stack}` : '';
-  return `${timestamp} [${level.toUpperCase()}] ${scopeTag}${message}${stackInfo}`;
+    if (!colorize) {
+      const scopeTag = scope ? `[${scope}] ` : '';
+      const stackInfo = stack ? `\n${stack}` : '';
+      return `${timestamp} [${upperLevel}] ${scopeTag}${rawMsg}${stackInfo}`;
+    }
+
+    const colorTimestamp = `${ANSI.gray}${timestamp}${ANSI.reset}`;
+    const scopeTag = scope ? `${ANSI.cyan}[${scope}]${ANSI.reset} ` : '';
+
+    let levelBadge: string;
+    let formattedMessage = rawMsg;
+    let formattedStack = '';
+
+    if (stack) {
+      formattedStack = `\n${ANSI.brightRed}${stack}${ANSI.reset}`;
+    }
+
+    switch (rawLevel) {
+      case 'error':
+        levelBadge = `${ANSI.bold}${ANSI.brightRed}[ERROR]${ANSI.reset}`;
+        formattedMessage = `${ANSI.red}${rawMsg}${ANSI.reset}`;
+        break;
+      case 'warn':
+        levelBadge = `${ANSI.bold}${ANSI.brightYellow}[WARN]${ANSI.reset}`;
+        formattedMessage = `${ANSI.yellow}${rawMsg}${ANSI.reset}`;
+        break;
+      case 'info':
+        levelBadge = `${ANSI.bold}${ANSI.brightGreen}[INFO]${ANSI.reset}`;
+        break;
+      case 'debug':
+        levelBadge = `${ANSI.bold}${ANSI.brightMagenta}[DEBUG]${ANSI.reset}`;
+        break;
+      default:
+        levelBadge = `${ANSI.bold}[${upperLevel}]${ANSI.reset}`;
+        break;
+    }
+
+    return `${colorTimestamp} ${levelBadge} ${scopeTag}${formattedMessage}${formattedStack}`;
+  });
+}
+
+export const consoleFormat = createConsoleFormat(true);
+
+export const fileFormat = winston.format.printf(({ timestamp, level, message, label, stack }) => {
+  const rawLevel = String(level).replace(ANSI_REGEX, '').toLowerCase().trim();
+  const upperLevel = rawLevel.toUpperCase();
+  const scopeTag = label ? `[${stripAnsi(String(label))}] ` : '';
+  const stackInfo = stack ? `\n${stripAnsi(String(stack))}` : '';
+  const cleanMessage = stripAnsi(String(message ?? ''));
+  return `${timestamp} [${upperLevel}] ${scopeTag}${cleanMessage}${stackInfo}`;
 });
 
 function createWinstonInstance(options: LoggerOptions = {}): winston.Logger {
@@ -90,6 +176,7 @@ function createWinstonInstance(options: LoggerOptions = {}): winston.Logger {
   currentLogDir = logDir;
 
   const transports: winston.transport[] = [];
+  const colorize = shouldColorize(options.colorize);
 
   // Console transport
   transports.push(
@@ -98,8 +185,7 @@ function createWinstonInstance(options: LoggerOptions = {}): winston.Logger {
       silent: options.silent ?? (isTestEnv && !process.env.DEBUG),
       format: winston.format.combine(
         winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
-        winston.format.colorize(),
-        consoleFormat
+        createConsoleFormat(colorize)
       ),
     })
   );
@@ -169,7 +255,11 @@ export function getLogDirectory(): string {
 }
 
 class ScopedLogger implements ILogger {
-  constructor(private readonly scope: string) {}
+  private readonly scope: string;
+
+  constructor(scope: string) {
+    this.scope = scope;
+  }
 
   public debug(...args: unknown[]): void {
     const { message, stack } = formatArgs(args);
