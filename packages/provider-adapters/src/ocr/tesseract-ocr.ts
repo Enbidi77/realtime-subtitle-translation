@@ -11,6 +11,9 @@ import {
 import { IOcrProvider, normalizeOcrResponse } from '@echo-lingo/ocr-core';
 import { OCR_SUPPORTED_LANGUAGES } from '@echo-lingo/config';
 import { createWorker, Worker } from 'tesseract.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('TesseractOcrProvider');
 
 export class TesseractOcrProvider implements IOcrProvider {
   public readonly id: OcrProviderId = 'tesseract';
@@ -181,7 +184,7 @@ export class TesseractOcrProvider implements IOcrProvider {
       try {
         await worker.terminate();
       } catch (err) {
-        console.warn(`[TesseractOcrProvider] Error terminating worker for ${lang}:`, err);
+        log.warn(`Error terminating worker for ${lang}:`, err);
       }
     }
     this.workerMap.clear();

@@ -48,6 +48,8 @@ export const IPC_CHANNELS = {
   APP_MOVE_WINDOW: 'app:move-window',
   APP_NAVIGATE_TO: 'app:navigate-to',
   APP_REQUEST_CLOSE_CONFIRM: 'app:request-close-confirm',
+  APP_OPEN_LOGS: 'app:open-logs',
+  LOG_MESSAGE: 'log:message',
 
   // Audio & Devices
   AUDIO_GET_DEVICES: 'audio:get-devices',
@@ -200,3 +202,12 @@ export const OcrHistoryQuerySchema = z.object({
   offset: z.number().min(0).optional(),
 });
 export type OcrHistoryQuery = z.infer<typeof OcrHistoryQuerySchema>;
+
+export const LogMessageRequestSchema = z.object({
+  level: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  scope: z.string().optional().default('Renderer'),
+  message: z.string(),
+  args: z.array(z.unknown()).optional(),
+});
+export type LogMessageRequest = z.infer<typeof LogMessageRequestSchema>;
+

@@ -1,4 +1,7 @@
 import { IDatabaseDriver } from '@echo-lingo/database/driver.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('DatabaseSchema');
 
 export interface Migration {
   id: number;
@@ -121,7 +124,7 @@ export function runMigrations(driver: IDatabaseDriver): void {
 
   for (const migration of MIGRATIONS) {
     if (!appliedIds.has(migration.id)) {
-      console.log(`Applying migration ${migration.id}: ${migration.name}`);
+      log.info(`Applying migration ${migration.id}: ${migration.name}`);
       migration.up(driver);
       driver.prepare('INSERT INTO schema_migrations (id, name, applied_at) VALUES (?, ?, ?)').run(
         migration.id,

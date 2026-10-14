@@ -1,5 +1,8 @@
 import fs from 'fs';
 import path from 'path';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('DatabaseDriver');
 
 export interface PreparedStatement {
   run(...params: unknown[]): { changes: number; lastInsertRowid: number | bigint };
@@ -87,7 +90,7 @@ export class SqlJsDriver implements IDatabaseDriver {
         const data = this.db.export();
         fs.writeFileSync(this.filePath, Buffer.from(data));
       } catch (err) {
-        console.error('[SqlJsDriver] Failed to save database:', err);
+        log.error('Failed to save database:', err);
       }
     }
   }

@@ -5,6 +5,9 @@ import {
   OcrResponse,
 } from '@echo-lingo/contracts';
 import { IOcrProvider } from '@echo-lingo/ocr-core/provider.interface.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('OcrRegistry');
 
 export class OcrRegistry {
   private providers = new Map<OcrProviderId, IOcrProvider>();
@@ -60,7 +63,7 @@ export class OcrRegistry {
         try {
           await provider.dispose();
         } catch (err) {
-          console.error(`[OcrRegistry] Error disposing provider ${provider.id}:`, err);
+          log.error(`Error disposing provider ${provider.id}:`, err);
         }
       }
     }

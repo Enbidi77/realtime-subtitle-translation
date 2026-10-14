@@ -4,6 +4,9 @@ import { setupSecurityPolicies } from '@/security/security.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { getAppIcon } from '@/services/app-icon.js';
 import { IPC_CHANNELS } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('OverlayWindow');
 
 let overlayWindow: BrowserWindow | null = null;
 let isClickThrough = false;
@@ -33,7 +36,7 @@ export function broadcastOverlayVisibility(visible: boolean): void {
       overlayWindow.webContents.send(IPC_CHANNELS.OVERLAY_VISIBILITY_STREAM, visible);
     }
   } catch (err) {
-    console.error('[OverlayWindow] Error broadcasting visibility:', err);
+    log.error('Error broadcasting visibility:', err);
   }
 }
 
@@ -89,35 +92,44 @@ export function createOverlayWindow(): BrowserWindow {
 
   const isDev = !app.isPackaged;
   if (isDev && process.env['ELECTRON_RENDERER_URL']) {
-    console.log(`[OverlayWindow] Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}/overlay.html`);
+    log.info(`Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}/overlay.html`);
     overlayWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/overlay.html`);
   } else {
-    console.log('[OverlayWindow] Loading production overlay.html');
+    log.info('Loading production overlay.html');
     overlayWindow.loadFile(path.join(__dirname, '../renderer/overlay.html'));
   }
 
   overlayWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
-    console.log(`[Overlay ${levels[level] || level}] ${message} (${sourceId}:${line})`);
+    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
+    const tag = `[Overlay ${levels[level] || level}] (${sourceId}:${line})`;
+    if (level === 3) {
+      log.error(`${tag} ${message}`);
+    } else if (level === 2) {
+      log.warn(`${tag} ${message}`);
+    } else if (level === 0) {
+      log.debug(`${tag} ${message}`);
+    } else {
+      log.info(`${tag} ${message}`);
+    }
   });
 
   overlayWindow.webContents.on('render-process-gone', (_event, details) => {
-    console.error('[Overlay] Render process gone:', details);
+    log.error('Render process gone:', details);
   });
 
   overlayWindow.webContents.on('did-finish-load', () => {
-    console.log('[OverlayWindow] Did finish load successfully.');
+    log.info('Did finish load successfully.');
     if (onOverlayToggled && overlayWindow && !overlayWindow.isDestroyed()) {
       onOverlayToggled(overlayWindow);
     }
   });
 
   overlayWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-    console.error(`[OverlayWindow] Failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`);
+    log.error(`Failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`);
   });
 
   overlayWindow.on('closed', () => {
-    console.log('[OverlayWindow] Overlay window closed.');
+    log.info('Overlay window closed.');
     broadcastOverlayVisibility(false);
     if (onOverlayClosed) onOverlayClosed();
     overlayWindow = null;
@@ -130,7 +142,7 @@ export function createOverlayWindow(): BrowserWindow {
 
 export function toggleOverlay(): boolean {
   if (!overlayWindow || overlayWindow.isDestroyed()) {
-    console.log('[OverlayWindow] Creating and displaying overlay window...');
+    log.info('Creating and displaying overlay window...');
     createOverlayWindow();
     overlayWindow?.show();
     overlayWindow?.focus();
@@ -140,12 +152,12 @@ export function toggleOverlay(): boolean {
   }
 
   if (overlayWindow.isVisible()) {
-    console.log('[OverlayWindow] Hiding overlay window...');
+    log.info('Hiding overlay window...');
     overlayWindow.hide();
     broadcastOverlayVisibility(false);
     return false;
   } else {
-    console.log('[OverlayWindow] Restoring and displaying existing overlay window...');
+    log.info('Restoring and displaying existing overlay window...');
     if (overlayWindow.isMinimized()) overlayWindow.restore();
     overlayWindow.show();
     overlayWindow.focus();

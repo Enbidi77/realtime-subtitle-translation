@@ -3,9 +3,12 @@ import path from 'path';
 import { setupSecurityPolicies } from '@/security/security.js';
 import { IPC_CHANNELS, AppSettingsSchema } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+import { createLogger } from '@echo-lingo/logger';
 import { getDatabase } from '@/database/db-instance.js';
 import { notifyMinimizedToTray } from '@/services/tray-service.js';
 import { getAppIcon } from '@/services/app-icon.js';
+
+const log = createLogger('MainWindow');
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -40,25 +43,34 @@ export function createMainWindow(): BrowserWindow {
   });
 
   mainWindow.on('ready-to-show', () => {
-    console.log('[MainWindow] Window ready to show, displaying...');
+    log.info('Window ready to show, displaying...');
     mainWindow?.show();
   });
 
   mainWindow.webContents.on('did-finish-load', () => {
-    console.log('[MainWindow] Did finish load successfully.');
+    log.info('Did finish load successfully.');
   });
 
   mainWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-    console.error(`[MainWindow] Failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`);
+    log.error(`Failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`);
   });
 
   mainWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
-    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'];
-    console.log(`[Renderer ${levels[level] || level}] ${message} (${sourceId}:${line})`);
+    const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
+    const tag = `[Renderer ${levels[level] || level}] (${sourceId}:${line})`;
+    if (level === 3) {
+      log.error(`${tag} ${message}`);
+    } else if (level === 2) {
+      log.warn(`${tag} ${message}`);
+    } else if (level === 0) {
+      log.debug(`${tag} ${message}`);
+    } else {
+      log.info(`${tag} ${message}`);
+    }
   });
 
   mainWindow.webContents.on('render-process-gone', (_event, details) => {
-    console.error('[MainWindow] Render process gone:', details);
+    log.error('Render process gone:', details);
   });
 
   setupSecurityPolicies(mainWindow.webContents);
@@ -66,17 +78,17 @@ export function createMainWindow(): BrowserWindow {
   const isDev = !app.isPackaged;
   // In development, load from Vite HMR dev server
   if (isDev && process.env['ELECTRON_RENDERER_URL']) {
-    console.log(`[MainWindow] Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}`);
+    log.info(`Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}`);
     mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
   } else {
-    console.log('[MainWindow] Loading production index.html');
+    log.info('Loading production index.html');
     mainWindow.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
 
   // Intercept window close to implement closeBehavior
   mainWindow.on('close', (event) => {
     if (isQuitting) {
-      console.log('[MainWindow Lifecycle] Application quitting, closing window cleanly.');
+      log.info('[MainWindow Lifecycle] Application quitting, closing window cleanly.');
       return;
     }
 
@@ -91,9 +103,9 @@ export function createMainWindow(): BrowserWindow {
         event.preventDefault();
         mainWindow?.hide();
         notifyMinimizedToTray();
-        console.log('[MainWindow Lifecycle] Window hidden to system tray.');
+        log.info('[MainWindow Lifecycle] Window hidden to system tray.');
       } else if (behavior === 'quit') {
-        console.log('[MainWindow Lifecycle] Quitting application as configured.');
+        log.info('[MainWindow Lifecycle] Quitting application as configured.');
         isQuitting = true;
         app.quit();
       } else {
@@ -103,10 +115,10 @@ export function createMainWindow(): BrowserWindow {
         mainWindow?.show();
         mainWindow?.focus();
         mainWindow?.webContents.send(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM);
-        console.log('[MainWindow Lifecycle] Close confirmation prompted to user.');
+        log.info('[MainWindow Lifecycle] Close confirmation prompted to user.');
       }
     } catch (err) {
-      console.error('[MainWindow Lifecycle] Error evaluating closeBehavior:', err);
+      log.error('[MainWindow Lifecycle] Error evaluating closeBehavior:', err);
       event.preventDefault();
       if (mainWindow?.isMinimized()) mainWindow.restore();
       mainWindow?.show();

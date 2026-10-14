@@ -15,6 +15,7 @@
   "dependencies": {
     "@echo-lingo/config": "workspace:*",
     "@echo-lingo/contracts": "workspace:*",
+    "@echo-lingo/logger": "workspace:*",
     "@echo-lingo/speech-core": "workspace:*",
     "@echo-lingo/translation-core": "workspace:*",
     "@echo-lingo/ocr-core": "workspace:*",

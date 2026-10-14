@@ -22,6 +22,8 @@ import {
   Power,
   HelpCircle,
   Info,
+  FileText,
+  FolderOpen,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
@@ -537,6 +539,35 @@ export const SettingsView: React.FC = () => {
         <p className="text-xs text-muted-foreground/80 leading-relaxed">
           EchoLingo processes audio directly through in-memory streams. Offline models run entirely on your local machine, and API keys are protected using your operating system's hardware-backed credential vault.
         </p>
+      </GlassCard>
+
+      {/* 7. Diagnostics & Logs */}
+      <GlassCard variant="default" className="p-6 space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" />
+              <span>{t('settings.diagnostics')}</span>
+            </h2>
+            <p className="text-xs text-muted-foreground/80 leading-relaxed">
+              {t('settings.openLogsDesc')}
+            </p>
+          </div>
+          <GlassButton
+            variant="glass"
+            size="sm"
+            onClick={async () => {
+              try {
+                await window.electronAPI.app.openLogs();
+              } catch (err) {
+                console.error('Failed to open logs directory:', err);
+              }
+            }}
+            icon={<FolderOpen className="w-3.5 h-3.5" />}
+          >
+            <span>{t('settings.openLogs')}</span>
+          </GlassButton>
+        </div>
       </GlassCard>
     </div>
   );

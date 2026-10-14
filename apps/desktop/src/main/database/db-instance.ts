@@ -1,6 +1,9 @@
 import { app } from 'electron';
 import path from 'path';
 import { DatabaseRepository, IDatabaseDriver, createDatabaseDriver, runMigrations } from '@echo-lingo/database';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('Database');
 
 let repoInstance: DatabaseRepository | null = null;
 let driverInstance: IDatabaseDriver | null = null;
@@ -11,7 +14,7 @@ export async function initDatabase(): Promise<DatabaseRepository> {
   const userDataPath = app.getPath('userData');
   const dbPath = path.join(userDataPath, 'echolingo.sqlite');
 
-  console.log(`[Database] Initializing SQLite database at: ${dbPath}`);
+  log.info(`Initializing SQLite database at: ${dbPath}`);
   driverInstance = await createDatabaseDriver(dbPath);
   runMigrations(driverInstance);
   repoInstance = new DatabaseRepository(driverInstance);
@@ -31,7 +34,7 @@ export function closeDatabase(): void {
     try {
       driverInstance.close();
     } catch (e) {
-      console.error('[Database] Error closing database:', e);
+      log.error('Error closing database:', e);
     }
     driverInstance = null;
     repoInstance = null;

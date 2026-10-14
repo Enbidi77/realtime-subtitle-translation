@@ -4,6 +4,9 @@ import { getSessionService } from '@/services/session-service.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
 import { getDatabase } from '@/database/db-instance.js';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('Shortcuts');
 
 export function registerGlobalShortcuts(): void {
   try {
@@ -47,7 +50,7 @@ export function registerGlobalShortcuts(): void {
           });
         }
       } catch (err) {
-        console.warn('[Shortcuts] Capture & Translate shortcut error:', err);
+        log.warn('Capture & Translate shortcut error:', err);
       }
     });
 
@@ -82,11 +85,11 @@ export function registerGlobalShortcuts(): void {
           }
         }
       } catch (err) {
-        console.warn('[Shortcuts] Toggle Continuous OCR shortcut error:', err);
+        log.warn('Toggle Continuous OCR shortcut error:', err);
       }
     });
   } catch (err) {
-    console.warn('[Shortcuts] Could not register some global shortcuts:', err);
+    log.warn('Could not register some global shortcuts:', err);
   }
 }
 

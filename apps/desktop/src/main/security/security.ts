@@ -1,4 +1,7 @@
 import { app, shell, session, desktopCapturer, WebContents } from 'electron';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('Security');
 
 export function setupSecurityPolicies(webContents: WebContents): void {
   // Disallow window.open / target="_blank" navigations inside Electron
@@ -48,20 +51,20 @@ export function setupMediaPermissions(): void {
   if (typeof ses.setDisplayMediaRequestHandler === 'function') {
     ses.setDisplayMediaRequestHandler(async (_request, callback) => {
       try {
-        console.log('[SystemAudio] Loopback display media requested. Querying screen sources...');
+        log.info('[SystemAudio] Loopback display media requested. Querying screen sources...');
         const sources = await desktopCapturer.getSources({
           types: ['screen'],
           thumbnailSize: { width: 1, height: 1 },
         });
         if (sources.length > 0) {
-          console.log(`[SystemAudio] Binding loopback audio to screen source: ${sources[0].name} (${sources[0].id})`);
+          log.info(`[SystemAudio] Binding loopback audio to screen source: ${sources[0].name} (${sources[0].id})`);
           callback({ video: sources[0], audio: 'loopback' });
         } else {
-          console.warn('[SystemAudio] No screen sources found to bind loopback audio.');
+          log.warn('[SystemAudio] No screen sources found to bind loopback audio.');
           callback({});
         }
       } catch (err) {
-        console.error('[SystemAudio] Error fetching screen sources for display media:', err);
+        log.error('[SystemAudio] Error fetching screen sources for display media:', err);
         callback({});
       }
     });

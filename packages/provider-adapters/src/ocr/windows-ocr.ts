@@ -14,6 +14,9 @@ import { promisify } from 'node:util';
 import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('WindowsNativeOcrProvider');
 
 const execFileAsync = promisify(execFile);
 
@@ -166,7 +169,7 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
         return this.cachedLanguages;
       }
     } catch (err) {
-      console.warn('[WindowsNativeOcrProvider] Error detecting installed OCR languages:', err);
+      log.warn('Error detecting installed OCR languages:', err);
     }
 
     return this.getSupportedLanguages();
@@ -218,7 +221,7 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
       );
 
       if (stderr && stderr.trim().length > 0) {
-        console.warn('[WindowsNativeOcrProvider] Stderr output:', stderr);
+        log.warn('Stderr output:', stderr);
       }
 
       const trimmed = (stdout || '').trim();

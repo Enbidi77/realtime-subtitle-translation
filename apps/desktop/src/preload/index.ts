@@ -46,11 +46,24 @@ const api = {
       ipcRenderer.on(IPC_CHANNELS.APP_NAVIGATE_TO, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_NAVIGATE_TO, handler);
     },
+    openLogs: (): Promise<{ ok: boolean; path: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.APP_OPEN_LOGS),
     onRequestCloseConfirm: (callback: () => void) => {
       const handler = () => callback();
       ipcRenderer.on(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.APP_REQUEST_CLOSE_CONFIRM, handler);
     },
+  },
+
+  log: {
+    debug: (message: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'debug', message, args }),
+    info: (message: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'info', message, args }),
+    warn: (message: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'warn', message, args }),
+    error: (message: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'error', message, args }),
   },
 
   audio: {

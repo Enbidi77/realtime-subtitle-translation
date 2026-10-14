@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "@echo-lingo/contracts": "workspace:*",
-    "@echo-lingo/config": "workspace:*"
+    "@echo-lingo/config": "workspace:*",
+    "@echo-lingo/logger": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.3"

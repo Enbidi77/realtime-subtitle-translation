@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow } from 'electron';
+import { ipcMain, app, BrowserWindow, shell } from 'electron';
 import {
   IPC_CHANNELS,
   SystemInfo,
@@ -13,8 +13,10 @@ import {
   OcrRecognizeRequestSchema,
   OcrHistoryQuerySchema,
   FloatingPanelPayloadSchema,
+  LogMessageRequestSchema,
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+import { createLogger, getLogDirectory } from '@echo-lingo/logger';
 import { exportToSrt, exportToVtt, exportToTxt, exportToJson, parseSubtitles } from '@echo-lingo/subtitle-core';
 import { getDatabase } from '@/database/db-instance.js';
 import { CredentialsService } from '@/services/credentials-service.js';
@@ -28,6 +30,8 @@ import { getScreenTranslationService } from '@/services/screen-translation-servi
 import { closeSelectionOverlay } from '@/windows/selection-window.js';
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
 import { notifyMinimizedToTray } from '@/services/tray-service.js';
+
+const log = createLogger('IpcRouter');
 
 export function registerIpcHandlers(): void {
   const db = getDatabase();
@@ -123,7 +127,7 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (_, { modelId }: { modelId: string }) => {
-    console.log(`[Models] Requested download for model: ${modelId}`);
+    log.info(`[Models] Requested download for model: ${modelId}`);
     return { ok: true };
   });
 
@@ -407,4 +411,24 @@ export function registerIpcHandlers(): void {
     screenTranslationService.clearHistory();
     return { ok: true };
   });
+
+  // ================= Logging & Diagnostics =================
+  ipcMain.handle(IPC_CHANNELS.APP_OPEN_LOGS, async () => {
+    const logDir = getLogDirectory();
+    await shell.openPath(logDir);
+    return { ok: true, path: logDir };
+  });
+
+  ipcMain.on(IPC_CHANNELS.LOG_MESSAGE, (_, payload) => {
+    const parsed = LogMessageRequestSchema.safeParse(payload);
+    if (!parsed.success) return;
+    const { level, scope, message, args } = parsed.data;
+    const rendererLogger = createLogger(scope || 'Renderer');
+    const logArgs = args && args.length > 0 ? [message, ...args] : [message];
+    if (level === 'error') rendererLogger.error(...logArgs);
+    else if (level === 'warn') rendererLogger.warn(...logArgs);
+    else if (level === 'debug') rendererLogger.debug(...logArgs);
+    else rendererLogger.info(...logArgs);
+  });
 }
+

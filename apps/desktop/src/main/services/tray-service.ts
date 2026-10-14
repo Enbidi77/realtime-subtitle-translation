@@ -8,6 +8,9 @@ import { getScreenTranslationService } from '@/services/screen-translation-servi
 import { toggleOverlay, getOverlayWindow } from '@/windows/overlay-window.js';
 import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
 import { getTrayIcon } from '@/services/app-icon.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('TrayService');
 
 let tray: Tray | null = null;
 let hasShownTrayBalloon = false;
@@ -198,7 +201,7 @@ export function buildTrayContextMenu(): Menu {
               audioDeviceId: settings.audioDeviceId,
             });
           } catch (err) {
-            console.error('[TrayService] Error starting live session from tray:', err);
+            log.error('Error starting live session from tray:', err);
           }
         }
         updateTrayMenu();
@@ -220,7 +223,7 @@ export function buildTrayContextMenu(): Menu {
         try {
           await screenTranslationService.selectRegion();
         } catch (err) {
-          console.error('[TrayService] Error triggering screen capture from tray:', err);
+          log.error('Error triggering screen capture from tray:', err);
         }
       },
     },
@@ -252,7 +255,7 @@ export function buildTrayContextMenu(): Menu {
               });
             }
           } catch (err) {
-            console.error('[TrayService] Error toggling continuous OCR from tray:', err);
+            log.error('Error toggling continuous OCR from tray:', err);
           }
         }
         updateTrayMenu();
@@ -344,7 +347,7 @@ export function notifyMinimizedToTray(): void {
         content: 'EchoLingo is running in the system tray. Click the icon or use shortcuts anytime.',
       });
     } catch (err) {
-      console.warn('[TrayService] Could not display tray balloon:', err);
+      log.warn('Could not display tray balloon:', err);
     }
   }
 }

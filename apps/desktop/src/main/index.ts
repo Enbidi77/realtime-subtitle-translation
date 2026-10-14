@@ -1,11 +1,23 @@
+import path from 'path';
 import { app, BrowserWindow } from 'electron';
+import { initLogger, createLogger } from '@echo-lingo/logger';
+
+// Initialize persistent file logging in userData/logs
+try {
+  const logDir = path.join(app.getPath('userData'), 'logs');
+  initLogger({ logDir });
+} catch {
+  // Fallback to default directory if app.getPath is not yet ready
+}
+
+const log = createLogger('Main');
 
 process.on('uncaughtException', (err) => {
-  console.error('[Main CRITICAL] Uncaught Exception:', err);
+  log.error('[CRITICAL] Uncaught Exception:', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('[Main CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+  log.error('[CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
 });
 
 import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
@@ -27,7 +39,7 @@ if (!app.isPackaged) {
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-  console.warn('[EchoLingo] Another instance is already running. Quitting duplicate process.');
+  log.warn('Another instance is already running. Quitting duplicate process.');
   app.quit();
 } else {
   app.on('second-instance', () => {
@@ -95,29 +107,29 @@ if (!gotTheLock) {
   });
 
   app.on('before-quit', () => {
-    console.log('[App Lifecycle] before-quit event fired');
+    log.info('[App Lifecycle] before-quit event fired');
     setIsQuitting(true);
   });
 
   app.on('window-all-closed', () => {
-    console.log('[App Lifecycle] window-all-closed event fired');
+    log.info('[App Lifecycle] window-all-closed event fired');
     if (process.platform !== 'darwin') {
       app.quit();
     }
   });
 
   app.on('will-quit', () => {
-    console.log('[App Lifecycle] will-quit event fired');
+    log.info('[App Lifecycle] will-quit event fired');
     unregisterGlobalShortcuts();
     destroyTray();
     closeDatabase();
   });
 
   app.on('quit', (_event, exitCode) => {
-    console.log(`[App Lifecycle] quit event fired with exitCode: ${exitCode}`);
+    log.info(`[App Lifecycle] quit event fired with exitCode: ${exitCode}`);
   });
 
   process.on('exit', (code) => {
-    console.log(`[Process Lifecycle] process.exit event with code: ${code}`);
+    log.info(`[Process Lifecycle] process.exit event with code: ${code}`);
   });
 }

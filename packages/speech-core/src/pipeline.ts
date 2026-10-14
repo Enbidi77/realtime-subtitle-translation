@@ -2,6 +2,9 @@ import { TranscriptionSegment } from '@echo-lingo/contracts';
 import { VoiceActivityDetector, VadChunkEvent } from '@echo-lingo/speech-core/vad.js';
 import { BoundedAudioQueue } from '@echo-lingo/speech-core/buffer.js';
 import { ISpeechProvider } from '@echo-lingo/speech-core/provider.interface.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('SpeechPipeline');
 
 export interface SpeechPipelineConfig {
   sessionId: string;
@@ -112,11 +115,11 @@ export class SpeechPipeline {
               const resCallback = this.config.onTranscription(segment, latencyMs);
               if (resCallback && typeof (resCallback as any).catch === 'function') {
                 (resCallback as any).catch((cbErr: unknown) => {
-                  console.error('[SpeechPipeline] onTranscription async error:', cbErr);
+                  log.error('onTranscription async error:', cbErr);
                 });
               }
             } catch (cbErr) {
-              console.error('[SpeechPipeline] onTranscription sync error:', cbErr);
+              log.error('onTranscription sync error:', cbErr);
             }
           }
         } catch (err) {

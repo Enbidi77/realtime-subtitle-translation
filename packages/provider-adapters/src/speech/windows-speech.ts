@@ -11,6 +11,9 @@ import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('WindowsSpeechProvider');
 
 const execFileAsync = promisify(execFile);
 
@@ -226,7 +229,7 @@ export class WindowsSpeechProvider implements ISpeechProvider {
       };
     } catch (err: unknown) {
       const errMsg = err instanceof Error ? err.message : String(err);
-      console.error('[WindowsSpeechProvider] Transcription error:', errMsg);
+      log.error('Transcription error:', errMsg);
       return {
         text: '',
         isFinal: true,
@@ -292,7 +295,7 @@ export class WindowsSpeechProvider implements ISpeechProvider {
         const parsed = JSON.parse(stdout.trim());
         return parsed;
       } catch (err) {
-        console.warn('[WindowsSpeechProvider] Binary run failed, falling back to PowerShell:', err);
+        log.warn('Binary run failed, falling back to PowerShell:', err);
       }
     }
 
@@ -478,7 +481,7 @@ Write-Output ($list | ConvertTo-Json -Compress)
         return exePath;
       }
     } catch (err) {
-      console.warn('[WindowsSpeechProvider] Could not compile SAPI CLI helper, will use PowerShell:', err);
+      log.warn('Could not compile SAPI CLI helper, will use PowerShell:', err);
     }
 
     return null;

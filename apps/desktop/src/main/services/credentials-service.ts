@@ -1,5 +1,8 @@
 import { safeStorage } from 'electron';
 import { getDatabase } from '@/database/db-instance.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('CredentialsService');
 
 export class CredentialsService {
   private static readonly KEY_PREFIX = 'cred_secret_';
@@ -45,7 +48,7 @@ export class CredentialsService {
       }
       return stored;
     } catch (err) {
-      console.error(`Failed to decrypt credential for ${providerId}:`, err);
+      log.error(`Failed to decrypt credential for ${providerId}:`, err);
       return null;
     }
   }

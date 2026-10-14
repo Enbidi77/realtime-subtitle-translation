@@ -6,6 +6,9 @@ import {
   TranslationResult,
 } from '@echo-lingo/contracts';
 import { isMeaningfulChange, extractAddedLines } from '@echo-lingo/ocr-core/text-deduplicator.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('ContinuousOcrScheduler');
 
 export interface ContinuousOcrCallbacks {
   onCaptureRegion: () => Promise<string | null>; // Returns base64 image data or null if capture failed
@@ -123,7 +126,7 @@ export class ContinuousOcrScheduler {
 
     this.timer = setTimeout(() => {
       this.processTick().catch((err) => {
-        console.error('[ContinuousOcrScheduler] Error in processTick:', err);
+        log.error('Error in processTick:', err);
         if (this.callbacks.onError) this.callbacks.onError(err);
       });
     }, delayMs);
@@ -214,7 +217,7 @@ export class ContinuousOcrScheduler {
         isChange: hasChanged,
       });
     } catch (err: any) {
-      console.error('[ContinuousOcrScheduler] Tick failed:', err);
+      log.error('Tick failed:', err);
       this.setState('error', err?.message || 'Processing tick failed');
       if (this.callbacks.onError) {
         this.callbacks.onError(err);

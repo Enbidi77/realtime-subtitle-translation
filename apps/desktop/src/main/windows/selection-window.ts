@@ -1,7 +1,10 @@
 import { BrowserWindow, screen, app, ipcMain } from 'electron';
 import path from 'path';
 import { ScreenCaptureRegion } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import { setupSecurityPolicies } from '@/security/security.js';
+
+const log = createLogger('SelectionWindow');
 
 let selectionWindow: BrowserWindow | null = null;
 let currentResolve: ((region: ScreenCaptureRegion | null) => void) | null = null;
@@ -54,6 +57,15 @@ export async function openSelectionOverlay(
     }
 
     setupSecurityPolicies(selectionWindow.webContents);
+
+    selectionWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
+      const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
+      const tag = `[Selection ${levels[level] || level}] (${sourceId}:${line})`;
+      if (level === 3) log.error(`${tag} ${message}`);
+      else if (level === 2) log.warn(`${tag} ${message}`);
+      else if (level === 0) log.debug(`${tag} ${message}`);
+      else log.info(`${tag} ${message}`);
+    });
 
     const isDev = !app.isPackaged;
     if (isDev && process.env['ELECTRON_RENDERER_URL']) {

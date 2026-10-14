@@ -5,6 +5,9 @@ import {
   encodeWav,
 } from '@echo-lingo/speech-core';
 import { SpeechEngineType } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('GroqWhisperProvider');
 
 export class GroqWhisperProvider implements ISpeechProvider {
   public readonly id: SpeechEngineType = 'groq-whisper';
@@ -62,14 +65,14 @@ export class GroqWhisperProvider implements ISpeechProvider {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`[GroqWhisper] API error (${response.status}):`, errText);
+      log.error(`API error (${response.status}):`, errText);
       throw new Error(`Groq Whisper error (${response.status}): ${errText}`);
     }
 
     const json = (await response.json()) as { text?: string };
     const text = (json.text || '').trim();
     if (text) {
-      console.log(`[GroqWhisper] Transcribed in ${Date.now() - start}ms: "${text}"`);
+      log.info(`Transcribed in ${Date.now() - start}ms: "${text}"`);
     }
 
     return {

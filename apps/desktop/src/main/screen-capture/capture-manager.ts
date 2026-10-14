@@ -9,6 +9,9 @@ import {
   preprocessImage,
   Rect,
 } from '@echo-lingo/ocr-core';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('ScreenCaptureManager');
 
 export class ScreenCaptureManager {
   /**
@@ -144,7 +147,7 @@ export class ScreenCaptureManager {
           height: preprocessed.height,
         });
       } catch (err) {
-        console.warn('[ScreenCaptureManager] Preprocessing failed, using original crop:', err);
+        log.warn('Preprocessing failed, using original crop:', err);
       }
     }
 

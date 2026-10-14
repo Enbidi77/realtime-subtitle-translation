@@ -7,6 +7,9 @@ import {
 } from '@echo-lingo/contracts';
 import { ITranslationProvider } from '@echo-lingo/translation-core';
 import { SUPPORTED_LANGUAGES } from '@echo-lingo/config';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('GoogleWebTranslationProvider');
 
 export class GoogleWebTranslationProvider implements ITranslationProvider {
   public readonly id: TranslationProviderId = 'google-web';
@@ -95,7 +98,7 @@ export class GoogleWebTranslationProvider implements ITranslationProvider {
         }
       }
     } catch (err) {
-      console.warn('[GoogleWeb] Primary endpoint failed, trying fallback...', err);
+      log.warn('Primary endpoint failed, trying fallback...', err);
     }
 
     // 2. Fallback to translate_a/single
@@ -133,7 +136,7 @@ export class GoogleWebTranslationProvider implements ITranslationProvider {
         }
       }
     } catch (fallbackErr) {
-      console.error('[GoogleWeb] Fallback translation error:', fallbackErr);
+      log.error('Fallback translation error:', fallbackErr);
     }
 
     // If both web APIs failed, return original text as safe fallback instead of erroring

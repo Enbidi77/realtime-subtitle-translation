@@ -29,6 +29,9 @@ import { openSelectionOverlay, closeSelectionOverlay } from '@/windows/selection
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { getOverlayWindow } from '@/windows/overlay-window.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('ScreenTranslationService');
 
 export class ScreenTranslationService {
   private ocrRegistry: OcrRegistry;
@@ -208,7 +211,7 @@ export class ScreenTranslationService {
           const { buffer } = await captureMgr.captureRegion(config.region);
           return buffer.toString('base64');
         } catch (err) {
-          console.warn('[ScreenTranslationService] Continuous capture failed:', err);
+          log.warn('Continuous capture failed:', err);
           return null;
         }
       },
@@ -343,7 +346,7 @@ export class ScreenTranslationService {
         overlayWin.webContents.send(channel, payload);
       }
     } catch (err) {
-      console.warn('[ScreenTranslationService] Broadcast error:', err);
+      log.warn('Broadcast error:', err);
     }
   }
 

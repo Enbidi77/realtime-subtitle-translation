@@ -6,6 +6,8 @@
   "references": [
     { "path": "./packages/contracts" },
     { "path": "./packages/config" },
+    { "path": "./packages/logger" },
+    { "path": "./packages/ocr-core" },
     { "path": "./packages/subtitle-core" },
     { "path": "./packages/translation-core" },
     { "path": "./packages/speech-core" },

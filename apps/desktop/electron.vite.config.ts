@@ -14,6 +14,7 @@ const workspacePackages = [
   '@echo-lingo/provider-adapters',
   '@echo-lingo/database',
   '@echo-lingo/ocr-core',
+  '@echo-lingo/logger',
   'zod',
 ];
 
@@ -28,6 +29,7 @@ export default defineConfig({
         '@': resolve(__dirname, 'src/main'),
         '@echo-lingo/contracts': resolve(__dirname, '../../packages/contracts/src'),
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
+        '@echo-lingo/logger': resolve(__dirname, '../../packages/logger/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),
         '@echo-lingo/translation-core': resolve(__dirname, '../../packages/translation-core/src'),
         '@echo-lingo/speech-core': resolve(__dirname, '../../packages/speech-core/src'),

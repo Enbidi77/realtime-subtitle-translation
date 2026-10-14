@@ -7,6 +7,9 @@ import {
 import { ITranslationProvider } from '@echo-lingo/translation-core/provider.interface.js';
 import { TranslationCache } from '@echo-lingo/translation-core/cache.js';
 import { GlossaryEngine } from '@echo-lingo/translation-core/glossary.js';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('TranslationRegistry');
 
 export interface TranslationRegistryOptions {
   cache?: TranslationCache;
@@ -115,7 +118,7 @@ export class TranslationRegistry {
     try {
       result = await provider.translate(request);
     } catch (err) {
-      console.warn(`Translation attempt 1 failed with ${provider.id}:`, err);
+      log.warn(`Translation attempt 1 failed with ${provider.id}:`, err);
       // Wait 300ms before retry
       await new Promise((r) => setTimeout(r, 300));
       result = await provider.translate(request);
@@ -171,7 +174,7 @@ export class TranslationRegistry {
         );
         results[targetLang] = res.translatedText;
       } catch (err) {
-        console.error(`Failed to translate into ${targetLang}:`, err);
+        log.error(`Failed to translate into ${targetLang}:`, err);
         results[targetLang] = `[Translation error: ${targetLang}]`;
       }
     });
