@@ -7,6 +7,7 @@ import { getSessionService } from '@/services/session-service.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
 import { toggleOverlay, getOverlayWindow } from '@/windows/overlay-window.js';
 import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
+import { getTrayIcon } from '@/services/app-icon.js';
 
 let tray: Tray | null = null;
 let hasShownTrayBalloon = false;
@@ -111,6 +112,10 @@ export function generateTrayIconPng(size = 32): Buffer {
  * Creates the Tray NativeImage
  */
 export function getTrayNativeImage(): NativeImage {
+  const customIcon = getTrayIcon();
+  if (customIcon && !customIcon.isEmpty()) {
+    return customIcon;
+  }
   const pngBuffer = generateTrayIconPng(32);
   return nativeImage.createFromBuffer(pngBuffer);
 }

@@ -4,8 +4,8 @@ import { useSettingsStore } from '@/stores/settings-store.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
+import appLogo from '@/assets/logo.png';
 import {
-  Sparkles,
   Minus,
   Square,
   X,
@@ -84,10 +84,12 @@ export const TitleBar: React.FC = () => {
     >
       {/* Brand & Status */}
       <div className="flex items-center gap-2.5">
-        {/* Luminous prism logo icon inspired by reference */}
-        <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 text-white shadow-sm shadow-indigo-500/25 border border-white/25">
-          <Sparkles className="w-3.5 h-3.5" />
-        </div>
+        {/* EchoLingo brand logo */}
+        <img
+          src={appLogo}
+          alt="EchoLingo"
+          className="w-7 h-7 rounded-xl object-contain shadow-sm shadow-indigo-500/20 pointer-events-none select-none"
+        />
 
         <div className="flex items-center gap-2">
           <span className="font-semibold text-xs tracking-tight text-foreground">

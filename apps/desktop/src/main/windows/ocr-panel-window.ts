@@ -3,6 +3,7 @@ import path from 'path';
 import { FloatingPanelPayload, IPC_CHANNELS } from '@echo-lingo/contracts';
 import { calculateFloatingPanelPosition } from '@echo-lingo/ocr-core';
 import { setupSecurityPolicies } from '@/security/security.js';
+import { getAppIcon } from '@/services/app-icon.js';
 
 let panelWindow: BrowserWindow | null = null;
 let currentPayload: FloatingPanelPayload | null = null;
@@ -21,6 +22,7 @@ export function createOcrPanelWindow(): BrowserWindow {
     height: defaultH,
     minWidth: 320,
     minHeight: 180,
+    icon: getAppIcon(),
     show: false,
     frame: false,
     transparent: true,

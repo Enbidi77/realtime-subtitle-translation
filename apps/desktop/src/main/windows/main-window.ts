@@ -5,6 +5,7 @@ import { IPC_CHANNELS, AppSettingsSchema } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { getDatabase } from '@/database/db-instance.js';
 import { notifyMinimizedToTray } from '@/services/tray-service.js';
+import { getAppIcon } from '@/services/app-icon.js';
 
 let mainWindow: BrowserWindow | null = null;
 let isQuitting = false;
@@ -26,6 +27,7 @@ export function createMainWindow(): BrowserWindow {
     show: false,
     frame: false, // Custom frameless titlebar with glass styling
     acceptFirstMouse: true,
+    icon: getAppIcon(),
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, vibrancy: 'under-window' as const } : {}),
     ...(process.platform === 'win32' ? { backgroundMaterial: 'mica' as const } : {}),
     backgroundColor: '#0a0d16',

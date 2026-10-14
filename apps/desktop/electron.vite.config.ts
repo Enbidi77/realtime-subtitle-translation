@@ -53,6 +53,7 @@ export default defineConfig({
   },
   renderer: {
     plugins: [react()],
+    publicDir: resolve(__dirname, 'src/renderer/public'),
     build: {
       sourcemap: true,
       rollupOptions: {

@@ -9,8 +9,10 @@ directories:
 files:
   - out/**/*
   - package.json
+  - resources/**/*
 
 win:
+  icon: build/icon.ico
   target:
     - nsis
     - portable
@@ -28,6 +30,7 @@ mac:
   category: public.app-category.productivity
 
 linux:
+  icon: build/icons
   target:
     - AppImage
     - deb
