@@ -64,6 +64,7 @@ export default defineConfig({
           overlay: resolve(__dirname, 'src/renderer/overlay.html'),
           selection: resolve(__dirname, 'src/renderer/selection.html'),
           'ocr-panel': resolve(__dirname, 'src/renderer/ocr-panel.html'),
+          splash: resolve(__dirname, 'src/renderer/splash.html'),
         },
       },
     },

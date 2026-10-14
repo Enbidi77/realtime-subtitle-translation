@@ -6,6 +6,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
   glassIntensity: 'balanced',
   locale: 'en',
+  enableSplashScreen: true,
   closeBehavior: 'ask',
   audioSourceType: 'microphone',
   audioDeviceId: 'default',

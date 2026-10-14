@@ -22,11 +22,19 @@ process.on('unhandledRejection', (reason, promise) => {
 
 import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
 import { getOverlayWindow, setOverlayCallbacks } from '@/windows/overlay-window.js';
+import {
+  createSplashWindow,
+  updateSplashStatus,
+  transitionSplashToMainWindow,
+  closeSplashWindow,
+} from '@/windows/splash-window.js';
 import { registerIpcHandlers } from '@/ipc/ipc-router.js';
 import { registerGlobalShortcuts, unregisterGlobalShortcuts } from '@/services/shortcuts-service.js';
 import { getDatabase, initDatabase, closeDatabase } from '@/database/db-instance.js';
 import { getSessionService } from '@/services/session-service.js';
 import { initTray, destroyTray, updateTrayMenu } from '@/services/tray-service.js';
+import { AppSettingsSchema } from '@echo-lingo/contracts';
+import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 
 import { setupMediaPermissions } from '@/security/security.js';
 
@@ -56,17 +64,51 @@ if (!gotTheLock) {
       app.setAppUserModelId('com.echolingo.desktop');
     }
 
-    // 0. Setup Media Permissions (Microphone & Loopback Display Capture)
+    // 0. Launch splash screen immediately
+    createSplashWindow();
+    updateSplashStatus({
+      message: 'Initializing core services...',
+      step: 1,
+      totalSteps: 4,
+      progress: 20,
+    });
+
+    // Setup Media Permissions (Microphone & Loopback Display Capture)
     setupMediaPermissions();
 
     // 1. Initialize SQLite database
+    updateSplashStatus({
+      message: 'Connecting local database...',
+      step: 2,
+      totalSteps: 4,
+      progress: 45,
+    });
     await initDatabase();
 
     // 2. Register IPC message channels
     registerIpcHandlers();
 
-    // 3. Create Main Window
-    const mainWin = createMainWindow();
+    // Evaluate user preference for splash screen
+    let enableSplash = true;
+    try {
+      const db = getDatabase();
+      const rawSettings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+      const parsed = AppSettingsSchema.safeParse(rawSettings);
+      if (parsed.success && parsed.data.enableSplashScreen === false) {
+        enableSplash = false;
+      }
+    } catch {
+      // Keep default true
+    }
+
+    // 3. Create Main Window (hidden initially if splash is active)
+    updateSplashStatus({
+      message: 'Preparing user interface...',
+      step: 3,
+      totalSteps: 4,
+      progress: 75,
+    });
+    const mainWin = createMainWindow({ showImmediately: !enableSplash });
 
     // 4. Connect windows to SessionService
     getSessionService().setWindows(mainWin, getOverlayWindow());
@@ -92,9 +134,26 @@ if (!gotTheLock) {
     // 6. Initialize System Tray
     initTray();
 
+    // 7. Transition from Splash to Main Window
+    if (enableSplash) {
+      updateSplashStatus({
+        message: 'Starting EchoLingo...',
+        step: 4,
+        totalSteps: 4,
+        progress: 95,
+      });
+      await transitionSplashToMainWindow(mainWin);
+    } else {
+      await closeSplashWindow();
+      if (!mainWin.isVisible()) {
+        mainWin.show();
+      }
+      mainWin.focus();
+    }
+
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length === 0) {
-        createMainWindow();
+        createMainWindow({ showImmediately: true });
       } else {
         const win = getMainWindow();
         if (win) {

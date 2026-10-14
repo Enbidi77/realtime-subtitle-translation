@@ -29,6 +29,7 @@ import {
   OcrHistoryItem,
   OcrHistoryQuery,
   FloatingPanelPayload,
+  SplashStatusEvent,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -234,6 +235,14 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_DELETE, { id }),
     clearHistory: (): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_CLEAR),
+  },
+
+  splash: {
+    onStatus: (callback: (evt: SplashStatusEvent) => void) => {
+      const handler = (_: unknown, evt: SplashStatusEvent) => callback(evt);
+      ipcRenderer.on(IPC_CHANNELS.SPLASH_STATUS_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SPLASH_STATUS_STREAM, handler);
+    },
   },
 };
 

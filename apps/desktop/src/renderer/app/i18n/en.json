@@ -273,6 +273,8 @@
     "closeBehaviorDesc": "Choose whether closing the window minimizes EchoLingo to the system tray or exits completely.",
     "minimizeToTrayTitle": "Minimize to Tray",
     "minimizeToTrayDesc": "Stays running in background for hotkeys and overlay.",
+    "enableSplashScreen": "Show Splash Screen on Startup",
+    "enableSplashScreenDesc": "Display animated glass splash screen while initializing core services.",
     "quitAppTitle": "Close Application",
     "quitAppDesc": "Completely terminates app and background tasks.",
     "askEveryTimeTitle": "Ask Every Time",
@@ -290,6 +292,15 @@
       "confirm": "Confirm",
       "cancel": "Cancel"
     }
+  },
+  "splash": {
+    "title": "EchoLingo",
+    "subtitle": "Offline-First AI Subtitles & Screen Translation",
+    "initializing": "Initializing core services...",
+    "database": "Connecting local database...",
+    "ui": "Preparing user interface...",
+    "ready": "Ready!",
+    "offlineNotice": "100% Offline & Private"
   },
   "tray": {
     "openApp": "Open EchoLingo",

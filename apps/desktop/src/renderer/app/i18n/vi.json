@@ -273,6 +273,8 @@
     "closeBehaviorDesc": "Chọn thu nhỏ EchoLingo vào khay hệ thống hoặc thoát ứng dụng hoàn toàn khi đóng cửa sổ.",
     "minimizeToTrayTitle": "Thu nhỏ vào khay",
     "minimizeToTrayDesc": "Tiếp tục chạy ngầm để phục vụ phím tắt và phụ đề nổi.",
+    "enableSplashScreen": "Hiển thị màn hình khởi động (Splash Screen)",
+    "enableSplashScreenDesc": "Hiển thị màn hình chờ mờ kính khi tải và khởi động các dịch vụ cốt lõi.",
     "quitAppTitle": "Thoát ứng dụng",
     "quitAppDesc": "Thoát hoàn toàn ứng dụng và dừng các tác vụ nền.",
     "askEveryTimeTitle": "Hỏi mỗi khi đóng",
@@ -290,6 +292,15 @@
       "confirm": "Xác nhận",
       "cancel": "Hủy bỏ"
     }
+  },
+  "splash": {
+    "title": "EchoLingo",
+    "subtitle": "Phụ đề AI & Dịch màn hình Hoàn toàn Ngoại tuyến",
+    "initializing": "Đang khởi tạo các dịch vụ cốt lõi...",
+    "database": "Đang kết nối cơ sở dữ liệu cục bộ...",
+    "ui": "Đang tải giao diện người dùng...",
+    "ready": "Sẵn sàng!",
+    "offlineNotice": "100% Cục bộ & Bảo mật"
   },
   "tray": {
     "openApp": "Mở EchoLingo",

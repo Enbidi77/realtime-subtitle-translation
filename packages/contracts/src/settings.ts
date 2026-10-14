@@ -59,6 +59,7 @@ export const AppSettingsSchema = z.object({
   theme: z.enum(['system', 'light', 'dark']).default('dark'),
   glassIntensity: z.enum(['subtle', 'balanced', 'strong']).default('balanced'),
   locale: z.enum(['en', 'vi']).default('en'),
+  enableSplashScreen: z.boolean().default(true),
   closeBehavior: CloseBehaviorSchema,
   audioSourceType: AudioSourceTypeSchema.default('microphone'),
   audioDeviceId: z.string().default('default'),

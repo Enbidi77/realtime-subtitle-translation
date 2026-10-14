@@ -21,7 +21,9 @@ export function getIsQuitting(): boolean {
   return isQuitting;
 }
 
-export function createMainWindow(): BrowserWindow {
+export function createMainWindow(options?: { showImmediately?: boolean }): BrowserWindow {
+  const showImmediately = options?.showImmediately !== false;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
@@ -43,8 +45,10 @@ export function createMainWindow(): BrowserWindow {
   });
 
   mainWindow.on('ready-to-show', () => {
-    log.info('Window ready to show, displaying...');
-    mainWindow?.show();
+    log.info('Window ready to show.');
+    if (showImmediately) {
+      mainWindow?.show();
+    }
   });
 
   mainWindow.webContents.on('did-finish-load', () => {

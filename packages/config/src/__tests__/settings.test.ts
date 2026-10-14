@@ -1,13 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { AppSettingsSchema, CloseBehaviorSchema } from '@echo-lingo/contracts';
+import { AppSettingsSchema, CloseBehaviorSchema, SplashStatusEventSchema } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { zlibSyncCheck } from './png-helper.js';
 
 describe('App Settings & Close Behavior Contracts', () => {
-  it('validates default closeBehavior as ask', () => {
+  it('validates default closeBehavior and splash screen settings', () => {
     expect(DEFAULT_APP_SETTINGS.closeBehavior).toBe('ask');
+    expect(DEFAULT_APP_SETTINGS.enableSplashScreen).toBe(true);
     const parsed = AppSettingsSchema.parse(DEFAULT_APP_SETTINGS);
     expect(parsed.closeBehavior).toBe('ask');
+    expect(parsed.enableSplashScreen).toBe(true);
   });
 
   it('accepts valid closeBehavior options', () => {
@@ -19,6 +21,22 @@ describe('App Settings & Close Behavior Contracts', () => {
   it('rejects invalid closeBehavior options', () => {
     expect(() => CloseBehaviorSchema.parse('invalid-action')).toThrow();
     expect(() => AppSettingsSchema.parse({ ...DEFAULT_APP_SETTINGS, closeBehavior: 'unknown' as any })).toThrow();
+  });
+
+  it('validates SplashStatusEventSchema correctly', () => {
+    const valid = SplashStatusEventSchema.parse({
+      message: 'Initializing...',
+      step: 1,
+      totalSteps: 4,
+      progress: 25,
+    });
+    expect(valid.message).toBe('Initializing...');
+    expect(valid.step).toBe(1);
+    expect(valid.totalSteps).toBe(4);
+    expect(valid.progress).toBe(25);
+
+    expect(() => SplashStatusEventSchema.parse({ progress: -5 })).toThrow();
+    expect(() => SplashStatusEventSchema.parse({ message: 123 as any })).toThrow();
   });
 
   it('generates a valid PNG icon for system tray', () => {

@@ -498,6 +498,31 @@ export const SettingsView: React.FC = () => {
             </button>
           </div>
 
+          {/* Splash Screen Startup Toggle */}
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-subtle border border-glass-border mt-3">
+            <div className="space-y-0.5">
+              <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span>{t('settings.enableSplashScreen', 'Show Splash Screen on Startup')}</span>
+              </span>
+              <p className="text-[11px] text-muted-foreground">
+                {t('settings.enableSplashScreenDesc', 'Display animated glass splash screen while initializing core services.')}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={settings.enableSplashScreen ?? true}
+                onChange={(e) => {
+                  updateSettings({ enableSplashScreen: e.target.checked });
+                  showSaved();
+                }}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-700/60 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-glass-subtle border border-glass-border mt-3">
             <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <p className="text-[11px] text-muted-foreground leading-relaxed">

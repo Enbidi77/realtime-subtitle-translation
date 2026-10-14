@@ -50,6 +50,7 @@ export const IPC_CHANNELS = {
   APP_REQUEST_CLOSE_CONFIRM: 'app:request-close-confirm',
   APP_OPEN_LOGS: 'app:open-logs',
   LOG_MESSAGE: 'log:message',
+  SPLASH_STATUS_STREAM: 'splash:status-stream',
 
   // Audio & Devices
   AUDIO_GET_DEVICES: 'audio:get-devices',
@@ -210,4 +211,13 @@ export const LogMessageRequestSchema = z.object({
   args: z.array(z.unknown()).optional(),
 });
 export type LogMessageRequest = z.infer<typeof LogMessageRequestSchema>;
+
+export const SplashStatusEventSchema = z.object({
+  message: z.string(),
+  step: z.number().int().nonnegative().optional(),
+  totalSteps: z.number().int().positive().optional(),
+  progress: z.number().min(0).max(100).optional(),
+});
+export type SplashStatusEvent = z.infer<typeof SplashStatusEventSchema>;
+
 
