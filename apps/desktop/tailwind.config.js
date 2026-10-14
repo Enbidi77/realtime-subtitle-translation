@@ -87,6 +87,10 @@ module.exports = {
         'fade-in': 'fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'scale-in': 'scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)',
         'pulse-subtle': 'pulseSubtle 2.5s ease-in-out infinite',
+        'ambient-1': 'ambientFloat1 18s ease-in-out infinite alternate',
+        'ambient-2': 'ambientFloat2 22s ease-in-out infinite alternate',
+        'ambient-3': 'ambientFloat3 20s ease-in-out infinite alternate',
+        'ambient-4': 'ambientFloat4 24s ease-in-out infinite alternate',
       },
       keyframes: {
         fadeIn: {
@@ -100,6 +104,26 @@ module.exports = {
         pulseSubtle: {
           '0%, 100%': { opacity: '1' },
           '50%': { opacity: '0.6' },
+        },
+        ambientFloat1: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(35px, -25px) scale(1.06)' },
+          '100%': { transform: 'translate(-20px, 20px) scale(0.95)' },
+        },
+        ambientFloat2: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(-30px, 30px) scale(1.05)' },
+          '100%': { transform: 'translate(25px, -25px) scale(0.94)' },
+        },
+        ambientFloat3: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(25px, 30px) scale(1.08)' },
+          '100%': { transform: 'translate(-25px, -20px) scale(0.96)' },
+        },
+        ambientFloat4: {
+          '0%': { transform: 'translate(0px, 0px) scale(1)' },
+          '50%': { transform: 'translate(-35px, -20px) scale(1.04)' },
+          '100%': { transform: 'translate(20px, 25px) scale(0.95)' },
         },
       },
     },

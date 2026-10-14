@@ -585,7 +585,7 @@ export const ScreenTranslationView: React.FC = () => {
                   onChange={(e) => setEditedText(e.target.value)}
                   placeholder="Captured OCR text will appear here. You can manually edit or correct any words before re-translating..."
                   rows={8}
-                  className="w-full flex-1 bg-glass-subtle border border-glass-border rounded-xl p-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40 font-mono resize-none leading-relaxed"
+                  className="glass-input w-full flex-1 p-3 text-xs text-foreground font-mono resize-none leading-relaxed"
                 />
 
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
@@ -650,7 +650,7 @@ export const ScreenTranslationView: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex-1 bg-glass-subtle border border-glass-border rounded-xl p-3 overflow-y-auto">
+                <div className="flex-1 glass-panel-subtle p-3 overflow-y-auto">
                   {translatedText ? (
                     <p className="text-sm font-medium text-foreground leading-relaxed whitespace-pre-wrap select-text">
                       {translatedText}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/styles/globals.css';
 import { ScreenCaptureRegion } from '@echo-lingo/contracts';
+import { Crop } from 'lucide-react';
 
 interface Point {
   x: number;
@@ -92,13 +93,18 @@ const SelectionOverlay: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       className="w-screen h-screen relative select-none cursor-crosshair overflow-hidden"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.45)' }}
+      style={{ backgroundColor: 'rgba(0, 0, 0, 0.40)' }}
     >
-      {/* Top Floating Instruction Pill */}
-      <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/80 backdrop-blur-md border border-white/20 text-white text-xs font-medium shadow-2xl flex items-center gap-3 pointer-events-none z-50">
-        <span>Click and drag to select text region</span>
+      {/* Top Floating Glass Instruction Pill */}
+      <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full glass-panel-elevated shadow-glass-elevated border border-white/20 text-white text-xs font-medium flex items-center gap-3 pointer-events-none z-50 backdrop-blur-2xl">
+        <div className="flex items-center gap-1.5 text-primary-foreground font-semibold">
+          <Crop className="w-3.5 h-3.5 text-primary" />
+          <span>Click & drag to select region</span>
+        </div>
         <span className="text-white/40">•</span>
-        <span className="text-white/80 text-[11px]">Press <kbd className="px-1.5 py-0.5 bg-white/20 rounded font-mono">Esc</kbd> to cancel</span>
+        <span className="text-white/80 text-[11px]">
+          Press <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">Esc</kbd> to cancel
+        </span>
       </div>
 
       {/* Dimmed cutout and selection border */}
@@ -106,17 +112,17 @@ const SelectionOverlay: React.FC = () => {
         <>
           {/* Transparent cutout inside selection box */}
           <div
-            className="absolute border-2 border-blue-400 bg-transparent shadow-[0_0_0_9999px_rgba(0,0,0,0.45)] pointer-events-none z-40 transition-none"
+            className="absolute border-2 border-primary bg-transparent pointer-events-none z-40 transition-none"
             style={{
               left: `${rectX}px`,
               top: `${rectY}px`,
               width: `${rectW}px`,
               height: `${rectH}px`,
-              boxShadow: '0 0 15px rgba(59, 130, 246, 0.5), 0 0 0 9999px rgba(0, 0, 0, 0.45)',
+              boxShadow: '0 0 20px rgba(59, 130, 246, 0.45), inset 0 0 15px rgba(59, 130, 246, 0.2), 0 0 0 9999px rgba(0, 0, 0, 0.45)',
             }}
           >
-            {/* Dimensions Badge */}
-            <div className="absolute -top-7 left-0 px-2 py-0.5 rounded bg-blue-600 text-white text-[11px] font-mono font-semibold shadow-md whitespace-nowrap">
+            {/* Dimensions Glass Badge */}
+            <div className="absolute -top-7 left-0 px-2 py-0.5 rounded-lg glass-panel-elevated bg-primary/90 text-white text-[11px] font-mono font-semibold shadow-md whitespace-nowrap border border-white/30">
               {rectW} × {rectH} px
             </div>
 

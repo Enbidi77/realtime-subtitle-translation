@@ -146,6 +146,24 @@ export const OverlayView: React.FC = () => {
       typeof window !== 'undefined' &&
       window.matchMedia?.('(prefers-color-scheme: dark)').matches);
 
+  const baseOpacity = subtitleAppearance.backgroundOpacity ?? 0.85;
+
+  const toRgba = (color: string, opacity: number): string => {
+    if (!color) return isDark ? `rgba(16, 21, 36, ${opacity})` : `rgba(255, 255, 255, ${opacity})`;
+    if (color.startsWith('rgba')) {
+      return color.replace(/[\d\.]+\)$/g, `${opacity})`);
+    }
+    if (color.startsWith('#')) {
+      let hex = color.replace('#', '');
+      if (hex.length === 3) hex = hex.split('').map((c) => c + c).join('');
+      const r = parseInt(hex.substring(0, 2), 16) || 0;
+      const g = parseInt(hex.substring(2, 4), 16) || 0;
+      const b = parseInt(hex.substring(4, 6), 16) || 0;
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+    }
+    return color;
+  };
+
   const isDefaultDarkBg =
     !subtitleAppearance.backgroundColor ||
     subtitleAppearance.backgroundColor === '#0F172A' ||
@@ -153,8 +171,8 @@ export const OverlayView: React.FC = () => {
     subtitleAppearance.backgroundColor === '#000000';
 
   const cardBgColor = isDark
-    ? (isDefaultDarkBg ? 'rgba(15, 20, 32, 0.78)' : subtitleAppearance.backgroundColor)
-    : (isDefaultDarkBg ? 'rgba(255, 255, 255, 0.85)' : subtitleAppearance.backgroundColor);
+    ? (isDefaultDarkBg ? `rgba(16, 21, 36, ${baseOpacity})` : toRgba(subtitleAppearance.backgroundColor, baseOpacity))
+    : (isDefaultDarkBg ? `rgba(255, 255, 255, ${baseOpacity})` : toRgba(subtitleAppearance.backgroundColor, baseOpacity));
 
   const originalTextColor = isDark
     ? (subtitleAppearance.textColor || '#FFFFFF')
@@ -286,10 +304,9 @@ export const OverlayView: React.FC = () => {
         >
           {activeSegment ? (
             <div
-              className="inline-block px-6 py-3 rounded-2xl shadow-glass-elevated backdrop-blur-2xl transition-all text-center leading-relaxed border border-glass-border/80"
+              className="inline-block px-6 py-3.5 rounded-2xl glass-panel-elevated shadow-glass-elevated backdrop-blur-2xl transition-all text-center leading-relaxed border border-glass-border-elevated"
               style={{
                 backgroundColor: cardBgColor,
-                opacity: subtitleAppearance.backgroundOpacity ?? 0.88,
                 boxShadow: 'var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)',
               }}
             >
@@ -321,7 +338,7 @@ export const OverlayView: React.FC = () => {
                 )}
             </div>
           ) : (
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-2xl glass-panel text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
+            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-pill text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold text-foreground">EchoLingo Subtitle Overlay</span>
               <span className="text-muted-foreground text-[11px]">• Ready for speech</span>
@@ -331,12 +348,11 @@ export const OverlayView: React.FC = () => {
       ) : (
         /* ================= Multi-Line History Mode ================= */
         <div
-          className={`w-full max-w-[94%] rounded-2xl p-4 shadow-glass-elevated transition-all duration-150 backdrop-blur-2xl space-y-1.5 border border-glass-border/80 ${
+          className={`w-full max-w-[94%] rounded-2xl p-4 glass-panel-elevated shadow-glass-elevated transition-all duration-150 backdrop-blur-2xl space-y-1.5 border border-glass-border-elevated ${
             recentSegments.length > 0 || showControls ? 'opacity-100' : 'opacity-0'
           }`}
           style={{
             backgroundColor: cardBgColor,
-            opacity: subtitleAppearance.backgroundOpacity ?? 0.88,
             textAlign: subtitleAppearance.textAlignment,
             boxShadow: 'var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)',
           }}

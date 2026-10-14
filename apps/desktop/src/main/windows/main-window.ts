@@ -11,10 +11,11 @@ export function createMainWindow(): BrowserWindow {
     minWidth: 960,
     minHeight: 640,
     show: false,
-    frame: false, // Custom Google-inspired titlebar
+    frame: false, // Custom frameless titlebar with glass styling
     acceptFirstMouse: true,
-    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const } : {}),
-    backgroundColor: '#131314',
+    ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, vibrancy: 'under-window' as const } : {}),
+    ...(process.platform === 'win32' ? { backgroundMaterial: 'mica' as const } : {}),
+    backgroundColor: '#0a0d16',
     webPreferences: {
       preload: path.join(__dirname, '../preload/index.js'),
       sandbox: false,

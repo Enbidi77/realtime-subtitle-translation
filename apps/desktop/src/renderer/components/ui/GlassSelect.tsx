@@ -4,7 +4,7 @@ import { ChevronDown } from 'lucide-react';
 
 export type GlassSelectSize = 'xs' | 'sm' | 'md';
 
-export interface GlassSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface GlassSelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, 'size'> {
   leftIcon?: React.ReactNode;
   size?: GlassSelectSize;
   containerClassName?: string;

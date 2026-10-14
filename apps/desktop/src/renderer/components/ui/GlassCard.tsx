@@ -14,8 +14,7 @@ export const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
       default: 'glass-panel',
       elevated: 'glass-panel-elevated',
       subtle: 'glass-panel-subtle',
-      interactive:
-        'glass-panel hover:border-glass-border-elevated hover:shadow-glass-elevated hover:-translate-y-0.5 cursor-pointer transition-all duration-200',
+      interactive: 'glass-card-interactive cursor-pointer',
     };
 
     return (

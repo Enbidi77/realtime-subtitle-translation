@@ -290,6 +290,40 @@
   .glass-button:active:not(:disabled) {
     transform: translateY(0px) scale(0.99);
   }
+
+  .glass-pill {
+    background: var(--glass-surface-subtle);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    box-shadow: var(--glass-shadow-subtle), inset 0 1px 1px 0 var(--glass-highlight);
+    border-radius: 9999px;
+  }
+
+  .glass-floating-panel {
+    background: var(--glass-surface-modal);
+    border: 1px solid var(--glass-border-elevated);
+    backdrop-filter: blur(var(--glass-blur-elevated)) saturate(190%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-elevated)) saturate(190%);
+    box-shadow: var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight);
+    border-radius: 1.25rem;
+  }
+
+  .glass-card-interactive {
+    background: var(--glass-surface);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%);
+    box-shadow: var(--glass-shadow), inset 0 1px 1px 0 var(--glass-highlight);
+    border-radius: 1rem;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .glass-card-interactive:hover {
+    border-color: var(--glass-border-elevated);
+    box-shadow: var(--glass-shadow-elevated), 0 0 20px -4px rgba(79, 141, 249, 0.2), inset 0 1px 1.5px 0 var(--glass-highlight);
+    transform: translateY(-1.5px);
+  }
 }
 
 /* Fallback for environments where backdrop-filter is unsupported */
@@ -302,7 +336,10 @@
   .glass-popover,
   .glass-modal,
   .glass-input,
-  .glass-button {
+  .glass-button,
+  .glass-pill,
+  .glass-floating-panel,
+  .glass-card-interactive {
     background: hsl(var(--card)) !important;
   }
 }
