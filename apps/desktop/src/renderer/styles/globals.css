@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    color-scheme: light;
     /* Base palette - Light Theme: pristine crisp slate with subtle airy atmosphere */
     --background: 216 33% 97%;
     --foreground: 222 47% 11%;
@@ -65,6 +66,7 @@
   }
 
   .dark {
+    color-scheme: dark;
     /* Base palette - Dark Theme: deep luminous navy-charcoal (#090c15 / #0d111c) */
     --background: 228 32% 6%; /* #0a0d16 */
     --foreground: 210 40% 98%; /* #f8fafc */
@@ -147,6 +149,44 @@
     --glass-surface: rgba(255, 255, 255, 0.60);
     --glass-surface-toolbar: rgba(255, 255, 255, 0.68);
     --glass-surface-sidebar: rgba(255, 255, 255, 0.55);
+  }
+
+  /* Native form control theme alignment */
+  select {
+    color-scheme: light;
+  }
+
+  .dark select {
+    color-scheme: dark;
+  }
+
+  select option,
+  select optgroup {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    padding: 6px 10px;
+  }
+
+  .dark select option,
+  .dark select optgroup {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+  }
+
+  input[type="checkbox"],
+  input[type="radio"] {
+    color-scheme: light;
+    accent-color: hsl(var(--primary));
+  }
+
+  .dark input[type="checkbox"],
+  .dark input[type="radio"] {
+    color-scheme: dark;
+    accent-color: hsl(var(--primary));
+  }
+
+  input[type="range"] {
+    accent-color: hsl(var(--primary));
   }
 }
 
@@ -267,19 +307,10 @@
   }
 }
 
-/* Electron titlebar drag regions */
-.app-drag {
-  -webkit-app-region: drag;
-}
-
-.app-no-drag,
-button,
-input,
-select,
-textarea,
-a,
-[role="button"] {
-  -webkit-app-region: no-drag !important;
+/* Ensure button SVGs do not interfere with click target calculation */
+button svg,
+[role="button"] svg {
+  pointer-events: none;
 }
 
 /* Custom scrollbars with refined translucent styling */

@@ -395,57 +395,63 @@ export const ScreenTranslationView: React.FC = () => {
             }`}
           >
             <span>History</span>
-            <span className="text-[10px] px-1.5 py-0.2 rounded-full bg-glass border border-glass-border">
+            <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-glass-subtle border border-glass-border">
               {historyItems.length}
             </span>
           </button>
         </div>
 
         {/* Engine and Languages Pills */}
-        <div className="hidden lg:flex items-center gap-2 text-xs text-muted-foreground">
-          <div className="flex items-center gap-1">
-            <span className="text-[11px]">Engine:</span>
-            <select
+        <div className="hidden lg:flex items-center gap-2.5 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground">Engine:</span>
+            <GlassSelect
+              size="xs"
+              containerClassName="w-auto"
+              className="min-w-[155px]"
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value as OcrProviderId)}
-              className="bg-glass border border-glass-border rounded-md px-2 py-1 text-xs text-foreground cursor-pointer"
             >
               {ocrProviders.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}
                 </option>
               ))}
-            </select>
+            </GlassSelect>
           </div>
 
-          <div className="flex items-center gap-1">
-            <span className="text-[11px]">OCR Lang:</span>
-            <select
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground">OCR Lang:</span>
+            <GlassSelect
+              size="xs"
+              containerClassName="w-auto"
+              className="min-w-[135px]"
               value={ocrLanguage}
               onChange={(e) => setOcrLanguage(e.target.value)}
-              className="bg-glass border border-glass-border rounded-md px-2 py-1 text-xs text-foreground cursor-pointer"
             >
               {OCR_SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.name}
                 </option>
               ))}
-            </select>
+            </GlassSelect>
           </div>
 
-          <div className="flex items-center gap-1">
-            <span className="text-[11px]">Target:</span>
-            <select
+          <div className="flex items-center gap-1.5">
+            <span className="text-[11px] font-medium text-muted-foreground">Target:</span>
+            <GlassSelect
+              size="xs"
+              containerClassName="w-auto"
+              className="min-w-[110px]"
               value={targetLanguage}
               onChange={(e) => setTargetLanguage(e.target.value)}
-              className="bg-glass border border-glass-border rounded-md px-2 py-1 text-xs text-foreground cursor-pointer"
             >
               {TARGET_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
                   {l.name}
                 </option>
               ))}
-            </select>
+            </GlassSelect>
           </div>
         </div>
       </div>
@@ -479,10 +485,9 @@ export const ScreenTranslationView: React.FC = () => {
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
                     Preprocessing Preset
                   </label>
-                  <select
+                  <GlassSelect
                     value={profile}
                     onChange={(e) => setProfile(e.target.value as OcrProfile)}
-                    className="w-full bg-glass border border-glass-border rounded-lg px-2.5 py-1.5 text-xs text-foreground"
                   >
                     <option value="general">General Desktop Text (Default)</option>
                     <option value="game-subtitles">Game Subtitles (High Contrast)</option>
@@ -490,52 +495,50 @@ export const ScreenTranslationView: React.FC = () => {
                     <option value="high-contrast">High Contrast (Otsu Binarize)</option>
                     <option value="cjk">Japanese & Chinese Characters</option>
                     <option value="none">No Preprocessing</option>
-                  </select>
+                  </GlassSelect>
                 </div>
 
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
                     OCR Language Hint
                   </label>
-                  <select
+                  <GlassSelect
                     value={ocrLanguage}
                     onChange={(e) => setOcrLanguage(e.target.value)}
-                    className="w-full bg-glass border border-glass-border rounded-lg px-2.5 py-1.5 text-xs text-foreground"
                   >
                     {OCR_SUPPORTED_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
                         {l.name}
                       </option>
                     ))}
-                  </select>
+                  </GlassSelect>
                 </div>
 
                 <div>
                   <label className="text-[11px] font-medium text-muted-foreground block mb-1">
                     Translate Into
                   </label>
-                  <select
+                  <GlassSelect
                     value={targetLanguage}
                     onChange={(e) => setTargetLanguage(e.target.value)}
-                    className="w-full bg-glass border border-glass-border rounded-lg px-2.5 py-1.5 text-xs text-foreground"
                   >
                     {TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
                         {l.name}
                       </option>
                     ))}
-                  </select>
+                  </GlassSelect>
                 </div>
 
                 <div className="flex flex-col justify-end">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none pb-2">
                     <input
                       type="checkbox"
                       checked={skipPreview}
                       onChange={(e) => setSkipPreview(e.target.checked)}
-                      className="rounded border-glass-border text-primary focus:ring-0"
+                      className="rounded accent-primary w-4 h-4 cursor-pointer"
                     />
-                    <span>Skip preview & translate instantly</span>
+                    <span className="text-foreground">Skip preview & translate instantly</span>
                   </label>
                 </div>
               </div>
@@ -837,17 +840,19 @@ export const ScreenTranslationView: React.FC = () => {
         {activeTab === 'history' && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="relative flex-1 max-w-sm">
-                <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-muted-foreground" />
-                <input
-                  type="text"
+              <div className="flex-1 max-w-sm">
+                <GlassInput
                   placeholder="Search captured text or translations..."
                   value={historySearch}
+                  leftIcon={<Search className="w-3.5 h-3.5" />}
                   onChange={(e) => {
                     setHistorySearch(e.target.value);
                     loadHistory(e.target.value);
                   }}
-                  className="w-full bg-glass border border-glass-border rounded-xl pl-9 pr-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/40"
+                  onClear={() => {
+                    setHistorySearch('');
+                    loadHistory('');
+                  }}
                 />
               </div>
 

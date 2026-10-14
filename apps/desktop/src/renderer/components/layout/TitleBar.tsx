@@ -43,10 +43,34 @@ export const TitleBar: React.FC = () => {
     updateSettings({ theme: nextTheme });
   };
 
+  const handleStartDrag = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, [role="button"]')) return;
+
+    const onMouseMove = (moveEvt: MouseEvent) => {
+      if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
+        window.electronAPI?.app.moveWindow(moveEvt.movementX, moveEvt.movementY);
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
   return (
-    <header className="glass-toolbar h-11 w-full flex items-center justify-between px-3.5 select-none z-50">
+    <header
+      onMouseDown={handleStartDrag}
+      onDoubleClick={handleMaximize}
+      className="glass-toolbar h-11 w-full flex items-center justify-between px-3.5 select-none z-50 cursor-default"
+    >
       {/* Brand & Status */}
-      <div className="app-no-drag flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5">
         {/* Luminous prism logo icon inspired by reference */}
         <div className="flex items-center justify-center w-7 h-7 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-cyan-400 text-white shadow-sm shadow-indigo-500/25 border border-white/25">
           <Sparkles className="w-3.5 h-3.5" />
@@ -82,12 +106,16 @@ export const TitleBar: React.FC = () => {
       </div>
 
       {/* Center title / dedicated drag space */}
-      <div className="app-drag flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium truncate px-4 cursor-default">
+      <div
+        onMouseDown={handleStartDrag}
+        onDoubleClick={handleMaximize}
+        className="flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium truncate px-4 cursor-move"
+      >
         {activeSession?.title || ''}
       </div>
 
       {/* Right actions & Window controls */}
-      <div className="app-no-drag flex items-center gap-1.5">
+      <div className="flex items-center gap-1.5">
         {/* Floating Subtitle Overlay Toggle Button */}
         <button
           type="button"

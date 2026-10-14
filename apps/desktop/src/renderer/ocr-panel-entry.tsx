@@ -53,6 +53,26 @@ const FloatingResultPanel: React.FC = () => {
     }
   };
 
+  const handleStartDrag = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, [role="button"]')) return;
+
+    const onMouseMove = (moveEvt: MouseEvent) => {
+      if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
+        window.electronAPI?.app.moveWindow(moveEvt.movementX, moveEvt.movementY);
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
   if (!data) {
     return (
       <div className="w-full h-full flex items-center justify-center p-4 rounded-2xl glass-panel-elevated text-xs text-muted-foreground">
@@ -64,8 +84,11 @@ const FloatingResultPanel: React.FC = () => {
   return (
     <div className="w-full h-full flex flex-col rounded-2xl glass-panel-elevated border border-white/20 shadow-2xl overflow-hidden text-foreground select-none backdrop-blur-xl bg-background/90">
       {/* Draggable Title Header */}
-      <div className="app-drag flex items-center justify-between px-3 py-2 border-b border-glass-border bg-glass-subtle cursor-move">
-        <div className="flex items-center gap-2">
+      <div
+        onMouseDown={handleStartDrag}
+        className="flex items-center justify-between px-3 py-2 border-b border-glass-border bg-glass-subtle cursor-move"
+      >
+        <div className="flex items-center gap-2 pointer-events-none">
           <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground/60" />
           <div className="flex items-center gap-1.5 text-[11px] font-semibold">
             <span className="uppercase text-muted-foreground">{data.sourceLanguage}</span>
@@ -80,7 +103,7 @@ const FloatingResultPanel: React.FC = () => {
           )}
         </div>
 
-        <div className="app-no-drag flex items-center gap-1">
+        <div className="flex items-center gap-1">
           <button
             type="button"
             onClick={handleClose}

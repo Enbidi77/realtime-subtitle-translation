@@ -42,6 +42,7 @@ module.exports = {
           foreground: 'hsl(var(--card-foreground))',
         },
         glass: {
+          DEFAULT: 'var(--glass-surface)',
           surface: 'var(--glass-surface)',
           elevated: 'var(--glass-surface-elevated)',
           subtle: 'var(--glass-surface-subtle)',

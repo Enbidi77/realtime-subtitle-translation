@@ -12,6 +12,7 @@ export function createMainWindow(): BrowserWindow {
     minHeight: 640,
     show: false,
     frame: false, // Custom Google-inspired titlebar
+    acceptFirstMouse: true,
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const } : {}),
     backgroundColor: '#131314',
     webPreferences: {

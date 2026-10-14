@@ -2,16 +2,55 @@ import React from 'react';
 import clsx from 'clsx';
 import { ChevronDown } from 'lucide-react';
 
+export type GlassSelectSize = 'xs' | 'sm' | 'md';
+
 export interface GlassSelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
   leftIcon?: React.ReactNode;
+  size?: GlassSelectSize;
+  containerClassName?: string;
 }
 
 export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>(
-  ({ leftIcon, children, className, disabled, ...props }, ref) => {
+  (
+    {
+      leftIcon,
+      size = 'md',
+      containerClassName,
+      children,
+      className,
+      disabled,
+      ...props
+    },
+    ref
+  ) => {
+    const sizeStyles: Record<GlassSelectSize, string> = {
+      xs: 'py-1 text-xs rounded-lg',
+      sm: 'py-1.5 text-xs rounded-lg',
+      md: 'py-2 text-xs rounded-xl',
+    };
+
+    const paddingRight: Record<GlassSelectSize, string> = {
+      xs: 'pr-6',
+      sm: 'pr-7',
+      md: 'pr-9',
+    };
+
+    const paddingLeft: Record<GlassSelectSize, string> = {
+      xs: leftIcon ? 'pl-7' : 'pl-2.5',
+      sm: leftIcon ? 'pl-8' : 'pl-3',
+      md: leftIcon ? 'pl-9' : 'pl-3.5',
+    };
+
+    const chevronStyles: Record<GlassSelectSize, { iconSize: string; position: string }> = {
+      xs: { iconSize: 'w-3 h-3', position: 'right-2' },
+      sm: { iconSize: 'w-3 h-3', position: 'right-2.5' },
+      md: { iconSize: 'w-3.5 h-3.5', position: 'right-3' },
+    };
+
     return (
-      <div className="relative flex items-center w-full">
+      <div className={clsx('relative flex items-center', containerClassName || 'w-full')}>
         {leftIcon && (
-          <span className="absolute left-3 text-muted-foreground pointer-events-none flex items-center justify-center">
+          <span className="absolute left-2.5 text-muted-foreground pointer-events-none flex items-center justify-center">
             {leftIcon}
           </span>
         )}
@@ -19,16 +58,23 @@ export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>
           ref={ref}
           disabled={disabled}
           className={clsx(
-            'glass-input w-full py-2 pr-9 text-xs appearance-none font-medium cursor-pointer app-no-drag disabled:cursor-not-allowed disabled:opacity-50 transition-all',
-            leftIcon ? 'pl-9' : 'pl-3.5',
+            'glass-input w-full appearance-none font-medium cursor-pointer app-no-drag disabled:cursor-not-allowed disabled:opacity-50 transition-all',
+            sizeStyles[size],
+            paddingLeft[size],
+            paddingRight[size],
             className
           )}
           {...props}
         >
           {children}
         </select>
-        <span className="absolute right-3 text-muted-foreground pointer-events-none flex items-center justify-center">
-          <ChevronDown className="w-3.5 h-3.5" />
+        <span
+          className={clsx(
+            'absolute text-muted-foreground pointer-events-none flex items-center justify-center',
+            chevronStyles[size].position
+          )}
+        >
+          <ChevronDown className={chevronStyles[size].iconSize} />
         </span>
       </div>
     );

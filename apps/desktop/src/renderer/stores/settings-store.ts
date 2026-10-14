@@ -63,15 +63,16 @@ export function applyTheme(
   glassIntensity: 'subtle' | 'balanced' | 'strong' = 'balanced'
 ) {
   const root = document.documentElement;
-  if (theme === 'dark') {
+  const isDark =
+    theme === 'dark' ||
+    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  if (isDark) {
     root.classList.add('dark');
-  } else if (theme === 'light') {
-    root.classList.remove('dark');
+    root.style.colorScheme = 'dark';
   } else {
-    // system
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    if (prefersDark) root.classList.add('dark');
-    else root.classList.remove('dark');
+    root.classList.remove('dark');
+    root.style.colorScheme = 'light';
   }
 
   if (glassIntensity) {

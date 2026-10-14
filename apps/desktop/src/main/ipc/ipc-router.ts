@@ -62,6 +62,14 @@ export function registerIpcHandlers(): void {
     win?.close();
   });
 
+  ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, { deltaX, deltaY }: { deltaX: number; deltaY: number }) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (win && !win.isMaximized()) {
+      const [x, y] = win.getPosition();
+      win.setPosition(Math.round(x + deltaX), Math.round(y + deltaY));
+    }
+  });
+
   // ================= Audio =================
   ipcMain.handle(IPC_CHANNELS.AUDIO_GET_DEVICES, async () => {
     return [

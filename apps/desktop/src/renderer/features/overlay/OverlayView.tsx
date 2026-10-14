@@ -171,6 +171,26 @@ export const OverlayView: React.FC = () => {
     ? (isDefaultBlue ? '#60A5FA' : subtitleAppearance.translatedTextColor)
     : (isDefaultBlue ? '#2563EB' : subtitleAppearance.translatedTextColor);
 
+  const handleStartDrag = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const target = e.target as HTMLElement;
+    if (target.closest('button, a, input, select, [role="button"]')) return;
+
+    const onMouseMove = (moveEvt: MouseEvent) => {
+      if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
+        window.electronAPI?.app.moveWindow(moveEvt.movementX, moveEvt.movementY);
+      }
+    };
+
+    const onMouseUp = () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
+
   return (
     <div
       onMouseEnter={resetControlsTimer}
@@ -179,18 +199,19 @@ export const OverlayView: React.FC = () => {
     >
       {/* 1. Overlay Floating Glass Drag & Action Controls */}
       <div
-        className={`app-drag absolute top-1 left-2 right-2 h-8 flex items-center justify-between px-3 rounded-xl glass-toolbar border border-glass-border/70 shadow-glass backdrop-blur-xl transition-opacity duration-200 z-50 ${
+        onMouseDown={handleStartDrag}
+        className={`absolute top-1 left-2 right-2 h-8 flex items-center justify-between px-3 rounded-xl glass-toolbar border border-glass-border/70 shadow-glass backdrop-blur-xl transition-opacity duration-200 z-50 cursor-move ${
           showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
       >
-        <div className="flex items-center gap-2 text-[11px] text-foreground font-medium">
+        <div className="flex items-center gap-2 text-[11px] text-foreground font-medium pointer-events-none">
           <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground" />
           <span className="tracking-tight">
             {isYouTubeMode ? 'YouTube Subtitle Mode' : 'History Transcript Mode'}
           </span>
         </div>
 
-        <div className="app-no-drag flex items-center gap-1">
+        <div className="flex items-center gap-1">
           {/* Toggle YouTube Mode vs History Mode */}
           <button
             onClick={handleToggleMode}

@@ -37,6 +37,8 @@ const api = {
     minimize: () => ipcRenderer.send(IPC_CHANNELS.APP_MINIMIZE),
     maximize: () => ipcRenderer.send(IPC_CHANNELS.APP_MAXIMIZE),
     close: () => ipcRenderer.send(IPC_CHANNELS.APP_CLOSE),
+    moveWindow: (deltaX: number, deltaY: number) =>
+      ipcRenderer.send(IPC_CHANNELS.APP_MOVE_WINDOW, { deltaX, deltaY }),
   },
 
   audio: {
