@@ -311,5 +311,31 @@
     "continuousOcr": "Giám sát OCR Liên tục",
     "settings": "Tùy chọn / Cài đặt...",
     "quit": "Thoát EchoLingo"
+  },
+  "search": {
+    "title": "Tìm kiếm Toàn cục",
+    "placeholder": "Tìm kiếm trang, lệnh, cài đặt, phiên dịch, trợ giúp...",
+    "commandsPlaceholder": "Nhập lệnh hoặc tìm tác vụ...",
+    "titlebarButton": "Tìm kiếm hoặc đi đến...",
+    "all": "Tất cả",
+    "navigation": "Trang",
+    "command": "Lệnh",
+    "settings": "Cài đặt",
+    "data": "Dữ liệu",
+    "session": "Phiên dịch",
+    "ocr": "Lịch sử OCR",
+    "help": "Trợ giúp & Tài liệu",
+    "recent": "Gần đây",
+    "recentSearches": "Tìm kiếm gần đây",
+    "quickActions": "Hành động gợi ý",
+    "noResults": "Không tìm thấy kết quả cho \"{query}\"",
+    "noSuggestions": "Chưa có gợi ý nào",
+    "noResultsHint": "Thử tìm kiếm các trang (Trực tiếp, Cài đặt), lệnh (Bắt đầu thu âm), hoặc dữ liệu phiên.",
+    "clearHistory": "Xóa lịch sử",
+    "historyCleared": "Đã xóa lịch sử tìm kiếm",
+    "navHint": "Di chuyển",
+    "selectHint": "Chọn",
+    "closeHint": "Đóng",
+    "filterHint": "Danh mục"
   }
 }

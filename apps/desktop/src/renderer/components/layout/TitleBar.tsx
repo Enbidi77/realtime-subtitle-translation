@@ -4,6 +4,7 @@ import { useSettingsStore } from '@/stores/settings-store.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
+import { TitleBarSearchButton } from '@/features/global-search/index.js';
 import appLogo from '@/assets/logo.png';
 import {
   Minus,
@@ -120,13 +121,13 @@ export const TitleBar: React.FC = () => {
         )}
       </div>
 
-      {/* Center title / dedicated drag space */}
+      {/* Center search button & dedicated drag space */}
       <div
         onMouseDown={handleStartDrag}
         onDoubleClick={handleMaximize}
-        className="flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium truncate px-4 cursor-move"
+        className="flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium px-4 cursor-move"
       >
-        {activeSession?.title || ''}
+        <TitleBarSearchButton />
       </div>
 
       {/* Right actions & Window controls */}

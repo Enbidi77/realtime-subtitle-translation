@@ -1,6 +1,7 @@
 import {
   GlossaryEntry,
   OcrHistoryItem,
+  SearchResultItem,
   SessionMetadata,
   SubtitleSegment,
 } from '@echo-lingo/contracts';
@@ -303,6 +304,165 @@ export class DatabaseRepository {
     const cutoffMs = Date.now() - retentionDays * 24 * 60 * 60 * 1000;
     const res = this.driver.prepare('DELETE FROM ocr_history WHERE created_at < ?').run(cutoffMs);
     return res.changes;
+  }
+
+  // ==================== Global Database Search ====================
+
+  public searchDatabase(
+    query: string,
+    options?: { limit?: number; categories?: Array<'session' | 'segment' | 'ocr' | 'glossary'> }
+  ): SearchResultItem[] {
+    const trimmed = query.trim();
+    if (!trimmed) return [];
+
+    const limit = Math.min(Math.max(options?.limit ?? 20, 1), 100);
+    const pattern = `%${trimmed}%`;
+    const categories = new Set(options?.categories ?? ['session', 'segment', 'ocr', 'glossary']);
+    const results: SearchResultItem[] = [];
+
+    // 1. Sessions
+    if (categories.has('session')) {
+      try {
+        const sessionRows = this.driver
+          .prepare(
+            `SELECT id, title, status, source_language, target_languages, created_at, segment_count
+             FROM sessions
+             WHERE title LIKE ? OR source_language LIKE ? OR target_languages LIKE ?
+             ORDER BY created_at DESC LIMIT ?`
+          )
+          .all(pattern, pattern, pattern, limit) as any[];
+
+        for (const row of sessionRows) {
+          const targets = JSON.parse(row.target_languages || '[]');
+          results.push({
+            id: `session:${row.id}`,
+            category: 'session',
+            title: row.title || 'Untitled Session',
+            description: `${(row.source_language || 'auto').toUpperCase()} → ${targets.map((t: string) => t.toUpperCase()).join(', ')} • ${row.segment_count || 0} segments`,
+            icon: 'FolderKanban',
+            path: 'Sessions',
+            badge: row.status === 'active' ? 'Active' : undefined,
+            action: {
+              type: 'open-session',
+              payload: { sessionId: row.id },
+            },
+            metadata: { sessionId: row.id, createdAt: row.created_at },
+          });
+        }
+      } catch {
+        // Table may not have been created yet in test or error
+      }
+    }
+
+    // 2. Subtitle Segments
+    if (categories.has('segment')) {
+      try {
+        const segmentRows = this.driver
+          .prepare(
+            `SELECT s.id, s.session_id, s.original_text, s.translations, s.source_language, s.start_time, sess.title as session_title
+             FROM subtitle_segments s
+             LEFT JOIN sessions sess ON s.session_id = sess.id
+             WHERE s.original_text LIKE ? OR s.translations LIKE ?
+             ORDER BY s.created_at DESC LIMIT ?`
+          )
+          .all(pattern, pattern, limit) as any[];
+
+        for (const row of segmentRows) {
+          let transText = '';
+          try {
+            const parsed = JSON.parse(row.translations || '{}');
+            transText = Object.values(parsed).filter(Boolean).join(' | ');
+          } catch {
+            transText = row.translations || '';
+          }
+
+          results.push({
+            id: `segment:${row.id}`,
+            category: 'session',
+            title: row.original_text.length > 80 ? `${row.original_text.slice(0, 80)}…` : row.original_text,
+            description: transText.length > 120 ? `${transText.slice(0, 120)}…` : transText,
+            subtitle: `Session: ${row.session_title || row.session_id}`,
+            icon: 'Captions',
+            path: `Sessions > ${row.session_title || 'Session'}`,
+            action: {
+              type: 'open-session',
+              payload: { sessionId: row.session_id, segmentId: row.id },
+            },
+            metadata: { sessionId: row.session_id, segmentId: row.id },
+          });
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    // 3. OCR History
+    if (categories.has('ocr')) {
+      try {
+        const ocrRows = this.driver
+          .prepare(
+            `SELECT id, original_text, translated_text, corrected_text, ocr_provider, created_at
+             FROM ocr_history
+             WHERE original_text LIKE ? OR translated_text LIKE ? OR (corrected_text IS NOT NULL AND corrected_text LIKE ?)
+             ORDER BY created_at DESC LIMIT ?`
+          )
+          .all(pattern, pattern, pattern, limit) as any[];
+
+        for (const row of ocrRows) {
+          const mainText = (row.corrected_text || row.original_text || '').replace(/\s+/g, ' ').trim();
+          const transText = (row.translated_text || '').replace(/\s+/g, ' ').trim();
+          results.push({
+            id: `ocr:${row.id}`,
+            category: 'ocr',
+            title: mainText.length > 80 ? `${mainText.slice(0, 80)}…` : mainText,
+            description: transText.length > 120 ? `${transText.slice(0, 120)}…` : transText,
+            icon: 'ScanText',
+            path: 'OCR History',
+            action: {
+              type: 'navigate',
+              payload: { page: 'history', ocrId: row.id },
+            },
+            metadata: { ocrId: row.id, createdAt: row.created_at },
+          });
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    // 4. Glossary
+    if (categories.has('glossary')) {
+      try {
+        const glossaryRows = this.driver
+          .prepare(
+            `SELECT id, source_term, target_term, source_language, target_language, description
+             FROM glossary
+             WHERE source_term LIKE ? OR target_term LIKE ? OR (description IS NOT NULL AND description LIKE ?)
+             ORDER BY created_at DESC LIMIT ?`
+          )
+          .all(pattern, pattern, pattern, limit) as any[];
+
+        for (const row of glossaryRows) {
+          results.push({
+            id: `glossary:${row.id}`,
+            category: 'glossary',
+            title: `${row.source_term} → ${row.target_term}`,
+            description: row.description || `${(row.source_language || '').toUpperCase()} → ${(row.target_language || '').toUpperCase()}`,
+            icon: 'BookA',
+            path: 'Glossary',
+            action: {
+              type: 'navigate',
+              payload: { page: 'providers', tab: 'glossary' },
+            },
+            metadata: { glossaryId: row.id },
+          });
+        }
+      } catch {
+        // Fallback
+      }
+    }
+
+    return results.slice(0, limit);
   }
 
   // Helpers

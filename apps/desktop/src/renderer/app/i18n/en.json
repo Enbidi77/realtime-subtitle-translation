@@ -311,5 +311,31 @@
     "continuousOcr": "Continuous Screen OCR",
     "settings": "Preferences / Settings...",
     "quit": "Quit EchoLingo"
+  },
+  "search": {
+    "title": "Global Search",
+    "placeholder": "Search pages, commands, settings, sessions, help...",
+    "commandsPlaceholder": "Type a command or search actions...",
+    "titlebarButton": "Search or jump to...",
+    "all": "All",
+    "navigation": "Pages",
+    "command": "Commands",
+    "settings": "Settings",
+    "data": "Data",
+    "session": "Sessions",
+    "ocr": "OCR History",
+    "help": "Help & Docs",
+    "recent": "Recent",
+    "recentSearches": "Recent Searches",
+    "quickActions": "Suggested Actions",
+    "noResults": "No results found for \"{query}\"",
+    "noSuggestions": "No suggestions available",
+    "noResultsHint": "Try searching for pages (e.g. Live, Settings), commands (e.g. Start listening), or data.",
+    "clearHistory": "Clear history",
+    "historyCleared": "Search history cleared",
+    "navHint": "Navigate",
+    "selectHint": "Select",
+    "closeHint": "Close",
+    "filterHint": "Category"
   }
 }

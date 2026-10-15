@@ -139,6 +139,9 @@ export const IPC_CHANNELS = {
   OCR_HISTORY_DELETE: 'ocr-history:delete',
   OCR_HISTORY_CLEAR: 'ocr-history:clear',
   OCR_HISTORY_SEARCH: 'ocr-history:search',
+
+  // Global Search
+  SEARCH_DATABASE: 'search:database',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

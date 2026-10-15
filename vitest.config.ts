@@ -22,6 +22,9 @@ export default defineConfig({
       '@echo-lingo/database': path.resolve(__dirname, 'packages/database/src'),
       '@echo-lingo/ocr-core': path.resolve(__dirname, 'packages/ocr-core/src'),
       '@echo-lingo/test-utils': path.resolve(__dirname, 'packages/test-utils/src'),
+      '@echo-lingo/logger': path.resolve(__dirname, 'packages/logger/src'),
+      '@echo-lingo/shared': path.resolve(__dirname, 'packages/shared/src'),
+      '@': path.resolve(__dirname, 'apps/desktop/src/renderer'),
     },
   },
 });

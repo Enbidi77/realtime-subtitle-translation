@@ -14,6 +14,8 @@ import {
   OcrHistoryQuerySchema,
   FloatingPanelPayloadSchema,
   LogMessageRequestSchema,
+  SearchDatabaseRequestSchema,
+  SearchDatabaseResponse,
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { createLogger, getLogDirectory } from '@echo-lingo/logger';
@@ -463,6 +465,28 @@ export function registerIpcHandlers(): void {
     else if (level === 'warn') rendererLogger.warn(...logArgs);
     else if (level === 'debug') rendererLogger.debug(...logArgs);
     else rendererLogger.info(...logArgs);
+  });
+
+  // ================= Global Search =================
+  ipcMain.handle(IPC_CHANNELS.SEARCH_DATABASE, async (_, req): Promise<SearchDatabaseResponse> => {
+    const startTime = performance.now();
+    const parsed = SearchDatabaseRequestSchema.safeParse(req);
+    if (!parsed.success) {
+      log.warn('Invalid search:database payload:', parsed.error);
+      return { items: [], durationMs: 0 };
+    }
+
+    try {
+      const items = db.searchDatabase(parsed.data.query, {
+        limit: parsed.data.limit,
+        categories: parsed.data.categories,
+      });
+      const durationMs = Math.round(performance.now() - startTime);
+      return { items, durationMs };
+    } catch (err) {
+      log.error('Failed to execute search:database:', err);
+      return { items: [], durationMs: Math.round(performance.now() - startTime) };
+    }
   });
 }
 

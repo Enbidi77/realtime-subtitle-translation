@@ -173,4 +173,88 @@ describe('Database Module', () => {
     repo.clearAllOcrHistory();
     expect(repo.getAllOcrHistory()).toHaveLength(0);
   });
+
+  it('searches across multiple database tables with searchDatabase', () => {
+    // 1. Session
+    repo.createSession({
+      id: 'sess-search-1',
+      title: 'Global Tech Keynote 2026',
+      status: 'active',
+      createdAt: 5000,
+      updatedAt: 5000,
+      durationSeconds: 60,
+      sourceLanguage: 'en',
+      targetLanguages: ['vi'],
+      segmentCount: 1,
+      speechProvider: 'whisper-local',
+      translationProvider: 'google-web',
+      audioSourceType: 'system',
+    });
+
+    // 2. Subtitle segment
+    repo.insertSegment({
+      id: 'seg-search-1',
+      sessionId: 'sess-search-1',
+      startTime: 0,
+      endTime: 2000,
+      originalText: 'Artificial intelligence transforms workflow',
+      translations: { vi: 'Trí tuệ nhân tạo chuyển đổi quy trình' },
+      sourceLanguage: 'en',
+      targetLanguages: ['vi'],
+      status: 'final',
+      confidence: 0.99,
+      speechProvider: 'whisper',
+      translationProvider: 'google',
+      createdAt: 5100,
+      updatedAt: 5100,
+    });
+
+    // 3. OCR item
+    repo.insertOcrHistoryItem({
+      id: 'ocr-search-1',
+      createdAt: 6000,
+      ocrProvider: 'windows-native',
+      ocrLanguage: 'en',
+      sourceLanguage: 'en',
+      targetLanguage: 'vi',
+      originalText: 'Deep learning neural networks',
+      translatedText: 'Mạng nơ-ron học sâu',
+      confidence: 0.96,
+      durationMs: 35,
+      sessionType: 'single',
+    });
+
+    // 4. Glossary entry
+    repo.addGlossaryEntry({
+      id: 'gloss-search-1',
+      sourceTerm: 'Transformer model',
+      targetTerm: 'Mô hình Transformer',
+      sourceLanguage: 'en',
+      targetLanguage: 'vi',
+      caseSensitive: false,
+      description: 'NLP architecture',
+      createdAt: 7000,
+    });
+
+    // Search for "Keynote" -> matches session
+    const keynoteResults = repo.searchDatabase('Keynote');
+    expect(keynoteResults.some((r) => r.id === 'session:sess-search-1')).toBe(true);
+
+    // Search for "intelligence" -> matches subtitle segment
+    const segmentResults = repo.searchDatabase('intelligence');
+    expect(segmentResults.some((r) => r.id === 'segment:seg-search-1')).toBe(true);
+
+    // Search for "learning" -> matches OCR item
+    const ocrResults = repo.searchDatabase('learning');
+    expect(ocrResults.some((r) => r.id === 'ocr:ocr-search-1')).toBe(true);
+
+    // Search for "Transformer" -> matches glossary
+    const glossResults = repo.searchDatabase('Transformer');
+    expect(glossResults.some((r) => r.id === 'glossary:gloss-search-1')).toBe(true);
+
+    // Empty or blank query returns empty array
+    expect(repo.searchDatabase('')).toEqual([]);
+    expect(repo.searchDatabase('   ')).toEqual([]);
+  });
 });
+

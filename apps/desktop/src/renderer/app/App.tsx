@@ -16,6 +16,7 @@ import { useAudioCapture } from '@/hooks/useAudioCapture.js';
 
 import { AmbientBackground } from '@/components/ui/AmbientBackground.js';
 import { ExitConfirmationModal } from '@/components/ExitConfirmationModal.js';
+import { GlobalSearchModal, useGlobalSearchStore } from '@/features/global-search/index.js';
 
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);
@@ -62,11 +63,42 @@ export const App: React.FC = () => {
         useNavigationStore.getState().setIsExitModalOpen(true);
       });
 
+      const unsubSearchToggle = window.electronAPI.search?.onToggleSearch?.((data) => {
+        if (data?.initialCategory === 'command') {
+          useGlobalSearchStore.getState().open('', 'command');
+        } else {
+          useGlobalSearchStore.getState().toggle((data?.initialCategory as any) || 'all');
+        }
+      });
+
+      // Window-level keydown handler for Ctrl+K, Cmd+K, Ctrl+Shift+P, Cmd+Shift+P
+      const handleGlobalKeyDown = (e: KeyboardEvent) => {
+        // Ctrl+K or Cmd+K: Toggle search
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+          e.preventDefault();
+          e.stopPropagation();
+          useGlobalSearchStore.getState().toggle('all');
+          return;
+        }
+
+        // Ctrl+Shift+P or Cmd+Shift+P: Open Command Palette
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'p' || e.key === 'P')) {
+          e.preventDefault();
+          e.stopPropagation();
+          useGlobalSearchStore.getState().open('', 'command');
+          return;
+        }
+      };
+
+      window.addEventListener('keydown', handleGlobalKeyDown, { capture: true });
+
       return () => {
         if (unsubSpeech) unsubSpeech();
         if (unsubStatus) unsubStatus();
         if (unsubNavigate) unsubNavigate();
         if (unsubCloseConfirm) unsubCloseConfirm();
+        if (unsubSearchToggle) unsubSearchToggle();
+        window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
       };
     }
   }, [loadSettings, handleTranscriptionEvent]);
@@ -119,6 +151,9 @@ export const App: React.FC = () => {
         isOpen={isExitModalOpen}
         onClose={() => setIsExitModalOpen(false)}
       />
+
+      {/* Global Search Command Palette */}
+      <GlobalSearchModal />
     </div>
   );
 };

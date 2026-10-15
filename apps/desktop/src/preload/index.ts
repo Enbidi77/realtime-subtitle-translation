@@ -30,6 +30,8 @@ import {
   OcrHistoryQuery,
   FloatingPanelPayload,
   SplashStatusEvent,
+  SearchDatabaseRequest,
+  SearchDatabaseResponse,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -242,6 +244,16 @@ const api = {
       const handler = (_: unknown, evt: SplashStatusEvent) => callback(evt);
       ipcRenderer.on(IPC_CHANNELS.SPLASH_STATUS_STREAM, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.SPLASH_STATUS_STREAM, handler);
+    },
+  },
+
+  search: {
+    queryDatabase: (req: SearchDatabaseRequest): Promise<SearchDatabaseResponse> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SEARCH_DATABASE, req),
+    onToggleSearch: (callback: (data?: { initialCategory?: string }) => void) => {
+      const handler = (_: unknown, data?: { initialCategory?: string }) => callback(data);
+      ipcRenderer.on('search:toggle', handler);
+      return () => ipcRenderer.removeListener('search:toggle', handler);
     },
   },
 };

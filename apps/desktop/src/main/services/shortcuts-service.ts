@@ -1,5 +1,6 @@
 import { globalShortcut } from 'electron';
 import { toggleOverlay } from '@/windows/overlay-window.js';
+import { getMainWindow } from '@/windows/main-window.js';
 import { getSessionService } from '@/services/session-service.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
 import { getDatabase } from '@/database/db-instance.js';
@@ -28,9 +29,15 @@ export class ShortcutsService {
         this.handleToggleOverlay();
       });
 
-      // 2. Pause/Resume active speech listening session
+      // 2. Open Command Palette / Global Search (Workflow Command Palette)
       globalShortcut.register('CommandOrControl+Shift+P', () => {
-        this.handleToggleSession();
+        const win = getMainWindow();
+        if (win && !win.isDestroyed()) {
+          if (!win.isVisible()) win.show();
+          if (win.isMinimized()) win.restore();
+          win.focus();
+          win.webContents.send('search:toggle', { initialCategory: 'command' });
+        }
       });
 
       // 3. Quick Capture and Translate (Workflow B)
