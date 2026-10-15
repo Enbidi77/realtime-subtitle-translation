@@ -29,7 +29,7 @@ export class VoiceActivityDetector {
       threshold: config.threshold ?? 0.008,
       minSpeechDurationMs: config.minSpeechDurationMs ?? 400,
       silenceTimeoutMs: config.silenceTimeoutMs ?? 800,
-      maxChunkDurationMs: config.maxChunkDurationMs ?? 3000,
+      maxChunkDurationMs: config.maxChunkDurationMs ?? 5000,
       sampleRate: config.sampleRate ?? 16000,
     };
   }

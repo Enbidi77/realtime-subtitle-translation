@@ -19,6 +19,7 @@
     "@echo-lingo/speech-core": "workspace:*",
     "@echo-lingo/translation-core": "workspace:*",
     "@echo-lingo/ocr-core": "workspace:*",
+    "@echo-lingo/shared": "workspace:*",
     "tesseract.js": "^7.0.0"
   },
   "devDependencies": {

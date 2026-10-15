@@ -19,6 +19,8 @@ import {
   Check,
   ExternalLink,
   Sparkles,
+  Download,
+  HardDrive,
 } from 'lucide-react';
 
 interface ConfigurableProvider {
@@ -34,6 +36,7 @@ interface ConfigurableProvider {
 export const ProvidersView: React.FC = () => {
   const { t } = useI18n();
   const speechEngine = useSettingsStore((s) => s.settings.speechEngine);
+  const localWhisperModel = useSettingsStore((s) => s.settings.localWhisperModel || 'tiny');
   const updateSettings = useSettingsStore((s) => s.updateSettings);
 
   const [models, setModels] = useState<SpeechModelStatus[]>([]);
@@ -125,7 +128,34 @@ export const ProvidersView: React.FC = () => {
 
   useEffect(() => {
     loadData();
+
+    if (window.electronAPI?.speech?.onModelProgress) {
+      const unsub = window.electronAPI.speech.onModelProgress((status) => {
+        setModels((prev) =>
+          prev.map((m) => (m.id === status.id ? { ...m, ...status } : m))
+        );
+      });
+      return () => {
+        unsub();
+      };
+    }
   }, []);
+
+  const handleDownloadModel = async (modelId: string) => {
+    if (!window.electronAPI?.speech?.downloadModel) return;
+    try {
+      setModels((prev) =>
+        prev.map((m) =>
+          m.id === modelId ? { ...m, isInstalled: false, downloadProgress: 1 } : m
+        )
+      );
+      await window.electronAPI.speech.downloadModel(modelId);
+      await loadData();
+    } catch (err) {
+      console.error('Failed to download model:', err);
+      await loadData();
+    }
+  };
 
   const handleSaveKey = async () => {
     if (!editingProvider || !window.electronAPI) return;
@@ -277,6 +307,103 @@ export const ProvidersView: React.FC = () => {
               </div>
             </GlassCard>
           ))}
+        </div>
+      </div>
+
+      {/* Offline Speech Models (Local Whisper) */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <HardDrive className="w-4 h-4 text-primary" />
+            <span>Offline Speech Models (whisper.cpp)</span>
+          </h2>
+          <GlassBadge variant="neutral" className="text-[10px]">
+            100% Offline • On-Device Neural
+          </GlassBadge>
+        </div>
+
+        <div className="space-y-2.5">
+          {models.map((m) => {
+            const isDownloading = !m.isInstalled && (m.downloadProgress ?? 0) > 0 && (m.downloadProgress ?? 0) < 100;
+            const isSelected = localWhisperModel === m.id;
+            const mbSize = m.sizeBytes ? `${Math.round(m.sizeBytes / (1024 * 1024))} MB` : '';
+
+            return (
+              <GlassCard
+                key={m.id}
+                variant={isSelected ? 'elevated' : 'default'}
+                className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
+                  isSelected ? 'border-primary/40 shadow-sm' : ''
+                }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center flex-wrap gap-2">
+                    <span className="font-semibold text-xs text-foreground">{m.name}</span>
+                    {mbSize && (
+                      <span className="text-[11px] text-muted-foreground font-mono">
+                        ({mbSize})
+                      </span>
+                    )}
+                    {isSelected && (
+                      <GlassBadge variant="accent" className="font-semibold">
+                        <Check className="w-3 h-3" />
+                        SELECTED
+                      </GlassBadge>
+                    )}
+                    {m.isInstalled ? (
+                      <GlassBadge variant="success">
+                        <CheckCircle2 className="w-3 h-3" />
+                        INSTALLED
+                      </GlassBadge>
+                    ) : isDownloading ? (
+                      <GlassBadge variant="neutral" pulse>
+                        Downloading {m.downloadProgress}%
+                      </GlassBadge>
+                    ) : (
+                      <GlassBadge variant="neutral">Not Downloaded</GlassBadge>
+                    )}
+                  </div>
+                  {m.error && (
+                    <p className="text-xs text-destructive">{m.error}</p>
+                  )}
+                  {isDownloading && (
+                    <div className="w-full bg-glass-subtle rounded-full h-1.5 mt-2 overflow-hidden border border-glass-border">
+                      <div
+                        className="bg-primary h-1.5 rounded-full transition-all duration-300"
+                        style={{ width: `${m.downloadProgress}%` }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 shrink-0">
+                  {m.isInstalled ? (
+                    !isSelected && (
+                      <GlassButton
+                        variant="glass"
+                        size="sm"
+                        onClick={() => {
+                          updateSettings({ localWhisperModel: m.id as any });
+                        }}
+                      >
+                        Use Model
+                      </GlassButton>
+                    )
+                  ) : (
+                    <GlassButton
+                      variant="primary"
+                      size="sm"
+                      disabled={isDownloading}
+                      onClick={() => handleDownloadModel(m.id)}
+                      icon={<Download className="w-3.5 h-3.5" />}
+                    >
+                      <span>{isDownloading ? `${m.downloadProgress}%` : 'Download'}</span>
+                    </GlassButton>
+                  )}
+                </div>
+              </GlassCard>
+            );
+          })}
         </div>
       </div>
 

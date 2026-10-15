@@ -75,6 +75,8 @@ echo-lingo/
 ├── packages/
 │   ├── contracts/                    # Pure TypeScript types & Zod schemas (Zero platform dependencies)
 │   ├── config/                       # Language lists, audio params, OCR profiles, default settings
+│   ├── shared/                       # Shared cross-cutting utilities (network downloaders, helpers)
+│   ├── logger/                       # Winston structured file and console logger
 │   ├── ocr-core/                     # Coordinate mapping, image preprocessing, deduplicator, continuous scheduler
 │   ├── subtitle-core/                # SRT/VTT formatters, parsers, and SubtitleTimeline
 │   ├── translation-core/             # Translation registry, LRU memory cache, GlossaryEngine
@@ -230,9 +232,11 @@ Before marking any feature or bug fix complete:
 
 1. **Package Dependency Hierarchy**:
    - `contracts` (no dependencies)
+   - `shared` (zero dependencies, cross-cutting utilities and network helpers)
    - `config` (depends on `contracts`)
-   - Core packages (`speech-core`, `subtitle-core`, `translation-core`, `ocr-core`) depend on `contracts` and `config`.
-   - `provider-adapters` depends on core packages, `contracts`, and `config`.
+   - `logger` (structured Winston logger)
+   - Core packages (`speech-core`, `subtitle-core`, `translation-core`, `ocr-core`) depend on `contracts`, `config`, and `shared`.
+   - `provider-adapters` depends on core packages, `contracts`, `config`, and `shared`.
    - `database` depends on `contracts` and `config`.
    - `apps/desktop` depends on all packages.
    - NEVER introduce circular dependencies between packages.

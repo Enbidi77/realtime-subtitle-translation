@@ -7,7 +7,10 @@ import {
   MockSpeechProvider,
   WindowsSpeechProvider,
 } from '@echo-lingo/provider-adapters';
+import { app } from 'electron';
+import * as path from 'node:path';
 import { getCredentialsService } from '@/services/credentials-service.js';
+import { getDatabase } from '@/database/db-instance.js';
 
 export class SpeechService {
   private static instance: SpeechService | null = null;
@@ -22,7 +25,16 @@ export class SpeechService {
   }
 
   constructor() {
-    const local = new LocalWhisperProvider();
+    let modelDirectory: string | undefined;
+    try {
+      if (app && typeof app.getPath === 'function') {
+        modelDirectory = path.join(app.getPath('userData'), 'models', 'whisper');
+      }
+    } catch {
+      // Fallback in non-electron test environments
+    }
+
+    const local = new LocalWhisperProvider({ modelDirectory });
     const windows = new WindowsSpeechProvider();
     const openai = new OpenAIWhisperProvider();
     const groq = new GroqWhisperProvider();
@@ -35,6 +47,14 @@ export class SpeechService {
     this.providers.set('mock', mock);
 
     this.loadSavedCredentials();
+  }
+
+  public downloadModel(modelId: string, onProgress?: (progress: number) => void): Promise<void> {
+    const local = this.providers.get('whisper-local') as LocalWhisperProvider;
+    if (local && typeof local.downloadModel === 'function') {
+      return local.downloadModel(modelId, onProgress);
+    }
+    return Promise.resolve();
   }
 
   public loadSavedCredentials(): void {
@@ -51,6 +71,17 @@ export class SpeechService {
   public getProvider(engine?: SpeechEngineType): ISpeechProvider {
     this.loadSavedCredentials();
     const selected = engine || this.activeEngine;
+    if (selected === 'whisper-local') {
+      try {
+        const settings = getDatabase().getSetting<any>('app_settings', null);
+        const local = this.providers.get('whisper-local') as LocalWhisperProvider;
+        if (local && settings?.localWhisperModel) {
+          local.setModelName(settings.localWhisperModel);
+        }
+      } catch {
+        // ignore
+      }
+    }
     const provider = this.providers.get(selected);
     if (!provider) {
       return this.providers.get('whisper-local')!;

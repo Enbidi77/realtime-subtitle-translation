@@ -41,6 +41,9 @@ importers:
       '@echo-lingo/provider-adapters':
         specifier: workspace:*
         version: link:../../packages/provider-adapters
+      '@echo-lingo/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@echo-lingo/speech-core':
         specifier: workspace:*
         version: link:../../packages/speech-core
@@ -194,6 +197,9 @@ importers:
       '@echo-lingo/ocr-core':
         specifier: workspace:*
         version: link:../ocr-core
+      '@echo-lingo/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@echo-lingo/speech-core':
         specifier: workspace:*
         version: link:../speech-core
@@ -203,6 +209,12 @@ importers:
       tesseract.js:
         specifier: ^7.0.0
         version: 7.0.0(encoding@0.1.13)
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/shared:
     devDependencies:
       typescript:
         specifier: ^5.7.3

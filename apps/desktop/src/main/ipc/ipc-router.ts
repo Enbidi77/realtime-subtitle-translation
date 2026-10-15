@@ -127,9 +127,42 @@ export function registerIpcHandlers(): void {
     return speechService.getModelStatus();
   });
 
-  ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (_, { modelId }: { modelId: string }) => {
+  ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (event, { modelId }: { modelId: string }) => {
     log.info(`[Models] Requested download for model: ${modelId}`);
-    return { ok: true };
+    try {
+      await speechService.downloadModel(modelId, (progress) => {
+        try {
+          if (!event.sender.isDestroyed()) {
+            event.sender.send(IPC_CHANNELS.MODELS_STATUS_STREAM, {
+              id: modelId,
+              name: `Whisper ${modelId.toUpperCase()}`,
+              isInstalled: progress >= 100,
+              downloadProgress: progress,
+            });
+          }
+        } catch {
+          // ignore
+        }
+      });
+      return { ok: true };
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      log.error(`[Models] Download failed for ${modelId}:`, errMsg);
+      try {
+        if (!event.sender.isDestroyed()) {
+          event.sender.send(IPC_CHANNELS.MODELS_STATUS_STREAM, {
+            id: modelId,
+            name: `Whisper ${modelId.toUpperCase()}`,
+            isInstalled: false,
+            downloadProgress: 0,
+            error: errMsg,
+          });
+        }
+      } catch {
+        // ignore
+      }
+      throw err;
+    }
   });
 
   // ================= Translation =================

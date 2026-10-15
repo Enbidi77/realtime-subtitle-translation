@@ -63,11 +63,19 @@ describe('Provider Adapters', () => {
       expect(groq.isReady()).toBe(true);
     });
 
-    it('lists model statuses for LocalWhisperProvider', async () => {
+    it('lists model statuses and handles transcription for LocalWhisperProvider', async () => {
       const local = new LocalWhisperProvider();
+      await local.initialize();
+      expect(local.isReady()).toBe(true);
+
       const models = await local.getModelStatus();
       expect(models.length).toBeGreaterThan(1);
       expect(models[0].id).toBe('tiny');
+
+      // Silent buffer should return empty string without error
+      const res = await local.transcribe(new Float32Array(16000), { sampleRate: 16000 });
+      expect(res.text).toBe('');
+      expect(res.isFinal).toBe(true);
     });
 
     it('initializes and reports properties for WindowsSpeechProvider', async () => {

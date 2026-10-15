@@ -1,0 +1,20 @@
+{
+  "name": "@echo-lingo/shared",
+  "version": "1.0.0",
+  "description": "Shared cross-cutting utilities and network helpers for EchoLingo",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*.js": "./src/*.ts",
+    "./*": "./src/*.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "typescript": "^5.7.3"
+  }
+}
+

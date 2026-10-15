@@ -7,8 +7,8 @@ export const AUDIO_CONSTANTS = {
   FRAME_SIZE: 512,
   /** Minimum speech segment length in ms to trigger inference */
   MIN_SPEECH_DURATION_MS: 500,
-  /** Maximum speech segment length in ms before forcing chunk cut */
-  MAX_CHUNK_DURATION_MS: 3000,
+  /** Maximum speech segment length in ms before forcing chunk cut (5000ms optimal for Whisper context) */
+  MAX_CHUNK_DURATION_MS: 5000,
   /** Overlap between consecutive chunks in ms */
   CHUNK_OVERLAP_MS: 400,
   /** Default Voice Activity Detection energy threshold (RMS) */
