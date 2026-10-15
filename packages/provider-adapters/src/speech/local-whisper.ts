@@ -13,6 +13,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { createLogger } from '@echo-lingo/logger';
 import { downloadFile } from '@echo-lingo/shared';
+import { runExpandArchiveScript } from '@echo-lingo/powershell';
 
 const log = createLogger('LocalWhisperProvider');
 const execFileAsync = promisify(execFile);
@@ -323,16 +324,7 @@ export class LocalWhisperProvider implements ISpeechProvider {
       await downloadFile(WHISPER_BIN_WINDOWS_URL, zipPath);
 
       // Unzip using PowerShell on Windows
-      const psScript = `Expand-Archive -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${binDir.replace(/'/g, "''")}' -Force`;
-      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
-      await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-NonInteractive',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-EncodedCommand',
-        encoded,
-      ]);
+      await runExpandArchiveScript(zipPath, binDir);
 
       await fsp.unlink(zipPath).catch(() => {});
       this.resolveBinaryPath();

@@ -11,6 +11,10 @@ files:
   - package.json
   - resources/**/*
 
+extraResources:
+  - from: ../../packages/powershell/scripts
+    to: scripts
+
 win:
   icon: build/icon.ico
   target:

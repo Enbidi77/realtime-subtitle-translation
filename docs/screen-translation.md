@@ -51,8 +51,12 @@ echo-lingo/
 │   ├── text-deduplicator.ts        # Levenshtein similarity, change thresholding, incremental line extraction
 │   ├── continuous-scheduler.ts     # Asynchronous loop with backpressure protection and deduplication
 │   └── ocr-registry.ts             # Provider registry and dispatch
+├── packages/powershell/            # Standalone PowerShell scripts (.ps1) and execution utilities
+│   ├── scripts/
+│   │   ├── ocr-recognize.ps1       # WinRT Windows.Media.Ocr recognition script
+│   │   └── ocr-languages.ps1       # WinRT AvailableRecognizerLanguages discovery
 ├── packages/provider-adapters/src/ocr/
-│   ├── windows-ocr.ts              # Windows 10/11 native WinRT Windows.Media.Ocr adapter (PowerShell bridge)
+│   ├── windows-ocr.ts              # Windows 10/11 native WinRT Windows.Media.Ocr adapter (@echo-lingo/powershell bridge)
 │   ├── tesseract-ocr.ts            # Local WebAssembly/Worker Tesseract.js adapter with language model caching
 │   └── mock.ts                     # Mock OCR provider for automated unit testing
 ├── packages/database/src/

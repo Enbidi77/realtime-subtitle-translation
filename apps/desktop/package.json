@@ -17,6 +17,7 @@
     "@echo-lingo/database": "workspace:*",
     "@echo-lingo/logger": "workspace:*",
     "@echo-lingo/ocr-core": "workspace:*",
+    "@echo-lingo/powershell": "workspace:*",
     "@echo-lingo/provider-adapters": "workspace:*",
     "@echo-lingo/speech-core": "workspace:*",
     "@echo-lingo/subtitle-core": "workspace:*",

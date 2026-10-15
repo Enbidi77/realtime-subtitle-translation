@@ -16,6 +16,7 @@ const workspacePackages = [
   '@echo-lingo/ocr-core',
   '@echo-lingo/logger',
   '@echo-lingo/shared',
+  '@echo-lingo/powershell',
   'zod',
 ];
 
@@ -32,6 +33,7 @@ export default defineConfig({
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
         '@echo-lingo/logger': resolve(__dirname, '../../packages/logger/src'),
         '@echo-lingo/shared': resolve(__dirname, '../../packages/shared/src'),
+        '@echo-lingo/powershell': resolve(__dirname, '../../packages/powershell/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),
         '@echo-lingo/translation-core': resolve(__dirname, '../../packages/translation-core/src'),
         '@echo-lingo/speech-core': resolve(__dirname, '../../packages/speech-core/src'),

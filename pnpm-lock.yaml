@@ -38,6 +38,9 @@ importers:
       '@echo-lingo/ocr-core':
         specifier: workspace:*
         version: link:../../packages/ocr-core
+      '@echo-lingo/powershell':
+        specifier: workspace:*
+        version: link:../../packages/powershell
       '@echo-lingo/provider-adapters':
         specifier: workspace:*
         version: link:../../packages/provider-adapters
@@ -183,6 +186,12 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/powershell:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/provider-adapters:
     dependencies:
       '@echo-lingo/config':
@@ -197,6 +206,9 @@ importers:
       '@echo-lingo/ocr-core':
         specifier: workspace:*
         version: link:../ocr-core
+      '@echo-lingo/powershell':
+        specifier: workspace:*
+        version: link:../powershell
       '@echo-lingo/shared':
         specifier: workspace:*
         version: link:../shared
