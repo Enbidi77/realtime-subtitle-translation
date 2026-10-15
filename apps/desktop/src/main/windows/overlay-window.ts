@@ -177,3 +177,24 @@ export function setOverlayClickThrough(enable: boolean): void {
 export function getOverlayWindow(): BrowserWindow | null {
   return overlayWindow;
 }
+
+export function isOverlayVisible(): boolean {
+  return Boolean(overlayWindow && !overlayWindow.isDestroyed() && overlayWindow.isVisible());
+}
+
+export function showOverlay(): void {
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    if (overlayWindow.isMinimized()) overlayWindow.restore();
+    overlayWindow.show();
+    broadcastOverlayVisibility(true);
+  } else {
+    createOverlayWindow();
+  }
+}
+
+export function hideOverlay(): void {
+  if (overlayWindow && !overlayWindow.isDestroyed() && overlayWindow.isVisible()) {
+    overlayWindow.hide();
+    broadcastOverlayVisibility(false);
+  }
+}

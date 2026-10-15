@@ -261,6 +261,8 @@
     "overlay": "Floating Overlay",
     "alwaysOnTop": "Always On Top",
     "clickThrough": "Click-Through Mode",
+    "hideOnCapture": "Auto-hide on Screen Capture",
+    "hideOnCaptureDesc": "Automatically hide overlay and result panel while selecting capture area, and restore when finished",
     "privacy": "Privacy & Data Storage",
     "diagnostics": "Diagnostics & Logs",
     "openLogs": "Open Logs Directory",

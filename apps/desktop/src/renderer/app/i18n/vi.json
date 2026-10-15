@@ -261,6 +261,8 @@
     "overlay": "Cửa sổ Phụ đề Nổi (Overlay)",
     "alwaysOnTop": "Luôn hiện trên cùng",
     "clickThrough": "Chế độ Xuyên thấu (Click-Through)",
+    "hideOnCapture": "Tự động ẩn khi chụp màn hình",
+    "hideOnCaptureDesc": "Tự động ẩn cửa sổ phụ đề nổi và bảng kết quả khi bắt đầu chọn vùng chụp màn hình và hiện lại sau khi kết thúc",
     "privacy": "Quyền riêng tư & Lưu trữ",
     "diagnostics": "Chẩn đoán & Nhật ký",
     "openLogs": "Mở Thư mục Nhật ký",

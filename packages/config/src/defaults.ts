@@ -39,6 +39,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
     enabled: false,
     alwaysOnTop: true,
     clickThrough: false,
+    hideOnCapture: true,
     position: 'bottom',
     x: 100,
     y: 100,

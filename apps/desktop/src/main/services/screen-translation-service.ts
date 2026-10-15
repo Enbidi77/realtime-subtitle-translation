@@ -26,9 +26,24 @@ import { getDatabase } from '@/database/db-instance.js';
 import { getTranslationService } from '@/services/translation-service.js';
 import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
 import { openSelectionOverlay, closeSelectionOverlay } from '@/windows/selection-window.js';
-import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
-import { getMainWindow } from '@/windows/main-window.js';
-import { getOverlayWindow } from '@/windows/overlay-window.js';
+import {
+  showOcrFloatingPanel,
+  hideOcrFloatingPanel,
+  isOcrFloatingPanelVisible,
+  restoreOcrFloatingPanel,
+} from '@/windows/ocr-panel-window.js';
+import {
+  getMainWindow,
+  isMainWindowVisible,
+  showMainWindow,
+  hideMainWindow,
+} from '@/windows/main-window.js';
+import {
+  getOverlayWindow,
+  isOverlayVisible,
+  showOverlay,
+  hideOverlay,
+} from '@/windows/overlay-window.js';
 import { createLogger, ILogger } from '@echo-lingo/logger';
 
 export class ScreenTranslationService {
@@ -38,6 +53,12 @@ export class ScreenTranslationService {
   private ocrRegistry: OcrRegistry;
   private continuousScheduler: ContinuousOcrScheduler | null = null;
   private activeContinuousConfig: ContinuousOcrConfig | null = null;
+  private hiddenOverlaysState: {
+    wasOcrPanelVisible: boolean;
+    wasOverlayVisible: boolean;
+    wasMainWindowVisible: boolean;
+  } | null = null;
+  private autoRestoreTimer: NodeJS.Timeout | null = null;
 
   public static getInstance(): ScreenTranslationService {
     if (!ScreenTranslationService.instance) {
@@ -74,15 +95,104 @@ export class ScreenTranslationService {
     return this.ocrRegistry.setActiveProvider(id);
   }
 
+  private hideOverlaysForCapture(): void {
+    const wasOcrPanelVisible = isOcrFloatingPanelVisible();
+    const wasOverlayVisible = isOverlayVisible();
+    const wasMainWindowVisible = isMainWindowVisible();
+
+    this.hiddenOverlaysState = {
+      wasOcrPanelVisible,
+      wasOverlayVisible,
+      wasMainWindowVisible,
+    };
+
+    if (wasOcrPanelVisible) {
+      hideOcrFloatingPanel();
+    }
+    if (wasOverlayVisible) {
+      hideOverlay();
+    }
+    if (wasMainWindowVisible) {
+      hideMainWindow();
+    }
+  }
+
+  public restoreHiddenOverlays(options?: { skipOcrPanel?: boolean }): void {
+    this.clearAutoRestoreFallback();
+    if (!this.hiddenOverlaysState) return;
+
+    const { wasOcrPanelVisible, wasOverlayVisible, wasMainWindowVisible } = this.hiddenOverlaysState;
+    this.hiddenOverlaysState = null;
+
+    if (wasMainWindowVisible) {
+      showMainWindow();
+    }
+    if (wasOverlayVisible) {
+      showOverlay();
+    }
+    if (wasOcrPanelVisible && !options?.skipOcrPanel) {
+      restoreOcrFloatingPanel();
+    }
+  }
+
+  private scheduleAutoRestoreFallback(): void {
+    this.clearAutoRestoreFallback();
+    this.autoRestoreTimer = setTimeout(() => {
+      this.restoreHiddenOverlays({ skipOcrPanel: false });
+    }, 400);
+  }
+
+  private clearAutoRestoreFallback(): void {
+    if (this.autoRestoreTimer) {
+      clearTimeout(this.autoRestoreTimer);
+      this.autoRestoreTimer = null;
+    }
+  }
+
   /**
    * Triggers the interactive region selection overlay.
+   * Automatically hides floating overlays/windows while selection is active,
+   * and restores them once selection completes or cancels.
    */
   public async selectRegion(displayId?: number): Promise<ScreenCaptureRegion | null> {
-    return openSelectionOverlay(displayId);
+    const db = getDatabase();
+    const settings = db.getSetting('app_settings', {} as any);
+    const shouldHide =
+      settings?.overlaySettings?.hideOnCapture !== false &&
+      settings?.screenTranslation?.hideOverlayOnCapture !== false;
+
+    if (shouldHide) {
+      this.hideOverlaysForCapture();
+      // Brief pause to allow OS window manager / compositor to flush frame
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    }
+
+    try {
+      const region = await openSelectionOverlay(displayId);
+
+      if (!region) {
+        if (shouldHide) {
+          this.restoreHiddenOverlays({ skipOcrPanel: false });
+        }
+        return null;
+      }
+
+      if (shouldHide) {
+        this.scheduleAutoRestoreFallback();
+      }
+
+      return region;
+    } catch (err) {
+      if (shouldHide) {
+        this.restoreHiddenOverlays({ skipOcrPanel: false });
+      }
+      throw err;
+    }
   }
 
   public cancelSelection(): void {
     closeSelectionOverlay(null);
+    this.restoreHiddenOverlays({ skipOcrPanel: false });
   }
 
   /**
@@ -126,78 +236,90 @@ export class ScreenTranslationService {
     translationResult: TranslationResult;
     historyItem: OcrHistoryItem;
   }> {
+    this.clearAutoRestoreFallback();
     const startMs = Date.now();
     const translationService = getTranslationService();
     const db = getDatabase();
 
-    // 1. Capture and OCR
-    const { ocrResponse, imageDataUrl } = await this.recognizeRegion(req.region, {
-      ocrLanguage: req.ocrLanguage,
-      ocrProviderId: req.ocrProviderId,
-      profile: req.profile,
-    });
+    try {
+      // 1. Capture and OCR
+      const { ocrResponse, imageDataUrl } = await this.recognizeRegion(req.region, {
+        ocrLanguage: req.ocrLanguage,
+        ocrProviderId: req.ocrProviderId,
+        profile: req.profile,
+      });
 
-    const recognizedText = ocrResponse.text.trim();
-    if (!recognizedText) {
-      throw new Error('No text was recognized in the selected region. Please try selecting a clearer area or adjust the preprocessing preset.');
-    }
+      // Crucial: The screenshot is now captured into memory!
+      // Restore MainWindow and OverlayWindow (if they were hidden for capture).
+      // Skip OCR panel because we will update it with new translation results below.
+      this.restoreHiddenOverlays({ skipOcrPanel: true });
 
-    // 2. Translate using existing translation service
-    const targetLang = (req.targetLanguages && req.targetLanguages[0]) || 'vi';
-    const translationResult = await translationService.translate(
-      {
-        text: recognizedText,
-        sourceLanguage: req.sourceLanguage || 'auto',
+      const recognizedText = ocrResponse.text.trim();
+      if (!recognizedText) {
+        throw new Error('No text was recognized in the selected region. Please try selecting a clearer area or adjust the preprocessing preset.');
+      }
+
+      // 2. Translate using existing translation service
+      const targetLang = (req.targetLanguages && req.targetLanguages[0]) || 'vi';
+      const translationResult = await translationService.translate(
+        {
+          text: recognizedText,
+          sourceLanguage: req.sourceLanguage || 'auto',
+          targetLanguage: targetLang,
+          priority: 'high',
+        },
+        req.translationProviderId
+      );
+
+      const totalDuration = Date.now() - startMs;
+
+      // 3. Persist to database history (respecting privacy: screenshots only saved if explicitly opted in)
+      const settings = db.getSetting('app_settings', {} as any);
+      const shouldPersistScreenshot = Boolean(settings?.screenTranslation?.persistScreenshots);
+
+      const historyItem: OcrHistoryItem = {
+        id: 'ocr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
+        createdAt: Date.now(),
+        ocrProvider: ocrResponse.providerId,
+        ocrLanguage: req.ocrLanguage || 'auto',
+        sourceLanguage: translationResult.detectedSourceLanguage || req.sourceLanguage || 'auto',
         targetLanguage: targetLang,
-        priority: 'high',
-      },
-      req.translationProviderId
-    );
+        originalText: recognizedText,
+        translatedText: translationResult.translatedText,
+        confidence: ocrResponse.confidence,
+        durationMs: totalDuration,
+        sessionType: 'single',
+        imageData: shouldPersistScreenshot ? imageDataUrl : undefined,
+      };
 
-    const totalDuration = Date.now() - startMs;
+      if (settings?.screenTranslation?.saveHistory !== false) {
+        db.insertOcrHistoryItem(historyItem);
+      }
 
-    // 3. Persist to database history (respecting privacy: screenshots only saved if explicitly opted in)
-    const settings = db.getSetting('app_settings', {} as any);
-    const shouldPersistScreenshot = Boolean(settings?.screenTranslation?.persistScreenshots);
+      // 4. Show floating result panel if requested or skipPreview enabled
+      const panelPayload: FloatingPanelPayload = {
+        originalText: recognizedText,
+        translatedText: translationResult.translatedText,
+        sourceLanguage: historyItem.sourceLanguage,
+        targetLanguage: targetLang,
+        confidence: ocrResponse.confidence,
+        durationMs: totalDuration,
+        region: req.region,
+        canRetranslate: true,
+      };
 
-    const historyItem: OcrHistoryItem = {
-      id: 'ocr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
-      createdAt: Date.now(),
-      ocrProvider: ocrResponse.providerId,
-      ocrLanguage: req.ocrLanguage || 'auto',
-      sourceLanguage: translationResult.detectedSourceLanguage || req.sourceLanguage || 'auto',
-      targetLanguage: targetLang,
-      originalText: recognizedText,
-      translatedText: translationResult.translatedText,
-      confidence: ocrResponse.confidence,
-      durationMs: totalDuration,
-      sessionType: 'single',
-      imageData: shouldPersistScreenshot ? imageDataUrl : undefined,
-    };
+      showOcrFloatingPanel(panelPayload);
 
-    if (settings?.screenTranslation?.saveHistory !== false) {
-      db.insertOcrHistoryItem(historyItem);
+      return {
+        ocrResult: ocrResponse,
+        translationResult,
+        historyItem,
+      };
+    } catch (err) {
+      // In case of error, restore any remaining hidden windows (including previous OCR floating panel)
+      this.restoreHiddenOverlays({ skipOcrPanel: false });
+      throw err;
     }
-
-    // 4. Show floating result panel if requested or skipPreview enabled
-    const panelPayload: FloatingPanelPayload = {
-      originalText: recognizedText,
-      translatedText: translationResult.translatedText,
-      sourceLanguage: historyItem.sourceLanguage,
-      targetLanguage: targetLang,
-      confidence: ocrResponse.confidence,
-      durationMs: totalDuration,
-      region: req.region,
-      canRetranslate: true,
-    };
-
-    showOcrFloatingPanel(panelPayload);
-
-    return {
-      ocrResult: ocrResponse,
-      translationResult,
-      historyItem,
-    };
   }
 
   /**

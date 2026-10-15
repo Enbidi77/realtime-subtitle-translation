@@ -326,6 +326,31 @@ export const SettingsView: React.FC = () => {
             />
           </label>
 
+          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
+            <div>
+              <div className="font-medium text-foreground">{t('settings.hideOnCapture')}</div>
+              <div className="text-[11px] text-muted-foreground">{t('settings.hideOnCaptureDesc')}</div>
+            </div>
+            <input
+              type="checkbox"
+              checked={settings.overlaySettings.hideOnCapture ?? true}
+              onChange={(e) => {
+                updateSettings({
+                  overlaySettings: {
+                    ...settings.overlaySettings,
+                    hideOnCapture: e.target.checked,
+                  },
+                  screenTranslation: {
+                    ...settings.screenTranslation,
+                    hideOverlayOnCapture: e.target.checked,
+                  },
+                });
+                showSaved();
+              }}
+              className="rounded accent-primary w-4 h-4"
+            />
+          </label>
+
           <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">Overlay Subtitle Style</div>

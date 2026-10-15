@@ -141,3 +141,21 @@ export function createMainWindow(options?: { showImmediately?: boolean }): Brows
 export function getMainWindow(): BrowserWindow | null {
   return mainWindow;
 }
+
+export function isMainWindowVisible(): boolean {
+  return Boolean(mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible());
+}
+
+export function showMainWindow(): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.show();
+    mainWindow.focus();
+  }
+}
+
+export function hideMainWindow(): void {
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.isVisible()) {
+    mainWindow.hide();
+  }
+}

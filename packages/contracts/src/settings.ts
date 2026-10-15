@@ -23,6 +23,7 @@ export const OverlaySettingsSchema = z.object({
   enabled: z.boolean().default(false),
   alwaysOnTop: z.boolean().default(true),
   clickThrough: z.boolean().default(false),
+  hideOnCapture: z.boolean().default(true),
   position: z.enum(['bottom', 'top', 'custom']).default('bottom'),
   x: z.number().default(100),
   y: z.number().default(100),
@@ -47,6 +48,7 @@ export const ScreenTranslationSettingsSchema = z.object({
   autoHideFloatingPanel: z.boolean().default(false),
   floatingPanelAutoHideTimeoutMs: z.number().min(1000).max(30000).default(6000),
   floatingPanelAlwaysOnTop: z.boolean().default(true),
+  hideOverlayOnCapture: z.boolean().default(true),
   saveHistory: z.boolean().default(true),
   persistScreenshots: z.boolean().default(false),
 });

@@ -12,6 +12,7 @@ export const DEFAULT_SCREEN_TRANSLATION_SETTINGS: ScreenTranslationSettings = {
   autoHideFloatingPanel: false,
   floatingPanelAutoHideTimeoutMs: 6000,
   floatingPanelAlwaysOnTop: true,
+  hideOverlayOnCapture: true,
   saveHistory: true,
   persistScreenshots: false,
 };

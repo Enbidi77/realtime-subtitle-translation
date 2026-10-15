@@ -123,3 +123,12 @@ export function hideOcrFloatingPanel(): void {
 export function isOcrFloatingPanelVisible(): boolean {
   return Boolean(panelWindow && !panelWindow.isDestroyed() && panelWindow.isVisible());
 }
+
+export function restoreOcrFloatingPanel(): void {
+  if (panelWindow && !panelWindow.isDestroyed()) {
+    panelWindow.show();
+    panelWindow.focus();
+  } else if (currentPayload) {
+    showOcrFloatingPanel(currentPayload);
+  }
+}
