@@ -7,11 +7,19 @@ import {
   MockSpeechProvider,
   WindowsSpeechProvider,
 } from '@echo-lingo/provider-adapters';
-import { CredentialsService } from '@/services/credentials-service.js';
+import { getCredentialsService } from '@/services/credentials-service.js';
 
 export class SpeechService {
+  private static instance: SpeechService | null = null;
   private providers = new Map<SpeechEngineType, ISpeechProvider>();
   private activeEngine: SpeechEngineType = 'whisper-local';
+
+  public static getInstance(): SpeechService {
+    if (!SpeechService.instance) {
+      SpeechService.instance = new SpeechService();
+    }
+    return SpeechService.instance;
+  }
 
   constructor() {
     const local = new LocalWhisperProvider();
@@ -30,11 +38,12 @@ export class SpeechService {
   }
 
   public loadSavedCredentials(): void {
-    const openaiKey = CredentialsService.getCredential('openai-whisper');
+    const credentialsService = getCredentialsService();
+    const openaiKey = credentialsService.getCredential('openai-whisper');
     const openai = this.providers.get('openai-whisper') as OpenAIWhisperProvider;
     if (openai && openaiKey) openai.setApiKey(openaiKey);
 
-    const groqKey = CredentialsService.getCredential('groq-whisper');
+    const groqKey = credentialsService.getCredential('groq-whisper');
     const groq = this.providers.get('groq-whisper') as GroqWhisperProvider;
     if (groq && groqKey) groq.setApiKey(groqKey);
   }
@@ -75,10 +84,6 @@ export class SpeechService {
   }
 }
 
-let speechServiceInstance: SpeechService | null = null;
 export function getSpeechService(): SpeechService {
-  if (!speechServiceInstance) {
-    speechServiceInstance = new SpeechService();
-  }
-  return speechServiceInstance;
+  return SpeechService.getInstance();
 }

@@ -2,7 +2,7 @@ import { BrowserWindow, screen, app } from 'electron';
 import path from 'path';
 import { setupSecurityPolicies } from '@/security/security.js';
 import { getMainWindow } from '@/windows/main-window.js';
-import { getAppIcon } from '@/services/app-icon.js';
+import { getAppIconService } from '@/services/app-icon.js';
 import { IPC_CHANNELS } from '@echo-lingo/contracts';
 import { createLogger } from '@echo-lingo/logger';
 
@@ -64,7 +64,7 @@ export function createOverlayWindow(): BrowserWindow {
     y: defaultY,
     minWidth: 400,
     minHeight: 80,
-    icon: getAppIcon(),
+    icon: getAppIconService().getAppIcon(),
     show: false,
     frame: false,
     transparent: true,

@@ -5,8 +5,8 @@ import { IPC_CHANNELS, AppSettingsSchema } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { createLogger } from '@echo-lingo/logger';
 import { getDatabase } from '@/database/db-instance.js';
-import { notifyMinimizedToTray } from '@/services/tray-service.js';
-import { getAppIcon } from '@/services/app-icon.js';
+import { getTrayService } from '@/services/tray-service.js';
+import { getAppIconService } from '@/services/app-icon.js';
 
 const log = createLogger('MainWindow');
 
@@ -32,7 +32,7 @@ export function createMainWindow(options?: { showImmediately?: boolean }): Brows
     show: false,
     frame: false, // Custom frameless titlebar with glass styling
     acceptFirstMouse: true,
-    icon: getAppIcon(),
+    icon: getAppIconService().getAppIcon(),
     ...(process.platform === 'darwin' ? { titleBarStyle: 'hidden' as const, vibrancy: 'under-window' as const } : {}),
     ...(process.platform === 'win32' ? { backgroundMaterial: 'mica' as const } : {}),
     backgroundColor: '#0a0d16',
@@ -106,7 +106,7 @@ export function createMainWindow(options?: { showImmediately?: boolean }): Brows
       if (behavior === 'minimize-to-tray') {
         event.preventDefault();
         mainWindow?.hide();
-        notifyMinimizedToTray();
+        getTrayService().notifyMinimizedToTray();
         log.info('[MainWindow Lifecycle] Window hidden to system tray.');
       } else if (behavior === 'quit') {
         log.info('[MainWindow Lifecycle] Quitting application as configured.');

@@ -12,11 +12,12 @@ import { getSpeechService } from '@/services/speech-service.js';
 import { getTranslationService } from '@/services/translation-service.js';
 import { BrowserWindow } from 'electron';
 import { IPC_CHANNELS } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
-
-const log = createLogger('SessionService');
+import { createLogger, ILogger } from '@echo-lingo/logger';
 
 export class SessionService {
+  private static instance: SessionService | null = null;
+  private readonly log: ILogger = createLogger('SessionService');
+
   private activeSession: SessionMetadata | null = null;
   private timeline: SubtitleTimeline = new SubtitleTimeline();
   private pipeline: SpeechPipeline | null = null;
@@ -24,6 +25,13 @@ export class SessionService {
   private overlayWindow: BrowserWindow | null = null;
   private sessionTimer: NodeJS.Timeout | null = null;
   private sessionStateCallbacks: Array<(active: boolean) => void> = [];
+
+  public static getInstance(): SessionService {
+    if (!SessionService.instance) {
+      SessionService.instance = new SessionService();
+    }
+    return SessionService.instance;
+  }
 
   public onSessionStateChange(cb: (active: boolean) => void): () => void {
     this.sessionStateCallbacks.push(cb);
@@ -38,7 +46,7 @@ export class SessionService {
       try {
         cb(isActive);
       } catch (err) {
-        log.error('Error in session state callback:', err);
+        this.log.error('Error in session state callback:', err);
       }
     }
   }
@@ -106,11 +114,11 @@ export class SessionService {
       vadThreshold,
       onTranscription: (segment, latencyMs) => {
         this.handleTranscriptionSegment(segment, latencyMs).catch((err) => {
-          log.error('Uncaught error in handleTranscriptionSegment:', err);
+          this.log.error('Uncaught error in handleTranscriptionSegment:', err);
         });
       },
       onError: (err) => {
-        log.error('Error during speech recognition:', err.message);
+        this.log.error('Error during speech recognition:', err.message);
         if (this.mainWindow && !this.mainWindow.isDestroyed() && !this.mainWindow.webContents.isDestroyed()) {
           this.mainWindow.webContents.send(IPC_CHANNELS.AUDIO_STATUS, {
             sourceType: req.audioSourceType,
@@ -161,7 +169,7 @@ export class SessionService {
   ): Promise<void> {
     try {
       if (!this.activeSession) return;
-      log.info(`Speech segment recognized: "${segment.text}" (final: ${segment.isFinal})`);
+      this.log.info(`Speech segment recognized: "${segment.text}" (final: ${segment.isFinal})`);
 
       const translationService = getTranslationService();
       const targetLangs = Array.isArray(this.activeSession.targetLanguages)
@@ -178,9 +186,9 @@ export class SessionService {
             targetLangs,
             this.activeSession.translationProvider as any
           );
-          log.info('Translations generated:', translations);
+          this.log.info('Translations generated:', translations);
         } catch (transErr) {
-          log.error('Translation failed for segment:', transErr);
+          this.log.error('Translation failed for segment:', transErr);
           translations = {};
           for (const lang of targetLangs) {
             translations[lang] = segment.text;
@@ -210,9 +218,9 @@ export class SessionService {
         // Persist final segment to SQLite immediately
         try {
           getDatabase().insertSegment(subtitleSegment);
-          log.info(`Persisted segment ${segment.id} to SQLite`);
+          this.log.info(`Persisted segment ${segment.id} to SQLite`);
         } catch (dbErr) {
-          log.error(`SQLite insertSegment error for ${segment.id}:`, dbErr);
+          this.log.error(`SQLite insertSegment error for ${segment.id}:`, dbErr);
         }
       } else {
         this.timeline.updatePartial(subtitleSegment);
@@ -229,14 +237,14 @@ export class SessionService {
           };
           this.mainWindow.webContents.send(IPC_CHANNELS.TRANSCRIPTION_EVENT, evt);
         } catch (ipcErr) {
-          log.error('Error sending transcription event to main window:', ipcErr);
+          this.log.error('Error sending transcription event to main window:', ipcErr);
         }
       }
 
       // Broadcast latest segments to Floating Overlay Window
       this.broadcastToOverlay();
     } catch (unhandledErr) {
-      log.error('Unexpected error in handleTranscriptionSegment:', unhandledErr);
+      this.log.error('Unexpected error in handleTranscriptionSegment:', unhandledErr);
     }
   }
 
@@ -253,7 +261,7 @@ export class SessionService {
         this.overlayWindow.webContents.send(IPC_CHANNELS.OVERLAY_SEGMENTS_STREAM, recent);
       }
     } catch (err) {
-      log.error('Error broadcasting to overlay window:', err);
+      this.log.error('Error broadcasting to overlay window:', err);
     }
   }
 
@@ -294,10 +302,6 @@ export class SessionService {
   }
 }
 
-let sessionServiceInstance: SessionService | null = null;
 export function getSessionService(): SessionService {
-  if (!sessionServiceInstance) {
-    sessionServiceInstance = new SessionService();
-  }
-  return sessionServiceInstance;
+  return SessionService.getInstance();
 }

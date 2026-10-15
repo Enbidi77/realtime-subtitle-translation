@@ -4,7 +4,7 @@ import { FloatingPanelPayload, IPC_CHANNELS } from '@echo-lingo/contracts';
 import { calculateFloatingPanelPosition } from '@echo-lingo/ocr-core';
 import { createLogger } from '@echo-lingo/logger';
 import { setupSecurityPolicies } from '@/security/security.js';
-import { getAppIcon } from '@/services/app-icon.js';
+import { getAppIconService } from '@/services/app-icon.js';
 
 const log = createLogger('OcrPanelWindow');
 
@@ -25,7 +25,7 @@ export function createOcrPanelWindow(): BrowserWindow {
     height: defaultH,
     minWidth: 320,
     minHeight: 180,
-    icon: getAppIcon(),
+    icon: getAppIconService().getAppIcon(),
     show: false,
     frame: false,
     transparent: true,

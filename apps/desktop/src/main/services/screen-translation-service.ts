@@ -29,14 +29,22 @@ import { openSelectionOverlay, closeSelectionOverlay } from '@/windows/selection
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { getOverlayWindow } from '@/windows/overlay-window.js';
-import { createLogger } from '@echo-lingo/logger';
-
-const log = createLogger('ScreenTranslationService');
+import { createLogger, ILogger } from '@echo-lingo/logger';
 
 export class ScreenTranslationService {
+  private static instance: ScreenTranslationService | null = null;
+  private readonly log: ILogger = createLogger('ScreenTranslationService');
+
   private ocrRegistry: OcrRegistry;
   private continuousScheduler: ContinuousOcrScheduler | null = null;
   private activeContinuousConfig: ContinuousOcrConfig | null = null;
+
+  public static getInstance(): ScreenTranslationService {
+    if (!ScreenTranslationService.instance) {
+      ScreenTranslationService.instance = new ScreenTranslationService();
+    }
+    return ScreenTranslationService.instance;
+  }
 
   constructor() {
     this.ocrRegistry = new OcrRegistry();
@@ -211,7 +219,7 @@ export class ScreenTranslationService {
           const { buffer } = await captureMgr.captureRegion(config.region);
           return buffer.toString('base64');
         } catch (err) {
-          log.warn('Continuous capture failed:', err);
+          this.log.warn('Continuous capture failed:', err);
           return null;
         }
       },
@@ -342,11 +350,11 @@ export class ScreenTranslationService {
         mainWin.webContents.send(channel, payload);
       }
       const overlayWin = getOverlayWindow();
-      if (overlayWin && !overlayWin.isDestroyed() && !overlayWin.webContents.isDestroyed()) {
+      if (overlayWin && !overlayWin.isDestroyed() && overlayWin.webContents.isDestroyed()) {
         overlayWin.webContents.send(channel, payload);
       }
     } catch (err) {
-      log.warn('Broadcast error:', err);
+      this.log.warn('Broadcast error:', err);
     }
   }
 
@@ -356,10 +364,6 @@ export class ScreenTranslationService {
   }
 }
 
-let screenTranslationServiceInstance: ScreenTranslationService | null = null;
 export function getScreenTranslationService(): ScreenTranslationService {
-  if (!screenTranslationServiceInstance) {
-    screenTranslationServiceInstance = new ScreenTranslationService();
-  }
-  return screenTranslationServiceInstance;
+  return ScreenTranslationService.getInstance();
 }

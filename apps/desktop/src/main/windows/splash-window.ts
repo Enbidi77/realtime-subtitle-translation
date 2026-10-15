@@ -1,11 +1,11 @@
-import { BrowserWindow, app } from 'electron';
-import path from 'path';
-import { setupSecurityPolicies } from '@/security/security.js';
-import { getAppIcon } from '@/services/app-icon.js';
-import { IPC_CHANNELS, SplashStatusEvent } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
+import { BrowserWindow, app } from "electron";
+import path from "path";
+import { setupSecurityPolicies } from "@/security/security.js";
+import { getAppIconService } from "@/services/app-icon.js";
+import { IPC_CHANNELS, SplashStatusEvent } from "@echo-lingo/contracts";
+import { createLogger } from "@echo-lingo/logger";
 
-const log = createLogger('SplashWindow');
+const log = createLogger("SplashWindow");
 
 let splashWindow: BrowserWindow | null = null;
 let splashStartTime = 0;
@@ -31,14 +31,14 @@ export function createSplashWindow(): BrowserWindow {
     resizable: false,
     frame: false,
     transparent: true,
-    backgroundColor: '#00000000',
+    backgroundColor: "#00000000",
     alwaysOnTop: true,
     skipTaskbar: true,
     hasShadow: true,
-    icon: getAppIcon(),
+    icon: getAppIconService().getAppIcon(),
     show: false,
     webPreferences: {
-      preload: path.join(__dirname, '../preload/index.js'),
+      preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,
       contextIsolation: true,
       nodeIntegration: false,
@@ -47,27 +47,34 @@ export function createSplashWindow(): BrowserWindow {
 
   setupSecurityPolicies(splashWindow.webContents);
 
-  splashWindow.on('ready-to-show', () => {
-    log.info('Splash window ready to show, displaying...');
+  splashWindow.on("ready-to-show", () => {
+    log.info("Splash window ready to show, displaying...");
     if (splashWindow && !splashWindow.isDestroyed()) {
       splashWindow.show();
     }
   });
 
   const isDev = !app.isPackaged;
-  if (isDev && process.env['ELECTRON_RENDERER_URL']) {
-    log.info(`Loading dev URL: ${process.env['ELECTRON_RENDERER_URL']}/splash.html`);
-    splashWindow.loadURL(`${process.env['ELECTRON_RENDERER_URL']}/splash.html`);
+  if (isDev && process.env["ELECTRON_RENDERER_URL"]) {
+    log.info(
+      `Loading dev URL: ${process.env["ELECTRON_RENDERER_URL"]}/splash.html`,
+    );
+    splashWindow.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/splash.html`);
   } else {
-    log.info('Loading production splash.html');
-    splashWindow.loadFile(path.join(__dirname, '../renderer/splash.html'));
+    log.info("Loading production splash.html");
+    splashWindow.loadFile(path.join(__dirname, "../renderer/splash.html"));
   }
 
-  splashWindow.webContents.on('did-fail-load', (_event, errorCode, errorDescription, validatedURL) => {
-    log.error(`Splash failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`);
-  });
+  splashWindow.webContents.on(
+    "did-fail-load",
+    (_event, errorCode, errorDescription, validatedURL) => {
+      log.error(
+        `Splash failed to load ${validatedURL}: [${errorCode}] ${errorDescription}`,
+      );
+    },
+  );
 
-  splashWindow.on('closed', () => {
+  splashWindow.on("closed", () => {
     splashWindow = null;
   });
 
@@ -79,11 +86,15 @@ export function createSplashWindow(): BrowserWindow {
  */
 export function updateSplashStatus(status: SplashStatusEvent): void {
   try {
-    if (splashWindow && !splashWindow.isDestroyed() && !splashWindow.webContents.isDestroyed()) {
+    if (
+      splashWindow &&
+      !splashWindow.isDestroyed() &&
+      !splashWindow.webContents.isDestroyed()
+    ) {
       splashWindow.webContents.send(IPC_CHANNELS.SPLASH_STATUS_STREAM, status);
     }
   } catch (err) {
-    log.warn('Failed to send splash status:', err);
+    log.warn("Failed to send splash status:", err);
   }
 }
 
@@ -131,7 +142,7 @@ export function getSplashWindow(): BrowserWindow | null {
  */
 export async function transitionSplashToMainWindow(
   mainWin: BrowserWindow,
-  minDurationMs = 1200
+  minDurationMs = 2400,
 ): Promise<void> {
   // 1. Wait for MainWindow to reach ready-to-show or timeout
   if (mainWin && !mainWin.isDestroyed()) {
@@ -152,14 +163,16 @@ export async function transitionSplashToMainWindow(
         return;
       }
 
-      mainWin.once('ready-to-show', onReadyToShow);
+      mainWin.once("ready-to-show", onReadyToShow);
 
       // Failsafe timeout after 8 seconds
       setTimeout(() => {
         if (!resolved) {
-          log.warn('Timeout waiting for MainWindow ready-to-show; proceeding with transition.');
+          log.warn(
+            "Timeout waiting for MainWindow ready-to-show; proceeding with transition.",
+          );
           resolved = true;
-          mainWin.removeListener('ready-to-show', onReadyToShow);
+          mainWin.removeListener("ready-to-show", onReadyToShow);
           resolve();
         }
       }, 8000);
@@ -174,7 +187,12 @@ export async function transitionSplashToMainWindow(
   }
 
   // 3. Mark splash as complete
-  updateSplashStatus({ message: 'Ready!', step: 4, totalSteps: 4, progress: 100 });
+  updateSplashStatus({
+    message: "Ready!",
+    step: 4,
+    totalSteps: 4,
+    progress: 100,
+  });
   await new Promise((resolve) => setTimeout(resolve, 150));
 
   // 4. Reveal and focus MainWindow

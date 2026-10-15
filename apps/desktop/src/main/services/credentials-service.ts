@@ -1,16 +1,23 @@
 import { safeStorage } from 'electron';
 import { getDatabase } from '@/database/db-instance.js';
-import { createLogger } from '@echo-lingo/logger';
-
-const log = createLogger('CredentialsService');
+import { createLogger, ILogger } from '@echo-lingo/logger';
 
 export class CredentialsService {
-  private static readonly KEY_PREFIX = 'cred_secret_';
+  private static instance: CredentialsService | null = null;
+  private readonly keyPrefix: string = 'cred_secret_';
+  private readonly log: ILogger = createLogger('CredentialsService');
+
+  public static getInstance(): CredentialsService {
+    if (!CredentialsService.instance) {
+      CredentialsService.instance = new CredentialsService();
+    }
+    return CredentialsService.instance;
+  }
 
   /**
    * Save an API credential securely
    */
-  public static saveCredential(providerId: string, secret: string): void {
+  public saveCredential(providerId: string, secret: string): void {
     const db = getDatabase();
     const trimmed = secret.trim();
 
@@ -28,15 +35,15 @@ export class CredentialsService {
       encryptedStr = 'b64:' + Buffer.from(trimmed).toString('base64');
     }
 
-    db.setSetting(this.KEY_PREFIX + providerId, encryptedStr);
+    db.setSetting(this.keyPrefix + providerId, encryptedStr);
   }
 
   /**
    * Retrieve decrypted API credential
    */
-  public static getCredential(providerId: string): string | null {
+  public getCredential(providerId: string): string | null {
     const db = getDatabase();
-    const stored = db.getSetting<string | null>(this.KEY_PREFIX + providerId, null);
+    const stored = db.getSetting<string | null>(this.keyPrefix + providerId, null);
     if (!stored) return null;
 
     try {
@@ -48,7 +55,7 @@ export class CredentialsService {
       }
       return stored;
     } catch (err) {
-      log.error(`Failed to decrypt credential for ${providerId}:`, err);
+      this.log.error(`Failed to decrypt credential for ${providerId}:`, err);
       return null;
     }
   }
@@ -56,7 +63,7 @@ export class CredentialsService {
   /**
    * Check if a credential exists without exposing it
    */
-  public static hasCredential(providerId: string): boolean {
+  public hasCredential(providerId: string): boolean {
     const cred = this.getCredential(providerId);
     return Boolean(cred && cred.length > 0);
   }
@@ -64,8 +71,12 @@ export class CredentialsService {
   /**
    * Delete credential
    */
-  public static deleteCredential(providerId: string): void {
+  public deleteCredential(providerId: string): void {
     const db = getDatabase();
-    db.setSetting(this.KEY_PREFIX + providerId, null);
+    db.setSetting(this.keyPrefix + providerId, null);
   }
+}
+
+export function getCredentialsService(): CredentialsService {
+  return CredentialsService.getInstance();
 }

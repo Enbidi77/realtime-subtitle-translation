@@ -1,56 +1,67 @@
-import path from 'path';
-import { app, BrowserWindow } from 'electron';
-import { initLogger, createLogger } from '@echo-lingo/logger';
+import path from "path";
+import { app, BrowserWindow } from "electron";
+import { initLogger, createLogger } from "@echo-lingo/logger";
 
 // Initialize persistent file logging in userData/logs
 try {
-  const logDir = path.join(app.getPath('userData'), 'logs');
+  const logDir = path.join(app.getPath("userData"), "logs");
   initLogger({ logDir });
 } catch {
   // Fallback to default directory if app.getPath is not yet ready
 }
 
-const log = createLogger('Main');
+const log = createLogger("Main");
 
-process.on('uncaughtException', (err) => {
-  log.error('[CRITICAL] Uncaught Exception:', err);
+process.on("uncaughtException", (err) => {
+  log.error("[CRITICAL] Uncaught Exception:", err);
 });
 
-process.on('unhandledRejection', (reason, promise) => {
-  log.error('[CRITICAL] Unhandled Rejection at:', promise, 'reason:', reason);
+process.on("unhandledRejection", (reason, promise) => {
+  log.error("[CRITICAL] Unhandled Rejection at:", promise, "reason:", reason);
 });
 
-import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
-import { getOverlayWindow, setOverlayCallbacks } from '@/windows/overlay-window.js';
+import {
+  createMainWindow,
+  getMainWindow,
+  setIsQuitting,
+} from "@/windows/main-window.js";
+import {
+  getOverlayWindow,
+  setOverlayCallbacks,
+} from "@/windows/overlay-window.js";
 import {
   createSplashWindow,
   updateSplashStatus,
   transitionSplashToMainWindow,
   closeSplashWindow,
-} from '@/windows/splash-window.js';
-import { registerIpcHandlers } from '@/ipc/ipc-router.js';
-import { registerGlobalShortcuts, unregisterGlobalShortcuts } from '@/services/shortcuts-service.js';
-import { getDatabase, initDatabase, closeDatabase } from '@/database/db-instance.js';
-import { getSessionService } from '@/services/session-service.js';
-import { initTray, destroyTray, updateTrayMenu } from '@/services/tray-service.js';
-import { AppSettingsSchema } from '@echo-lingo/contracts';
-import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+} from "@/windows/splash-window.js";
+import { registerIpcHandlers } from "@/ipc/ipc-router.js";
+import { getShortcutsService } from "@/services/shortcuts-service.js";
+import {
+  getDatabase,
+  initDatabase,
+  closeDatabase,
+} from "@/database/db-instance.js";
+import { getSessionService } from "@/services/session-service.js";
+import { getTrayService } from "@/services/tray-service.js";
+import { AppSettingsSchema } from "@echo-lingo/contracts";
+import { DEFAULT_APP_SETTINGS } from "@echo-lingo/config";
 
-import { setupMediaPermissions } from '@/security/security.js';
+import { setupMediaPermissions } from "@/security/security.js";
 
 // Enable Chromium remote debugging in development for VS Code renderer breakpoint attachment
 if (!app.isPackaged) {
-  app.commandLine.appendSwitch('remote-debugging-port', '9222');
+  app.commandLine.appendSwitch("remote-debugging-port", "9222");
 }
 
 // Single instance lock
 const gotTheLock = app.requestSingleInstanceLock();
 
 if (!gotTheLock) {
-  log.warn('Another instance is already running. Quitting duplicate process.');
+  log.warn("Another instance is already running. Quitting duplicate process.");
   app.quit();
 } else {
-  app.on('second-instance', () => {
+  app.on("second-instance", () => {
     const mainWin = getMainWindow();
     if (mainWin) {
       if (!mainWin.isVisible()) mainWin.show();
@@ -60,14 +71,14 @@ if (!gotTheLock) {
   });
 
   app.whenReady().then(async () => {
-    if (process.platform === 'win32') {
-      app.setAppUserModelId('com.echolingo.desktop');
+    if (process.platform === "win32") {
+      app.setAppUserModelId("com.echolingo.desktop");
     }
 
     // 0. Launch splash screen immediately
     createSplashWindow();
     updateSplashStatus({
-      message: 'Initializing core services...',
+      message: "Initializing core services...",
       step: 1,
       totalSteps: 4,
       progress: 20,
@@ -78,7 +89,7 @@ if (!gotTheLock) {
 
     // 1. Initialize SQLite database
     updateSplashStatus({
-      message: 'Connecting local database...',
+      message: "Connecting local database...",
       step: 2,
       totalSteps: 4,
       progress: 45,
@@ -92,7 +103,7 @@ if (!gotTheLock) {
     let enableSplash = true;
     try {
       const db = getDatabase();
-      const rawSettings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+      const rawSettings = db.getSetting("app_settings", DEFAULT_APP_SETTINGS);
       const parsed = AppSettingsSchema.safeParse(rawSettings);
       if (parsed.success && parsed.data.enableSplashScreen === false) {
         enableSplash = false;
@@ -103,7 +114,7 @@ if (!gotTheLock) {
 
     // 3. Create Main Window (hidden initially if splash is active)
     updateSplashStatus({
-      message: 'Preparing user interface...',
+      message: "Preparing user interface...",
       step: 3,
       totalSteps: 4,
       progress: 75,
@@ -115,29 +126,29 @@ if (!gotTheLock) {
     setOverlayCallbacks({
       onCreated: (win) => {
         getSessionService().setOverlayWindow(win);
-        updateTrayMenu();
+        getTrayService().updateTrayMenu();
       },
       onToggled: (win) => {
         getSessionService().setOverlayWindow(win);
         getSessionService().broadcastToOverlay();
-        updateTrayMenu();
+        getTrayService().updateTrayMenu();
       },
       onClosed: () => {
         getSessionService().setOverlayWindow(null);
-        updateTrayMenu();
+        getTrayService().updateTrayMenu();
       },
     });
 
     // 5. Register global keyboard shortcuts
-    registerGlobalShortcuts();
+    getShortcutsService().register();
 
     // 6. Initialize System Tray
-    initTray();
+    getTrayService().initTray();
 
     // 7. Transition from Splash to Main Window
     if (enableSplash) {
       updateSplashStatus({
-        message: 'Starting EchoLingo...',
+        message: "Starting EchoLingo...",
         step: 4,
         totalSteps: 4,
         progress: 95,
@@ -151,7 +162,7 @@ if (!gotTheLock) {
       mainWin.focus();
     }
 
-    app.on('activate', () => {
+    app.on("activate", () => {
       if (BrowserWindow.getAllWindows().length === 0) {
         createMainWindow({ showImmediately: true });
       } else {
@@ -165,30 +176,30 @@ if (!gotTheLock) {
     });
   });
 
-  app.on('before-quit', () => {
-    log.info('[App Lifecycle] before-quit event fired');
+  app.on("before-quit", () => {
+    log.info("[App Lifecycle] before-quit event fired");
     setIsQuitting(true);
   });
 
-  app.on('window-all-closed', () => {
-    log.info('[App Lifecycle] window-all-closed event fired');
-    if (process.platform !== 'darwin') {
+  app.on("window-all-closed", () => {
+    log.info("[App Lifecycle] window-all-closed event fired");
+    if (process.platform !== "darwin") {
       app.quit();
     }
   });
 
-  app.on('will-quit', () => {
-    log.info('[App Lifecycle] will-quit event fired');
-    unregisterGlobalShortcuts();
-    destroyTray();
+  app.on("will-quit", () => {
+    log.info("[App Lifecycle] will-quit event fired");
+    getShortcutsService().unregister();
+    getTrayService().destroyTray();
     closeDatabase();
   });
 
-  app.on('quit', (_event, exitCode) => {
+  app.on("quit", (_event, exitCode) => {
     log.info(`[App Lifecycle] quit event fired with exitCode: ${exitCode}`);
   });
 
-  process.on('exit', (code) => {
+  process.on("exit", (code) => {
     log.info(`[Process Lifecycle] process.exit event with code: ${code}`);
   });
 }

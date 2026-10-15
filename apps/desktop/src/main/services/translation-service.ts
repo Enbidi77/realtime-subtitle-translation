@@ -13,10 +13,11 @@ import {
   OllamaTranslationProvider,
   MockTranslationProvider,
 } from '@echo-lingo/provider-adapters';
-import { CredentialsService } from '@/services/credentials-service.js';
+import { getCredentialsService } from '@/services/credentials-service.js';
 import { getDatabase } from '@/database/db-instance.js';
 
 export class TranslationService {
+  private static instance: TranslationService | null = null;
   private registry: TranslationRegistry;
   private googleWeb: GoogleWebTranslationProvider;
   private googleCloud: GoogleCloudTranslationProvider;
@@ -24,6 +25,13 @@ export class TranslationService {
   private libre: LibreTranslateProvider;
   private ollama: OllamaTranslationProvider;
   private mock: MockTranslationProvider;
+
+  public static getInstance(): TranslationService {
+    if (!TranslationService.instance) {
+      TranslationService.instance = new TranslationService();
+    }
+    return TranslationService.instance;
+  }
 
   constructor() {
     const cache = new TranslationCache();
@@ -49,13 +57,14 @@ export class TranslationService {
   }
 
   public loadSavedCredentials(): void {
-    const gcKey = CredentialsService.getCredential('google-cloud');
+    const credentialsService = getCredentialsService();
+    const gcKey = credentialsService.getCredential('google-cloud');
     if (gcKey) this.googleCloud.setApiKey(gcKey);
 
-    const deepLKey = CredentialsService.getCredential('deepl');
+    const deepLKey = credentialsService.getCredential('deepl');
     if (deepLKey) this.deepL.setApiKey(deepLKey);
 
-    const libreKey = CredentialsService.getCredential('libretranslate');
+    const libreKey = credentialsService.getCredential('libretranslate');
     if (libreKey) this.libre.setConfig('https://libretranslate.com', libreKey);
   }
 
@@ -88,10 +97,6 @@ export class TranslationService {
   }
 }
 
-let translationServiceInstance: TranslationService | null = null;
 export function getTranslationService(): TranslationService {
-  if (!translationServiceInstance) {
-    translationServiceInstance = new TranslationService();
-  }
-  return translationServiceInstance;
+  return TranslationService.getInstance();
 }

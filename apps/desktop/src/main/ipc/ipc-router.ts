@@ -19,7 +19,7 @@ import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { createLogger, getLogDirectory } from '@echo-lingo/logger';
 import { exportToSrt, exportToVtt, exportToTxt, exportToJson, parseSubtitles } from '@echo-lingo/subtitle-core';
 import { getDatabase } from '@/database/db-instance.js';
-import { CredentialsService } from '@/services/credentials-service.js';
+import { getCredentialsService } from '@/services/credentials-service.js';
 import { getTranslationService } from '@/services/translation-service.js';
 import { getSpeechService } from '@/services/speech-service.js';
 import { getSessionService } from '@/services/session-service.js';
@@ -29,7 +29,7 @@ import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
 import { closeSelectionOverlay } from '@/windows/selection-window.js';
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
-import { notifyMinimizedToTray } from '@/services/tray-service.js';
+import { getTrayService } from '@/services/tray-service.js';
 
 const log = createLogger('IpcRouter');
 
@@ -38,6 +38,7 @@ export function registerIpcHandlers(): void {
   const sessionService = getSessionService();
   const translationService = getTranslationService();
   const speechService = getSpeechService();
+  const credentialsService = getCredentialsService();
 
   // ================= App Window =================
   ipcMain.handle(IPC_CHANNELS.APP_GET_INFO, (): SystemInfo => ({
@@ -75,7 +76,7 @@ export function registerIpcHandlers(): void {
   ipcMain.on(IPC_CHANNELS.APP_MINIMIZE_TO_TRAY, (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     win?.hide();
-    notifyMinimizedToTray();
+    getTrayService().notifyMinimizedToTray();
   });
 
   ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, { deltaX, deltaY }: { deltaX: number; deltaY: number }) => {
@@ -142,18 +143,18 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.TRANSLATION_SET_CREDENTIAL, async (_, { providerId, apiKey }) => {
-    CredentialsService.saveCredential(providerId, apiKey);
+    credentialsService.saveCredential(providerId, apiKey);
     translationService.loadSavedCredentials();
     speechService.loadSavedCredentials();
     return { ok: true };
   });
 
   ipcMain.handle(IPC_CHANNELS.TRANSLATION_HAS_CREDENTIAL, async (_, { providerId }) => {
-    return CredentialsService.hasCredential(providerId);
+    return credentialsService.hasCredential(providerId);
   });
 
   ipcMain.handle(IPC_CHANNELS.TRANSLATION_DELETE_CREDENTIAL, async (_, { providerId }) => {
-    CredentialsService.deleteCredential(providerId);
+    credentialsService.deleteCredential(providerId);
     translationService.loadSavedCredentials();
     speechService.loadSavedCredentials();
     return { ok: true };

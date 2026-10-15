@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-import '@/styles/globals.css';
-import { SplashStatusEvent } from '@echo-lingo/contracts';
-import { Loader2, ShieldCheck, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import "@/styles/globals.css";
+import { SplashStatusEvent } from "@echo-lingo/contracts";
+import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
 
 export const SplashScreen: React.FC = () => {
   const [status, setStatus] = useState<SplashStatusEvent>({
-    message: 'Starting EchoLingo...',
+    message: "Starting EchoLingo...",
     step: 1,
     totalSteps: 4,
     progress: 15,
@@ -64,10 +64,13 @@ export const SplashScreen: React.FC = () => {
                 className="w-full h-full object-contain filter drop-shadow"
                 onError={(e) => {
                   // Fallback icon placeholder if image path fails
-                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.style.display = "none";
                 }}
               />
-              <Sparkles className="w-7 h-7 text-primary absolute" style={{ display: 'none' }} />
+              <Sparkles
+                className="w-7 h-7 text-primary absolute"
+                style={{ display: "none" }}
+              />
             </div>
           </div>
 
@@ -115,11 +118,11 @@ export const SplashScreen: React.FC = () => {
   );
 };
 
-const root = document.getElementById('root');
+const root = document.getElementById("root");
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <SplashScreen />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }
