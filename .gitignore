@@ -23,6 +23,12 @@ build/
 release/
 *.tsbuildinfo
 
+# .NET build outputs
+[Bb]in/
+[Oo]bj/
+packages/dotnet-bridge/bin/
+apps/desktop/resources/bin/
+
 # OS metadata
 .DS_Store
 Thumbs.db

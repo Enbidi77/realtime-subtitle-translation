@@ -4,6 +4,8 @@
   "description": "EchoLingo Desktop Application",
   "main": "./out/main/index.js",
   "scripts": {
+    "predev": "node ../../scripts/build-dotnet.cjs",
+    "prebuild": "node ../../scripts/build-dotnet.cjs",
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",
     "typecheck": "tsc --noEmit",
@@ -15,6 +17,7 @@
     "@echo-lingo/config": "workspace:*",
     "@echo-lingo/contracts": "workspace:*",
     "@echo-lingo/database": "workspace:*",
+    "@echo-lingo/dotnet-bridge": "workspace:*",
     "@echo-lingo/logger": "workspace:*",
     "@echo-lingo/ocr-core": "workspace:*",
     "@echo-lingo/provider-adapters": "workspace:*",

@@ -32,6 +32,9 @@ importers:
       '@echo-lingo/database':
         specifier: workspace:*
         version: link:../../packages/database
+      '@echo-lingo/dotnet-bridge':
+        specifier: workspace:*
+        version: link:../../packages/dotnet-bridge
       '@echo-lingo/logger':
         specifier: workspace:*
         version: link:../../packages/logger
@@ -157,6 +160,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/dotnet-bridge:
+    dependencies:
+      '@echo-lingo/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@echo-lingo/logger':
+        specifier: workspace:*
+        version: link:../logger
+      '@echo-lingo/shared':
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/logger:
     dependencies:
       winston:
@@ -191,6 +210,9 @@ importers:
       '@echo-lingo/contracts':
         specifier: workspace:*
         version: link:../contracts
+      '@echo-lingo/dotnet-bridge':
+        specifier: workspace:*
+        version: link:../dotnet-bridge
       '@echo-lingo/logger':
         specifier: workspace:*
         version: link:../logger

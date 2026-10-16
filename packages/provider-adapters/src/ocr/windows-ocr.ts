@@ -9,6 +9,7 @@ import {
   OcrWord,
 } from '@echo-lingo/contracts';
 import { IOcrProvider, normalizeOcrResponse } from '@echo-lingo/ocr-core';
+import { dotnetBridge } from '@echo-lingo/dotnet-bridge';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as fs from 'node:fs/promises';
@@ -142,6 +143,25 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
       return this.getSupportedLanguages();
     }
 
+    if (dotnetBridge.isAvailable()) {
+      try {
+        const langs = await dotnetBridge.ocr.getAvailableLanguages();
+        if (langs && langs.length > 0) {
+          this.cachedLanguages = [
+            { code: 'auto', name: 'Auto Detect / System Default', nativeName: 'Tự động phát hiện' },
+            ...langs.map((l) => ({
+              code: l.languageTag,
+              name: l.displayName,
+              nativeName: l.displayName,
+            })),
+          ];
+          return this.cachedLanguages;
+        }
+      } catch (err) {
+        log.warn('DotnetBridge OCR languages error, falling back to PowerShell:', err);
+      }
+    }
+
     try {
       const psCommand = `
         [Windows.Media.Ocr.OcrEngine, Windows.Foundation, ContentType = WindowsRuntime] | Out-Null
@@ -208,12 +228,52 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
 
       await fs.writeFile(tempImagePath, buffer);
 
+      const langTag = request.language || 'auto';
+
+      if (dotnetBridge.isAvailable()) {
+        try {
+          const parsed = await dotnetBridge.ocr.recognize(tempImagePath, langTag);
+          if (parsed.error) {
+            throw new Error(`Windows OCR failed: ${parsed.error}`);
+          }
+
+          const lines: OcrLine[] = (parsed.lines || []).map((l) => ({
+            text: l.text,
+            confidence: l.confidence ?? 0.95,
+            words: (l.words || []).map((w) => ({
+              text: w.text,
+              confidence: w.confidence ?? 0.95,
+              boundingBox: w.boundingBox,
+            })),
+          }));
+
+          const blocks: OcrBlock[] = [
+            {
+              text: parsed.text || '',
+              confidence: 0.95,
+              lines,
+            },
+          ];
+
+          return normalizeOcrResponse({
+            text: parsed.text || '',
+            blocks,
+            lines,
+            confidence: 0.95,
+            language: parsed.detectedLanguage || request.language,
+            durationMs: Date.now() - start,
+            providerId: this.id,
+          });
+        } catch (err) {
+          log.warn('DotnetBridge OCR recognize failed, falling back to PowerShell:', err);
+        }
+      }
+
       if (!this.scriptPath) {
         this.scriptPath = path.join(tempDir, 'echolingo_win_ocr.ps1');
         await fs.writeFile(this.scriptPath, POWERSHELL_OCR_SCRIPT, 'utf-8');
       }
 
-      const langTag = request.language || 'auto';
       const { stdout, stderr } = await execFileAsync(
         'powershell',
         ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', this.scriptPath, '-ImagePath', tempImagePath, '-LanguageTag', langTag],

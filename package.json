@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "lint": "eslint . --ext .ts,.tsx",
     "clean:lock": "node scripts/clean-lock.cjs",
+    "build:dotnet": "node scripts/build-dotnet.cjs",
     "package": "pnpm --filter @echo-lingo/desktop package"
   },
   "devDependencies": {
