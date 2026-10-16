@@ -1,4 +1,5 @@
 import { describe, it, expect, afterAll } from 'vitest';
+import * as path from 'node:path';
 import { DotnetBinaryLocator } from '../binary-locator';
 import { dotnetBridge, DotnetBridge } from '../dotnet-bridge';
 
@@ -19,6 +20,22 @@ describe('DotnetBridge & DotnetBinaryLocator', () => {
     expect(binaryPath).toBeTruthy();
     expect(binaryPath?.endsWith('.exe')).toBe(true);
     expect(DotnetBinaryLocator.isAvailable()).toBe(true);
+  });
+
+  it('locates the binary even when cwd is apps/desktop', () => {
+    if (process.platform !== 'win32') return;
+
+    const origCwd = process.cwd();
+    try {
+      DotnetBinaryLocator.resetCache();
+      process.chdir(path.resolve(origCwd, 'apps/desktop'));
+      const binaryPath = DotnetBinaryLocator.getBinaryPath();
+      expect(binaryPath).toBeTruthy();
+      expect(binaryPath?.endsWith('.exe')).toBe(true);
+    } finally {
+      process.chdir(origCwd);
+      DotnetBinaryLocator.resetCache();
+    }
   });
 
   it('successfully executes ping command via daemon or cli', async () => {

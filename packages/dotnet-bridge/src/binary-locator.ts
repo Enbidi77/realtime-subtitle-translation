@@ -34,22 +34,34 @@ export class DotnetBinaryLocator {
       candidatePaths.push(path.join(resourcesPath, 'resources', 'bin', 'EchoLingo.Ipc.exe'));
     }
 
-    // 3. Monorepo development paths (relative to this module or current working dir)
-    const baseDirs = [
-      __dirname,
-      process.cwd(),
-      path.resolve(__dirname, '../../..'),
-      path.resolve(__dirname, '../..'),
-    ];
+    // 3. Relative to process.cwd() (handles when cwd is apps/desktop or repo root)
+    const cwd = process.cwd();
+    candidatePaths.push(path.join(cwd, 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.join(cwd, 'apps', 'desktop', 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.join(cwd, 'packages', 'dotnet-bridge', 'bin', 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.join(cwd, 'bin', 'EchoLingo.Ipc.exe'));
 
-    for (const base of baseDirs) {
-      candidatePaths.push(path.join(base, 'packages/dotnet-bridge/bin/EchoLingo.Ipc.exe'));
-      candidatePaths.push(path.join(base, 'apps/desktop/resources/bin/EchoLingo.Ipc.exe'));
-      candidatePaths.push(path.join(base, 'ipc/bin/publish/EchoLingo.Ipc.exe'));
-      candidatePaths.push(path.join(base, 'ipc/bin/Release/net8.0-windows10.0.19041.0/win-x64/EchoLingo.Ipc.exe'));
-      candidatePaths.push(path.join(base, 'ipc/bin/Debug/net8.0-windows10.0.19041.0/win-x64/EchoLingo.Ipc.exe'));
+    // 4. Relative to __dirname (handles bundled out/main or src)
+    candidatePaths.push(path.resolve(__dirname, 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.resolve(__dirname, '..', 'bin', 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.resolve(__dirname, '..', '..', 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+    candidatePaths.push(path.resolve(__dirname, '..', '..', '..', 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+
+    // 5. Walk up to locate the repository root via marker files (pnpm-workspace.yaml or .git)
+    const repoRoots = [
+      this.findWorkspaceRoot(__dirname),
+      this.findWorkspaceRoot(cwd),
+    ].filter((r): r is string => Boolean(r));
+
+    for (const root of repoRoots) {
+      candidatePaths.push(path.join(root, 'apps', 'desktop', 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(root, 'packages', 'dotnet-bridge', 'bin', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(root, 'ipc', 'bin', 'publish', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(root, 'ipc', 'bin', 'Release', 'net8.0-windows10.0.19041.0', 'win-x64', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(root, 'ipc', 'bin', 'Debug', 'net8.0-windows10.0.19041.0', 'win-x64', 'EchoLingo.Ipc.exe'));
     }
 
+    // 6. Check candidates
     for (const candidate of candidatePaths) {
       try {
         if (candidate && fs.existsSync(candidate)) {
@@ -62,7 +74,7 @@ export class DotnetBinaryLocator {
       }
     }
 
-    log.warn('.NET IPC binary not found among candidate paths');
+    log.warn('.NET IPC binary not found among candidate paths:', candidatePaths);
     return null;
   }
 
@@ -73,5 +85,20 @@ export class DotnetBinaryLocator {
   public static resetCache(): void {
     this.cachedPath = null;
   }
-}
 
+  private static findWorkspaceRoot(startDir: string): string | null {
+    let curr = path.resolve(startDir);
+    for (let i = 0; i < 6; i++) {
+      if (
+        fs.existsSync(path.join(curr, 'pnpm-workspace.yaml')) ||
+        fs.existsSync(path.join(curr, '.git'))
+      ) {
+        return curr;
+      }
+      const parent = path.dirname(curr);
+      if (parent === curr) break;
+      curr = parent;
+    }
+    return null;
+  }
+}

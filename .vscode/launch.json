@@ -89,6 +89,71 @@
       "presentation": {
         "order": 6
       }
+    },
+    {
+      "name": ".NET: EchoLingo.Ipc (Console Popup)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "EchoLingo.Ipc: Build",
+      "program": "${workspaceFolder}/ipc/bin/Debug/net8.0-windows10.0.19041.0/win-x64/EchoLingo.Ipc.dll",
+      "args": ["--daemon"],
+      "cwd": "${workspaceFolder}/ipc",
+      "stopAtEntry": false,
+      "console": "externalTerminal",
+      "presentation": {
+        "group": ".NET",
+        "order": 7
+      }
+    },
+    {
+      "name": ".NET: EchoLingo.Ipc (Daemon Mode)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "EchoLingo.Ipc: Build",
+      "program": "${workspaceFolder}/ipc/bin/Debug/net8.0-windows10.0.19041.0/win-x64/EchoLingo.Ipc.dll",
+      "args": ["--daemon"],
+      "cwd": "${workspaceFolder}/ipc",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": ".NET",
+        "order": 8
+      }
+    },
+    {
+      "name": ".NET: EchoLingo.Ipc (CLI Args)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "EchoLingo.Ipc: Build",
+      "program": "${workspaceFolder}/ipc/bin/Debug/net8.0-windows10.0.19041.0/win-x64/EchoLingo.Ipc.dll",
+      "args": ["${input:dotnetCliArgs}"],
+      "cwd": "${workspaceFolder}/ipc",
+      "stopAtEntry": false,
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "openOnSessionStart",
+      "presentation": {
+        "group": ".NET",
+        "order": 9
+      }
+    },
+    {
+      "name": ".NET: Attach to EchoLingo.Ipc",
+      "type": "coreclr",
+      "request": "attach",
+      "processId": "${command:pickProcess}",
+      "presentation": {
+        "group": ".NET",
+        "order": 10
+      }
+    }
+  ],
+  "inputs": [
+    {
+      "id": "dotnetCliArgs",
+      "type": "promptString",
+      "description": "Enter CLI arguments for EchoLingo.Ipc (e.g. 'ping', 'speech list', 'ocr languages')",
+      "default": "ping"
     }
   ],
   "compounds": [

@@ -60,6 +60,27 @@
       "type": "shell",
       "command": "pnpm",
       "args": ["--filter", "@echo-lingo/desktop", "package:win"]
+    },
+    {
+      "label": "EchoLingo.Ipc: Build",
+      "command": "dotnet",
+      "type": "process",
+      "args": [
+        "build",
+        "${workspaceFolder}/ipc/EchoLingo.Ipc.csproj",
+        "/property:GenerateFullPaths=true"
+      ],
+      "problemMatcher": "$msCompile",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "EchoLingo.Ipc: Publish Self-Contained",
+      "command": "node",
+      "type": "process",
+      "args": ["${workspaceFolder}/scripts/build-dotnet.cjs"],
+      "problemMatcher": []
     }
   ]
 }

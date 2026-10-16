@@ -13,7 +13,12 @@
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
     "**/out": true,
-    "**/dist": true
-  }
+    "**/dist": true,
+    "**/.vs": true,
+    "**/bin": false,
+    "**/obj": true
+  },
+  "dotnet.defaultSolution": "ipc/EchoLingo.Ipc.csproj",
+  "csharp.debug.stopAtEntry": false
 }
 

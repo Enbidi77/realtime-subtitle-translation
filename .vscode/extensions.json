@@ -3,7 +3,9 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "bradlc.vscode-tailwindcss",
-    "vitest.explorer"
+    "vitest.explorer",
+    "ms-dotnettools.csharp",
+    "ms-dotnettools.csdevkit"
   ]
 }
 

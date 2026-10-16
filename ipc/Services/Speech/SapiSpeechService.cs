@@ -61,7 +61,9 @@ public class SapiSpeechService : ISpeechService
         {
             foreach (var rec in installed)
             {
-                if (rec.Culture.Name.StartsWith(targetLang, StringComparison.OrdinalIgnoreCase) ||
+                if (rec.Culture.Name.Equals(targetLang, StringComparison.OrdinalIgnoreCase) ||
+                    rec.Culture.Name.StartsWith(targetLang, StringComparison.OrdinalIgnoreCase) ||
+                    targetLang.StartsWith(rec.Culture.Name, StringComparison.OrdinalIgnoreCase) ||
                     rec.Culture.TwoLetterISOLanguageName.Equals(targetLang, StringComparison.OrdinalIgnoreCase))
                 {
                     selected = rec;
@@ -89,7 +91,7 @@ public class SapiSpeechService : ISpeechService
                 {
                     result = engine.Recognize(TimeSpan.FromSeconds(4));
                 }
-                catch (InvalidOperationException)
+                catch (Exception ex) when (ex is InvalidOperationException or EndOfStreamException)
                 {
                     // Audio stream end reached
                     break;
@@ -118,6 +120,7 @@ public class SapiSpeechService : ISpeechService
         }
         catch (Exception ex)
         {
+            Console.Error.WriteLine($"[SapiSpeechService] Transcription error: {ex.Message}");
             return new SpeechTranscribeResult
             {
                 Text = string.Empty,
@@ -128,4 +131,3 @@ public class SapiSpeechService : ISpeechService
         }
     }
 }
-
