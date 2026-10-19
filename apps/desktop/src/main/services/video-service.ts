@@ -12,6 +12,7 @@ import {
   VideoExportProgress,
   VideoTranscribeProgress,
   SubtitleSegment,
+  SubtitleStyleOptions,
   toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
 import { generateAssScript } from '@echo-lingo/subtitle-core';
@@ -257,35 +258,41 @@ export class VideoService {
       durationSeconds = hours * 3600 + mins * 60 + secs;
     }
 
-    // 2. Video Stream (Video: h264, yuv420p(tv, bt709), 1920x1080 [SAR 1:1 DAR 16:9], 29.97 fps)
+    // 2. Video Stream (e.g. Video: h264 (Main) (avc1), yuv420p(tv, bt709, progressive), 640x360 [SAR 1:1 DAR 16:9], 29.97 fps)
     let width = 1920;
     let height = 1080;
     let fps = 30;
     let videoCodec = 'unknown';
 
-    const vidMatch = stderr.match(/Stream\s+#\d+:\d+.*Video:\s*([^,\s]+)[^,]*,\s*[^,]+,\s*(\d+)x(\d+)(?:.*?(\d+(?:\.\d+)?)\s*fps)?/i);
-    if (vidMatch) {
-      videoCodec = vidMatch[1] || 'unknown';
-      width = parseInt(vidMatch[2], 10) || 1920;
-      height = parseInt(vidMatch[3], 10) || 1080;
-      if (vidMatch[4]) {
-        fps = parseFloat(vidMatch[4]);
+    const vidLineMatch = stderr.match(/Video:\s*([^\n\r]+)/i);
+    if (vidLineMatch) {
+      const vidLine = vidLineMatch[1];
+      const codecMatch = vidLine.split(/[\s,]+/)[0];
+      if (codecMatch) videoCodec = codecMatch;
+      const resMatch = vidLine.match(/\b(\d{2,5})x(\d{2,5})\b/);
+      if (resMatch) {
+        width = parseInt(resMatch[1], 10) || 1920;
+        height = parseInt(resMatch[2], 10) || 1080;
+      }
+      const fpsMatch = vidLine.match(/(\d+(?:\.\d+)?)\s*fps/i);
+      if (fpsMatch) {
+        fps = parseFloat(fpsMatch[1]) || 30;
       }
     }
 
-    // 3. Audio Stream (Audio: aac, 48000 Hz, stereo, fltp, 128 kb/s)
+    // 3. Audio Stream (e.g. Audio: aac (LC) (mp4a), 48000 Hz, stereo, fltp, 128 kb/s)
     let hasAudio = false;
     let audioCodec: string | undefined;
     let audioChannels: number | undefined;
 
-    const audMatch = stderr.match(/Stream\s+#\d+:\d+.*Audio:\s*([^,\s]+)[^,]*(?:,\s*(\d+)\s*Hz)?(?:,\s*([^,]+))?/i);
-    if (audMatch) {
+    const audLineMatch = stderr.match(/Audio:\s*([^\n\r]+)/i);
+    if (audLineMatch) {
       hasAudio = true;
-      audioCodec = audMatch[1];
-      const chanStr = audMatch[3] || '';
-      if (chanStr.includes('stereo')) audioChannels = 2;
-      else if (chanStr.includes('mono')) audioChannels = 1;
-      else if (chanStr.includes('5.1')) audioChannels = 6;
+      const audLine = audLineMatch[1];
+      audioCodec = audLine.split(/[\s,]+/)[0];
+      if (audLine.includes('stereo')) audioChannels = 2;
+      else if (audLine.includes('mono')) audioChannels = 1;
+      else if (audLine.includes('5.1')) audioChannels = 6;
       else audioChannels = 2;
     }
 
@@ -616,7 +623,26 @@ export class VideoService {
       totalDurationSeconds,
     });
 
-    const assScript = generateAssScript(options.segments, options.style, {
+    // Subtitle preview styles are calibrated to a 360px reference height (standard 16:9 preview container).
+    // Scale style parameters proportionally to the target video resolution so that the exported subtitles
+    // match the exact size, stroke, and position seen in the video preview.
+    const scaleFactor = meta.height > 0 ? meta.height / 360 : 1;
+    const scaledStyle: SubtitleStyleOptions = {
+      ...options.style,
+      fontSize: Math.max(14, Math.round(options.style.fontSize * scaleFactor)),
+      verticalMargin: Math.round(options.style.verticalMargin * scaleFactor),
+      horizontalMargin: Math.round(options.style.horizontalMargin * scaleFactor),
+      outlineWidth:
+        options.style.outlineWidth > 0
+          ? Math.max(1, Math.round(options.style.outlineWidth * scaleFactor * 10) / 10)
+          : 0,
+      shadowDistance:
+        options.style.shadowDistance > 0
+          ? Math.max(1, Math.round(options.style.shadowDistance * scaleFactor))
+          : 0,
+    };
+
+    const assScript = generateAssScript(options.segments, scaledStyle, {
       resolution: { width: meta.width, height: meta.height },
       title: meta.fileName,
     });
