@@ -35,6 +35,7 @@ import {
   VideoMetadata,
   VideoExportOptions,
   VideoExportProgress,
+  VideoTranscribeProgress,
   toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
 
@@ -283,6 +284,11 @@ const api = {
       const handler = (_: unknown, progress: VideoExportProgress) => callback(progress);
       ipcRenderer.on(IPC_CHANNELS.VIDEO_EXPORT_PROGRESS, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.VIDEO_EXPORT_PROGRESS, handler);
+    },
+    onTranscribeProgress: (callback: (progress: VideoTranscribeProgress) => void) => {
+      const handler = (_: unknown, progress: VideoTranscribeProgress) => callback(progress);
+      ipcRenderer.on(IPC_CHANNELS.VIDEO_TRANSCRIBE_PROGRESS, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.VIDEO_TRANSCRIBE_PROGRESS, handler);
     },
   },
 };

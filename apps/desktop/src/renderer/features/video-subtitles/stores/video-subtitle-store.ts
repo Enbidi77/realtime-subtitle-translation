@@ -5,6 +5,7 @@ import {
   SubtitleStyleOptions,
   VideoExportOptions,
   VideoExportProgress,
+  VideoTranscribeProgress,
   toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
 import { DEFAULT_SUBTITLE_STYLE, SUBTITLE_STYLE_PRESETS } from '@echo-lingo/config';
@@ -32,6 +33,7 @@ interface VideoSubtitleState {
   // Background Operations
   isTranscribing: boolean;
   transcriptionError: string | null;
+  transcribeProgress: VideoTranscribeProgress | null;
   isExporting: boolean;
   isExportModalOpen: boolean;
   exportProgress: VideoExportProgress | null;
@@ -86,6 +88,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
 
   isTranscribing: false,
   transcriptionError: null,
+  transcribeProgress: null,
   isExporting: false,
   isExportModalOpen: false,
   exportProgress: null,
@@ -220,7 +223,15 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       return;
     }
 
-    set({ isTranscribing: true, transcriptionError: null });
+    set({
+      isTranscribing: true,
+      transcriptionError: null,
+      transcribeProgress: { phase: 'extracting', percent: 5, detail: 'Preparing audio extraction...' },
+    });
+
+    const unsubscribeProgress = window.electronAPI.video.onTranscribeProgress?.((progress) => {
+      set({ transcribeProgress: progress });
+    });
 
     try {
       const segs = await window.electronAPI.video.extractAudio(
@@ -228,7 +239,17 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
         sourceLang,
         targetLang
       );
-      set({ segments: segs, isTranscribing: false });
+      set({
+        segments: segs,
+        isTranscribing: false,
+        transcribeProgress: null,
+      });
+
+      // Jump video playback to first subtitle cue automatically so it's immediately visible on screen!
+      if (segs.length > 0) {
+        get().setCurrentTime(segs[0].startTime / 1000);
+        get().selectSegment(segs[0].id);
+      }
     } catch (err: any) {
       console.error('Transcription error:', err);
       let message = err.message || 'Transcription failed';
@@ -240,8 +261,11 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       }
       set({
         isTranscribing: false,
+        transcribeProgress: null,
         transcriptionError: message,
       });
+    } finally {
+      unsubscribeProgress?.();
     }
   },
 

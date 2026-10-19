@@ -20,6 +20,7 @@ export const VideoDropZone: React.FC = () => {
 
   const videoMetadata = useVideoSubtitleStore((s) => s.videoMetadata);
   const isTranscribing = useVideoSubtitleStore((s) => s.isTranscribing);
+  const transcribeProgress = useVideoSubtitleStore((s) => s.transcribeProgress);
   const transcriptionError = useVideoSubtitleStore((s) => s.transcriptionError);
   const sourceLang = useVideoSubtitleStore((s) => s.sourceLang);
   const targetLang = useVideoSubtitleStore((s) => s.targetLang);
@@ -114,88 +115,100 @@ export const VideoDropZone: React.FC = () => {
   }
 
   return (
-    <div className="w-full glass-card p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-      {/* Video Details */}
-      <div className="flex items-center gap-3.5 min-w-0">
-        <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
-          <FileVideo className="w-5 h-5" />
-        </div>
-        <div className="min-w-0">
-          <h4 className="text-sm font-semibold text-foreground truncate" title={videoMetadata.fileName}>
-            {videoMetadata.fileName}
-          </h4>
-          <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-            <span>{videoMetadata.width}x{videoMetadata.height}</span>
-            <span>•</span>
-            <span>{videoMetadata.fps.toFixed(0)} FPS</span>
-            <span>•</span>
-            <span>{formatFileSize(videoMetadata.fileSizeBytes)}</span>
-            <span>•</span>
-            <span className="uppercase">{videoMetadata.videoCodec}</span>
-            {!videoMetadata.hasAudio && (
-              <>
-                <span>•</span>
-                <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
-                  {t('video.noAudio', 'No Audio')}
-                </span>
-              </>
-            )}
+    <div className="w-full glass-card p-4 rounded-2xl border border-white/10 flex flex-col gap-3">
+      <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        {/* Video Details */}
+        <div className="flex items-center gap-3.5 min-w-0">
+          <div className="w-11 h-11 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">
+            <FileVideo className="w-5 h-5" />
+          </div>
+          <div className="min-w-0">
+            <h4 className="text-sm font-semibold text-foreground truncate" title={videoMetadata.fileName}>
+              {videoMetadata.fileName}
+            </h4>
+            <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
+              <span>{videoMetadata.width}x{videoMetadata.height}</span>
+              <span>•</span>
+              <span>{videoMetadata.fps.toFixed(0)} FPS</span>
+              <span>•</span>
+              <span>{formatFileSize(videoMetadata.fileSizeBytes)}</span>
+              <span>•</span>
+              <span className="uppercase">{videoMetadata.videoCodec}</span>
+              {!videoMetadata.hasAudio && (
+                <>
+                  <span>•</span>
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                    {t('video.noAudio', 'No Audio')}
+                  </span>
+                </>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <div className="flex items-center gap-2 shrink-0 flex-wrap">
-        {/* Auto-Transcribe Button */}
-        <button
-          type="button"
-          onClick={startAutoTranscription}
-          disabled={isTranscribing || !videoMetadata.hasAudio}
-          className="px-3 py-1.5 rounded-xl text-xs font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-          title={
-            !videoMetadata.hasAudio
-              ? t('video.noAudioTooltip', 'This video does not contain an audio track to transcribe.')
-              : t('video.autoTranscribeTooltip', 'Extract audio and auto-transcribe with Whisper')
-          }
-        >
-          {isTranscribing ? (
-            <>
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              <span>Transcribing...</span>
-            </>
-          ) : (
-            <>
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Auto-Transcribe</span>
-            </>
-          )}
-        </button>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {/* Auto-Transcribe Button */}
+          <button
+            type="button"
+            onClick={startAutoTranscription}
+            disabled={isTranscribing || !videoMetadata.hasAudio}
+            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            title={
+              !videoMetadata.hasAudio
+                ? t('video.noAudioTooltip', 'This video does not contain an audio track to transcribe.')
+                : t('video.autoTranscribeTooltip', 'Extract audio and auto-transcribe with Whisper')
+            }
+          >
+            {isTranscribing ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-300" />
+                <span>
+                  {transcribeProgress
+                    ? `${
+                        transcribeProgress.phase === 'translating'
+                          ? 'Translating'
+                          : transcribeProgress.phase === 'extracting'
+                          ? 'Extracting'
+                          : 'Transcribing'
+                      } ${transcribeProgress.percent}%`
+                    : 'Transcribing...'}
+                </span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Auto-Transcribe</span>
+              </>
+            )}
+          </button>
 
-        {/* Import Subtitle File */}
-        <label className="px-3 py-1.5 rounded-xl text-xs font-medium bg-glass hover:bg-glass-subtle border border-white/10 hover:border-white/20 text-foreground transition-all flex items-center gap-1.5 cursor-pointer">
-          <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-          <span>Import .SRT/.VTT</span>
-          <input
-            type="file"
-            accept=".srt,.vtt,.txt"
-            onChange={handleImportSubtitleFile}
-            className="hidden"
-          />
-        </label>
+          {/* Import Subtitle File */}
+          <label className="px-3 py-1.5 rounded-xl text-xs font-medium bg-glass hover:bg-glass-subtle border border-white/10 hover:border-white/20 text-foreground transition-all flex items-center gap-1.5 cursor-pointer">
+            <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+            <span>Import .SRT/.VTT</span>
+            <input
+              type="file"
+              accept=".srt,.vtt,.txt"
+              onChange={handleImportSubtitleFile}
+              className="hidden"
+            />
+          </label>
 
-        {/* Change Video */}
-        <button
-          type="button"
-          onClick={openVideoDialog}
-          className="px-2.5 py-1.5 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-white/10 transition-all flex items-center gap-1"
-          title="Choose a different video file"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-        </button>
+          {/* Change Video */}
+          <button
+            type="button"
+            onClick={openVideoDialog}
+            className="px-2.5 py-1.5 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-white/10 transition-all flex items-center gap-1 cursor-pointer"
+            title="Choose a different video file"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
       {!videoMetadata.hasAudio && !transcriptionError && (
-        <div className="w-full text-xs text-amber-300/90 flex items-center gap-2 mt-2 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+        <div className="w-full text-xs text-amber-300/90 flex items-center gap-2 mt-1 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
           <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
           <span>
             {t(
@@ -207,7 +220,7 @@ export const VideoDropZone: React.FC = () => {
       )}
 
       {transcriptionError && (
-        <div className="w-full text-xs text-rose-400 flex items-center gap-1.5 mt-2 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+        <div className="w-full text-xs text-rose-400 flex items-center gap-1.5 mt-1 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{transcriptionError}</span>
         </div>

@@ -123,3 +123,10 @@ export const VideoExportProgressSchema = z.object({
 });
 export type VideoExportProgress = z.infer<typeof VideoExportProgressSchema>;
 
+export const VideoTranscribeProgressSchema = z.object({
+  phase: z.enum(['extracting', 'transcribing', 'translating', 'completed']),
+  percent: z.number().min(0).max(100),
+  detail: z.string().optional(),
+});
+export type VideoTranscribeProgress = z.infer<typeof VideoTranscribeProgressSchema>;
+

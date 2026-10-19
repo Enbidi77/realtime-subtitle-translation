@@ -544,11 +544,20 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(
     IPC_CHANNELS.VIDEO_EXTRACT_AUDIO,
-    async (_, payload: { videoPath: string; sourceLang?: string; targetLang?: string }) => {
-      return videoService.transcribeVideo(payload.videoPath, {
-        sourceLang: payload.sourceLang,
-        targetLang: payload.targetLang,
-      });
+    async (event, payload: { videoPath: string; sourceLang?: string; targetLang?: string }) => {
+      const win = BrowserWindow.fromWebContents(event.sender);
+      return videoService.transcribeVideo(
+        payload.videoPath,
+        {
+          sourceLang: payload.sourceLang,
+          targetLang: payload.targetLang,
+        },
+        (progress) => {
+          if (win && !win.isDestroyed()) {
+            win.webContents.send(IPC_CHANNELS.VIDEO_TRANSCRIBE_PROGRESS, progress);
+          }
+        }
+      );
     }
   );
 

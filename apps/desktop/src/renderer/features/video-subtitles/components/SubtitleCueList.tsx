@@ -51,7 +51,7 @@ export const SubtitleCueList: React.FC = () => {
   };
 
   const handleSeekToCue = (startTimeMs: number, segId: string) => {
-    setCurrentTime(startTimeMs / 1000);
+    setCurrentTime(startTimeMs / 1000 + 0.05);
     selectSegment(segId);
   };
 
@@ -92,8 +92,11 @@ export const SubtitleCueList: React.FC = () => {
             return (
               <div
                 key={seg.id}
-                onClick={() => selectSegment(seg.id)}
-                className={`p-3 rounded-xl border transition-all text-xs flex flex-col gap-2 ${
+                onClick={() => {
+                  selectSegment(seg.id);
+                  handleSeekToCue(seg.startTime, seg.id);
+                }}
+                className={`p-3 rounded-xl border transition-all text-xs flex flex-col gap-2 cursor-pointer ${
                   isActive
                     ? 'bg-blue-500/15 border-blue-500/40 shadow-sm'
                     : isSelected

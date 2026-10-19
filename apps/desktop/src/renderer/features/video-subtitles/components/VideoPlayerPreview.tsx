@@ -181,8 +181,8 @@ export const VideoPlayerPreview: React.FC = () => {
         <div
           className={`absolute pointer-events-none transition-all duration-75 max-w-[85%] z-20 ${alignmentClass}`}
           style={{
-            marginBottom: style.alignment.startsWith('bottom') ? `${style.verticalMargin}px` : undefined,
-            marginTop: style.alignment.startsWith('top') ? `${style.verticalMargin}px` : undefined,
+            bottom: style.alignment.startsWith('bottom') ? `${style.verticalMargin}px` : undefined,
+            top: style.alignment.startsWith('top') ? `${style.verticalMargin}px` : undefined,
           }}
         >
           <div
@@ -203,8 +203,9 @@ export const VideoPlayerPreview: React.FC = () => {
             style.showTranslation &&
             activeSegment.originalText &&
             Object.values(activeSegment.translations)[0] ? (
-              <div className="space-y-1">
+              <div className="space-y-1 max-w-full text-center">
                 <div
+                  className="break-words whitespace-pre-wrap max-w-full"
                   style={{
                     color: style.primaryColor,
                     fontSize: `${style.fontSize}px`,
@@ -214,6 +215,7 @@ export const VideoPlayerPreview: React.FC = () => {
                   {activeSegment.originalText}
                 </div>
                 <div
+                  className="break-words whitespace-pre-wrap max-w-full"
                   style={{
                     color: style.secondaryColor,
                     fontSize: `${Math.round(style.fontSize * 0.85)}px`,
@@ -227,6 +229,7 @@ export const VideoPlayerPreview: React.FC = () => {
             ) : (
               /* Single Line Mode */
               <div
+                className="break-words whitespace-pre-wrap max-w-full text-center"
                 style={{
                   color: style.primaryColor,
                   fontSize: `${style.fontSize}px`,

@@ -3,6 +3,7 @@ import { useVideoSubtitleStore } from './stores/video-subtitle-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { VideoDropZone } from './components/VideoDropZone.js';
 import { VideoPlayerPreview } from './components/VideoPlayerPreview.js';
+import { VideoTranscribeProgressBar } from './components/VideoTranscribeProgressBar.js';
 import { SubtitleStyleBar } from './components/SubtitleStyleBar.js';
 import { SubtitleCueList } from './components/SubtitleCueList.js';
 import { VideoExportModal } from './components/VideoExportModal.js';
@@ -111,9 +112,10 @@ export const VideoSubtitlesView: React.FC = () => {
       {/* Main Studio View when Video is Loaded */}
       {videoMetadata && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
-          {/* Left Column: Player Preview & Style Controls (7 cols on lg) */}
+          {/* Left Column: Player Preview, Live Progress & Style Controls (7 cols on lg) */}
           <div className="lg:col-span-7 flex flex-col gap-4">
             <VideoPlayerPreview />
+            <VideoTranscribeProgressBar />
             <SubtitleStyleBar />
           </div>
 

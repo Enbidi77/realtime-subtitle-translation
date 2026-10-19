@@ -159,6 +159,7 @@ export const IPC_CHANNELS = {
   VIDEO_EXPORT_PROGRESS: 'video:export-progress',
   VIDEO_CHECK_FFMPEG: 'video:check-ffmpeg',
   VIDEO_INSTALL_FFMPEG: 'video:install-ffmpeg',
+  VIDEO_TRANSCRIBE_PROGRESS: 'video:transcribe-progress',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

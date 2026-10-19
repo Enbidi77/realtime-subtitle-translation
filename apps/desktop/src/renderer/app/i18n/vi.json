@@ -372,6 +372,11 @@
     "noAudio": "Không có âm thanh",
     "noAudioTooltip": "Video này không có dải âm thanh để nhận diện giọng nói.",
     "noAudioHint": "Video này không có âm thanh. Bạn có thể thêm phụ đề thủ công bằng nút \"Thêm mốc tại đây\" hoặc nhập tệp .SRT / .VTT có sẵn.",
-    "autoTranscribeTooltip": "Tách âm thanh và tự động nhận diện bằng Whisper"
+    "autoTranscribeTooltip": "Tách âm thanh và tự động nhận diện bằng Whisper",
+    "extractingPhase": "Đang trích xuất âm thanh từ video...",
+    "transcribingPhase": "Đang nhận diện giọng nói bằng Whisper...",
+    "translatingPhase": "Đang dịch phụ đề...",
+    "liveRecognitionLabel": "Nội dung đang nhận diện trực tiếp",
+    "translatingProgressLabel": "Nhóm câu đang dịch"
   }
 }

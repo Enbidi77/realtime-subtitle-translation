@@ -10,6 +10,7 @@ import {
   VideoMetadata,
   VideoExportOptions,
   VideoExportProgress,
+  VideoTranscribeProgress,
   SubtitleSegment,
   toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
@@ -389,14 +390,20 @@ export class VideoService {
     options: {
       sourceLang?: string;
       targetLang?: string;
-      onProgress?: (progressPercent: number) => void;
-    } = {}
+    } = {},
+    onProgress?: (progress: VideoTranscribeProgress) => void
   ): Promise<SubtitleSegment[]> {
     const meta = await this.probeMetadata(videoPath);
     if (!meta.hasAudio) {
       this.log.warn(`Cannot transcribe video "${videoPath}": No audio track found.`);
       throw new Error('The selected video does not contain an audio track to transcribe.');
     }
+
+    onProgress?.({
+      phase: 'extracting',
+      percent: 5,
+      detail: 'Extracting audio from video...',
+    });
 
     const tempWav = await this.extractAudio(videoPath);
 
@@ -406,44 +413,120 @@ export class VideoService {
 
       let segments: SubtitleSegment[] = [];
 
-      // Check if local whisper provider is active and has binary
+      // Check if local whisper provider is available (either active or registered)
+      let whisperProvider: LocalWhisperProvider | null = null;
       if (activeProvider instanceof LocalWhisperProvider) {
-        const whisperBin = activeProvider.resolveBinaryPath();
-        const modelPath = activeProvider.resolveModelPath();
-
-        if (whisperBin && modelPath) {
-          // Use whisper.cpp with -osrt to generate full timestamped SRT
-          const outPrefix = path.join(os.tmpdir(), `whisper_out_${Date.now()}`);
-          const srtFile = `${outPrefix}.srt`;
-
-          const lang = options.sourceLang && options.sourceLang !== 'auto' ? options.sourceLang : 'auto';
-          const whisperArgs = [
-            '-m', modelPath,
-            '-f', tempWav,
-            '-l', lang,
-            '-osrt',
-            '-of', outPrefix,
-            '-t', '4',
-          ];
-
-          this.log.info(`Transcribing via whisper.cpp CLI: ${whisperBin} ${whisperArgs.join(' ')}`);
-          await execFileAsync(whisperBin, whisperArgs);
-
-          if (fs.existsSync(srtFile)) {
-            const srtContent = await fsp.readFile(srtFile, 'utf-8');
-            segments = parseSrt(srtContent, {
-              sourceLanguage: options.sourceLang || 'en',
-              targetLanguage: options.targetLang,
-            });
-            await fsp.unlink(srtFile).catch(() => {});
-          }
+        whisperProvider = activeProvider;
+      } else {
+        const local = speechService.getProvider('whisper-local');
+        if (local instanceof LocalWhisperProvider) {
+          whisperProvider = local;
+        } else {
+          whisperProvider = new LocalWhisperProvider();
         }
       }
 
-      // If segments still empty, read WAV as Float32 samples and run provider.transcribe
-      if (segments.length === 0) {
+      const whisperBin = whisperProvider?.resolveBinaryPath?.();
+      const modelPath = whisperProvider?.resolveModelPath?.();
+
+      if (whisperBin && modelPath) {
+        // Use whisper.cpp with -osrt to generate full timestamped SRT
+        const outPrefix = path.join(os.tmpdir(), `whisper_out_${Date.now()}`);
+        const srtFile = `${outPrefix}.srt`;
+
+        const lang = options.sourceLang && options.sourceLang !== 'auto' ? options.sourceLang : 'auto';
+        const threads = Math.min(8, Math.max(2, (os.cpus()?.length || 4) - 2));
+        const whisperArgs = [
+          '-m', modelPath,
+          '-f', tempWav,
+          '-l', lang,
+          '-osrt',
+          '-of', outPrefix,
+          '-t', String(threads),
+          '-bo', '1',
+          '-bs', '1',
+          '-pp',
+        ];
+
+        this.log.info(`Transcribing video via whisper.cpp CLI: ${whisperBin} ${whisperArgs.join(' ')}`);
+
+        onProgress?.({
+          phase: 'transcribing',
+          percent: 10,
+          detail: 'Starting Whisper speech recognition...',
+        });
+
+        await new Promise<void>((resolve, reject) => {
+          const child = spawn(whisperBin, whisperArgs, {
+            windowsHide: true,
+          });
+
+          let stderrData = '';
+          let lastDetail = 'Recognizing speech...';
+          let lastWhisperPct = 0;
+
+          const parseOutput = (chunk: Buffer) => {
+            const str = chunk.toString();
+            stderrData += str;
+            const lines = str.split(/\r?\n/);
+            for (const line of lines) {
+              const progMatch = line.match(/progress\s*=\s*(\d+)%/i);
+              if (progMatch) {
+                lastWhisperPct = parseInt(progMatch[1], 10);
+                const maxRange = options.targetLang ? 65 : 85;
+                const totalPct = 10 + Math.round((lastWhisperPct / 100) * maxRange);
+                onProgress?.({
+                  phase: 'transcribing',
+                  percent: Math.min(95, totalPct),
+                  detail: lastDetail,
+                });
+              }
+
+              const tsMatch = line.match(/\[(\d\d:\d\d:\d\d\.\d\d\d)\s*-->\s*(\d\d:\d\d:\d\d\.\d\d\d)\]\s*(.*)/);
+              if (tsMatch && tsMatch[3]?.trim()) {
+                const cueText = tsMatch[3].trim();
+                lastDetail = `[${tsMatch[1].slice(3, 8)}] ${cueText}`;
+                const maxRange = options.targetLang ? 65 : 85;
+                const totalPct = 10 + Math.round((lastWhisperPct / 100) * maxRange);
+                onProgress?.({
+                  phase: 'transcribing',
+                  percent: Math.min(95, totalPct),
+                  detail: lastDetail,
+                });
+              }
+            }
+          };
+
+          child.stdout?.on('data', parseOutput);
+          child.stderr?.on('data', parseOutput);
+
+          child.on('error', reject);
+          child.on('close', (code) => {
+            if (code === 0) {
+              resolve();
+            } else {
+              reject(new Error(`whisper.cpp exited with code ${code}: ${stderrData.slice(-500)}`));
+            }
+          });
+        });
+
+        if (fs.existsSync(srtFile)) {
+          const srtContent = await fsp.readFile(srtFile, 'utf-8');
+          segments = parseSrt(srtContent, {
+            sourceLanguage: options.sourceLang || 'en',
+            targetLanguage: options.targetLang,
+          });
+          await fsp.unlink(srtFile).catch(() => {});
+        }
+      } else if (activeProvider.id !== 'windows-speech') {
+        // Fall back to active cloud provider if segments still empty
+        onProgress?.({
+          phase: 'transcribing',
+          percent: 20,
+          detail: 'Transcribing via cloud speech provider...',
+        });
+
         const wavBuffer = await fsp.readFile(tempWav);
-        // Skip 44-byte WAV header and convert 16-bit PCM to Float32
         const pcm16 = new Int16Array(
           wavBuffer.buffer,
           wavBuffer.byteOffset + 44,
@@ -479,28 +562,56 @@ export class VideoService {
             },
           ];
         }
+      } else {
+        throw new Error(
+          'Whisper model is required to generate timestamped subtitles for videos. Please install a Whisper model or select a cloud provider.'
+        );
       }
 
-      // If target language requested, translate segments
+      // If target language requested, translate segments in concurrent batches
       if (options.targetLang && segments.length > 0) {
+        onProgress?.({
+          phase: 'translating',
+          percent: 75,
+          detail: `Translating ${segments.length} cues to ${options.targetLang.toUpperCase()}...`,
+        });
+
         const translationService = getTranslationService();
-        for (let i = 0; i < segments.length; i++) {
-          const seg = segments[i];
-          if (seg.originalText.trim()) {
-            try {
-              const res = await translationService.translate({
-                text: seg.originalText,
-                sourceLanguage: seg.sourceLanguage || 'auto',
-                targetLanguage: options.targetLang,
-                priority: 'high',
-              });
-              seg.translations[options.targetLang] = res.translatedText;
-            } catch (err) {
-              this.log.error(`Translation error for segment ${seg.id}:`, err);
-            }
-          }
+        const CHUNK_SIZE = 10;
+        for (let i = 0; i < segments.length; i += CHUNK_SIZE) {
+          const slice = segments.slice(i, i + CHUNK_SIZE);
+          await Promise.all(
+            slice.map(async (seg) => {
+              if (seg.originalText.trim()) {
+                try {
+                  const res = await translationService.translate({
+                    text: seg.originalText,
+                    sourceLanguage: seg.sourceLanguage || 'auto',
+                    targetLanguage: options.targetLang!,
+                    priority: 'high',
+                  });
+                  seg.translations[options.targetLang!] = res.translatedText;
+                } catch (err) {
+                  this.log.error(`Translation error for segment ${seg.id}:`, err);
+                }
+              }
+            })
+          );
+          const doneCount = Math.min(segments.length, i + CHUNK_SIZE);
+          const transPercent = 75 + Math.round((doneCount / segments.length) * 23);
+          onProgress?.({
+            phase: 'translating',
+            percent: Math.min(98, transPercent),
+            detail: `Translated ${doneCount} of ${segments.length} cues (${transPercent}%)`,
+          });
         }
       }
+
+      onProgress?.({
+        phase: 'completed',
+        percent: 100,
+        detail: `Completed! ${segments.length} cues generated.`,
+      });
 
       return segments;
     } finally {
