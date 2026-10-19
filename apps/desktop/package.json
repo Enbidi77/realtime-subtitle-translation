@@ -2,6 +2,7 @@
   "name": "@echo-lingo/desktop",
   "version": "1.0.0",
   "description": "EchoLingo Desktop Application",
+  "author": "EchoLingo Team",
   "main": "./out/main/index.js",
   "scripts": {
     "predev": "node ../../scripts/build-dotnet.cjs",
@@ -14,6 +15,11 @@
     "package:dir": "electron-vite build && electron-builder --dir"
   },
   "dependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "sql.js": "^1.12.0",
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
     "@echo-lingo/config": "workspace:*",
     "@echo-lingo/contracts": "workspace:*",
     "@echo-lingo/database": "workspace:*",
@@ -25,28 +31,23 @@
     "@echo-lingo/subtitle-core": "workspace:*",
     "@echo-lingo/translation-core": "workspace:*",
     "@echo-lingo/shared": "workspace:*",
-    "clsx": "^2.1.1",
-    "ffmpeg-static": "^5.3.0",
-    "lucide-react": "^1.16.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwind-merge": "^3.0.1",
-    "zustand": "^5.0.3",
-    "sql.js": "^1.12.0",
-    "winston": "^3.19.0",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
     "@types/react": "^19.0.8",
     "@types/react-dom": "^19.0.3",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "clsx": "^2.1.1",
     "electron": "^32.3.3",
     "electron-builder": "^25.1.8",
     "electron-vite": "^2.3.0",
+    "lucide-react": "^1.16.0",
     "postcss": "^8.5.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.3",
-    "vite": "^6.1.0"
+    "vite": "^6.1.0",
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
   }
 }
