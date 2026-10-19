@@ -159,9 +159,9 @@ export const VideoPlayerPreview: React.FC = () => {
           onPause={() => setIsPlaying(false)}
         />
       ) : (
-        <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground/60 p-6 text-center">
-          <p className="text-sm font-medium">No video loaded</p>
-          <p className="text-xs text-muted-foreground/40 mt-1">Select a video file to begin subtitling</p>
+        <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
+          <p className="text-sm font-medium text-slate-300">No video loaded</p>
+          <p className="text-xs text-slate-500 mt-1">Select a video file to begin subtitling</p>
         </div>
       )}
 
@@ -170,7 +170,7 @@ export const VideoPlayerPreview: React.FC = () => {
         <div className="absolute inset-0 z-30 bg-black/85 flex flex-col items-center justify-center p-6 text-center">
           <AlertCircle className="w-10 h-10 text-amber-400 mb-2 animate-pulse" />
           <p className="text-sm font-semibold text-white">{videoError}</p>
-          <p className="text-xs text-muted-foreground mt-1 max-w-md">
+          <p className="text-xs text-slate-300 mt-1 max-w-md">
             The video could not be decoded by the browser preview. Auto-transcription and FFmpeg subtitle export will still function normally.
           </p>
         </div>

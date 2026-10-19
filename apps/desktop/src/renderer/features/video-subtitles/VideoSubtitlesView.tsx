@@ -66,21 +66,21 @@ export const VideoSubtitlesView: React.FC = () => {
 
       {/* FFmpeg Warning Banner if Missing */}
       {ffmpegAvailable === false && (
-        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
           <div className="flex items-start gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <p className="font-semibold text-amber-300">
+              <p className="font-semibold text-amber-900 dark:text-amber-300">
                 {t('video.ffmpegMissing.title', 'FFmpeg Not Detected')}
               </p>
-              <p className="text-amber-200/80 leading-relaxed max-w-xl">
+              <p className="text-amber-800 dark:text-amber-200/80 leading-relaxed max-w-xl">
                 {t(
                   'video.ffmpegMissing.desc',
                   'Video audio extraction and subtitle burn-in require FFmpeg. Click Auto-Install to download and configure it to your PATH automatically.'
                 )}
               </p>
               {installFfmpegError && (
-                <p className="text-rose-400 font-medium text-[11px]">{installFfmpegError}</p>
+                <p className="text-rose-600 dark:text-rose-400 font-medium text-[11px]">{installFfmpegError}</p>
               )}
             </div>
           </div>

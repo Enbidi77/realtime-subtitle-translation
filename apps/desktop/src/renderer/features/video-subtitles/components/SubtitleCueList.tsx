@@ -79,8 +79,8 @@ export const SubtitleCueList: React.FC = () => {
       {/* Cues Scroll Area */}
       <div className="max-h-[340px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
         {segments.length === 0 ? (
-          <div className="py-8 text-center text-xs text-muted-foreground/60 border border-dashed border-white/5 rounded-xl">
-            No subtitles yet. Click <strong>Auto-Transcribe</strong>, <strong>Import .SRT</strong>, or <strong>Add Cue Here</strong>.
+          <div className="py-8 text-center text-xs text-muted-foreground border border-dashed border-border dark:border-white/10 rounded-xl">
+            No subtitles yet. Click <strong className="text-foreground font-semibold">Auto-Transcribe</strong>, <strong className="text-foreground font-semibold">Import .SRT</strong>, or <strong className="text-foreground font-semibold">Add Cue Here</strong>.
           </div>
         ) : (
           segments.map((seg, idx) => {
@@ -98,23 +98,23 @@ export const SubtitleCueList: React.FC = () => {
                 }}
                 className={`p-3 rounded-xl border transition-all text-xs flex flex-col gap-2 cursor-pointer ${
                   isActive
-                    ? 'bg-blue-500/15 border-blue-500/40 shadow-sm'
+                    ? 'bg-blue-500/10 dark:bg-blue-500/15 border-blue-500/40 shadow-sm'
                     : isSelected
-                    ? 'bg-glass border-white/20'
-                    : 'bg-glass-subtle hover:bg-glass border-white/5'
+                    ? 'bg-accent/40 dark:bg-glass border-border dark:border-white/20'
+                    : 'bg-glass-subtle hover:bg-glass border-border/50 dark:border-white/5'
                 }`}
               >
                 {/* Top: Index, Time range, Seek & Delete */}
                 <div className="flex items-center justify-between text-[11px] text-muted-foreground">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-muted-foreground/50 w-5">#{idx + 1}</span>
+                    <span className="font-mono text-muted-foreground font-medium w-5">#{idx + 1}</span>
                     <button
                       type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSeekToCue(seg.startTime, seg.id);
                       }}
-                      className="flex items-center gap-1 font-mono text-blue-400 hover:text-blue-300 transition-colors cursor-pointer"
+                      className="flex items-center gap-1 font-mono text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors cursor-pointer"
                       title="Seek video to cue start"
                     >
                       <Play className="w-2.5 h-2.5 fill-current" />
@@ -130,7 +130,7 @@ export const SubtitleCueList: React.FC = () => {
                       e.stopPropagation();
                       removeSegment(seg.id);
                     }}
-                    className="p-1 text-muted-foreground/40 hover:text-rose-400 transition-colors"
+                    className="p-1 text-muted-foreground hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
                     title="Delete cue"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
@@ -140,17 +140,17 @@ export const SubtitleCueList: React.FC = () => {
                 {/* Text Editors */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-muted-foreground block mb-0.5">Original</label>
+                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">Original</label>
                     <input
                       type="text"
                       value={seg.originalText}
                       onChange={(e) => updateSegment(seg.id, { originalText: e.target.value })}
-                      className="w-full bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
+                      className="w-full bg-background/80 dark:bg-black/30 border border-input dark:border-white/10 rounded-lg px-2.5 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-muted-foreground block mb-0.5">Translation ({targetLang})</label>
+                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">Translation ({targetLang})</label>
                     <input
                       type="text"
                       value={translationText}
@@ -159,7 +159,7 @@ export const SubtitleCueList: React.FC = () => {
                           translations: { ...seg.translations, [targetLang]: e.target.value },
                         })
                       }
-                      className="w-full bg-black/30 border border-white/10 rounded-lg px-2.5 py-1 text-xs text-yellow-300/90 focus:outline-none focus:border-blue-500"
+                      className="w-full bg-background/80 dark:bg-black/30 border border-input dark:border-white/10 rounded-lg px-2.5 py-1 text-xs text-amber-700 dark:text-yellow-300 font-medium focus:outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>

@@ -137,7 +137,7 @@ export const VideoDropZone: React.FC = () => {
               {!videoMetadata.hasAudio && (
                 <>
                   <span>•</span>
-                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                  <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                     {t('video.noAudio', 'No Audio')}
                   </span>
                 </>
@@ -153,7 +153,13 @@ export const VideoDropZone: React.FC = () => {
             type="button"
             onClick={startAutoTranscription}
             disabled={isTranscribing || !videoMetadata.hasAudio}
-            className="px-3 py-1.5 rounded-xl text-xs font-medium bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white transition-all shadow-sm flex items-center gap-1.5 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shadow-sm flex items-center gap-1.5 ${
+              isTranscribing
+                ? 'bg-blue-600 text-white cursor-wait opacity-100'
+                : !videoMetadata.hasAudio
+                ? 'opacity-40 cursor-not-allowed bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
+                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white cursor-pointer'
+            }`}
             title={
               !videoMetadata.hasAudio
                 ? t('video.noAudioTooltip', 'This video does not contain an audio track to transcribe.')
@@ -162,7 +168,7 @@ export const VideoDropZone: React.FC = () => {
           >
             {isTranscribing ? (
               <>
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-300" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                 <span>
                   {transcribeProgress
                     ? `${
@@ -208,8 +214,8 @@ export const VideoDropZone: React.FC = () => {
       </div>
 
       {!videoMetadata.hasAudio && !transcriptionError && (
-        <div className="w-full text-xs text-amber-300/90 flex items-center gap-2 mt-1 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-          <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="w-full text-xs text-amber-800 dark:text-amber-300 flex items-center gap-2 mt-1 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+          <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>
             {t(
               'video.noAudioHint',
@@ -220,8 +226,8 @@ export const VideoDropZone: React.FC = () => {
       )}
 
       {transcriptionError && (
-        <div className="w-full text-xs text-rose-400 flex items-center gap-1.5 mt-1 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="w-full text-xs text-rose-700 dark:text-rose-300 flex items-center gap-1.5 mt-1 bg-rose-500/10 p-2 rounded-lg border border-rose-500/20">
+          <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
           <span>{transcriptionError}</span>
         </div>
       )}

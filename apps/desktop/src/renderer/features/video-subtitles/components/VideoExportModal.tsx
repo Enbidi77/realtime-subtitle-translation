@@ -59,7 +59,7 @@ export const VideoExportModal: React.FC = () => {
               <h3 className="text-base font-semibold text-foreground">
                 {t('video.export.success', 'Video Subtitles Burned Successfully!')}
               </h3>
-              <p className="text-xs text-muted-foreground mt-1 max-w-sm font-mono break-all bg-black/30 p-2 rounded-lg border border-white/5 mt-2">
+              <p className="text-xs text-foreground font-mono break-all bg-muted/60 dark:bg-black/30 p-2 rounded-lg border border-border dark:border-white/5 mt-2">
                 {exportResult.outputPath}
               </p>
             </div>
@@ -79,20 +79,20 @@ export const VideoExportModal: React.FC = () => {
           <div className="flex flex-col gap-4 py-4">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+                <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
                 <span className="font-medium text-foreground">
                   {exportProgress?.phase === 'generating-ass'
                     ? 'Preparing Subtitle Styles...'
                     : 'Burning Subtitles into Video (FFmpeg)...'}
                 </span>
               </div>
-              <span className="font-mono text-blue-400 font-semibold">
+              <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">
                 {exportProgress?.progressPercent || 0}%
               </span>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full h-3 bg-white/10 rounded-full overflow-hidden p-0.5 border border-white/10 shadow-inner">
+            <div className="w-full h-3 bg-slate-200 dark:bg-white/10 rounded-full overflow-hidden p-0.5 border border-border dark:border-white/10 shadow-inner">
               <div
                 className="h-full bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-400 rounded-full transition-all duration-300 shadow-sm"
                 style={{ width: `${exportProgress?.progressPercent || 0}%` }}
@@ -118,7 +118,7 @@ export const VideoExportModal: React.FC = () => {
               <button
                 type="button"
                 onClick={cancelExport}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <XCircle className="w-3.5 h-3.5" />
                 <span>Cancel Export</span>
@@ -129,8 +129,8 @@ export const VideoExportModal: React.FC = () => {
           /* IDLE / SETUP STATE */
           <div className="flex flex-col gap-4">
             {exportError && (
-              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-300 text-xs flex items-center gap-2">
-                <AlertTriangle className="w-4 h-4 shrink-0" />
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0" />
                 <span>{exportError}</span>
               </div>
             )}
@@ -149,7 +149,7 @@ export const VideoExportModal: React.FC = () => {
                 <select
                   value={videoCodec}
                   onChange={(e) => setVideoCodec(e.target.value as any)}
-                  className="bg-glass border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-blue-500"
+                  className="bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-blue-500"
                 >
                   <option value="libx264">x264 (CPU - Highest Quality & Compatibility)</option>
                   <option value="h264_nvenc">NVIDIA NVENC (Fast Hardware Acceleration)</option>
@@ -158,7 +158,7 @@ export const VideoExportModal: React.FC = () => {
 
               <div className="flex flex-col gap-1">
                 <label className="text-[11px] text-muted-foreground font-medium">Subtitle Rendering</label>
-                <div className="bg-glass border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground">
+                <div className="bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground">
                   Hardsub (Burn directly on video frames)
                 </div>
               </div>

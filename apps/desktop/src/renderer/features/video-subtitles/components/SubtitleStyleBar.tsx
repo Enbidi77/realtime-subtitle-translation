@@ -43,7 +43,7 @@ export const SubtitleStyleBar: React.FC = () => {
                 className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all cursor-pointer ${
                   isActive
                     ? 'bg-blue-600 text-white shadow-sm'
-                    : 'bg-glass hover:bg-glass-subtle text-muted-foreground hover:text-foreground border border-white/10'
+                    : 'bg-glass hover:bg-glass-subtle text-foreground/80 hover:text-foreground border border-border dark:border-white/10'
                 }`}
               >
                 {t(p.nameKey, p.id)}
@@ -64,7 +64,7 @@ export const SubtitleStyleBar: React.FC = () => {
           <select
             value={style.fontFamily}
             onChange={(e) => updateStyle({ fontFamily: e.target.value })}
-            className="w-full bg-glass border border-white/10 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
+            className="w-full bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
           >
             <option value="Arial">Arial</option>
             <option value="Segoe UI">Segoe UI</option>
@@ -76,9 +76,9 @@ export const SubtitleStyleBar: React.FC = () => {
 
         {/* Font Size */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
             <span>Size</span>
-            <span>{style.fontSize}px</span>
+            <span className="text-foreground">{style.fontSize}px</span>
           </div>
           <input
             type="range"
@@ -86,7 +86,7 @@ export const SubtitleStyleBar: React.FC = () => {
             max={64}
             value={style.fontSize}
             onChange={(e) => updateStyle({ fontSize: parseInt(e.target.value, 10) })}
-            className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
+            className="w-full h-1.5 bg-slate-200 dark:bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
           />
         </div>
 
@@ -98,9 +98,9 @@ export const SubtitleStyleBar: React.FC = () => {
               type="color"
               value={style.primaryColor.slice(0, 7)}
               onChange={(e) => updateStyle({ primaryColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer border border-white/20 bg-transparent p-0"
+              className="w-6 h-6 rounded cursor-pointer border border-input dark:border-white/20 bg-transparent p-0"
             />
-            <span className="text-[11px] font-mono text-muted-foreground">
+            <span className="text-[11px] font-mono text-foreground/80">
               {style.primaryColor.slice(0, 7)}
             </span>
           </div>
@@ -108,16 +108,16 @@ export const SubtitleStyleBar: React.FC = () => {
 
         {/* Outline / Stroke */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
             <span>Outline</span>
-            <span>{style.outlineWidth}px</span>
+            <span className="text-foreground">{style.outlineWidth}px</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
             <input
               type="color"
               value={style.outlineColor.slice(0, 7)}
               onChange={(e) => updateStyle({ outlineColor: e.target.value })}
-              className="w-6 h-6 rounded cursor-pointer border border-white/20 bg-transparent p-0 shrink-0"
+              className="w-6 h-6 rounded cursor-pointer border border-input dark:border-white/20 bg-transparent p-0 shrink-0"
             />
             <input
               type="range"
@@ -126,7 +126,7 @@ export const SubtitleStyleBar: React.FC = () => {
               step={0.5}
               value={style.outlineWidth}
               onChange={(e) => updateStyle({ outlineWidth: parseFloat(e.target.value) })}
-              className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500"
+              className="w-full h-1.5 bg-slate-200 dark:bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export const SubtitleStyleBar: React.FC = () => {
           <select
             value={style.alignment}
             onChange={(e) => updateStyle({ alignment: e.target.value as SubtitleAlignment })}
-            className="w-full bg-glass border border-white/10 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
+            className="w-full bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
           >
             <option value="bottom-center">Bottom Center</option>
             <option value="bottom-left">Bottom Left</option>
@@ -149,9 +149,9 @@ export const SubtitleStyleBar: React.FC = () => {
 
         {/* Vertical Margin */}
         <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+          <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
             <span>Margin V</span>
-            <span>{style.verticalMargin}px</span>
+            <span className="text-foreground">{style.verticalMargin}px</span>
           </div>
           <input
             type="range"
@@ -159,7 +159,7 @@ export const SubtitleStyleBar: React.FC = () => {
             max={150}
             value={style.verticalMargin}
             onChange={(e) => updateStyle({ verticalMargin: parseInt(e.target.value, 10) })}
-            className="w-full h-1.5 bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
+            className="w-full h-1.5 bg-slate-200 dark:bg-white/20 rounded-lg appearance-none cursor-pointer accent-blue-500 mt-2"
           />
         </div>
       </div>
