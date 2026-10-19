@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
 import { SubtitleSegment } from '@echo-lingo/contracts';
@@ -9,6 +9,8 @@ import {
   Languages,
   Play,
   FileText,
+  Download,
+  Check,
 } from 'lucide-react';
 
 export const SubtitleCueList: React.FC = () => {
@@ -23,6 +25,23 @@ export const SubtitleCueList: React.FC = () => {
   const updateSegment = useVideoSubtitleStore((s) => s.updateSegment);
   const removeSegment = useVideoSubtitleStore((s) => s.removeSegment);
   const addSegment = useVideoSubtitleStore((s) => s.addSegment);
+  const exportSubtitleFile = useVideoSubtitleStore((s) => s.exportSubtitleFile);
+
+  const [isExportingFile, setIsExportingFile] = useState(false);
+  const [exportedStatus, setExportedStatus] = useState<string | null>(null);
+
+  const handleQuickExportSrt = async () => {
+    setIsExportingFile(true);
+    try {
+      const ok = await exportSubtitleFile('srt', true);
+      if (ok) {
+        setExportedStatus('Saved!');
+        setTimeout(() => setExportedStatus(null), 3000);
+      }
+    } finally {
+      setIsExportingFile(false);
+    }
+  };
 
   const currentMs = currentTime * 1000;
 
@@ -66,14 +85,38 @@ export const SubtitleCueList: React.FC = () => {
           </h3>
         </div>
 
-        <button
-          type="button"
-          onClick={handleAddNewCue}
-          className="px-2.5 py-1 rounded-xl text-xs font-medium bg-blue-600/80 hover:bg-blue-600 text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
-        >
-          <ListPlus className="w-3.5 h-3.5" />
-          <span>Add Cue Here</span>
-        </button>
+        <div className="flex items-center gap-1.5">
+          {segments.length > 0 && (
+            <button
+              type="button"
+              onClick={handleQuickExportSrt}
+              disabled={isExportingFile}
+              className="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-foreground transition-all flex items-center gap-1.5 cursor-pointer border border-border dark:border-white/10 shadow-sm disabled:opacity-50"
+              title="Export subtitles as .SRT file"
+            >
+              {exportedStatus ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-500" />
+                  <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{exportedStatus}</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5 text-blue-500" />
+                  <span>Export .SRT</span>
+                </>
+              )}
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={handleAddNewCue}
+            className="px-2.5 py-1 rounded-xl text-xs font-medium bg-blue-600/80 hover:bg-blue-600 text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+          >
+            <ListPlus className="w-3.5 h-3.5" />
+            <span>Add Cue Here</span>
+          </button>
+        </div>
       </div>
 
       {/* Cues Scroll Area */}

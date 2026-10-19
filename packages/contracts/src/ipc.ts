@@ -16,6 +16,7 @@ import {
   TranslationProviderIdSchema,
 } from '@echo-lingo/contracts/translation.js';
 import {
+  SubtitleExportFormatSchema,
   SubtitleExportOptionsSchema,
   SubtitleSegmentSchema,
 } from '@echo-lingo/contracts/subtitle.js';
@@ -91,6 +92,7 @@ export const IPC_CHANNELS = {
   SESSION_UPDATE_SEGMENT: 'session:update-segment',
   SESSION_DELETE_SEGMENT: 'session:delete-segment',
   SESSION_EXPORT: 'session:export',
+  SESSION_SAVE_EXPORT_FILE: 'session:save-export-file',
   SESSION_IMPORT: 'session:import',
 
   // Glossary
@@ -189,6 +191,13 @@ export const ExportSessionRequestSchema = z.object({
   sessionId: z.string(),
   options: SubtitleExportOptionsSchema,
 });
+
+export const SaveExportFileRequestSchema = z.object({
+  content: z.string(),
+  defaultName: z.string(),
+  format: SubtitleExportFormatSchema,
+});
+export type SaveExportFileRequest = z.infer<typeof SaveExportFileRequestSchema>;
 
 export const ImportSubtitlesRequestSchema = z.object({
   content: z.string(),

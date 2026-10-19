@@ -136,6 +136,66 @@ Live translation test
       expect(segments[0].endTime).toBe(3000);
       expect(segments[0].originalText).toBe('Live translation test');
     });
+
+    it('exports SRT with UTF-8 BOM for Windows media player compatibility', () => {
+      const srt = exportToSrt(mockSegments);
+      expect(srt.startsWith('\uFEFF')).toBe(true);
+    });
+
+    it('ensures minimum duration when endTime <= startTime', () => {
+      const zeroDurationSeg: SubtitleSegment = {
+        id: 'zero-1',
+        sessionId: 's',
+        startTime: 2000,
+        endTime: 2000,
+        originalText: 'Quick exclamation!',
+        translations: { vi: 'Lời cảm thán nhanh!' },
+        sourceLanguage: 'en',
+        targetLanguages: ['vi'],
+        status: 'final',
+        speechProvider: 'whisper',
+        translationProvider: 'google',
+        createdAt: 2000,
+        updatedAt: 2000,
+      };
+      const srt = exportToSrt([zeroDurationSeg]);
+      expect(srt).toContain('00:00:02,000 --> 00:00:02,500');
+    });
+
+    it('retains cues where originalText is blank but translation exists', () => {
+      const transOnlySeg: SubtitleSegment = {
+        id: 'trans-only',
+        sessionId: 's',
+        startTime: 3000,
+        endTime: 5000,
+        originalText: '   ',
+        translations: { vi: 'Dịch thuật có sẵn' },
+        sourceLanguage: 'en',
+        targetLanguages: ['vi'],
+        status: 'final',
+        speechProvider: 'whisper',
+        translationProvider: 'google',
+        createdAt: 3000,
+        updatedAt: 3000,
+      };
+      const srt = exportToSrt([transOnlySeg], { targetLanguage: 'vi', includeOriginal: false });
+      expect(srt).toContain('00:00:03,000 --> 00:00:05,000');
+      expect(srt).toContain('Dịch thuật có sẵn');
+    });
+
+    it('parses monolingual multi-line SRT without creating false translations', () => {
+      const multiLineSrt = `1
+00:00:01,000 --> 00:00:05,000
+This is a very long sentence that wraps
+across two lines in whisper.cpp output.
+`;
+      const parsed = parseSrt(multiLineSrt, { isBilingual: false });
+      expect(parsed).toHaveLength(1);
+      expect(parsed[0].originalText).toBe(
+        'This is a very long sentence that wraps across two lines in whisper.cpp output.'
+      );
+      expect(Object.keys(parsed[0].translations)).toHaveLength(0);
+    });
   });
 
   describe('SubtitleTimeline', () => {

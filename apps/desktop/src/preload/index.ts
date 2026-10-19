@@ -15,6 +15,7 @@ import {
   TranslationRequest,
   TranslationResult,
   CreateSessionRequest,
+  SubtitleExportFormat,
   SubtitleExportOptions,
   DisplayInfo,
   ScreenCaptureRegion,
@@ -142,6 +143,12 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_DELETE_SEGMENT, { id }),
     export: (sessionId: string, options: SubtitleExportOptions): Promise<string> =>
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_EXPORT, { sessionId, options }),
+    saveExportFile: (
+      content: string,
+      defaultName: string,
+      format: SubtitleExportFormat
+    ): Promise<{ success: boolean; filePath?: string; cancelled?: boolean }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.SESSION_SAVE_EXPORT_FILE, { content, defaultName, format }),
     import: (content: string, fileName: string, sourceLang?: string, targetLang?: string): Promise<{ count: number; sessionId: string }> =>
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_IMPORT, { content, fileName, sourceLanguage: sourceLang, targetLanguage: targetLang }),
   },

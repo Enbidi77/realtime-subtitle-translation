@@ -5,6 +5,7 @@ export interface ParseOptions {
   sessionId?: string;
   sourceLanguage?: string;
   targetLanguage?: string;
+  isBilingual?: boolean;
 }
 
 /**
@@ -53,12 +54,20 @@ export function parseSrt(content: string, options: ParseOptions = {}): SubtitleS
     const rawText = textLines.join(' ').trim();
     if (!rawText) continue;
 
-    // Check if text has translation separator (e.g. "Original -> Translation" or multi-lines)
+    // Check if text has translation separator or multi-line bilingual pairs
     const textParts = textLines;
     let originalText = rawText;
     const translations: Record<string, string> = {};
 
-    if (textParts.length >= 2) {
+    if (options.isBilingual === true && textParts.length >= 2) {
+      originalText = textParts[0];
+      translations[targetLang] = textParts.slice(1).join(' ');
+    } else if (
+      options.isBilingual === undefined &&
+      textParts.length >= 2 &&
+      options.targetLanguage &&
+      options.targetLanguage !== options.sourceLanguage
+    ) {
       originalText = textParts[0];
       translations[targetLang] = textParts.slice(1).join(' ');
     }

@@ -477,6 +477,7 @@ export class VideoService {
           segments = parseSrt(srtContent, {
             sourceLanguage: options.sourceLang || 'en',
             targetLanguage: options.targetLang,
+            isBilingual: false,
           });
           await fsp.unlink(srtFile).catch(() => {});
         }

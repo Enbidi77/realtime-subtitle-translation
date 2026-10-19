@@ -222,7 +222,9 @@
     "export": "Xuất phụ đề",
     "deleteConfirm": "Bạn có chắc chắn muốn xóa phiên ghi này không?",
     "duration": "Thời lượng",
-    "noSegments": "Chưa có đoạn phụ đề nào trong phiên này."
+    "noSegments": "Chưa có đoạn phụ đề nào trong phiên này.",
+    "noSegmentsToExport": "Phiên này không có đoạn phụ đề nào để xuất file.",
+    "exportSuccess": "Đã xuất tệp phụ đề thành công!"
   },
   "history": {
     "title": "Lịch sử Dịch thuật",
@@ -344,7 +346,7 @@
   "video": {
     "title": "Xưởng Phụ đề Video",
     "subtitle": "Nhận diện giọng nói, dịch thuật, tùy biến kiểu dáng và chèn phụ đề trực tiếp vào khung hình video.",
-    "exportButton": "Xuất Video Kèm Phụ đề",
+    "exportButton": "Xuất Phụ đề & Video",
     "dropzone": {
       "title": "Chọn tệp video hoặc kéo thả vào đây",
       "subtitle": "Hỗ trợ MP4, MKV, MOV, WebM, AVI. Phụ đề sẽ được gắn trực tiếp vào video.",
@@ -359,9 +361,23 @@
       "bilingual": "Song ngữ Đối xứng"
     },
     "export": {
-      "modalTitle": "Xuất Video Kèm Phụ đề",
+      "modalTitle": "Xuất Phụ đề & Video",
       "description": "Thao tác này sẽ gắn vĩnh viễn (hardsub) phụ đề vào khung hình video bằng FFmpeg. Video xuất ra có thể phát trên mọi thiết bị mà không cần tệp phụ đề rời.",
-      "success": "Đã chèn phụ đề và xuất video thành công!"
+      "success": "Đã chèn phụ đề và xuất video thành công!",
+      "modeBurnIn": "Gắn vào Video (.MP4)",
+      "modeBurnInDesc": "Gắn phụ đề trực tiếp vào khung hình video bằng FFmpeg. Xem mượt mà trên mọi thiết bị.",
+      "modeFile": "Tệp Phụ đề (.SRT / .VTT / .TXT)",
+      "modeFileDesc": "Xuất tệp phụ đề chuẩn để mở bằng VLC, trình phát media hoặc các phần mềm dựng phim.",
+      "formatLabel": "Định dạng Tệp Phụ đề",
+      "includeOriginal": "Bao gồm văn bản gốc (Phụ đề song ngữ)",
+      "noCuesWarning": "Chưa có đoạn phụ đề nào trong video. Vui lòng nhận diện âm thanh hoặc thêm mốc phụ đề trước khi xuất.",
+      "exportFileButton": "Lưu Tệp Phụ đề",
+      "exportFileSuccess": "Đã lưu tệp phụ đề thành công!",
+      "startBurnIn": "Bắt đầu gắn phụ đề & Xuất",
+      "encoderLabel": "Bộ mã hóa Video",
+      "renderingLabel": "Cách hiển thị phụ đề",
+      "renderingHardsub": "Hardsub (Gắn trực tiếp vào khung hình)",
+      "cuesReady": "{count} đoạn phụ đề sẵn sàng"
     },
     "ffmpegMissing": {
       "title": "Chưa phát hiện FFmpeg",

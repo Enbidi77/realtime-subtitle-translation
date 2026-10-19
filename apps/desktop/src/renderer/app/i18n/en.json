@@ -222,7 +222,9 @@
     "export": "Export Subtitles",
     "deleteConfirm": "Are you sure you want to delete this session?",
     "duration": "Duration",
-    "noSegments": "No subtitle segments recorded in this session."
+    "noSegments": "No subtitle segments recorded in this session.",
+    "noSegmentsToExport": "This session does not contain any subtitle segments to export.",
+    "exportSuccess": "Subtitle file exported successfully!"
   },
   "history": {
     "title": "Translation History",
@@ -344,7 +346,7 @@
   "video": {
     "title": "Video Subtitle Studio",
     "subtitle": "Transcribe, translate, customize visual styles, and burn subtitles directly onto video frames.",
-    "exportButton": "Export Subtitled Video",
+    "exportButton": "Export Subtitles & Video",
     "dropzone": {
       "title": "Choose a video or drag it here",
       "subtitle": "Supports MP4, MKV, MOV, WebM, AVI. Subtitle text will be placed directly in the video.",
@@ -359,9 +361,23 @@
       "bilingual": "Bilingual Dual"
     },
     "export": {
-      "modalTitle": "Export Subtitled Video",
+      "modalTitle": "Export Subtitles & Video",
       "description": "This will permanently burn your styled subtitles into the video frames using FFmpeg. The output video can be played on any player or shared to social media with subtitles visible.",
-      "success": "Video Subtitles Burned Successfully!"
+      "success": "Video Subtitles Burned Successfully!",
+      "modeBurnIn": "Burn into Video (.MP4)",
+      "modeBurnInDesc": "Permanently burn styled subtitles into video frames using FFmpeg. Playable on any device.",
+      "modeFile": "Subtitle File (.SRT / .VTT / .TXT)",
+      "modeFileDesc": "Export subtitles as standard files for VLC, media players, or video editors.",
+      "formatLabel": "Subtitle File Format",
+      "includeOriginal": "Include original language (Bilingual dual subtitles)",
+      "noCuesWarning": "No subtitle cues found in this video. Please auto-transcribe or add cues before exporting.",
+      "exportFileButton": "Save Subtitle File",
+      "exportFileSuccess": "Subtitle file saved successfully!",
+      "startBurnIn": "Start Burn-In & Export",
+      "encoderLabel": "Video Encoder",
+      "renderingLabel": "Subtitle Rendering",
+      "renderingHardsub": "Hardsub (Burn directly on video frames)",
+      "cuesReady": "{count} subtitle cues ready"
     },
     "ffmpegMissing": {
       "title": "FFmpeg Not Detected",

@@ -1,4 +1,4 @@
-import { GlossaryEntry } from '@echo-lingo/contracts';
+import { GlossaryEntry } from "@echo-lingo/contracts";
 
 export class GlossaryEngine {
   private entries: GlossaryEntry[] = [];
@@ -28,17 +28,18 @@ export class GlossaryEngine {
 
     const matching = this.entries.filter(
       (e) =>
-        (e.sourceLanguage === 'auto' || e.sourceLanguage.toLowerCase() === sourceLang.toLowerCase()) &&
-        e.targetLanguage.toLowerCase() === targetLang.toLowerCase()
+        (e.sourceLanguage === "auto" ||
+          e.sourceLanguage.toLowerCase() === sourceLang.toLowerCase()) &&
+        e.targetLanguage.toLowerCase() === targetLang.toLowerCase(),
     );
 
     if (matching.length === 0) return text;
 
     let result = text;
     for (const entry of matching) {
-      const flags = entry.caseSensitive ? 'g' : 'gi';
+      const flags = entry.caseSensitive ? "g" : "gi";
       // Escape special regex characters in sourceTerm
-      const escaped = entry.sourceTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const escaped = entry.sourceTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(`\\b${escaped}\\b`, flags);
       result = result.replace(regex, entry.targetTerm);
     }

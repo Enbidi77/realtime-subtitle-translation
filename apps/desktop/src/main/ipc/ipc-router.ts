@@ -1,9 +1,11 @@
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain, BrowserWindow, dialog } from 'electron';
+import * as fsp from 'node:fs/promises';
 import {
   IPC_CHANNELS,
   CreateSessionRequestSchema,
   GlossaryEntrySchema,
   SubtitleExportOptionsSchema,
+  SaveExportFileRequestSchema,
   TranslationRequestSchema,
   ScreenCaptureRegionSchema,
   ScreenTranslateRequestSchema,
@@ -170,6 +172,45 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.SESSION_EXPORT, async (_, { sessionId, options }) => {
     const validOptions = SubtitleExportOptionsSchema.parse(options);
     return sessionService.exportSession(sessionId, validOptions);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.SESSION_SAVE_EXPORT_FILE, async (event, payload) => {
+    const parsed = SaveExportFileRequestSchema.parse(payload);
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const ext = parsed.format || 'srt';
+    const filters =
+      ext === 'vtt'
+        ? [
+            { name: 'WebVTT Subtitles (*.vtt)', extensions: ['vtt'] },
+            { name: 'All Files (*.*)', extensions: ['*'] },
+          ]
+        : ext === 'txt'
+        ? [
+            { name: 'Text Document (*.txt)', extensions: ['txt'] },
+            { name: 'All Files (*.*)', extensions: ['*'] },
+          ]
+        : ext === 'json'
+        ? [
+            { name: 'JSON Document (*.json)', extensions: ['json'] },
+            { name: 'All Files (*.*)', extensions: ['*'] },
+          ]
+        : [
+            { name: 'SubRip Subtitles (*.srt)', extensions: ['srt'] },
+            { name: 'All Files (*.*)', extensions: ['*'] },
+          ];
+
+    const result = await dialog.showSaveDialog(win || (undefined as any), {
+      title: 'Save Subtitle File',
+      defaultPath: parsed.defaultName || `subtitles.${ext}`,
+      filters,
+    });
+
+    if (result.canceled || !result.filePath) {
+      return { success: false, cancelled: true };
+    }
+
+    await fsp.writeFile(result.filePath, parsed.content, 'utf-8');
+    return { success: true, filePath: result.filePath };
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_IMPORT, async (_, { content, fileName, sourceLanguage, targetLanguage }) => {

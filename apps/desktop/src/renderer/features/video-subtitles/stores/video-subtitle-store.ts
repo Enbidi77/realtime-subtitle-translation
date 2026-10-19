@@ -4,10 +4,12 @@ import {
   SubtitleSegment,
   SubtitleStyleOptions,
   VideoExportOptions,
+  VideoExportMode,
   VideoExportProgress,
   VideoTranscribeProgress,
   toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
+import { exportToSrt, exportToVtt, exportToTxt } from '@echo-lingo/subtitle-core';
 import { DEFAULT_SUBTITLE_STYLE, SUBTITLE_STYLE_PRESETS } from '@echo-lingo/config';
 
 interface VideoSubtitleState {
@@ -65,7 +67,8 @@ interface VideoSubtitleState {
   checkFfmpeg: () => Promise<void>;
   openVideoDialog: () => Promise<void>;
   startAutoTranscription: () => Promise<void>;
-  startExport: (outputCustomPath?: string, videoCodec?: any) => Promise<void>;
+  startExport: (outputCustomPath?: string, videoCodec?: any, exportMode?: VideoExportMode) => Promise<void>;
+  exportSubtitleFile: (format?: 'srt' | 'vtt' | 'txt', includeOriginal?: boolean) => Promise<boolean>;
   cancelExport: () => Promise<void>;
   reset: () => void;
 }
@@ -274,9 +277,17 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     }
   },
 
-  startExport: async (outputCustomPath, videoCodec) => {
+  startExport: async (outputCustomPath, videoCodec, exportMode = 'hardsub-burnin') => {
     const { videoMetadata, segments, style } = get();
     if (!videoMetadata || !window.electronAPI?.video) return;
+
+    if (segments.length === 0) {
+      set({
+        isExportModalOpen: true,
+        exportError: 'No subtitle cues available to export. Please auto-transcribe or add cues first.',
+      });
+      return;
+    }
 
     let targetOut = outputCustomPath;
     if (!targetOut) {
@@ -317,7 +328,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
         outputVideoPath: targetOut,
         segments,
         style,
-        exportMode: 'hardsub-burnin',
+        exportMode,
         videoCodec: videoCodec || 'libx264',
         audioCodec: 'copy',
         qualityPreset: 'veryfast',
@@ -332,6 +343,42 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       }
     } finally {
       unsub();
+    }
+  },
+
+  exportSubtitleFile: async (format: 'srt' | 'vtt' | 'txt' = 'srt', includeOriginal = true) => {
+    const { videoMetadata, segments, targetLang } = get();
+    if (segments.length === 0) {
+      alert('No subtitle cues available to export.');
+      return false;
+    }
+
+    let content = '';
+    if (format === 'vtt') {
+      content = exportToVtt(segments, { includeOriginal, targetLanguage: targetLang });
+    } else if (format === 'txt') {
+      content = exportToTxt(segments, { includeOriginal, targetLanguage: targetLang });
+    } else {
+      content = exportToSrt(segments, { includeOriginal, targetLanguage: targetLang });
+    }
+
+    const baseName = videoMetadata?.fileName
+      ? videoMetadata.fileName.replace(/\.[^/.]+$/, '')
+      : 'subtitles';
+    const defaultName = `${baseName}.${format}`;
+
+    if (window.electronAPI?.sessions?.saveExportFile) {
+      const res = await window.electronAPI.sessions.saveExportFile(content, defaultName, format);
+      return Boolean(res?.success);
+    } else {
+      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = defaultName;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      return true;
     }
   },
 

@@ -99,6 +99,14 @@ export const SessionsView: React.FC = () => {
 
   const handleExport = async () => {
     if (!selectedSessionId || !window.electronAPI) return;
+    if (segments.length === 0) {
+      alert(t("sessions.noSegmentsToExport", "This session does not contain any subtitle segments to export."));
+      return;
+    }
+
+    const currentSession = sessions.find((s) => s.id === selectedSessionId);
+    const targetLanguage = currentSession?.targetLanguages?.[0];
+
     setIsExporting(true);
     try {
       const output = await window.electronAPI.sessions.export(
@@ -107,18 +115,35 @@ export const SessionsView: React.FC = () => {
           format: exportFormat,
           includeOriginal,
           includeTimestamps: true,
+          targetLanguage,
         },
       );
 
-      // Trigger browser/renderer file download
-      const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `subtitles_${selectedSessionId}.${exportFormat}`;
-      a.click();
-      URL.revokeObjectURL(url);
-      setShowExportModal(false);
+      const cleanTitle = currentSession?.title
+        ? currentSession.title.replace(/[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g, '_')
+        : selectedSessionId;
+      const defaultName = `subtitles_${cleanTitle}.${exportFormat}`;
+
+      if (window.electronAPI.sessions.saveExportFile) {
+        const res = await window.electronAPI.sessions.saveExportFile(
+          output,
+          defaultName,
+          exportFormat
+        );
+        if (res.success) {
+          setShowExportModal(false);
+        }
+      } else {
+        // Fallback for browser/renderer file download with safe revocation
+        const blob = new Blob([output], { type: "text/plain;charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = defaultName;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 60000);
+        setShowExportModal(false);
+      }
     } catch (e) {
       alert("Export failed: " + (e instanceof Error ? e.message : String(e)));
     } finally {
