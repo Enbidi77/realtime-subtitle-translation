@@ -8,3 +8,4 @@ export * from '@echo-lingo/contracts/ipc.js';
 export * from '@echo-lingo/contracts/ocr.js';
 export * from '@echo-lingo/contracts/screen-translation.js';
 export * from '@echo-lingo/contracts/search.js';
+export * from '@echo-lingo/contracts/video.js';

@@ -9,6 +9,7 @@ import { TranslationHistoryView } from '@/features/history/TranslationHistoryVie
 import { ProvidersView } from '@/features/providers/ProvidersView.js';
 import { SettingsView } from '@/features/settings/SettingsView.js';
 import { ScreenTranslationView } from '@/features/screen-translation/index.js';
+import { VideoSubtitlesView } from '@/features/video-subtitles/index.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
@@ -50,6 +51,7 @@ export const App: React.FC = () => {
         } else if (
           page === 'dashboard' ||
           page === 'live-subtitles' ||
+          page === 'video-subtitles' ||
           page === 'ocr-translate' ||
           page === 'sessions' ||
           page === 'history' ||
@@ -109,6 +111,8 @@ export const App: React.FC = () => {
         return <DashboardView />;
       case 'live-subtitles':
         return <LiveSubtitlesView />;
+      case 'video-subtitles':
+        return <VideoSubtitlesView />;
       case 'sessions':
         return <SessionsView />;
       case 'history':

@@ -3,6 +3,7 @@ import { create } from 'zustand';
 export type AppPage =
   | 'dashboard'
   | 'live-subtitles'
+  | 'video-subtitles'
   | 'sessions'
   | 'history'
   | 'providers'

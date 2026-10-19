@@ -29,6 +29,7 @@
   "nav": {
     "dashboard": "Home",
     "live": "Live Subtitles",
+    "videoSubtitles": "Video Subtitles",
     "sessions": "Sessions",
     "history": "History",
     "providers": "Providers & Models",
@@ -339,5 +340,38 @@
     "selectHint": "Select",
     "closeHint": "Close",
     "filterHint": "Category"
+  },
+  "video": {
+    "title": "Video Subtitle Studio",
+    "subtitle": "Transcribe, translate, customize visual styles, and burn subtitles directly onto video frames.",
+    "exportButton": "Export Subtitled Video",
+    "dropzone": {
+      "title": "Choose a video or drag it here",
+      "subtitle": "Supports MP4, MKV, MOV, WebM, AVI. Subtitle text will be placed directly in the video.",
+      "browse": "Browse Video File"
+    },
+    "style": {
+      "title": "Subtitle Visual Styling",
+      "default": "Default Clean",
+      "cinema": "Cinema Classic",
+      "glass": "Modern Glass",
+      "social": "Social Reel",
+      "bilingual": "Bilingual Dual"
+    },
+    "export": {
+      "modalTitle": "Export Subtitled Video",
+      "description": "This will permanently burn your styled subtitles into the video frames using FFmpeg. The output video can be played on any player or shared to social media with subtitles visible.",
+      "success": "Video Subtitles Burned Successfully!"
+    },
+    "ffmpegMissing": {
+      "title": "FFmpeg Not Detected",
+      "desc": "Video audio extraction and subtitle burn-in require FFmpeg. Click Auto-Install to download and configure it to your PATH automatically."
+    },
+    "autoInstallFfmpeg": "Auto-Install FFmpeg",
+    "installingFfmpeg": "Installing FFmpeg...",
+    "noAudio": "No Audio",
+    "noAudioTooltip": "This video does not contain an audio track to transcribe.",
+    "noAudioHint": "This video does not have an audio track. You can add subtitles manually using \"Add Cue Here\" or import an existing .SRT / .VTT file.",
+    "autoTranscribeTooltip": "Extract audio and auto-transcribe with Whisper"
   }
 }

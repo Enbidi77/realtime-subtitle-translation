@@ -13,6 +13,7 @@ import {
   ShieldCheck,
   ChevronLeft,
   ChevronRight,
+  Film,
 } from 'lucide-react';
 
 interface NavItem {
@@ -36,6 +37,7 @@ export const Sidebar: React.FC = () => {
       icon: Mic,
       showBadge: isListening,
     },
+    { id: 'video-subtitles', labelKey: 'nav.videoSubtitles', icon: Film },
     { id: 'ocr-translate', labelKey: 'nav.ocr', icon: ScanText },
     { id: 'sessions', labelKey: 'nav.sessions', icon: FolderKanban },
     { id: 'history', labelKey: 'nav.history', icon: History },

@@ -6,4 +6,5 @@ export * from './speech-service.js';
 export * from './translation-service.js';
 export * from './session-service.js';
 export * from './screen-translation-service.js';
+export * from './video-service.js';
 

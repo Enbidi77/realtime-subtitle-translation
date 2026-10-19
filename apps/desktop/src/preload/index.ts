@@ -32,6 +32,10 @@ import {
   SplashStatusEvent,
   SearchDatabaseRequest,
   SearchDatabaseResponse,
+  VideoMetadata,
+  VideoExportOptions,
+  VideoExportProgress,
+  toMediaProtocolUrl,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -254,6 +258,31 @@ const api = {
       const handler = (_: unknown, data?: { initialCategory?: string }) => callback(data);
       ipcRenderer.on('search:toggle', handler);
       return () => ipcRenderer.removeListener('search:toggle', handler);
+    },
+  },
+
+  video: {
+    toMediaUrl: (filePath: string): string => toMediaProtocolUrl(filePath),
+    checkFfmpeg: (): Promise<{ available: boolean; path: string | null }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_CHECK_FFMPEG),
+    installFfmpeg: (): Promise<{ success: boolean; path: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_INSTALL_FFMPEG),
+    openFileDialog: (): Promise<VideoMetadata | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_OPEN_FILE_DIALOG),
+    saveFileDialog: (defaultName?: string): Promise<string | null> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_SAVE_FILE_DIALOG, defaultName),
+    probeMetadata: (filePath: string): Promise<VideoMetadata> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_PROBE_METADATA, filePath),
+    extractAudio: (videoPath: string, sourceLang?: string, targetLang?: string): Promise<SubtitleSegment[]> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_EXTRACT_AUDIO, { videoPath, sourceLang, targetLang }),
+    startExport: (options: VideoExportOptions): Promise<{ outputPath: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_START_EXPORT, options),
+    cancelExport: (jobId: string): Promise<boolean> =>
+      ipcRenderer.invoke(IPC_CHANNELS.VIDEO_CANCEL_EXPORT, jobId),
+    onExportProgress: (callback: (progress: VideoExportProgress) => void) => {
+      const handler = (_: unknown, progress: VideoExportProgress) => callback(progress);
+      ipcRenderer.on(IPC_CHANNELS.VIDEO_EXPORT_PROGRESS, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.VIDEO_EXPORT_PROGRESS, handler);
     },
   },
 };

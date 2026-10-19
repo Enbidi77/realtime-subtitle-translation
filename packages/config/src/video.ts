@@ -1,0 +1,118 @@
+import { SubtitleStyleOptions } from '@echo-lingo/contracts';
+
+export const DEFAULT_SUBTITLE_STYLE: SubtitleStyleOptions = {
+  fontFamily: 'Arial',
+  fontSize: 28,
+  bold: false,
+  italic: false,
+  primaryColor: '#FFFFFF',
+  secondaryColor: '#FACC15',
+  outlineColor: '#000000',
+  outlineWidth: 2,
+  shadowColor: '#00000080',
+  shadowDistance: 1,
+  backgroundBox: false,
+  backgroundColor: '#00000080',
+  alignment: 'bottom-center',
+  verticalMargin: 40,
+  horizontalMargin: 30,
+  showOriginal: true,
+  showTranslation: true,
+  layoutMode: 'single-line',
+};
+
+export const CINEMA_CLASSIC_STYLE: SubtitleStyleOptions = {
+  fontFamily: 'Arial',
+  fontSize: 28,
+  bold: true,
+  italic: false,
+  primaryColor: '#FFE600',
+  secondaryColor: '#FFFFFF',
+  outlineColor: '#000000',
+  outlineWidth: 2.5,
+  shadowColor: '#000000B0',
+  shadowDistance: 2,
+  backgroundBox: false,
+  backgroundColor: '#00000080',
+  alignment: 'bottom-center',
+  verticalMargin: 45,
+  horizontalMargin: 40,
+  showOriginal: true,
+  showTranslation: true,
+  layoutMode: 'single-line',
+};
+
+export const MODERN_GLASS_STYLE: SubtitleStyleOptions = {
+  fontFamily: 'Segoe UI',
+  fontSize: 26,
+  bold: false,
+  italic: false,
+  primaryColor: '#FFFFFF',
+  secondaryColor: '#60A5FA',
+  outlineColor: '#000000',
+  outlineWidth: 1,
+  shadowColor: '#00000000',
+  shadowDistance: 0,
+  backgroundBox: true,
+  backgroundColor: '#0B0F19B8',
+  alignment: 'bottom-center',
+  verticalMargin: 35,
+  horizontalMargin: 25,
+  showOriginal: true,
+  showTranslation: true,
+  layoutMode: 'single-line',
+};
+
+export const SOCIAL_REEL_STYLE: SubtitleStyleOptions = {
+  fontFamily: 'Impact',
+  fontSize: 34,
+  bold: true,
+  italic: false,
+  primaryColor: '#FFFFFF',
+  secondaryColor: '#22C55E',
+  outlineColor: '#000000',
+  outlineWidth: 3.5,
+  shadowColor: '#000000D0',
+  shadowDistance: 2,
+  backgroundBox: false,
+  backgroundColor: '#00000080',
+  alignment: 'bottom-center',
+  verticalMargin: 80,
+  horizontalMargin: 30,
+  showOriginal: true,
+  showTranslation: true,
+  layoutMode: 'single-line',
+};
+
+export const BILINGUAL_DUAL_STYLE: SubtitleStyleOptions = {
+  fontFamily: 'Segoe UI',
+  fontSize: 24,
+  bold: false,
+  italic: false,
+  primaryColor: '#FFFFFF',
+  secondaryColor: '#FACC15',
+  outlineColor: '#000000',
+  outlineWidth: 2,
+  shadowColor: '#00000080',
+  shadowDistance: 1,
+  backgroundBox: false,
+  backgroundColor: '#00000080',
+  alignment: 'bottom-center',
+  verticalMargin: 40,
+  horizontalMargin: 30,
+  showOriginal: true,
+  showTranslation: true,
+  layoutMode: 'bilingual-stacked',
+};
+
+export const SUBTITLE_STYLE_PRESETS: Record<
+  string,
+  { id: string; nameKey: string; style: SubtitleStyleOptions }
+> = {
+  default: { id: 'default', nameKey: 'video.style.default', style: DEFAULT_SUBTITLE_STYLE },
+  cinema: { id: 'cinema', nameKey: 'video.style.cinema', style: CINEMA_CLASSIC_STYLE },
+  glass: { id: 'glass', nameKey: 'video.style.glass', style: MODERN_GLASS_STYLE },
+  social: { id: 'social', nameKey: 'video.style.social', style: SOCIAL_REEL_STYLE },
+  bilingual: { id: 'bilingual', nameKey: 'video.style.bilingual', style: BILINGUAL_DUAL_STYLE },
+};
+

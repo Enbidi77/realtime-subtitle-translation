@@ -36,6 +36,12 @@ import {
   ScreenCaptureRegionSchema,
   ContinuousOcrConfigSchema,
 } from '@echo-lingo/contracts/screen-translation.js';
+import {
+  VideoMetadataSchema,
+  VideoExportOptionsSchema,
+  VideoExportProgressSchema,
+  SubtitleStyleOptionsSchema,
+} from '@echo-lingo/contracts/video.js';
 
 export const IPC_CHANNELS = {
   // App
@@ -142,6 +148,17 @@ export const IPC_CHANNELS = {
 
   // Global Search
   SEARCH_DATABASE: 'search:database',
+
+  // Video Subtitling & Processing
+  VIDEO_OPEN_FILE_DIALOG: 'video:open-file-dialog',
+  VIDEO_SAVE_FILE_DIALOG: 'video:save-file-dialog',
+  VIDEO_PROBE_METADATA: 'video:probe-metadata',
+  VIDEO_EXTRACT_AUDIO: 'video:extract-audio',
+  VIDEO_START_EXPORT: 'video:start-export',
+  VIDEO_CANCEL_EXPORT: 'video:cancel-export',
+  VIDEO_EXPORT_PROGRESS: 'video:export-progress',
+  VIDEO_CHECK_FFMPEG: 'video:check-ffmpeg',
+  VIDEO_INSTALL_FFMPEG: 'video:install-ffmpeg',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

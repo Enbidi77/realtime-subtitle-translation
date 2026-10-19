@@ -48,6 +48,13 @@ import { AppSettingsSchema } from "@echo-lingo/contracts";
 import { DEFAULT_APP_SETTINGS } from "@echo-lingo/config";
 
 import { setupMediaPermissions } from "@/security/security.js";
+import {
+  registerMediaSchemeAsPrivileged,
+  registerMediaProtocolHandler,
+} from "@/media/media-protocol.js";
+
+// Register custom media streaming protocol scheme before app is ready
+registerMediaSchemeAsPrivileged();
 
 // Enable Chromium remote debugging in development for VS Code renderer breakpoint attachment
 if (!app.isPackaged) {
@@ -86,6 +93,9 @@ if (!gotTheLock) {
 
     // Setup Media Permissions (Microphone & Loopback Display Capture)
     setupMediaPermissions();
+
+    // Register custom media streaming protocol handler for range requests
+    registerMediaProtocolHandler();
 
     // 1. Initialize SQLite database
     updateSplashStatus({

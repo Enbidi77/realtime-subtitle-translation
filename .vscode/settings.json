@@ -18,7 +18,5 @@
     "**/bin": false,
     "**/obj": true
   },
-  "dotnet.defaultSolution": "ipc/EchoLingo.Ipc.csproj",
   "csharp.debug.stopAtEntry": false
 }
-

@@ -29,6 +29,7 @@
   "nav": {
     "dashboard": "Trang chủ",
     "live": "Phụ đề Trực tiếp",
+    "videoSubtitles": "Phụ đề Video",
     "sessions": "Phiên ghi",
     "history": "Lịch sử dịch",
     "providers": "Nhà cung cấp & Mô hình",
@@ -339,5 +340,38 @@
     "selectHint": "Chọn",
     "closeHint": "Đóng",
     "filterHint": "Danh mục"
+  },
+  "video": {
+    "title": "Xưởng Phụ đề Video",
+    "subtitle": "Nhận diện giọng nói, dịch thuật, tùy biến kiểu dáng và chèn phụ đề trực tiếp vào khung hình video.",
+    "exportButton": "Xuất Video Kèm Phụ đề",
+    "dropzone": {
+      "title": "Chọn tệp video hoặc kéo thả vào đây",
+      "subtitle": "Hỗ trợ MP4, MKV, MOV, WebM, AVI. Phụ đề sẽ được gắn trực tiếp vào video.",
+      "browse": "Duyệt tệp video"
+    },
+    "style": {
+      "title": "Tùy biến Kiểu dáng Phụ đề",
+      "default": "Mặc định",
+      "cinema": "Điện ảnh Cổ điển",
+      "glass": "Kính Mờ Hiện đại",
+      "social": "Video Ngắn Nổi bật",
+      "bilingual": "Song ngữ Đối xứng"
+    },
+    "export": {
+      "modalTitle": "Xuất Video Kèm Phụ đề",
+      "description": "Thao tác này sẽ gắn vĩnh viễn (hardsub) phụ đề vào khung hình video bằng FFmpeg. Video xuất ra có thể phát trên mọi thiết bị mà không cần tệp phụ đề rời.",
+      "success": "Đã chèn phụ đề và xuất video thành công!"
+    },
+    "ffmpegMissing": {
+      "title": "Chưa phát hiện FFmpeg",
+      "desc": "Tính năng tách âm thanh và chèn phụ đề vào video yêu cầu FFmpeg. Nhấn Cài đặt tự động để tải và thiết lập vào PATH hệ thống."
+    },
+    "autoInstallFfmpeg": "Cài đặt tự động FFmpeg",
+    "installingFfmpeg": "Đang cài đặt FFmpeg...",
+    "noAudio": "Không có âm thanh",
+    "noAudioTooltip": "Video này không có dải âm thanh để nhận diện giọng nói.",
+    "noAudioHint": "Video này không có âm thanh. Bạn có thể thêm phụ đề thủ công bằng nút \"Thêm mốc tại đây\" hoặc nhập tệp .SRT / .VTT có sẵn.",
+    "autoTranscribeTooltip": "Tách âm thanh và tự động nhận diện bằng Whisper"
   }
 }

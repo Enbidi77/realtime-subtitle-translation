@@ -1,4 +1,4 @@
-import { ipcMain, app, BrowserWindow, shell } from 'electron';
+import { ipcMain, app, BrowserWindow, shell, dialog } from 'electron';
 import {
   IPC_CHANNELS,
   SystemInfo,
@@ -16,6 +16,7 @@ import {
   LogMessageRequestSchema,
   SearchDatabaseRequestSchema,
   SearchDatabaseResponse,
+  VideoExportOptionsSchema,
 } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { createLogger, getLogDirectory } from '@echo-lingo/logger';
@@ -32,6 +33,7 @@ import { getScreenTranslationService } from '@/services/screen-translation-servi
 import { closeSelectionOverlay } from '@/windows/selection-window.js';
 import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
 import { getTrayService } from '@/services/tray-service.js';
+import { getVideoService } from '@/services/video-service.js';
 
 const log = createLogger('IpcRouter');
 
@@ -41,6 +43,7 @@ export function registerIpcHandlers(): void {
   const translationService = getTranslationService();
   const speechService = getSpeechService();
   const credentialsService = getCredentialsService();
+  const videoService = getVideoService();
 
   // ================= App Window =================
   ipcMain.handle(IPC_CHANNELS.APP_GET_INFO, (): SystemInfo => ({
@@ -487,6 +490,81 @@ export function registerIpcHandlers(): void {
       log.error('Failed to execute search:database:', err);
       return { items: [], durationMs: Math.round(performance.now() - startTime) };
     }
+  });
+
+  // ================= Video Subtitling & Processing =================
+  ipcMain.handle(IPC_CHANNELS.VIDEO_CHECK_FFMPEG, () => {
+    const available = videoService.isFfmpegAvailable();
+    const path = videoService.resolveFfmpegBinary();
+    return { available, path };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_INSTALL_FFMPEG, async () => {
+    return videoService.downloadAndInstallFfmpeg();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_OPEN_FILE_DIALOG, async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const result = await dialog.showOpenDialog(win || (undefined as any), {
+      title: 'Select Video File',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Video Files', extensions: ['mp4', 'mkv', 'mov', 'webm', 'avi', 'wmv', 'flv'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+
+    if (result.canceled || result.filePaths.length === 0) return null;
+    const filePath = result.filePaths[0];
+    try {
+      return await videoService.probeMetadata(filePath);
+    } catch (err: any) {
+      log.error('Failed to probe video metadata:', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_SAVE_FILE_DIALOG, async (event, defaultName?: string) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    const result = await dialog.showSaveDialog(win || (undefined as any), {
+      title: 'Save Subtitled Video',
+      defaultPath: defaultName || 'subtitled_video.mp4',
+      filters: [
+        { name: 'MP4 Video', extensions: ['mp4'] },
+        { name: 'MKV Video', extensions: ['mkv'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+    return result.canceled ? null : result.filePath;
+  });
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_PROBE_METADATA, async (_, filePath: string) => {
+    return videoService.probeMetadata(filePath);
+  });
+
+  ipcMain.handle(
+    IPC_CHANNELS.VIDEO_EXTRACT_AUDIO,
+    async (_, payload: { videoPath: string; sourceLang?: string; targetLang?: string }) => {
+      return videoService.transcribeVideo(payload.videoPath, {
+        sourceLang: payload.sourceLang,
+        targetLang: payload.targetLang,
+      });
+    }
+  );
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_START_EXPORT, async (event, options) => {
+    const validOptions = VideoExportOptionsSchema.parse(options);
+    const win = BrowserWindow.fromWebContents(event.sender);
+
+    return videoService.exportSubtitledVideo(validOptions, (progress) => {
+      if (win && !win.isDestroyed()) {
+        win.webContents.send(IPC_CHANNELS.VIDEO_EXPORT_PROGRESS, progress);
+      }
+    });
+  });
+
+  ipcMain.handle(IPC_CHANNELS.VIDEO_CANCEL_EXPORT, async (_, jobId: string) => {
+    return videoService.cancelExport(jobId);
   });
 }
 

@@ -79,3 +79,16 @@ export function parseTimestamp(str: string): number | null {
 
   return hours * 3600000 + minutes * 60000 + seconds * 1000 + millis;
 }
+
+/**
+ * Format milliseconds to ASS (Advanced SubStation Alpha) timestamp format: H:MM:SS.cs
+ */
+export function formatAssTimestamp(ms: number): string {
+  const safeMs = Math.max(0, Math.floor(ms));
+  const hours = Math.floor(safeMs / 3600000);
+  const minutes = Math.floor((safeMs % 3600000) / 60000);
+  const seconds = Math.floor((safeMs % 60000) / 1000);
+  const centis = Math.floor((safeMs % 1000) / 10);
+
+  return `${hours}:${padZero(minutes)}:${padZero(seconds)}.${padZero(centis, 2)}`;
+}
