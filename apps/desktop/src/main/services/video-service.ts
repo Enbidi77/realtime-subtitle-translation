@@ -19,7 +19,7 @@ import { parseSrt } from '@echo-lingo/subtitle-core';
 import { getSpeechService } from './speech-service.js';
 import { getTranslationService } from './translation-service.js';
 import { LocalWhisperProvider } from '@echo-lingo/provider-adapters';
-import { downloadFile } from '@echo-lingo/shared';
+import ffmpegStatic from 'ffmpeg-static';
 
 const execFileAsync = promisify(execFile);
 
@@ -50,7 +50,7 @@ export class VideoService {
   }
 
   /**
-   * Resolve FFmpeg binary from environment, appData, resources, or system PATH
+   * Resolve FFmpeg binary from environment, ffmpeg-static package, resources, or system PATH
    */
   public resolveFfmpegBinary(): string | null {
     if (this.ffmpegBinaryPath && fs.existsSync(this.ffmpegBinaryPath)) {
@@ -58,15 +58,33 @@ export class VideoService {
     }
 
     const exeName = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-
     const candidates: string[] = [];
 
-    // 1. Environment variable
+    // 1. Environment variable override
     if (process.env.FFMPEG_PATH && fs.existsSync(process.env.FFMPEG_PATH)) {
       candidates.push(process.env.FFMPEG_PATH);
     }
 
-    // 2. User data directory (e.g. %APPDATA%/echolingo/bin/ffmpeg.exe)
+    // 2. ffmpeg-static bundled package binary
+    try {
+      const staticPath = (typeof ffmpegStatic === 'string' ? ffmpegStatic : (ffmpegStatic as any)?.default) as string | null;
+      if (staticPath) {
+        // In packaged Electron apps, unpacked binaries reside in app.asar.unpacked
+        const unpackedStatic = staticPath.replace('app.asar', 'app.asar.unpacked');
+        candidates.push(unpackedStatic);
+        candidates.push(staticPath);
+      }
+    } catch {
+      // ignore
+    }
+
+    // 3. Electron resources directory
+    if (process.resourcesPath) {
+      candidates.push(path.join(process.resourcesPath, 'bin', exeName));
+      candidates.push(path.join(process.resourcesPath, exeName));
+    }
+
+    // 4. User data / local echo-lingo bin directory
     try {
       if (app && typeof app.getPath === 'function') {
         candidates.push(path.join(app.getPath('userData'), 'bin', exeName));
@@ -76,30 +94,15 @@ export class VideoService {
     }
     candidates.push(path.join(os.homedir(), '.echo-lingo', 'bin', exeName));
 
-    // 3. Electron resources directory
-    if (process.resourcesPath) {
-      candidates.push(path.join(process.resourcesPath, 'bin', exeName));
-    }
-
-    // 4. node_modules/ffmpeg-static fallback
-    candidates.push(path.join(process.cwd(), 'node_modules', 'ffmpeg-static', exeName));
-    try {
-      if (app && typeof app.getAppPath === 'function') {
-        candidates.push(path.join(app.getAppPath(), 'node_modules', 'ffmpeg-static', exeName));
-      }
-    } catch {
-      // ignore
-    }
-
     for (const p of candidates) {
-      if (fs.existsSync(p)) {
+      if (p && fs.existsSync(p)) {
         this.ffmpegBinaryPath = p;
         this.log.info(`Resolved FFmpeg binary: ${p}`);
         return p;
       }
     }
 
-    // 4. System PATH check
+    // 5. System PATH check
     const pathDirs = (process.env.PATH || '').split(path.delimiter);
     for (const dir of pathDirs) {
       const fullPath = path.join(dir, exeName);
@@ -110,7 +113,7 @@ export class VideoService {
       }
     }
 
-    this.log.warn('FFmpeg binary could not be resolved in system or local paths.');
+    this.log.warn('FFmpeg binary could not be resolved in static package or local/system paths.');
     return null;
   }
 
@@ -206,98 +209,17 @@ export class VideoService {
   }
 
   /**
-   * Automatically install FFmpeg to EchoLingo bin directory and add to user PATH
+   * Verify and resolve FFmpeg binary provided statically via ffmpeg-static or environment
    */
   public async downloadAndInstallFfmpeg(
     onProgress?: (progressPercent: number) => void
   ): Promise<{ success: boolean; path: string }> {
-    const exeName = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
-    let binDir = path.join(os.homedir(), '.echo-lingo', 'bin');
-    try {
-      if (app && typeof app.getPath === 'function') {
-        binDir = path.join(app.getPath('userData'), 'bin');
-      }
-    } catch {
-      // fallback
+    const resolved = this.resolveFfmpegBinary();
+    if (resolved) {
+      if (onProgress) onProgress(100);
+      return { success: true, path: resolved };
     }
-
-    await fsp.mkdir(binDir, { recursive: true });
-    const targetExe = path.join(binDir, exeName);
-
-    // 1. Try winget if available on Windows
-    if (process.platform === 'win32') {
-      try {
-        this.log.info('Attempting winget install Gyan.FFmpeg...');
-        await execFileAsync('winget', [
-          'install',
-          '--id',
-          'Gyan.FFmpeg',
-          '-e',
-          '--accept-source-agreements',
-          '--accept-package-agreements',
-        ]);
-        const resolved = this.resolveFfmpegBinary();
-        if (resolved) {
-          return { success: true, path: resolved };
-        }
-      } catch (wingetErr) {
-        this.log.warn('Winget install skipped or failed, proceeding with direct download:', wingetErr);
-      }
-    }
-
-    // 2. Direct download of release
-    const zipUrl =
-      process.platform === 'win32'
-        ? 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip'
-        : 'https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-linux64-gpl.tar.xz';
-
-    const tempZip = path.join(binDir, `ffmpeg-download-${Date.now()}.zip`);
-    this.log.info(`Downloading FFmpeg from ${zipUrl}...`);
-
-    await downloadFile(zipUrl, tempZip, (pct) => {
-      if (onProgress) onProgress(pct);
-    });
-
-    if (process.platform === 'win32') {
-      const extractDir = path.join(binDir, 'temp_extract');
-      await fsp.mkdir(extractDir, { recursive: true });
-
-      const psScript = `
-        Expand-Archive -Path '${tempZip.replace(/'/g, "''")}' -DestinationPath '${extractDir.replace(/'/g, "''")}' -Force
-        $ffmpeg = Get-ChildItem -Path '${extractDir.replace(/'/g, "''")}' -Filter 'ffmpeg.exe' -Recurse | Select-Object -First 1
-        $ffprobe = Get-ChildItem -Path '${extractDir.replace(/'/g, "''")}' -Filter 'ffprobe.exe' -Recurse | Select-Object -First 1
-        if ($ffmpeg) { Copy-Item -Path $ffmpeg.FullName -Destination '${binDir.replace(/'/g, "''")}' -Force }
-        if ($ffprobe) { Copy-Item -Path $ffprobe.FullName -Destination '${binDir.replace(/'/g, "''")}' -Force }
-        Remove-Item -Path '${extractDir.replace(/'/g, "''")}' -Recurse -Force -ErrorAction SilentlyContinue
-
-        # Add to user PATH permanently
-        $currentPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-        if ($currentPath -notlike '*${binDir.replace(/'/g, "''")}*') {
-          [Environment]::SetEnvironmentVariable('Path', "$currentPath;${binDir.replace(/'/g, "''")}", 'User')
-        }
-      `;
-
-      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
-      await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-NonInteractive',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-EncodedCommand',
-        encoded,
-      ]);
-
-      await fsp.unlink(tempZip).catch(() => {});
-    }
-
-    // Add binDir to current process PATH
-    process.env.PATH = `${binDir}${path.delimiter}${process.env.PATH}`;
-    this.ffmpegBinaryPath = targetExe;
-
-    return {
-      success: fs.existsSync(targetExe),
-      path: targetExe,
-    };
+    throw new Error('FFmpeg binary could not be found. Please ensure ffmpeg-static is installed or set FFMPEG_PATH.');
   }
 
   /**

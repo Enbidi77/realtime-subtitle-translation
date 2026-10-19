@@ -26,6 +26,7 @@
     "@echo-lingo/translation-core": "workspace:*",
     "@echo-lingo/shared": "workspace:*",
     "clsx": "^2.1.1",
+    "ffmpeg-static": "^5.3.0",
     "lucide-react": "^1.16.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",

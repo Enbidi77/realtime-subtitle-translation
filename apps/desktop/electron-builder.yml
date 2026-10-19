@@ -11,6 +11,10 @@ files:
   - package.json
   - resources/**/*
 
+asarUnpack:
+  - "**/*.node"
+  - "**/node_modules/ffmpeg-static/**"
+
 win:
   icon: build/icon.ico
   target:
