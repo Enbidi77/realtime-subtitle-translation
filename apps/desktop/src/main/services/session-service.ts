@@ -1,12 +1,21 @@
 import {
+  AudioDeviceInfo,
   CreateSessionRequest,
   SessionMetadata,
+  SubtitleExportOptions,
   SubtitleSegment,
   TranscriptionEvent,
   TranscriptionSegment,
 } from '@echo-lingo/contracts';
 import { SpeechPipeline } from '@echo-lingo/speech-core';
-import { SubtitleTimeline } from '@echo-lingo/subtitle-core';
+import {
+  SubtitleTimeline,
+  exportToSrt,
+  exportToVtt,
+  exportToTxt,
+  exportToJson,
+  parseSubtitles,
+} from '@echo-lingo/subtitle-core';
 import { getDatabase } from '@/database/db-instance.js';
 import { getSpeechService } from '@/services/speech-service.js';
 import { getTranslationService } from '@/services/translation-service.js';
@@ -299,6 +308,109 @@ export class SessionService {
     }
     this.broadcastToOverlay();
     this.notifySessionStateChange();
+  }
+
+  // ================= Session Queries & Management =================
+  public getSession(id: string): SessionMetadata | null {
+    return getDatabase().getSession(id);
+  }
+
+  public listSessions(limit: number = 100): SessionMetadata[] {
+    return getDatabase().getAllSessions(limit);
+  }
+
+  public updateSession(id: string, updates: Partial<SessionMetadata>): void {
+    getDatabase().updateSession(id, updates);
+  }
+
+  public deleteSession(id: string): void {
+    getDatabase().deleteSession(id);
+  }
+
+  // ================= Segments Queries & Management =================
+  public getSegments(sessionId: string): SubtitleSegment[] {
+    return getDatabase().getSegmentsBySessionId(sessionId);
+  }
+
+  public updateSegment(id: string, updates: Partial<SubtitleSegment>): void {
+    getDatabase().updateSegment(id, updates);
+  }
+
+  public deleteSegment(id: string): void {
+    getDatabase().deleteSegment(id);
+  }
+
+  public getOverlaySegments(count: number = 5): SubtitleSegment[] {
+    return this.timeline.getSegments(true).slice(-count);
+  }
+
+  // ================= Audio Devices & Chunks =================
+  public feedAudioChunk(samples?: number[]): void {
+    if (samples && samples.length > 0) {
+      const float32 = new Float32Array(samples);
+      this.feedAudioSamples(float32);
+    }
+  }
+
+  public getAudioDevices(): AudioDeviceInfo[] {
+    return [
+      { id: 'default', label: 'Default System Microphone', kind: 'audioinput', isDefault: true },
+      { id: 'communications', label: 'Default Communications Device', kind: 'audioinput' },
+    ];
+  }
+
+  // ================= Subtitle Export & Import =================
+  public exportSession(sessionId: string, options: SubtitleExportOptions): string {
+    const segments = getDatabase().getSegmentsBySessionId(sessionId);
+    switch (options.format) {
+      case 'srt':
+        return exportToSrt(segments, options);
+      case 'vtt':
+        return exportToVtt(segments, options);
+      case 'txt':
+        return exportToTxt(segments, options);
+      case 'json':
+        return exportToJson(segments);
+      default:
+        return exportToSrt(segments, options);
+    }
+  }
+
+  public importSession(
+    content: string,
+    fileName?: string,
+    sourceLanguage?: string,
+    targetLanguage?: string
+  ): { count: number; sessionId: string } {
+    const segments = parseSubtitles(content, fileName, { sourceLanguage, targetLanguage });
+    if (segments.length === 0) {
+      throw new Error('No valid subtitle segments found in file');
+    }
+
+    const sessionId = 'imported_' + Date.now();
+    const session: SessionMetadata = {
+      id: sessionId,
+      title: fileName || 'Imported Subtitles',
+      status: 'ended',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      durationSeconds: Math.round(segments[segments.length - 1].endTime / 1000),
+      sourceLanguage: sourceLanguage || 'en',
+      targetLanguages: targetLanguage ? [targetLanguage] : ['vi'],
+      segmentCount: segments.length,
+      speechProvider: 'imported',
+      translationProvider: 'imported',
+      audioSourceType: 'file',
+    };
+
+    const db = getDatabase();
+    db.createSession(session);
+    for (const seg of segments) {
+      seg.sessionId = sessionId;
+      db.insertSegment(seg);
+    }
+
+    return { count: segments.length, sessionId };
   }
 }
 

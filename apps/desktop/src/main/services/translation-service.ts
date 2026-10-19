@@ -1,4 +1,5 @@
 import {
+  GlossaryEntry,
   TranslationCapability,
   TranslationProviderId,
   TranslationRequest,
@@ -54,6 +55,7 @@ export class TranslationService {
 
     this.loadSavedCredentials();
     this.reloadGlossary();
+    getCredentialsService().onCredentialsChange(() => this.loadSavedCredentials());
   }
 
   public loadSavedCredentials(): void {
@@ -72,6 +74,23 @@ export class TranslationService {
     const db = getDatabase();
     const entries = db.getGlossary();
     this.registry.getGlossary().setEntries(entries);
+  }
+
+  public getGlossary(): GlossaryEntry[] {
+    const db = getDatabase();
+    return db.getGlossary();
+  }
+
+  public addGlossaryEntry(entry: GlossaryEntry): void {
+    const db = getDatabase();
+    db.addGlossaryEntry(entry);
+    this.reloadGlossary();
+  }
+
+  public deleteGlossaryEntry(id: string): void {
+    const db = getDatabase();
+    db.deleteGlossaryEntry(id);
+    this.reloadGlossary();
   }
 
   public getCapabilities(): TranslationCapability[] {

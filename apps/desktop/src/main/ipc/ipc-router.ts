@@ -1,9 +1,7 @@
-import { ipcMain, app, BrowserWindow, shell, dialog } from 'electron';
+import { ipcMain, BrowserWindow } from 'electron';
 import {
   IPC_CHANNELS,
-  SystemInfo,
   CreateSessionRequestSchema,
-  AppSettingsSchema,
   GlossaryEntrySchema,
   SubtitleExportOptionsSchema,
   TranslationRequestSchema,
@@ -13,91 +11,61 @@ import {
   OcrRecognizeRequestSchema,
   OcrHistoryQuerySchema,
   FloatingPanelPayloadSchema,
-  LogMessageRequestSchema,
-  SearchDatabaseRequestSchema,
-  SearchDatabaseResponse,
   VideoExportOptionsSchema,
 } from '@echo-lingo/contracts';
-import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
-import { createLogger, getLogDirectory } from '@echo-lingo/logger';
-import { exportToSrt, exportToVtt, exportToTxt, exportToJson, parseSubtitles } from '@echo-lingo/subtitle-core';
-import { getDatabase } from '@/database/db-instance.js';
-import { getCredentialsService } from '@/services/credentials-service.js';
-import { getTranslationService } from '@/services/translation-service.js';
-import { getSpeechService } from '@/services/speech-service.js';
-import { getSessionService } from '@/services/session-service.js';
-import { getMainWindow, setIsQuitting } from '@/windows/main-window.js';
-import { toggleOverlay, setOverlayClickThrough, getOverlayWindow } from '@/windows/overlay-window.js';
-import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
-import { getScreenTranslationService } from '@/services/screen-translation-service.js';
-import { closeSelectionOverlay } from '@/windows/selection-window.js';
-import { showOcrFloatingPanel, hideOcrFloatingPanel } from '@/windows/ocr-panel-window.js';
-import { getTrayService } from '@/services/tray-service.js';
-import { getVideoService } from '@/services/video-service.js';
-
-const log = createLogger('IpcRouter');
+import {
+  getAppService,
+  getCredentialsService,
+  getTranslationService,
+  getSpeechService,
+  getSessionService,
+  getScreenTranslationService,
+  getSettingsService,
+  getSearchService,
+  getVideoService,
+} from '@/services/index.js';
 
 export function registerIpcHandlers(): void {
-  const db = getDatabase();
+  const appService = getAppService();
   const sessionService = getSessionService();
   const translationService = getTranslationService();
   const speechService = getSpeechService();
   const credentialsService = getCredentialsService();
+  const screenTranslationService = getScreenTranslationService();
+  const settingsService = getSettingsService();
+  const searchService = getSearchService();
   const videoService = getVideoService();
 
   // ================= App Window =================
-  ipcMain.handle(IPC_CHANNELS.APP_GET_INFO, (): SystemInfo => ({
-    platform: process.platform as 'win32' | 'darwin' | 'linux',
-    arch: process.arch,
-    appVersion: app.getVersion(),
-    electronVersion: process.versions.electron || '',
-    nodeVersion: process.versions.node,
-    userDataPath: app.getPath('userData'),
-  }));
+  ipcMain.handle(IPC_CHANNELS.APP_GET_INFO, () => appService.getSystemInfo());
 
   ipcMain.on(IPC_CHANNELS.APP_MINIMIZE, (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win?.minimize();
+    appService.minimizeWindow(event.sender);
   });
 
   ipcMain.on(IPC_CHANNELS.APP_MAXIMIZE, (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (win) {
-      if (win.isMaximized()) win.unmaximize();
-      else win.maximize();
-    }
+    appService.maximizeWindow(event.sender);
   });
 
   ipcMain.on(IPC_CHANNELS.APP_CLOSE, (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win?.close();
+    appService.closeWindow(event.sender);
   });
 
   ipcMain.on(IPC_CHANNELS.APP_QUIT, () => {
-    setIsQuitting(true);
-    app.quit();
+    appService.quit();
   });
 
   ipcMain.on(IPC_CHANNELS.APP_MINIMIZE_TO_TRAY, (event) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    win?.hide();
-    getTrayService().notifyMinimizedToTray();
+    appService.minimizeToTray(event.sender);
   });
 
-  ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, { deltaX, deltaY }: { deltaX: number; deltaY: number }) => {
-    const win = BrowserWindow.fromWebContents(event.sender);
-    if (win && !win.isMaximized()) {
-      const [x, y] = win.getPosition();
-      win.setPosition(Math.round(x + deltaX), Math.round(y + deltaY));
-    }
+  ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, payload: { deltaX: number; deltaY: number }) => {
+    appService.moveWindow(event.sender, payload?.deltaX, payload?.deltaY);
   });
 
   // ================= Audio =================
   ipcMain.handle(IPC_CHANNELS.AUDIO_GET_DEVICES, async () => {
-    return [
-      { id: 'default', label: 'Default System Microphone', kind: 'audioinput', isDefault: true },
-      { id: 'communications', label: 'Default Communications Device', kind: 'audioinput' },
-    ];
+    return sessionService.getAudioDevices();
   });
 
   ipcMain.handle(IPC_CHANNELS.AUDIO_START, async (_, options) => {
@@ -121,10 +89,7 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.AUDIO_PROCESS_CHUNK, async (_, payload: { samples: number[] }) => {
-    if (payload?.samples && payload.samples.length > 0) {
-      const float32 = new Float32Array(payload.samples);
-      sessionService.feedAudioSamples(float32);
-    }
+    sessionService.feedAudioChunk(payload?.samples);
   });
 
   // ================= Speech Models =================
@@ -133,41 +98,15 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (event, { modelId }: { modelId: string }) => {
-    log.info(`[Models] Requested download for model: ${modelId}`);
-    try {
-      await speechService.downloadModel(modelId, (progress) => {
-        try {
-          if (!event.sender.isDestroyed()) {
-            event.sender.send(IPC_CHANNELS.MODELS_STATUS_STREAM, {
-              id: modelId,
-              name: `Whisper ${modelId.toUpperCase()}`,
-              isInstalled: progress >= 100,
-              downloadProgress: progress,
-            });
-          }
-        } catch {
-          // ignore
-        }
-      });
-      return { ok: true };
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : String(err);
-      log.error(`[Models] Download failed for ${modelId}:`, errMsg);
+    return speechService.downloadModelWithProgress(modelId, (status) => {
       try {
         if (!event.sender.isDestroyed()) {
-          event.sender.send(IPC_CHANNELS.MODELS_STATUS_STREAM, {
-            id: modelId,
-            name: `Whisper ${modelId.toUpperCase()}`,
-            isInstalled: false,
-            downloadProgress: 0,
-            error: errMsg,
-          });
+          event.sender.send(IPC_CHANNELS.MODELS_STATUS_STREAM, status);
         }
       } catch {
         // ignore
       }
-      throw err;
-    }
+    });
   });
 
   // ================= Translation =================
@@ -181,9 +120,7 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.TRANSLATION_SET_CREDENTIAL, async (_, { providerId, apiKey }) => {
-    credentialsService.saveCredential(providerId, apiKey);
-    translationService.loadSavedCredentials();
-    speechService.loadSavedCredentials();
+    credentialsService.setCredential(providerId, apiKey);
     return { ok: true };
   });
 
@@ -192,9 +129,7 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.TRANSLATION_DELETE_CREDENTIAL, async (_, { providerId }) => {
-    credentialsService.deleteCredential(providerId);
-    translationService.loadSavedCredentials();
-    speechService.loadSavedCredentials();
+    credentialsService.removeCredential(providerId);
     return { ok: true };
   });
 
@@ -205,167 +140,94 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_GET, async (_, { id }) => {
-    return db.getSession(id);
+    return sessionService.getSession(id);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_LIST, async () => {
-    return db.getAllSessions(100);
+    return sessionService.listSessions();
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE, async (_, { id, updates }) => {
-    db.updateSession(id, updates);
+    sessionService.updateSession(id, updates);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_DELETE, async (_, { id }) => {
-    db.deleteSession(id);
+    sessionService.deleteSession(id);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_GET_SEGMENTS, async (_, { sessionId }) => {
-    return db.getSegmentsBySessionId(sessionId);
+    return sessionService.getSegments(sessionId);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE_SEGMENT, async (_, { id, updates }) => {
-    db.updateSegment(id, updates);
+    sessionService.updateSegment(id, updates);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_DELETE_SEGMENT, async (_, { id }) => {
-    db.deleteSegment(id);
+    sessionService.deleteSegment(id);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_EXPORT, async (_, { sessionId, options }) => {
     const validOptions = SubtitleExportOptionsSchema.parse(options);
-    const segments = db.getSegmentsBySessionId(sessionId);
-
-    switch (validOptions.format) {
-      case 'srt':
-        return exportToSrt(segments, validOptions);
-      case 'vtt':
-        return exportToVtt(segments, validOptions);
-      case 'txt':
-        return exportToTxt(segments, validOptions);
-      case 'json':
-        return exportToJson(segments);
-      default:
-        return exportToSrt(segments, validOptions);
-    }
+    return sessionService.exportSession(sessionId, validOptions);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_IMPORT, async (_, { content, fileName, sourceLanguage, targetLanguage }) => {
-    const segments = parseSubtitles(content, fileName, { sourceLanguage, targetLanguage });
-    if (segments.length === 0) {
-      throw new Error('No valid subtitle segments found in file');
-    }
-
-    const sessionId = 'imported_' + Date.now();
-    const session = {
-      id: sessionId,
-      title: fileName || 'Imported Subtitles',
-      status: 'ended' as const,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      durationSeconds: Math.round(segments[segments.length - 1].endTime / 1000),
-      sourceLanguage: sourceLanguage || 'en',
-      targetLanguages: targetLanguage ? [targetLanguage] : ['vi'],
-      segmentCount: segments.length,
-      speechProvider: 'imported',
-      translationProvider: 'imported',
-      audioSourceType: 'file' as const,
-    };
-
-    db.createSession(session);
-    for (const seg of segments) {
-      seg.sessionId = sessionId;
-      db.insertSegment(seg);
-    }
-
-    return { count: segments.length, sessionId };
+    return sessionService.importSession(content, fileName, sourceLanguage, targetLanguage);
   });
 
   // ================= Glossary =================
   ipcMain.handle(IPC_CHANNELS.GLOSSARY_LIST, async () => {
-    return db.getGlossary();
+    return translationService.getGlossary();
   });
 
   ipcMain.handle(IPC_CHANNELS.GLOSSARY_ADD, async (_, entry) => {
     const parsed = GlossaryEntrySchema.parse(entry);
-    db.addGlossaryEntry(parsed);
-    translationService.reloadGlossary();
+    translationService.addGlossaryEntry(parsed);
   });
 
   ipcMain.handle(IPC_CHANNELS.GLOSSARY_DELETE, async (_, { id }) => {
-    db.deleteGlossaryEntry(id);
-    translationService.reloadGlossary();
+    translationService.deleteGlossaryEntry(id);
   });
 
   // ================= Settings =================
   ipcMain.handle(IPC_CHANNELS.SETTINGS_GET, async () => {
-    const raw = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
-    const parsed = AppSettingsSchema.safeParse({ ...DEFAULT_APP_SETTINGS, ...raw });
-    return parsed.success ? parsed.data : DEFAULT_APP_SETTINGS;
+    return settingsService.getSettings();
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_UPDATE, async (_, updates) => {
-    const current = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
-    const merged = { ...DEFAULT_APP_SETTINGS, ...current, ...updates };
-    const validated = AppSettingsSchema.parse(merged);
-    db.setSetting('app_settings', validated);
-
-    // Broadcast updated settings to all open windows (main and overlay)
-    const mainWin = getMainWindow();
-    if (mainWin && !mainWin.isDestroyed() && !mainWin.webContents.isDestroyed()) {
-      mainWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, validated);
-    }
-    const overlayWin = getOverlayWindow();
-    if (overlayWin && !overlayWin.isDestroyed() && !overlayWin.webContents.isDestroyed()) {
-      overlayWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, validated);
-    }
-
-    return validated;
+    return settingsService.updateSettings(updates);
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_RESET, async () => {
-    db.setSetting('app_settings', DEFAULT_APP_SETTINGS);
-
-    const mainWin = getMainWindow();
-    if (mainWin && !mainWin.isDestroyed() && !mainWin.webContents.isDestroyed()) {
-      mainWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, DEFAULT_APP_SETTINGS);
-    }
-    const overlayWin = getOverlayWindow();
-    if (overlayWin && !overlayWin.isDestroyed() && !overlayWin.webContents.isDestroyed()) {
-      overlayWin.webContents.send(IPC_CHANNELS.SETTINGS_UPDATE_STREAM, DEFAULT_APP_SETTINGS);
-    }
-
-    return DEFAULT_APP_SETTINGS;
+    return settingsService.resetSettings();
   });
 
   // ================= Overlay =================
   ipcMain.handle(IPC_CHANNELS.OVERLAY_TOGGLE, async () => {
-    return toggleOverlay();
+    return appService.toggleOverlay();
   });
 
   ipcMain.handle(IPC_CHANNELS.OVERLAY_SET_CLICK_THROUGH, async (_, { clickThrough }) => {
-    setOverlayClickThrough(Boolean(clickThrough));
+    appService.setOverlayClickThrough(Boolean(clickThrough));
   });
 
   ipcMain.handle(IPC_CHANNELS.OVERLAY_GET_SEGMENTS, async () => {
-    return sessionService.getTimeline().getSegments(true).slice(-5);
+    return sessionService.getOverlaySegments();
   });
 
   // ================= Screen & Capture =================
-  const screenCaptureManager = getScreenCaptureManager();
-  const screenTranslationService = getScreenTranslationService();
-
   ipcMain.on('screen:selection-complete', (_, region) => {
     const parsed = region ? ScreenCaptureRegionSchema.parse(region) : null;
-    closeSelectionOverlay(parsed);
+    screenTranslationService.completeSelection(parsed);
   });
 
   ipcMain.on('screen:selection-cancel', () => {
-    closeSelectionOverlay(null);
+    screenTranslationService.cancelSelection();
   });
 
   ipcMain.handle(IPC_CHANNELS.SCREEN_GET_DISPLAYS, async () => {
-    return screenCaptureManager.getDisplays();
+    return screenTranslationService.getDisplays();
   });
 
   ipcMain.handle(IPC_CHANNELS.SCREEN_SELECT_REGION, async (_, payload?: { displayId?: number }) => {
@@ -379,7 +241,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.SCREEN_CAPTURE_REGION, async (_, { region, preprocessOptions }) => {
     const validRegion = ScreenCaptureRegionSchema.parse(region);
-    return screenCaptureManager.captureRegion(validRegion, preprocessOptions);
+    return screenTranslationService.captureRegion(validRegion, preprocessOptions);
   });
 
   // ================= OCR =================
@@ -389,7 +251,7 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.OCR_RECOGNIZE, async (_, req) => {
     const parsed = OcrRecognizeRequestSchema.parse(req);
-    return screenTranslationService.getOcrRegistry().recognize(parsed, parsed.providerId);
+    return screenTranslationService.recognize(parsed);
   });
 
   // ================= Screen Translation & Continuous =================
@@ -422,12 +284,12 @@ export function registerIpcHandlers(): void {
   // ================= Floating Result Panel =================
   ipcMain.handle(IPC_CHANNELS.SCREEN_FLOATING_PANEL_SHOW, async (_, payload) => {
     const valid = FloatingPanelPayloadSchema.parse(payload);
-    showOcrFloatingPanel(valid);
+    screenTranslationService.showFloatingPanel(valid);
     return { ok: true };
   });
 
   ipcMain.handle(IPC_CHANNELS.SCREEN_FLOATING_PANEL_HIDE, async () => {
-    hideOcrFloatingPanel();
+    screenTranslationService.hideFloatingPanel();
     return { ok: true };
   });
 
@@ -453,50 +315,21 @@ export function registerIpcHandlers(): void {
 
   // ================= Logging & Diagnostics =================
   ipcMain.handle(IPC_CHANNELS.APP_OPEN_LOGS, async () => {
-    const logDir = getLogDirectory();
-    await shell.openPath(logDir);
-    return { ok: true, path: logDir };
+    return appService.openLogs();
   });
 
   ipcMain.on(IPC_CHANNELS.LOG_MESSAGE, (_, payload) => {
-    const parsed = LogMessageRequestSchema.safeParse(payload);
-    if (!parsed.success) return;
-    const { level, scope, message, args } = parsed.data;
-    const rendererLogger = createLogger(scope || 'Renderer');
-    const logArgs = args && args.length > 0 ? [message, ...args] : [message];
-    if (level === 'error') rendererLogger.error(...logArgs);
-    else if (level === 'warn') rendererLogger.warn(...logArgs);
-    else if (level === 'debug') rendererLogger.debug(...logArgs);
-    else rendererLogger.info(...logArgs);
+    appService.logMessage(payload);
   });
 
   // ================= Global Search =================
-  ipcMain.handle(IPC_CHANNELS.SEARCH_DATABASE, async (_, req): Promise<SearchDatabaseResponse> => {
-    const startTime = performance.now();
-    const parsed = SearchDatabaseRequestSchema.safeParse(req);
-    if (!parsed.success) {
-      log.warn('Invalid search:database payload:', parsed.error);
-      return { items: [], durationMs: 0 };
-    }
-
-    try {
-      const items = db.searchDatabase(parsed.data.query, {
-        limit: parsed.data.limit,
-        categories: parsed.data.categories,
-      });
-      const durationMs = Math.round(performance.now() - startTime);
-      return { items, durationMs };
-    } catch (err) {
-      log.error('Failed to execute search:database:', err);
-      return { items: [], durationMs: Math.round(performance.now() - startTime) };
-    }
+  ipcMain.handle(IPC_CHANNELS.SEARCH_DATABASE, async (_, req) => {
+    return searchService.searchDatabase(req);
   });
 
   // ================= Video Subtitling & Processing =================
   ipcMain.handle(IPC_CHANNELS.VIDEO_CHECK_FFMPEG, () => {
-    const available = videoService.isFfmpegAvailable();
-    const path = videoService.resolveFfmpegBinary();
-    return { available, path };
+    return videoService.checkFfmpeg();
   });
 
   ipcMain.handle(IPC_CHANNELS.VIDEO_INSTALL_FFMPEG, async () => {
@@ -505,37 +338,12 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.VIDEO_OPEN_FILE_DIALOG, async (event) => {
     const win = BrowserWindow.fromWebContents(event.sender);
-    const result = await dialog.showOpenDialog(win || (undefined as any), {
-      title: 'Select Video File',
-      properties: ['openFile'],
-      filters: [
-        { name: 'Video Files', extensions: ['mp4', 'mkv', 'mov', 'webm', 'avi', 'wmv', 'flv'] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
-
-    if (result.canceled || result.filePaths.length === 0) return null;
-    const filePath = result.filePaths[0];
-    try {
-      return await videoService.probeMetadata(filePath);
-    } catch (err: any) {
-      log.error('Failed to probe video metadata:', err);
-      throw err;
-    }
+    return videoService.openVideoFileDialog(win);
   });
 
   ipcMain.handle(IPC_CHANNELS.VIDEO_SAVE_FILE_DIALOG, async (event, defaultName?: string) => {
     const win = BrowserWindow.fromWebContents(event.sender);
-    const result = await dialog.showSaveDialog(win || (undefined as any), {
-      title: 'Save Subtitled Video',
-      defaultPath: defaultName || 'subtitled_video.mp4',
-      filters: [
-        { name: 'MP4 Video', extensions: ['mp4'] },
-        { name: 'MKV Video', extensions: ['mkv'] },
-        { name: 'All Files', extensions: ['*'] },
-      ],
-    });
-    return result.canceled ? null : result.filePath;
+    return videoService.saveVideoFileDialog(win, defaultName);
   });
 
   ipcMain.handle(IPC_CHANNELS.VIDEO_PROBE_METADATA, async (_, filePath: string) => {
@@ -576,4 +384,3 @@ export function registerIpcHandlers(): void {
     return videoService.cancelExport(jobId);
   });
 }
-

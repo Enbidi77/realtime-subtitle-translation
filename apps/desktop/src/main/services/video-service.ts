@@ -4,7 +4,7 @@ import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import * as os from 'node:os';
-import { app } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import { createLogger, ILogger } from '@echo-lingo/logger';
 import {
   VideoMetadata,
@@ -163,6 +163,46 @@ export class VideoService {
 
   public isFfmpegAvailable(): boolean {
     return !!this.resolveFfmpegBinary();
+  }
+
+  public checkFfmpeg(): { available: boolean; path: string | null } {
+    return {
+      available: this.isFfmpegAvailable(),
+      path: this.resolveFfmpegBinary(),
+    };
+  }
+
+  public async openVideoFileDialog(win?: BrowserWindow | null): Promise<VideoMetadata | null> {
+    const result = await dialog.showOpenDialog(win || (undefined as any), {
+      title: 'Select Video File',
+      properties: ['openFile'],
+      filters: [
+        { name: 'Video Files', extensions: ['mp4', 'mkv', 'mov', 'webm', 'avi', 'wmv', 'flv'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+
+    if (result.canceled || result.filePaths.length === 0) return null;
+    const filePath = result.filePaths[0];
+    try {
+      return await this.probeMetadata(filePath);
+    } catch (err: any) {
+      this.log.error('Failed to probe video metadata:', err);
+      throw err;
+    }
+  }
+
+  public async saveVideoFileDialog(win?: BrowserWindow | null, defaultName?: string): Promise<string | null> {
+    const result = await dialog.showSaveDialog(win || (undefined as any), {
+      title: 'Save Subtitled Video',
+      defaultPath: defaultName || 'subtitled_video.mp4',
+      filters: [
+        { name: 'MP4 Video', extensions: ['mp4'] },
+        { name: 'MKV Video', extensions: ['mkv'] },
+        { name: 'All Files', extensions: ['*'] },
+      ],
+    });
+    return result.canceled ? null : result.filePath;
   }
 
   /**

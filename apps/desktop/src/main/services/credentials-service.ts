@@ -7,11 +7,30 @@ export class CredentialsService {
   private readonly keyPrefix: string = 'cred_secret_';
   private readonly log: ILogger = createLogger('CredentialsService');
 
+  private changeListeners: Array<() => void> = [];
+
   public static getInstance(): CredentialsService {
     if (!CredentialsService.instance) {
       CredentialsService.instance = new CredentialsService();
     }
     return CredentialsService.instance;
+  }
+
+  public onCredentialsChange(listener: () => void): () => void {
+    this.changeListeners.push(listener);
+    return () => {
+      this.changeListeners = this.changeListeners.filter((l) => l !== listener);
+    };
+  }
+
+  private notifyCredentialsChange(): void {
+    for (const listener of this.changeListeners) {
+      try {
+        listener();
+      } catch (err) {
+        this.log.error('Error in credentials change listener:', err);
+      }
+    }
   }
 
   /**
@@ -36,6 +55,14 @@ export class CredentialsService {
     }
 
     db.setSetting(this.keyPrefix + providerId, encryptedStr);
+    this.notifyCredentialsChange();
+  }
+
+  /**
+   * Alias for saveCredential
+   */
+  public setCredential(providerId: string, secret: string): void {
+    this.saveCredential(providerId, secret);
   }
 
   /**
@@ -74,6 +101,14 @@ export class CredentialsService {
   public deleteCredential(providerId: string): void {
     const db = getDatabase();
     db.setSetting(this.keyPrefix + providerId, null);
+    this.notifyCredentialsChange();
+  }
+
+  /**
+   * Alias for deleteCredential
+   */
+  public removeCredential(providerId: string): void {
+    this.deleteCredential(providerId);
   }
 }
 

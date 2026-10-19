@@ -2,12 +2,15 @@ import {
   ContinuousOcrConfig,
   ContinuousOcrState,
   ContinuousOcrStats,
+  DisplayInfo,
   FloatingPanelPayload,
   IPC_CHANNELS,
   OcrHistoryItem,
   OcrHistoryQuery,
+  OcrPreprocessOptions,
   OcrProviderCapability,
   OcrProviderId,
+  OcrRecognizeRequest,
   OcrResponse,
   ScreenCaptureRegion,
   ScreenTranslateRequest,
@@ -93,6 +96,33 @@ export class ScreenTranslationService {
 
   public setOcrProvider(id: OcrProviderId): boolean {
     return this.ocrRegistry.setActiveProvider(id);
+  }
+
+  public async recognize(req: OcrRecognizeRequest): Promise<OcrResponse> {
+    return this.ocrRegistry.recognize(req, req.providerId);
+  }
+
+  public getDisplays(): DisplayInfo[] {
+    return getScreenCaptureManager().getDisplays();
+  }
+
+  public async captureRegion(
+    region: ScreenCaptureRegion,
+    preprocessOptions?: OcrPreprocessOptions
+  ) {
+    return getScreenCaptureManager().captureRegion(region, preprocessOptions);
+  }
+
+  public showFloatingPanel(payload: FloatingPanelPayload): void {
+    showOcrFloatingPanel(payload);
+  }
+
+  public hideFloatingPanel(): void {
+    hideOcrFloatingPanel();
+  }
+
+  public completeSelection(region: ScreenCaptureRegion | null): void {
+    closeSelectionOverlay(region);
   }
 
   private hideOverlaysForCapture(): void {

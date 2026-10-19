@@ -9,11 +9,13 @@ import {
 } from '@echo-lingo/provider-adapters';
 import { app } from 'electron';
 import * as path from 'node:path';
+import { createLogger, ILogger } from '@echo-lingo/logger';
 import { getCredentialsService } from '@/services/credentials-service.js';
 import { getDatabase } from '@/database/db-instance.js';
 
 export class SpeechService {
   private static instance: SpeechService | null = null;
+  private readonly log: ILogger = createLogger('SpeechService');
   private providers = new Map<SpeechEngineType, ISpeechProvider>();
   private activeEngine: SpeechEngineType = 'whisper-local';
 
@@ -47,6 +49,7 @@ export class SpeechService {
     this.providers.set('mock', mock);
 
     this.loadSavedCredentials();
+    getCredentialsService().onCredentialsChange(() => this.loadSavedCredentials());
   }
 
   public downloadModel(modelId: string, onProgress?: (progress: number) => void): Promise<void> {
@@ -55,6 +58,35 @@ export class SpeechService {
       return local.downloadModel(modelId, onProgress);
     }
     return Promise.resolve();
+  }
+
+  public async downloadModelWithProgress(
+    modelId: string,
+    onProgress: (status: { id: string; name: string; isInstalled: boolean; downloadProgress: number; error?: string }) => void
+  ): Promise<{ ok: boolean }> {
+    this.log.info(`[Models] Requested download for model: ${modelId}`);
+    try {
+      await this.downloadModel(modelId, (progress) => {
+        onProgress({
+          id: modelId,
+          name: `Whisper ${modelId.toUpperCase()}`,
+          isInstalled: progress >= 100,
+          downloadProgress: progress,
+        });
+      });
+      return { ok: true };
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      this.log.error(`[Models] Download failed for ${modelId}:`, errMsg);
+      onProgress({
+        id: modelId,
+        name: `Whisper ${modelId.toUpperCase()}`,
+        isInstalled: false,
+        downloadProgress: 0,
+        error: errMsg,
+      });
+      throw err;
+    }
   }
 
   public loadSavedCredentials(): void {
