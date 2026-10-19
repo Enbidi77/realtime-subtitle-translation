@@ -245,10 +245,15 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
         transcribeProgress: null,
       });
 
-      // Jump video playback to first subtitle cue automatically so it's immediately visible on screen!
+      // Preserve video playback position if user is already playing or has scrubbed forward
       if (segs.length > 0) {
-        get().setCurrentTime(segs[0].startTime / 1000);
-        get().selectSegment(segs[0].id);
+        const { currentTime, isPlaying } = get();
+        if (!isPlaying && currentTime <= 2) {
+          get().setCurrentTime(segs[0].startTime / 1000);
+        }
+        const currentMs = currentTime * 1000;
+        const matchingSeg = segs.find((s) => currentMs >= s.startTime && currentMs <= s.endTime);
+        get().selectSegment(matchingSeg ? matchingSeg.id : segs[0].id);
       }
     } catch (err: any) {
       console.error('Transcription error:', err);
