@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using EchoLingo.Ipc.Dispatcher;
+using EchoLingo.Ipc.NamedPipe;
 using EchoLingo.Ipc.Protocol;
 using EchoLingo.Ipc.Services.Ocr;
 using EchoLingo.Ipc.Services.Speech;
@@ -28,15 +30,23 @@ public static class Program
         var ocrService = new WindowsOcrService();
         var dispatcher = new CommandDispatcher(speechService, ocrService);
 
-        // 1. Daemon / stdio mode
-        if (args.Length == 0 || args[0].Equals("--daemon", StringComparison.OrdinalIgnoreCase) ||
-            args[0].Equals("--stdio", StringComparison.OrdinalIgnoreCase))
+        // 1. Named Pipe mode (Default when no args, or when --pipe / --named-pipe specified)
+        if (args.Length == 0 || HasArg(args, "--pipe") || HasArg(args, "--named-pipe"))
+        {
+            var pipeName = GetPipeNameFromArgs(args, "echolingo-dotnet-pipe");
+            using var server = new NamedPipeIpcServer(dispatcher, pipeName, _jsonOpts);
+            await server.RunAsync();
+            return 0;
+        }
+
+        // 2. Daemon / stdio mode (fallback / explicit stdio)
+        if (HasArg(args, "--daemon") || HasArg(args, "--stdio"))
         {
             await RunDaemonModeAsync(dispatcher);
             return 0;
         }
 
-        // 2. Backward compatibility with legacy SAPI CLI:
+        // 3. Backward compatibility with legacy SAPI CLI:
         //    Legacy CLI format:
         //    `sapi-recognizer.exe --list`
         //    `sapi-recognizer.exe <wavPath> [targetLang]`
@@ -57,7 +67,7 @@ public static class Program
             return string.IsNullOrEmpty(res.Error) ? 0 : 1;
         }
 
-        // 3. Subcommand CLI mode
+        // 4. Subcommand CLI mode
         var command = args[0].ToLowerInvariant();
         switch (command)
         {
@@ -134,12 +144,13 @@ public static class Program
                     error = $"Unknown command: {command}",
                     availableCommands = new[]
                     {
+                        "--pipe [pipeName]",
+                        "--daemon",
                         "ping",
                         "speech list",
                         "speech transcribe <wavPath> [lang]",
                         "ocr list",
-                        "ocr recognize <imagePath> [lang]",
-                        "--daemon"
+                        "ocr recognize <imagePath> [lang]"
                     }
                 }, _jsonOpts));
                 return 1;
@@ -147,6 +158,37 @@ public static class Program
         }
 
         return 0;
+    }
+
+    private static bool HasArg(string[] args, string flag)
+    {
+        return args.Any(a => a.Equals(flag, StringComparison.OrdinalIgnoreCase) ||
+                             a.StartsWith(flag + "=", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private static string GetPipeNameFromArgs(string[] args, string defaultName)
+    {
+        for (int i = 0; i < args.Length; i++)
+        {
+            var a = args[i];
+            if (a.StartsWith("--pipe=", StringComparison.OrdinalIgnoreCase))
+            {
+                var val = a["--pipe=".Length..].Trim();
+                if (!string.IsNullOrWhiteSpace(val)) return val;
+            }
+            if (a.StartsWith("--named-pipe=", StringComparison.OrdinalIgnoreCase))
+            {
+                var val = a["--named-pipe=".Length..].Trim();
+                if (!string.IsNullOrWhiteSpace(val)) return val;
+            }
+            if ((a.Equals("--pipe", StringComparison.OrdinalIgnoreCase) ||
+                 a.Equals("--named-pipe", StringComparison.OrdinalIgnoreCase)) &&
+                i + 1 < args.Length && !args[i + 1].StartsWith("-"))
+            {
+                return args[i + 1].Trim();
+            }
+        }
+        return defaultName;
     }
 
     private static async Task RunDaemonModeAsync(CommandDispatcher dispatcher)
@@ -187,4 +229,3 @@ public static class Program
         }
     }
 }
-

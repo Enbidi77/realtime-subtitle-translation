@@ -46,6 +46,7 @@ import { getSessionService } from "@/services/session-service.js";
 import { getTrayService } from "@/services/tray-service.js";
 import { AppSettingsSchema } from "@echo-lingo/contracts";
 import { DEFAULT_APP_SETTINGS } from "@echo-lingo/config";
+import { dotnetBridge } from "@echo-lingo/dotnet-bridge";
 
 import { setupMediaPermissions } from "@/security/security.js";
 import {
@@ -203,6 +204,9 @@ if (!gotTheLock) {
     getShortcutsService().unregister();
     getTrayService().destroyTray();
     closeDatabase();
+    dotnetBridge.dispose().catch((err) => {
+      log.warn("Error disposing dotnetBridge:", err);
+    });
   });
 
   app.on("quit", (_event, exitCode) => {

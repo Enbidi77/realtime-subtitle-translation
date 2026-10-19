@@ -3,19 +3,21 @@ import { promisify } from "node:util";
 import * as readline from "node:readline";
 import { createLogger } from "@echo-lingo/logger";
 import { DotnetBinaryLocator } from "./binary-locator";
-import { IpcRequest, IpcResponse } from "./types";
+import { DotnetPipeClient } from "./pipe-client";
+import {
+  DotnetBridgeTransport,
+  DotnetProcessOptions,
+  IpcRequest,
+  IpcResponse,
+} from "./types";
 
 const execFileAsync = promisify(execFile);
 const log = createLogger("DotnetProcess");
 
-export interface DotnetProcessOptions {
-  useDaemon?: boolean;
-  timeoutMs?: number;
-}
-
 export class DotnetProcess {
   private child: ChildProcess | null = null;
   private rl: readline.Interface | null = null;
+  private pipeClient: DotnetPipeClient | null = null;
   private pendingRequests = new Map<
     string,
     {
@@ -25,17 +27,37 @@ export class DotnetProcess {
     }
   >();
   private requestCounter = 0;
-  private isStartingDaemon = false;
-  private useDaemon: boolean;
+  private isStarting = false;
+  private transport: DotnetBridgeTransport;
   private defaultTimeoutMs: number;
+  private pipeName: string;
+  private autoSpawn: boolean;
 
   constructor(options: DotnetProcessOptions = {}) {
-    this.useDaemon = options.useDaemon ?? true;
+    if (options.transport) {
+      this.transport = options.transport;
+    } else if (options.useDaemon === false) {
+      this.transport = "cli";
+    } else {
+      // Default choice: Named Pipe IPC instead of CLI or stdio
+      this.transport = "pipe";
+    }
+
     this.defaultTimeoutMs = options.timeoutMs ?? 15000;
+    this.pipeName = options.pipeName || `echolingo-dotnet-pipe-${process.pid}`;
+    this.autoSpawn = options.autoSpawn ?? true;
   }
 
   public isAvailable(): boolean {
     return DotnetBinaryLocator.isAvailable();
+  }
+
+  public getTransport(): DotnetBridgeTransport {
+    return this.transport;
+  }
+
+  public getPipeName(): string {
+    return this.pipeName;
   }
 
   public async execute<TReq = unknown, TRes = unknown>(
@@ -50,7 +72,28 @@ export class DotnetProcess {
       );
     }
 
-    if (this.useDaemon) {
+    if (this.transport === "pipe") {
+      try {
+        return await this.executeViaPipe<TReq, TRes>(
+          binaryPath,
+          command,
+          payload,
+          timeoutMs,
+        );
+      } catch (err) {
+        log.warn(
+          `Named Pipe execution failed for '${command}', falling back to CLI execution:`,
+          err,
+        );
+        return await this.executeViaCli<TReq, TRes>(
+          binaryPath,
+          command,
+          payload,
+        );
+      }
+    }
+
+    if (this.transport === "daemon") {
       try {
         return await this.executeViaDaemon<TReq, TRes>(
           binaryPath,
@@ -63,7 +106,6 @@ export class DotnetProcess {
           `Daemon execution failed for '${command}', falling back to CLI execution:`,
           err,
         );
-        // Fall back to one-shot CLI execution
         return await this.executeViaCli<TReq, TRes>(
           binaryPath,
           command,
@@ -73,6 +115,84 @@ export class DotnetProcess {
     }
 
     return await this.executeViaCli<TReq, TRes>(binaryPath, command, payload);
+  }
+
+  private async executeViaPipe<TReq, TRes>(
+    binaryPath: string,
+    command: string,
+    payload?: TReq,
+    timeoutMs?: number,
+  ): Promise<TRes> {
+    await this.ensurePipeServerStarted(binaryPath);
+
+    if (!this.pipeClient) {
+      throw new Error(".NET Named Pipe client is not initialized");
+    }
+
+    return await this.pipeClient.sendRequest<TReq, TRes>(
+      command,
+      payload,
+      timeoutMs ?? this.defaultTimeoutMs,
+    );
+  }
+
+  private async ensurePipeServerStarted(binaryPath: string): Promise<void> {
+    if (!this.pipeClient) {
+      this.pipeClient = new DotnetPipeClient({
+        pipeName: this.pipeName,
+        defaultTimeoutMs: this.defaultTimeoutMs,
+      });
+    }
+
+    if (this.pipeClient.isConnected()) {
+      return;
+    }
+
+    if (this.isStarting) {
+      while (this.isStarting) {
+        await new Promise((r) => setTimeout(r, 50));
+      }
+      return;
+    }
+
+    this.isStarting = true;
+    try {
+      if (this.autoSpawn && (!this.child || this.child.killed)) {
+        log.info(
+          "Starting .NET IPC Named Pipe server:",
+          binaryPath,
+          "--pipe",
+          this.pipeName,
+        );
+        const child = spawn(binaryPath, ["--pipe", this.pipeName], {
+          stdio: ["pipe", "pipe", "pipe"],
+          windowsHide: true,
+        });
+
+        this.child = child;
+
+        child.stderr?.on("data", (chunk: Buffer) => {
+          const text = chunk.toString("utf8").trim();
+          if (text) {
+            log.debug(`[.NET IPC stderr] ${text}`);
+          }
+        });
+
+        child.on("exit", (code, signal) => {
+          log.warn(`.NET IPC server exited with code ${code}, signal ${signal}`);
+          this.cleanup();
+        });
+
+        child.on("error", (err) => {
+          log.error(".NET IPC server process error:", err);
+          this.cleanup();
+        });
+      }
+
+      await this.pipeClient.connect(5000);
+    } finally {
+      this.isStarting = false;
+    }
   }
 
   private async executeViaDaemon<TReq, TRes>(
@@ -173,20 +293,20 @@ export class DotnetProcess {
   }
 
   private async ensureDaemonStarted(binaryPath: string): Promise<void> {
-    if (this.child && !this.child.killed) {
+    if (this.child && !this.child.killed && this.rl) {
       return;
     }
 
-    if (this.isStartingDaemon) {
-      while (this.isStartingDaemon) {
+    if (this.isStarting) {
+      while (this.isStarting) {
         await new Promise((r) => setTimeout(r, 50));
       }
       return;
     }
 
-    this.isStartingDaemon = true;
+    this.isStarting = true;
     try {
-      log.info("Starting .NET IPC daemon:", binaryPath);
+      log.info("Starting .NET IPC daemon (stdio):", binaryPath);
       const child = spawn(binaryPath, ["--daemon"], {
         stdio: ["pipe", "pipe", "pipe"],
         windowsHide: true,
@@ -242,11 +362,16 @@ export class DotnetProcess {
         this.cleanup();
       });
     } finally {
-      this.isStartingDaemon = false;
+      this.isStarting = false;
     }
   }
 
   private cleanup(): void {
+    if (this.pipeClient) {
+      this.pipeClient.dispose().catch(() => {});
+      this.pipeClient = null;
+    }
+
     for (const [id, pending] of this.pendingRequests.entries()) {
       clearTimeout(pending.timer);
       pending.reject(
@@ -256,7 +381,11 @@ export class DotnetProcess {
     this.pendingRequests.clear();
 
     if (this.rl) {
-      this.rl.close();
+      try {
+        this.rl.close();
+      } catch {
+        // Ignore
+      }
       this.rl = null;
     }
 
@@ -273,7 +402,17 @@ export class DotnetProcess {
   }
 
   public async dispose(): Promise<void> {
-    if (this.child && !this.child.killed && this.child.stdin) {
+    if (this.pipeClient) {
+      await this.pipeClient.dispose();
+      this.pipeClient = null;
+    }
+
+    if (
+      this.child &&
+      !this.child.killed &&
+      this.child.stdin &&
+      !this.child.stdin.destroyed
+    ) {
       try {
         this.child.stdin.write("exit\n");
       } catch {

@@ -1,3 +1,37 @@
+export type DotnetBridgeTransport = "pipe" | "daemon" | "cli";
+
+export interface DotnetProcessOptions {
+  /**
+   * IPC Transport mechanism:
+   * - 'pipe' (default): High-performance duplex OS Named Pipe (Windows: \\.\pipe\..., macOS/Linux: Unix Domain Socket)
+   * - 'daemon': Persistent child process with JSON-lines over stdin/stdout
+   * - 'cli': One-shot child process invocation per request
+   */
+  transport?: DotnetBridgeTransport;
+
+  /**
+   * Backward compatibility flag:
+   * If false, transport is forced to 'cli'.
+   * If true (or omitted), transport defaults to 'pipe'.
+   */
+  useDaemon?: boolean;
+
+  /**
+   * Request timeout in milliseconds (default: 15000ms).
+   */
+  timeoutMs?: number;
+
+  /**
+   * Custom pipe name for named pipe transport (defaults to echolingo-dotnet-pipe-<pid>).
+   */
+  pipeName?: string;
+
+  /**
+   * Whether to automatically spawn the .NET binary daemon if not already running (default: true).
+   */
+  autoSpawn?: boolean;
+}
+
 export interface IpcRequest {
   id?: string;
   command: string;
@@ -72,4 +106,3 @@ export interface PingResult {
   timestamp: number;
   platform: string;
 }
-

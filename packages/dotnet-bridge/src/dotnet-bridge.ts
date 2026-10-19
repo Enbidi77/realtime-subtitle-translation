@@ -1,5 +1,7 @@
-import { DotnetProcess, DotnetProcessOptions } from "./dotnet-process";
+import { DotnetProcess } from "./dotnet-process";
 import {
+  DotnetBridgeTransport,
+  DotnetProcessOptions,
   OcrLanguageDto,
   OcrRecognizeRequest,
   OcrRecognizeResult,
@@ -9,6 +11,8 @@ import {
   SpeechTranscribeResult,
 } from "./types";
 import { DotnetBinaryLocator } from "./binary-locator";
+
+export type DotnetBridgeOptions = DotnetProcessOptions;
 
 export class DotnetBridge {
   private process: DotnetProcess;
@@ -29,7 +33,7 @@ export class DotnetBridge {
     ) => Promise<OcrRecognizeResult>;
   };
 
-  constructor(options: DotnetProcessOptions = {}) {
+  constructor(options: DotnetBridgeOptions = {}) {
     this.process = new DotnetProcess(options);
 
     this.speech = {
@@ -77,6 +81,14 @@ export class DotnetBridge {
     return DotnetBinaryLocator.isAvailable();
   }
 
+  public getTransport(): DotnetBridgeTransport {
+    return this.process.getTransport();
+  }
+
+  public getPipeName(): string {
+    return this.process.getPipeName();
+  }
+
   public async ping(): Promise<PingResult> {
     return this.process.execute<undefined, PingResult>("ping");
   }
@@ -94,4 +106,5 @@ export class DotnetBridge {
   }
 }
 
-export const dotnetBridge = new DotnetBridge({ useDaemon: true });
+// By default, instantiate DotnetBridge with Named Pipe transport as the default choice
+export const dotnetBridge = new DotnetBridge();
