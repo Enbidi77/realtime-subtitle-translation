@@ -244,11 +244,16 @@
     "apiKeyRequired": "Yêu cầu khóa API",
     "configured": "Đã cấu hình",
     "notConfigured": "Chưa cấu hình",
-    "localEngine": "Chạy hoàn toàn cục bộ, bảo mật ngoại tuyến"
+    "localEngine": "Chạy hoàn toàn cục bộ, bảo mật ngoại tuyến",
+    "paid": "API trả phí",
+    "free": "Miễn phí"
   },
   "settings": {
     "title": "Tùy chọn & Cài đặt",
     "appearance": "Giao diện",
+    "providersTitle": "Nhà cung cấp AI & Dịch thuật",
+    "showPaidProviders": "Hiển thị nhà cung cấp phụ đề & dịch thuật trả phí",
+    "showPaidProvidersDesc": "Hiển thị các dịch vụ đám mây thương mại yêu cầu khóa API trả phí (như OpenAI Whisper, Google Cloud Translation và DeepL). Khi tắt, chỉ các nhà cung cấp miễn phí và cục bộ ngoại tuyến được hiển thị.",
     "theme": "Chủ đề màu",
     "themeDark": "Tối than Google (Dark Charcoal)",
     "themeLight": "Sáng tinh tế (Clean Light)",

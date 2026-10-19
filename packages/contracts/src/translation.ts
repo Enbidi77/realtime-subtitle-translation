@@ -24,6 +24,7 @@ export const TranslationCapabilitySchema = z.object({
   isLocal: z.boolean(),
   requiresApiKey: z.boolean(),
   isConfigured: z.boolean(),
+  isPaid: z.boolean().default(false),
   supportedLanguages: z.array(LanguageInfoSchema),
 });
 export type TranslationCapability = z.infer<typeof TranslationCapabilitySchema>;

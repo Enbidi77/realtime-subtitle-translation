@@ -11,6 +11,7 @@ export interface ITranslationProvider {
   readonly name: string;
   readonly isLocal: boolean;
   readonly requiresApiKey: boolean;
+  readonly isPaid?: boolean;
 
   getCapability(): TranslationCapability;
   getSupportedLanguages(): LanguageInfo[];

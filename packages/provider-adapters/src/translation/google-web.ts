@@ -16,6 +16,7 @@ export class GoogleWebTranslationProvider implements ITranslationProvider {
   public readonly name = 'Google Translate (Free)';
   public readonly isLocal = false;
   public readonly requiresApiKey = false;
+  public readonly isPaid = false;
 
   public getCapability(): TranslationCapability {
     return {
@@ -25,6 +26,7 @@ export class GoogleWebTranslationProvider implements ITranslationProvider {
       isLocal: this.isLocal,
       requiresApiKey: this.requiresApiKey,
       isConfigured: true,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }

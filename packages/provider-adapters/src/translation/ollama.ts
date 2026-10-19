@@ -13,6 +13,7 @@ export class OllamaTranslationProvider implements ITranslationProvider {
   public readonly name = 'Local LLM (Ollama)';
   public readonly isLocal = true;
   public readonly requiresApiKey = false;
+  public readonly isPaid = false;
   private baseUrl = 'http://localhost:11434';
   private model = 'llama3.2';
 
@@ -34,6 +35,7 @@ export class OllamaTranslationProvider implements ITranslationProvider {
       isLocal: true,
       requiresApiKey: false,
       isConfigured: true,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }

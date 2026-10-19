@@ -76,6 +76,7 @@ export const AppSettingsSchema = z.object({
   debounceTranslationMs: z.number().min(100).max(2000).default(350),
   maxHistoryRetentionDays: z.number().min(1).max(365).default(30),
   enableLocalOnlyMode: z.boolean().default(false),
+  showPaidProviders: z.boolean().default(false),
   autoScrollLiveSubtitles: z.boolean().default(true),
   subtitleAppearance: SubtitleAppearanceSchema.default({}),
   overlaySettings: OverlaySettingsSchema.default({}),

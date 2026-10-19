@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
+import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
+import { AppSettings } from '@echo-lingo/contracts';
 import { GlassCard } from '@/components/ui/GlassCard.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassSelect } from '@/components/ui/GlassSelect.js';
@@ -24,11 +27,15 @@ import {
   Info,
   FileText,
   FolderOpen,
+  CreditCard,
+  Globe,
+  ExternalLink,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
   const { t } = useI18n();
   const { settings, updateSettings, resetSettings } = useSettingsStore();
+  const { setActivePage } = useNavigationStore();
   const [savedBanner, setSavedBanner] = useState(false);
 
   const showSaved = () => {
@@ -409,7 +416,65 @@ export const SettingsView: React.FC = () => {
         </div>
       </GlassCard>
 
-      {/* 5. Application & System Tray */}
+      {/* 5. AI & Translation Providers */}
+      <GlassCard variant="default" className="p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Globe className="w-4 h-4 text-primary" />
+            <span>{t('settings.providersTitle', 'AI & Translation Providers')}</span>
+          </h2>
+
+          <GlassButton
+            variant="glass"
+            size="sm"
+            onClick={() => setActivePage('providers')}
+            icon={<ExternalLink className="w-3.5 h-3.5" />}
+          >
+            <span>{t('providers.title', 'Providers & Models')}</span>
+          </GlassButton>
+        </div>
+
+        <div className="space-y-3.5 text-xs">
+          <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-subtle border border-glass-border">
+            <div className="space-y-0.5 max-w-xl">
+              <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                <CreditCard className="w-3.5 h-3.5 text-primary" />
+                <span>{t('settings.showPaidProviders', 'Show Paid Translation & Subtitle Providers')}</span>
+              </span>
+              <p className="text-[11px] text-muted-foreground leading-relaxed">
+                {t(
+                  'settings.showPaidProvidersDesc',
+                  'Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.'
+                )}
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
+              <input
+                type="checkbox"
+                checked={settings.showPaidProviders ?? false}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  const updates: Partial<AppSettings> = { showPaidProviders: checked };
+                  if (!checked) {
+                    if (isPaidSpeechEngine(settings.speechEngine)) {
+                      updates.speechEngine = 'whisper-local';
+                    }
+                    if (isPaidTranslationProvider(settings.translationProvider)) {
+                      updates.translationProvider = 'google-web';
+                    }
+                  }
+                  updateSettings(updates);
+                  showSaved();
+                }}
+                className="sr-only peer"
+              />
+              <div className="w-9 h-5 bg-slate-700/60 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+            </label>
+          </div>
+        </div>
+      </GlassCard>
+
+      {/* 6. Application & System Tray */}
       <GlassCard variant="default" className="p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">

@@ -13,6 +13,7 @@ export class GoogleCloudTranslationProvider implements ITranslationProvider {
   public readonly name = 'Google Cloud Translation';
   public readonly isLocal = false;
   public readonly requiresApiKey = true;
+  public readonly isPaid = true;
   private apiKey = '';
 
   constructor(apiKey = '') {
@@ -31,6 +32,7 @@ export class GoogleCloudTranslationProvider implements ITranslationProvider {
       isLocal: this.isLocal,
       requiresApiKey: this.requiresApiKey,
       isConfigured: this.apiKey.length > 0,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }

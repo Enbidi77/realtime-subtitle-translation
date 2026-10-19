@@ -12,6 +12,7 @@ export class DeepLTranslationProvider implements ITranslationProvider {
   public readonly name = 'DeepL Translator';
   public readonly isLocal = false;
   public readonly requiresApiKey = true;
+  public readonly isPaid = true;
   private apiKey = '';
 
   constructor(apiKey = '') {
@@ -30,6 +31,7 @@ export class DeepLTranslationProvider implements ITranslationProvider {
       isLocal: this.isLocal,
       requiresApiKey: this.requiresApiKey,
       isConfigured: this.apiKey.length > 0,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }

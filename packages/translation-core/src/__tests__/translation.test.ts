@@ -16,6 +16,7 @@ class FakeTestProvider implements ITranslationProvider {
   public readonly name = 'Mock Provider';
   public readonly isLocal = true;
   public readonly requiresApiKey = false;
+  public readonly isPaid = false;
   public callCount = 0;
 
   public getCapability(): TranslationCapability {
@@ -26,6 +27,7 @@ class FakeTestProvider implements ITranslationProvider {
       isLocal: true,
       requiresApiKey: false,
       isConfigured: true,
+      isPaid: false,
       supportedLanguages: [{ code: 'vi', name: 'Vietnamese' }],
     };
   }

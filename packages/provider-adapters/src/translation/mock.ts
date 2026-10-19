@@ -13,6 +13,7 @@ export class MockTranslationProvider implements ITranslationProvider {
   public readonly name = 'Mock Translation Provider';
   public readonly isLocal = true;
   public readonly requiresApiKey = false;
+  public readonly isPaid = false;
 
   public getCapability(): TranslationCapability {
     return {
@@ -22,6 +23,7 @@ export class MockTranslationProvider implements ITranslationProvider {
       isLocal: true,
       requiresApiKey: false,
       isConfigured: true,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }

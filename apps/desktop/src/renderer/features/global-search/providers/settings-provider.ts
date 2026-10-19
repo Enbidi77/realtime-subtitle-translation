@@ -132,6 +132,16 @@ export class SettingsProvider implements ISearchProvider {
         action: { type: 'setting', payload: { settingKey: 'translationProvider' } },
       },
       {
+        id: 'set:show-paid-providers',
+        category: 'settings',
+        title: 'Show Paid Translation & Subtitle Providers',
+        description: `Current: ${settings.showPaidProviders ? 'Enabled' : 'Disabled'}. Show commercial cloud providers like OpenAI Whisper, Google Cloud, and DeepL.`,
+        icon: 'CreditCard',
+        path: 'Settings > Providers',
+        keywords: ['paid', 'commercial', 'openai', 'deepl', 'google cloud', 'nha cung cap tra phi', 'show paid'],
+        action: { type: 'setting', payload: { settingKey: 'showPaidProviders' } },
+      },
+      {
         id: 'set:close-behavior',
         category: 'settings',
         title: 'Window Close Behavior',

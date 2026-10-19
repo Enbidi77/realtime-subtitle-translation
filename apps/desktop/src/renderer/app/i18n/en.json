@@ -244,11 +244,16 @@
     "apiKeyRequired": "API Key Required",
     "configured": "Configured",
     "notConfigured": "Not Configured",
-    "localEngine": "Runs 100% locally and offline"
+    "localEngine": "Runs 100% locally and offline",
+    "paid": "Paid API",
+    "free": "Free"
   },
   "settings": {
     "title": "Preferences & Settings",
     "appearance": "Appearance",
+    "providersTitle": "AI & Translation Providers",
+    "showPaidProviders": "Show Paid Translation & Subtitle Providers",
+    "showPaidProvidersDesc": "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
     "theme": "Theme",
     "themeDark": "Google Dark Charcoal",
     "themeLight": "Google Clean Light",

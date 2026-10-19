@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import {
   GoogleWebTranslationProvider,
+  GoogleCloudTranslationProvider,
+  DeepLTranslationProvider,
   MockTranslationProvider,
   MockSpeechProvider,
   OpenAIWhisperProvider,
@@ -34,8 +36,23 @@ describe('Provider Adapters', () => {
       const cap = gweb.getCapability();
       expect(cap.id).toBe('google-web');
       expect(cap.requiresApiKey).toBe(false);
+      expect(cap.isPaid).toBe(false);
       expect(cap.isConfigured).toBe(true);
       expect(cap.supportedLanguages.length).toBeGreaterThan(10);
+    });
+
+    it('reports paid capability for GoogleCloud and DeepL providers', () => {
+      const gcloud = new GoogleCloudTranslationProvider();
+      const gcloudCap = gcloud.getCapability();
+      expect(gcloudCap.id).toBe('google-cloud');
+      expect(gcloudCap.requiresApiKey).toBe(true);
+      expect(gcloudCap.isPaid).toBe(true);
+
+      const deepl = new DeepLTranslationProvider();
+      const deeplCap = deepl.getCapability();
+      expect(deeplCap.id).toBe('deepl');
+      expect(deeplCap.requiresApiKey).toBe(true);
+      expect(deeplCap.isPaid).toBe(true);
     });
   });
 

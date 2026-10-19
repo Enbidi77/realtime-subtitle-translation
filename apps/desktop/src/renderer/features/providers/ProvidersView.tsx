@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { TranslationCapability, SpeechModelStatus, GlossaryEntry } from '@echo-lingo/contracts';
+import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
 import { useI18n } from '@/app/i18n/index.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { GlassCard } from '@/components/ui/GlassCard.js';
@@ -30,6 +31,7 @@ interface ConfigurableProvider {
   isConfigured: boolean;
   requiresApiKey: boolean;
   isLocal: boolean;
+  isPaid?: boolean;
   signupUrl?: string;
 }
 
@@ -37,6 +39,7 @@ export const ProvidersView: React.FC = () => {
   const { t } = useI18n();
   const speechEngine = useSettingsStore((s) => s.settings.speechEngine);
   const localWhisperModel = useSettingsStore((s) => s.settings.localWhisperModel || 'tiny');
+  const showPaidProviders = useSettingsStore((s) => s.settings.showPaidProviders ?? false);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
 
   const [models, setModels] = useState<SpeechModelStatus[]>([]);
@@ -52,6 +55,7 @@ export const ProvidersView: React.FC = () => {
       requiresApiKey: true,
       isConfigured: false,
       isLocal: false,
+      isPaid: false,
       signupUrl: 'https://console.groq.com/keys',
     },
     {
@@ -61,6 +65,7 @@ export const ProvidersView: React.FC = () => {
       requiresApiKey: true,
       isConfigured: false,
       isLocal: false,
+      isPaid: true,
       signupUrl: 'https://platform.openai.com/api-keys',
     },
     {
@@ -70,6 +75,7 @@ export const ProvidersView: React.FC = () => {
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
+      isPaid: false,
     },
     {
       id: 'windows-speech',
@@ -78,6 +84,7 @@ export const ProvidersView: React.FC = () => {
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
+      isPaid: false,
     },
     {
       id: 'whisper-local',
@@ -86,6 +93,7 @@ export const ProvidersView: React.FC = () => {
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
+      isPaid: false,
     },
   ]);
 
@@ -235,38 +243,47 @@ export const ProvidersView: React.FC = () => {
         </h2>
 
         <div className="space-y-2.5">
-          {speechEngines.map((eng) => (
-            <GlassCard
-              key={eng.id}
-              variant="default"
-              className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center flex-wrap gap-2">
-                  <span className="font-semibold text-xs text-foreground">{eng.name}</span>
-                  {speechEngine === eng.id && (
-                    <GlassBadge variant="accent" className="font-semibold">
-                      <Check className="w-3 h-3" />
-                      ACTIVE
-                    </GlassBadge>
-                  )}
-                  {eng.isConfigured ? (
-                    <GlassBadge variant="success">
-                      <CheckCircle2 className="w-3 h-3" />
-                      {t('providers.configured')}
-                    </GlassBadge>
-                  ) : (
-                    <GlassBadge variant="warning">
-                      <AlertCircle className="w-3 h-3" />
-                      {t('providers.notConfigured')}
-                    </GlassBadge>
-                  )}
-                  {eng.isLocal && (
-                    <GlassBadge variant="neutral">Local</GlassBadge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">{eng.description}</p>
-              </div>
+          {speechEngines
+            .filter((eng) => showPaidProviders || (!eng.isPaid && !isPaidSpeechEngine(eng.id)))
+            .map((eng) => {
+              const isPaid = eng.isPaid || isPaidSpeechEngine(eng.id);
+              return (
+                <GlassCard
+                  key={eng.id}
+                  variant="default"
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="font-semibold text-xs text-foreground">{eng.name}</span>
+                      {speechEngine === eng.id && (
+                        <GlassBadge variant="accent" className="font-semibold">
+                          <Check className="w-3 h-3" />
+                          ACTIVE
+                        </GlassBadge>
+                      )}
+                      {eng.isConfigured ? (
+                        <GlassBadge variant="success">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {t('providers.configured')}
+                        </GlassBadge>
+                      ) : (
+                        <GlassBadge variant="warning">
+                          <AlertCircle className="w-3 h-3" />
+                          {t('providers.notConfigured')}
+                        </GlassBadge>
+                      )}
+                      {isPaid ? (
+                        <GlassBadge variant="warning">{t('providers.paid', 'Paid API')}</GlassBadge>
+                      ) : (
+                        <GlassBadge variant="neutral">{t('providers.free', 'Free')}</GlassBadge>
+                      )}
+                      {eng.isLocal && (
+                        <GlassBadge variant="neutral">Local</GlassBadge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{eng.description}</p>
+                  </div>
 
               <div className="flex items-center gap-2 shrink-0">
                 {speechEngine !== eng.id && (eng.isConfigured || !eng.requiresApiKey) && (
@@ -306,7 +323,8 @@ export const ProvidersView: React.FC = () => {
                 )}
               </div>
             </GlassCard>
-          ))}
+          );
+        })}
         </div>
       </div>
 
@@ -415,32 +433,41 @@ export const ProvidersView: React.FC = () => {
         </h2>
 
         <div className="space-y-2.5">
-          {providers.map((p) => (
-            <GlassCard
-              key={p.id}
-              variant="default"
-              className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center flex-wrap gap-2">
-                  <span className="font-semibold text-xs text-foreground">{p.name}</span>
-                  {p.isConfigured ? (
-                    <GlassBadge variant="success">
-                      <CheckCircle2 className="w-3 h-3" />
-                      {t('providers.configured')}
-                    </GlassBadge>
-                  ) : (
-                    <GlassBadge variant="warning">
-                      <AlertCircle className="w-3 h-3" />
-                      {t('providers.notConfigured')}
-                    </GlassBadge>
-                  )}
-                  {p.isLocal && (
-                    <GlassBadge variant="neutral">Local</GlassBadge>
-                  )}
-                </div>
-                <p className="text-xs text-muted-foreground">{p.description}</p>
-              </div>
+          {providers
+            .filter((p) => showPaidProviders || (!p.isPaid && !isPaidTranslationProvider(p.id)))
+            .map((p) => {
+              const isPaid = p.isPaid || isPaidTranslationProvider(p.id);
+              return (
+                <GlassCard
+                  key={p.id}
+                  variant="default"
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center flex-wrap gap-2">
+                      <span className="font-semibold text-xs text-foreground">{p.name}</span>
+                      {p.isConfigured ? (
+                        <GlassBadge variant="success">
+                          <CheckCircle2 className="w-3 h-3" />
+                          {t('providers.configured')}
+                        </GlassBadge>
+                      ) : (
+                        <GlassBadge variant="warning">
+                          <AlertCircle className="w-3 h-3" />
+                          {t('providers.notConfigured')}
+                        </GlassBadge>
+                      )}
+                      {isPaid ? (
+                        <GlassBadge variant="warning">{t('providers.paid', 'Paid API')}</GlassBadge>
+                      ) : (
+                        <GlassBadge variant="neutral">{t('providers.free', 'Free')}</GlassBadge>
+                      )}
+                      {p.isLocal && (
+                        <GlassBadge variant="neutral">Local</GlassBadge>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground">{p.description}</p>
+                  </div>
 
               <div className="flex items-center gap-2 shrink-0">
                 <GlassButton
@@ -467,7 +494,8 @@ export const ProvidersView: React.FC = () => {
                 )}
               </div>
             </GlassCard>
-          ))}
+          );
+        })}
         </div>
 
         {testResult && (

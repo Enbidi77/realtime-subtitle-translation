@@ -21,6 +21,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   debounceTranslationMs: 350,
   maxHistoryRetentionDays: 30,
   enableLocalOnlyMode: false,
+  showPaidProviders: false,
   autoScrollLiveSubtitles: true,
   subtitleAppearance: {
     fontSize: 24,

@@ -82,6 +82,7 @@ export function createMockElectronBridge() {
           isLocal: false,
           requiresApiKey: false,
           isConfigured: true,
+          isPaid: false,
           supportedLanguages: [],
         },
       ],

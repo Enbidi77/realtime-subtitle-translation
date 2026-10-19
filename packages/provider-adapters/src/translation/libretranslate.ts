@@ -13,6 +13,7 @@ export class LibreTranslateProvider implements ITranslationProvider {
   public readonly name = 'LibreTranslate';
   public readonly isLocal = false;
   public readonly requiresApiKey = false;
+  public readonly isPaid = false;
   private serverUrl = 'https://libretranslate.com';
   private apiKey = '';
 
@@ -34,6 +35,7 @@ export class LibreTranslateProvider implements ITranslationProvider {
       isLocal: this.serverUrl.includes('localhost') || this.serverUrl.includes('127.0.0.1'),
       requiresApiKey: false,
       isConfigured: true,
+      isPaid: this.isPaid,
       supportedLanguages: this.getSupportedLanguages(),
     };
   }
