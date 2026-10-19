@@ -42,6 +42,7 @@ export class DotnetProcess {
       // Default choice: Named Pipe IPC instead of CLI or stdio
       this.transport = "pipe";
     }
+    log.info(`DotnetProcess transport set to: ${this.transport}`);
 
     this.defaultTimeoutMs = options.timeoutMs ?? 15000;
     this.pipeName = options.pipeName || `echolingo-dotnet-pipe-${process.pid}`;
@@ -72,6 +73,7 @@ export class DotnetProcess {
       );
     }
 
+    log.info(`Executing command via ${this.transport}: ${command}`);
     if (this.transport === "pipe") {
       try {
         return await this.executeViaPipe<TReq, TRes>(
@@ -179,7 +181,9 @@ export class DotnetProcess {
         });
 
         child.on("exit", (code, signal) => {
-          log.warn(`.NET IPC server exited with code ${code}, signal ${signal}`);
+          log.warn(
+            `.NET IPC server exited with code ${code}, signal ${signal}`,
+          );
           this.cleanup();
         });
 

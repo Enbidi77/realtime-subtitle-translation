@@ -186,7 +186,11 @@ export class DotnetPipeClient {
         }
       }
     } catch (err) {
-      log.warn("Failed to parse JSON response from .NET Named Pipe:", trimmed, err);
+      log.warn(
+        "Failed to parse JSON response from .NET Named Pipe:",
+        trimmed,
+        err,
+      );
     }
   }
 
@@ -214,7 +218,9 @@ export class DotnetPipeClient {
     for (const [id, pending] of this.pendingRequests.entries()) {
       clearTimeout(pending.timer);
       pending.reject(
-        new Error(`.NET Named Pipe disconnected while request ${id} was pending`),
+        new Error(
+          `.NET Named Pipe disconnected while request ${id} was pending`,
+        ),
       );
     }
     this.pendingRequests.clear();
@@ -256,11 +262,14 @@ export class DotnetPipeClient {
       });
 
       const line = JSON.stringify(request) + "\n";
+      log.info(`Sending request to .NET Named Pipe: ${line.trim()}`);
       socket.write(line, "utf8", (err) => {
         if (err) {
           clearTimeout(timer);
           this.pendingRequests.delete(reqId);
-          reject(new Error(`Failed to write to .NET Named Pipe: ${err.message}`));
+          reject(
+            new Error(`Failed to write to .NET Named Pipe: ${err.message}`),
+          );
         }
       });
     });
@@ -283,4 +292,3 @@ export class DotnetPipeClient {
     this.handleClose();
   }
 }
-

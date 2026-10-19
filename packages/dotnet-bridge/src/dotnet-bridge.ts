@@ -107,4 +107,4 @@ export class DotnetBridge {
 }
 
 // By default, instantiate DotnetBridge with Named Pipe transport as the default choice
-export const dotnetBridge = new DotnetBridge();
+export const dotnetBridge = new DotnetBridge({ transport: "pipe" });
