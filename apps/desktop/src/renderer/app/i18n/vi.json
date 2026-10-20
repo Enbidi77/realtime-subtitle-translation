@@ -24,7 +24,8 @@
     "maximize": "Phóng to",
     "close": "Đóng",
     "audioNotice": "Thông báo thu âm",
-    "dismiss": "Đóng"
+    "dismiss": "Đóng",
+    "helpTour": "Hướng dẫn sử dụng tương tác"
   },
   "nav": {
     "dashboard": "Trang chủ",
@@ -301,6 +302,81 @@
       "rememberChoice": "Ghi nhớ lựa chọn này (có thể đổi lại trong Cài đặt)",
       "confirm": "Xác nhận",
       "cancel": "Hủy bỏ"
+    },
+    "interactiveTour": {
+      "title": "Hướng dẫn sử dụng & Khám phá ứng dụng",
+      "desc": "Xem lại hướng dẫn tương tác từng bước về chọn nguồn âm thanh, phụ đề nổi, dịch màn hình OCR và phím tắt.",
+      "completed": "Đã hoàn thành",
+      "notCompleted": "Người dùng mới",
+      "replayBtn": "Khởi chạy lại hướng dẫn",
+      "resetBtn": "Đặt lại trạng thái",
+      "audioGuide": "Hướng dẫn nguồn âm thanh",
+      "audioGuideDesc": "Cấu hình âm thanh PC vs Micrô",
+      "ocrGuide": "Dịch màn hình (Ctrl+Shift+T)",
+      "ocrGuideDesc": "Tìm hiểu cách dịch trực quan tức thì",
+      "shortcutsGuide": "Bảng tra cứu phím tắt",
+      "shortcutsGuideDesc": "Làm chủ các phím tắt tiện lợi"
+    }
+  },
+  "onboarding": {
+    "badge": "Hướng dẫn bắt đầu tương tác",
+    "stepIndicator": "Bước {current} / {total}",
+    "buttons": {
+      "skip": "Bỏ qua",
+      "back": "Quay lại",
+      "next": "Bước tiếp theo",
+      "getStarted": "Bắt đầu sử dụng",
+      "testOverlay": "Bật thử lớp phủ ngay",
+      "selectSource": "Chuyển sang {source}"
+    },
+    "steps": {
+      "0": {
+        "title": "Chào mừng bạn đến với EchoLingo",
+        "tagline": "Phần mềm phụ đề giọng nói thời gian thực, dịch màn hình OCR và dịch AI ngoại tuyến.",
+        "pillar1Title": "100% Cục bộ & Bảo mật",
+        "pillar1Desc": "Mô hình Whisper cục bộ và Windows SAPI chạy hoàn toàn trên máy tính của bạn. Không theo dõi, không gửi dữ liệu lên mây.",
+        "pillar2Title": "Độ trễ cực thấp",
+        "pillar2Desc": "Xử lý âm thanh VAD liên tục được tách biệt hoàn toàn khỏi luồng giao diện kính mượt mà 60fps.",
+        "pillar3Title": "Kiến trúc hợp đồng tin cậy",
+        "pillar3Desc": "Giao thức IPC định kiểu chặt chẽ với kiểm định schema Zod trên toàn bộ ranh giới tiến trình."
+      },
+      "1": {
+        "title": "Chọn đúng nguồn âm thanh",
+        "tagline": "Rất quan trọng: Xác định bạn muốn nhận diện giọng nói của mình hay âm thanh phát ra từ máy tính.",
+        "systemTitle": "🔊 Âm thanh hệ thống (YouTube, Cuộc họp, Game)",
+        "systemDesc": "Thu trực tiếp âm thanh phát từ trình duyệt, trình phát media và ứng dụng họp mà không bị lẫn tiếng ồn phòng.",
+        "micTitle": "🎙️ Micrô (Giọng nói trực tiếp)",
+        "micDesc": "Thu âm từ micrô vật lý khi bạn đang nói chuyện hoặc thuyết trình.",
+        "currentSelection": "Đang chọn"
+      },
+      "2": {
+        "title": "Phụ đề trực tiếp & Lớp phủ nổi",
+        "tagline": "Hiển thị phụ đề song ngữ trong suốt nổi trên mọi cửa sổ làm việc hoặc video đang phát.",
+        "overlayTitle": "Lớp phủ kính nổi (Ctrl+Shift+O)",
+        "overlayDesc": "Cửa sổ luôn nổi trên video, phim ảnh hoặc game. Hỗ trợ chế độ xuyên thấu để không cản trở thao tác chuột của bạn.",
+        "sampleOriginal": "EchoLingo streams real-time subtitles with microsecond latency.",
+        "sampleTranslation": "EchoLingo phát phụ đề thời gian thực với độ trễ cực thấp."
+      },
+      "3": {
+        "title": "Dịch màn hình tức thì bằng OCR",
+        "tagline": "Dịch bất kỳ đoạn văn bản nào trên màn hình chỉ bằng thao tác kéo chuột chọn vùng.",
+        "hotkeyTitle": "Phím tắt toàn cầu: Ctrl+Shift+T",
+        "hotkeyDesc": "Đóng băng màn hình thành một khung vẽ tương tác. Kéo chuột quanh khung thoại truyện tranh, game hoặc tài liệu để dịch ngay.",
+        "continuousTitle": "Giám sát màn hình liên tục (Ctrl+Shift+R)",
+        "continuousDesc": "Tự động dịch lại một vùng màn hình cố định khi nội dung phụ đề thay đổi, tích hợp thuật toán lọc trùng lặp Levenshtein."
+      },
+      "4": {
+        "title": "Xưởng biên tập phụ đề Video",
+        "tagline": "Nhận diện, dịch thuật, biên tập và gắn phụ đề cứng vào video MP4, MKV cục bộ.",
+        "featureTitle": "Dòng thời gian trực quan & Xuất tệp",
+        "featureDesc": "Kéo thả video để tạo mốc thời gian tự động, tinh chỉnh từng câu thoại và xuất sang tệp chuẩn SRT, VTT hoặc ASS."
+      },
+      "5": {
+        "title": "Phím tắt quan trọng & Bắt đầu!",
+        "tagline": "Ghi nhớ các phím tắt toàn cầu để điều khiển EchoLingo dễ dàng và nhanh chóng.",
+        "searchHint": "Nhấn Ctrl+K hoặc Ctrl+Shift+P bất kỳ lúc nào để mở thanh lệnh nhanh toàn cục.",
+        "settingsHint": "Bạn có thể xem lại hướng dẫn này bất cứ lúc nào trong Cài đặt > Hướng dẫn sử dụng & Khám phá."
+      }
     }
   },
   "splash": {

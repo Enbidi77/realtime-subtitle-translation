@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
+import { useOnboardingStore } from '@/stores/onboarding-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
 import { AppSettings } from '@echo-lingo/contracts';
@@ -30,12 +31,16 @@ import {
   CreditCard,
   Globe,
   ExternalLink,
+  PlayCircle,
+  Radio,
+  ScanText,
 } from 'lucide-react';
 
 export const SettingsView: React.FC = () => {
   const { t } = useI18n();
   const { settings, updateSettings, resetSettings } = useSettingsStore();
   const { setActivePage } = useNavigationStore();
+  const { openTour, resetTour } = useOnboardingStore();
   const [savedBanner, setSavedBanner] = useState(false);
 
   const showSaved = () => {
@@ -81,6 +86,92 @@ export const SettingsView: React.FC = () => {
           </GlassButton>
         </div>
       </div>
+
+      {/* 0. Interactive Tour & Getting Started Card */}
+      <GlassCard variant="default" className="p-6 space-y-4 border border-primary/25 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-transparent">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <h2 className="text-sm font-semibold text-foreground">
+                {t('settings.interactiveTour.title', 'Interactive App Instructions & Tour')}
+              </h2>
+              {settings.hasCompletedOnboarding ? (
+                <GlassBadge variant="success">
+                  <Check className="w-3 h-3 mr-1" />
+                  <span>{t('settings.interactiveTour.completed', 'Completed')}</span>
+                </GlassBadge>
+              ) : (
+                <GlassBadge variant="accent">
+                  <span>{t('settings.interactiveTour.notCompleted', 'New User')}</span>
+                </GlassBadge>
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {t(
+                'settings.interactiveTour.desc',
+                'Replay the step-by-step walkthrough covering audio sources, live subtitles, screen OCR, and global hotkeys.'
+              )}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <GlassButton
+              variant="primary"
+              size="sm"
+              onClick={() => openTour(0)}
+              icon={<PlayCircle className="w-3.5 h-3.5" />}
+            >
+              <span>{t('settings.interactiveTour.replayBtn', 'Replay Interactive Tour')}</span>
+            </GlassButton>
+          </div>
+        </div>
+
+        {/* Quick Topic Launchers */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-glass-border">
+          <button
+            type="button"
+            onClick={() => openTour(1)}
+            className="p-3 rounded-xl bg-glass-subtle hover:bg-glass border border-glass-border text-left transition-all group cursor-pointer"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
+              <Radio className="w-3.5 h-3.5 text-primary" />
+              <span>{t('settings.interactiveTour.audioGuide', 'Audio Source Guide')}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {t('settings.interactiveTour.audioGuideDesc', 'Configure PC sound vs microphone')}
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openTour(3)}
+            className="p-3 rounded-xl bg-glass-subtle hover:bg-glass border border-glass-border text-left transition-all group cursor-pointer"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
+              <ScanText className="w-3.5 h-3.5 text-indigo-400" />
+              <span>{t('settings.interactiveTour.ocrGuide', 'Screen OCR (Ctrl+Shift+T)')}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {t('settings.interactiveTour.ocrGuideDesc', 'Learn instant visual translation')}
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => openTour(5)}
+            className="p-3 rounded-xl bg-glass-subtle hover:bg-glass border border-glass-border text-left transition-all group cursor-pointer"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
+              <Keyboard className="w-3.5 h-3.5 text-amber-400" />
+              <span>{t('settings.interactiveTour.shortcutsGuide', 'Shortcuts Cheatsheet')}</span>
+            </div>
+            <p className="text-[11px] text-muted-foreground mt-1">
+              {t('settings.interactiveTour.shortcutsGuideDesc', 'Master keyboard efficiency')}
+            </p>
+          </button>
+        </div>
+      </GlassCard>
 
       {/* 1. Appearance & Theme */}
       <GlassCard variant="default" className="p-6 space-y-5">

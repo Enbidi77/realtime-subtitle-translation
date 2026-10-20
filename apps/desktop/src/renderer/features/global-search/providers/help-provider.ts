@@ -9,6 +9,16 @@ export class HelpProvider implements ISearchProvider {
   private getItems(): SearchResultItem[] {
     return [
       {
+        id: 'help:interactive-tour',
+        category: 'help',
+        title: 'Interactive App Tour & Getting Started Guide',
+        description: 'Launch the interactive step-by-step walkthrough for audio sources, subtitle overlay, screen OCR, and shortcuts.',
+        icon: 'Sparkles',
+        path: 'Help & Documentation',
+        keywords: ['tour', 'guide', 'tutorial', 'instructions', 'getting started', 'huong dan', 'bat dau', 'gioi thieu'],
+        action: { type: 'command', payload: { commandId: 'tour:open', step: 0 } },
+      },
+      {
         id: 'help:system-audio',
         category: 'help',
         title: 'Capturing System Audio (YouTube, Meetings, Media)',

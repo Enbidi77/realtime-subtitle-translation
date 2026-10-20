@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
+import { useOnboardingStore } from '@/stores/onboarding-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { TitleBarSearchButton } from '@/features/global-search/index.js';
@@ -13,6 +14,7 @@ import {
   ExternalLink,
   Sun,
   Moon,
+  HelpCircle,
 } from 'lucide-react';
 
 export const TitleBar: React.FC = () => {
@@ -24,6 +26,7 @@ export const TitleBar: React.FC = () => {
   const closeBehavior = useSettingsStore((s) => s.settings.closeBehavior);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
   const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
+  const openTour = useOnboardingStore((s) => s.openTour);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
 
   useEffect(() => {
@@ -161,6 +164,17 @@ export const TitleBar: React.FC = () => {
           ) : (
             <Moon className="w-3.5 h-3.5 text-indigo-500" />
           )}
+        </button>
+
+        {/* Interactive Tour / Help Button */}
+        <button
+          type="button"
+          onClick={() => openTour(0)}
+          title={t('layout.helpTour', 'Interactive App Tour')}
+          aria-label={t('layout.helpTour', 'Interactive App Tour')}
+          className="w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
+        >
+          <HelpCircle className="w-3.5 h-3.5 text-primary" />
         </button>
 
         <div className="h-4 w-[1px] bg-glass-border mx-1" />

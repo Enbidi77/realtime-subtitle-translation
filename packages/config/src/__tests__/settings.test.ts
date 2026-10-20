@@ -14,12 +14,14 @@ describe('App Settings & Close Behavior Contracts', () => {
     expect(DEFAULT_APP_SETTINGS.closeBehavior).toBe('ask');
     expect(DEFAULT_APP_SETTINGS.enableSplashScreen).toBe(true);
     expect(DEFAULT_APP_SETTINGS.showPaidProviders).toBe(false);
+    expect(DEFAULT_APP_SETTINGS.hasCompletedOnboarding).toBe(false);
     expect(DEFAULT_APP_SETTINGS.overlaySettings.hideOnCapture).toBe(true);
     expect(DEFAULT_APP_SETTINGS.screenTranslation.hideOverlayOnCapture).toBe(true);
     const parsed = AppSettingsSchema.parse(DEFAULT_APP_SETTINGS);
     expect(parsed.closeBehavior).toBe('ask');
     expect(parsed.enableSplashScreen).toBe(true);
     expect(parsed.showPaidProviders).toBe(false);
+    expect(parsed.hasCompletedOnboarding).toBe(false);
     expect(parsed.overlaySettings.hideOnCapture).toBe(true);
     expect(parsed.screenTranslation.hideOverlayOnCapture).toBe(true);
   });

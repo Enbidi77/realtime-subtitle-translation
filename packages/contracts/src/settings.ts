@@ -78,6 +78,7 @@ export const AppSettingsSchema = z.object({
   enableLocalOnlyMode: z.boolean().default(false),
   showPaidProviders: z.boolean().default(false),
   autoScrollLiveSubtitles: z.boolean().default(true),
+  hasCompletedOnboarding: z.boolean().default(false),
   subtitleAppearance: SubtitleAppearanceSchema.default({}),
   overlaySettings: OverlaySettingsSchema.default({}),
   screenTranslation: ScreenTranslationSettingsSchema.default({}),

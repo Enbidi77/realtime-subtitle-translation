@@ -16,7 +16,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
 
   loadSettings: async () => {
     try {
-      if (window.electronAPI?.settings) {
+      if (typeof window !== 'undefined' && window.electronAPI?.settings) {
         const loaded = await window.electronAPI.settings.get();
         set({ settings: loaded, isLoading: false });
         applyTheme(loaded.theme, loaded.glassIntensity);
@@ -36,7 +36,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
     if (updates.theme || updates.glassIntensity) {
       applyTheme(next.theme, next.glassIntensity);
     }
-    if (window.electronAPI?.settings) {
+    if (typeof window !== 'undefined' && window.electronAPI?.settings) {
       try {
         const saved = await window.electronAPI.settings.update(updates);
         set({ settings: saved });
@@ -47,7 +47,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
   },
 
   resetSettings: async () => {
-    if (window.electronAPI?.settings) {
+    if (typeof window !== 'undefined' && window.electronAPI?.settings) {
       const reset = await window.electronAPI.settings.reset();
       set({ settings: reset });
       applyTheme(reset.theme, reset.glassIntensity);
@@ -62,10 +62,11 @@ export function applyTheme(
   theme: 'system' | 'light' | 'dark',
   glassIntensity: 'subtle' | 'balanced' | 'strong' = 'balanced'
 ) {
+  if (typeof document === 'undefined') return;
   const root = document.documentElement;
   const isDark =
     theme === 'dark' ||
-    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    (theme === 'system' && typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)')?.matches);
 
   if (isDark) {
     root.classList.add('dark');

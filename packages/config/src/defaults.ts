@@ -23,6 +23,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   enableLocalOnlyMode: false,
   showPaidProviders: false,
   autoScrollLiveSubtitles: true,
+  hasCompletedOnboarding: false,
   subtitleAppearance: {
     fontSize: 24,
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

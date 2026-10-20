@@ -18,12 +18,17 @@ import { useAudioCapture } from '@/hooks/useAudioCapture.js';
 import { AmbientBackground } from '@/components/ui/AmbientBackground.js';
 import { ExitConfirmationModal } from '@/components/ExitConfirmationModal.js';
 import { GlobalSearchModal, useGlobalSearchStore } from '@/features/global-search/index.js';
+import { InteractiveTourModal } from '@/features/onboarding/index.js';
+import { useOnboardingStore } from '@/stores/onboarding-store.js';
 
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);
   const isExitModalOpen = useNavigationStore((s) => s.isExitModalOpen);
   const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
+  const hasCompletedOnboarding = useSettingsStore((s) => s.settings.hasCompletedOnboarding);
+  const isSettingsLoading = useSettingsStore((s) => s.isLoading);
+  const openTour = useOnboardingStore((s) => s.openTour);
   const handleTranscriptionEvent = useSessionStore((s) => s.handleTranscriptionEvent);
 
   // Initialize Web Audio capture engine
@@ -32,6 +37,19 @@ export const App: React.FC = () => {
   useEffect(() => {
     // Load persisted settings on startup
     loadSettings();
+  }, [loadSettings]);
+
+  useEffect(() => {
+    // Automatically trigger onboarding tour once on initial app run if not yet completed
+    if (!isSettingsLoading && !hasCompletedOnboarding) {
+      const timer = setTimeout(() => {
+        openTour(0);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
+  }, [isSettingsLoading, hasCompletedOnboarding, openTour]);
+
+  useEffect(() => {
 
     // Listen to real-time transcription events and audio status from main process
     if (window.electronAPI) {
@@ -158,6 +176,9 @@ export const App: React.FC = () => {
 
       {/* Global Search Command Palette */}
       <GlobalSearchModal />
+
+      {/* Interactive App Instructions & Tour */}
+      <InteractiveTourModal />
     </div>
   );
 };

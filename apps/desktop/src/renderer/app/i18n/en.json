@@ -24,7 +24,8 @@
     "maximize": "Maximize",
     "close": "Close",
     "audioNotice": "Audio Capture Notice",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "helpTour": "Interactive App Tour"
   },
   "nav": {
     "dashboard": "Home",
@@ -301,6 +302,81 @@
       "rememberChoice": "Remember my choice (You can change this anytime in Settings)",
       "confirm": "Confirm",
       "cancel": "Cancel"
+    },
+    "interactiveTour": {
+      "title": "Interactive App Instructions & Tour",
+      "desc": "Replay the step-by-step walkthrough covering audio sources, live subtitles, screen OCR, and global hotkeys.",
+      "completed": "Completed",
+      "notCompleted": "New User",
+      "replayBtn": "Replay Interactive Tour",
+      "resetBtn": "Reset Status",
+      "audioGuide": "Audio Source Guide",
+      "audioGuideDesc": "Configure PC sound vs microphone",
+      "ocrGuide": "Screen OCR (Ctrl+Shift+T)",
+      "ocrGuideDesc": "Learn instant visual translation",
+      "shortcutsGuide": "Shortcuts Cheatsheet",
+      "shortcutsGuideDesc": "Master keyboard efficiency"
+    }
+  },
+  "onboarding": {
+    "badge": "Interactive Getting Started",
+    "stepIndicator": "Step {current} of {total}",
+    "buttons": {
+      "skip": "Skip Tour",
+      "back": "Previous",
+      "next": "Next Step",
+      "getStarted": "Get Started",
+      "testOverlay": "Toggle Overlay Now",
+      "selectSource": "Switch to {source}"
+    },
+    "steps": {
+      "0": {
+        "title": "Welcome to EchoLingo",
+        "tagline": "Offline-first real-time speech recognition, live subtitling, and AI translation pipeline.",
+        "pillar1Title": "100% Offline & Private",
+        "pillar1Desc": "Whisper local models and Windows SAPI run strictly on your machine. Zero telemetry, no silent uploads.",
+        "pillar2Title": "Microsecond Precision",
+        "pillar2Desc": "Continuous VAD audio processing decoupled from the 60fps glassmorphism UI thread.",
+        "pillar3Title": "Contract-Driven Reliability",
+        "pillar3Desc": "Type-safe IPC architecture with Zod schema validation across all process boundaries."
+      },
+      "1": {
+        "title": "Choose the Right Audio Source",
+        "tagline": "Crucial: Decide whether you want to transcribe your voice or PC sound.",
+        "systemTitle": "🔊 System Audio (YouTube, Meetings, Games)",
+        "systemDesc": "Captures internal PC sound directly from browsers, media players, and conferencing apps without room echo.",
+        "micTitle": "🎙️ Microphone (Voice Input)",
+        "micDesc": "Captures your physical microphone when you are speaking or presenting.",
+        "currentSelection": "Active selection"
+      },
+      "2": {
+        "title": "Live Subtitles & Floating Overlay",
+        "tagline": "Display transparent, non-intrusive subtitles on top of any active window or video stream.",
+        "overlayTitle": "Floating Glass Overlay (Ctrl+Shift+O)",
+        "overlayDesc": "Always-on-top glass window that sits above videos, streams, and games. Supports click-through mode so it never interrupts your clicks.",
+        "sampleOriginal": "EchoLingo streams real-time subtitles with microsecond latency.",
+        "sampleTranslation": "EchoLingo phát phụ đề thời gian thực với độ trễ cực thấp."
+      },
+      "3": {
+        "title": "Instant Screen Translation & OCR",
+        "tagline": "Translate text anywhere on your screen by simply dragging a selection box.",
+        "hotkeyTitle": "Shortcut: Ctrl+Shift+T",
+        "hotkeyDesc": "Freezes your screen into an interactive canvas. Drag over untranslated manga, comics, software UI, or games to translate instantly.",
+        "continuousTitle": "Continuous Screen Monitoring (Ctrl+Shift+R)",
+        "continuousDesc": "Automatically re-translates a fixed screen region as subtitle lines or dialogues update, with built-in Levenshtein deduplication."
+      },
+      "4": {
+        "title": "Video Subtitles Studio",
+        "tagline": "Transcribe, translate, edit, and burn-in subtitles for local video files.",
+        "featureTitle": "Full Media Timeline & Export",
+        "featureDesc": "Drag & drop MP4, MKV, or WEBM files. Generate synchronized cues, edit text inline, and export to SRT, VTT, or ASS files."
+      },
+      "5": {
+        "title": "Essential Shortcuts & You're Ready!",
+        "tagline": "Master these global hotkeys to control EchoLingo seamlessly from anywhere.",
+        "searchHint": "Press Ctrl+K or Ctrl+Shift+P anytime to open the global command palette.",
+        "settingsHint": "You can revisit this interactive tour anytime in Settings > Interactive App Instructions."
+      }
     }
   },
   "splash": {

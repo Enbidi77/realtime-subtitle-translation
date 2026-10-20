@@ -2,6 +2,7 @@ import { SearchResultItem } from './types.js';
 import { useNavigationStore, AppPage } from '@/stores/navigation-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
+import { useOnboardingStore } from '@/stores/onboarding-store.js';
 
 export interface CommandExecutionResult {
   success: boolean;
@@ -242,6 +243,13 @@ class CommandRegistry {
 
     this.register('settings:reset', async () => {
       await useSettingsStore.getState().resetSettings();
+      return { success: true };
+    });
+
+    // 8. Interactive Tour
+    this.register('tour:open', (payload) => {
+      const step = typeof payload?.step === 'number' ? payload.step : 0;
+      useOnboardingStore.getState().openTour(step);
       return { success: true };
     });
   }
