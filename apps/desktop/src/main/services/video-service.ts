@@ -1,11 +1,11 @@
-import { execFile, spawn, ChildProcess } from 'node:child_process';
-import { promisify } from 'node:util';
-import * as fs from 'node:fs';
-import * as fsp from 'node:fs/promises';
-import * as path from 'node:path';
-import * as os from 'node:os';
-import { app, BrowserWindow, dialog } from 'electron';
-import { createLogger, ILogger } from '@echo-lingo/logger';
+import { execFile, spawn, ChildProcess } from "node:child_process";
+import { promisify } from "node:util";
+import * as fs from "node:fs";
+import * as fsp from "node:fs/promises";
+import * as path from "node:path";
+import * as os from "node:os";
+import { app, BrowserWindow, dialog } from "electron";
+import { createLogger, ILogger } from "@echo-lingo/logger";
 import {
   VideoMetadata,
   VideoExportOptions,
@@ -14,13 +14,13 @@ import {
   SubtitleSegment,
   SubtitleStyleOptions,
   toMediaProtocolUrl,
-} from '@echo-lingo/contracts';
-import { generateAssScript } from '@echo-lingo/subtitle-core';
-import { parseSrt } from '@echo-lingo/subtitle-core';
-import { getSpeechService } from './speech-service.js';
-import { getTranslationService } from './translation-service.js';
-import { LocalWhisperProvider } from '@echo-lingo/provider-adapters';
-import ffmpegStatic from 'ffmpeg-static';
+} from "@echo-lingo/contracts";
+import { generateAssScript } from "@echo-lingo/subtitle-core";
+import { parseSrt } from "@echo-lingo/subtitle-core";
+import { getSpeechService } from "./speech-service.js";
+import { getTranslationService } from "./translation-service.js";
+import { LocalWhisperProvider } from "@echo-lingo/provider-adapters";
+import ffmpegStatic from "ffmpeg-static";
 
 const execFileAsync = promisify(execFile);
 
@@ -33,7 +33,7 @@ export interface ActiveVideoJob {
 
 export class VideoService {
   private static instance: VideoService | null = null;
-  private readonly log: ILogger = createLogger('VideoService');
+  private readonly log: ILogger = createLogger("VideoService");
   private ffmpegBinaryPath: string | null = null;
   private ffprobeBinaryPath: string | null = null;
   private activeJobs = new Map<string, ActiveVideoJob>();
@@ -58,7 +58,7 @@ export class VideoService {
       return this.ffmpegBinaryPath;
     }
 
-    const exeName = process.platform === 'win32' ? 'ffmpeg.exe' : 'ffmpeg';
+    const exeName = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
     const candidates: string[] = [];
 
     // 1. Environment variable override
@@ -68,10 +68,17 @@ export class VideoService {
 
     // 2. ffmpeg-static bundled package binary
     try {
-      const staticPath = (typeof ffmpegStatic === 'string' ? ffmpegStatic : (ffmpegStatic as any)?.default) as string | null;
+      const staticPath = (
+        typeof ffmpegStatic === "string"
+          ? ffmpegStatic
+          : (ffmpegStatic as any)?.default
+      ) as string | null;
       if (staticPath) {
         // In packaged Electron apps, unpacked binaries reside in app.asar.unpacked
-        const unpackedStatic = staticPath.replace('app.asar', 'app.asar.unpacked');
+        const unpackedStatic = staticPath.replace(
+          "app.asar",
+          "app.asar.unpacked",
+        );
         candidates.push(unpackedStatic);
         candidates.push(staticPath);
       }
@@ -81,19 +88,19 @@ export class VideoService {
 
     // 3. Electron resources directory
     if (process.resourcesPath) {
-      candidates.push(path.join(process.resourcesPath, 'bin', exeName));
+      candidates.push(path.join(process.resourcesPath, "bin", exeName));
       candidates.push(path.join(process.resourcesPath, exeName));
     }
 
     // 4. User data / local echo-lingo bin directory
     try {
-      if (app && typeof app.getPath === 'function') {
-        candidates.push(path.join(app.getPath('userData'), 'bin', exeName));
+      if (app && typeof app.getPath === "function") {
+        candidates.push(path.join(app.getPath("userData"), "bin", exeName));
       }
     } catch {
       // ignore outside electron
     }
-    candidates.push(path.join(os.homedir(), '.echo-lingo', 'bin', exeName));
+    candidates.push(path.join(os.homedir(), ".echo-lingo", "bin", exeName));
 
     for (const p of candidates) {
       if (p && fs.existsSync(p)) {
@@ -104,7 +111,7 @@ export class VideoService {
     }
 
     // 5. System PATH check
-    const pathDirs = (process.env.PATH || '').split(path.delimiter);
+    const pathDirs = (process.env.PATH || "").split(path.delimiter);
     for (const dir of pathDirs) {
       const fullPath = path.join(dir, exeName);
       if (fs.existsSync(fullPath)) {
@@ -114,7 +121,9 @@ export class VideoService {
       }
     }
 
-    this.log.warn('FFmpeg binary could not be resolved in static package or local/system paths.');
+    this.log.warn(
+      "FFmpeg binary could not be resolved in static package or local/system paths.",
+    );
     return null;
   }
 
@@ -126,7 +135,7 @@ export class VideoService {
       return this.ffprobeBinaryPath;
     }
 
-    const exeName = process.platform === 'win32' ? 'ffprobe.exe' : 'ffprobe';
+    const exeName = process.platform === "win32" ? "ffprobe.exe" : "ffprobe";
     const candidates: string[] = [];
 
     if (process.env.FFPROBE_PATH && fs.existsSync(process.env.FFPROBE_PATH)) {
@@ -134,16 +143,16 @@ export class VideoService {
     }
 
     try {
-      if (app && typeof app.getPath === 'function') {
-        candidates.push(path.join(app.getPath('userData'), 'bin', exeName));
+      if (app && typeof app.getPath === "function") {
+        candidates.push(path.join(app.getPath("userData"), "bin", exeName));
       }
     } catch {
       // ignore
     }
-    candidates.push(path.join(os.homedir(), '.echo-lingo', 'bin', exeName));
+    candidates.push(path.join(os.homedir(), ".echo-lingo", "bin", exeName));
 
     if (process.resourcesPath) {
-      candidates.push(path.join(process.resourcesPath, 'bin', exeName));
+      candidates.push(path.join(process.resourcesPath, "bin", exeName));
     }
 
     for (const p of candidates) {
@@ -153,7 +162,7 @@ export class VideoService {
       }
     }
 
-    const pathDirs = (process.env.PATH || '').split(path.delimiter);
+    const pathDirs = (process.env.PATH || "").split(path.delimiter);
     for (const dir of pathDirs) {
       const fullPath = path.join(dir, exeName);
       if (fs.existsSync(fullPath)) {
@@ -176,13 +185,18 @@ export class VideoService {
     };
   }
 
-  public async openVideoFileDialog(win?: BrowserWindow | null): Promise<VideoMetadata | null> {
+  public async openVideoFileDialog(
+    win?: BrowserWindow | null,
+  ): Promise<VideoMetadata | null> {
     const result = await dialog.showOpenDialog(win || (undefined as any), {
-      title: 'Select Video File',
-      properties: ['openFile'],
+      title: "Select Video File",
+      properties: ["openFile"],
       filters: [
-        { name: 'Video Files', extensions: ['mp4', 'mkv', 'mov', 'webm', 'avi', 'wmv', 'flv'] },
-        { name: 'All Files', extensions: ['*'] },
+        {
+          name: "Video Files",
+          extensions: ["mp4", "mkv", "mov", "webm", "avi", "wmv", "flv"],
+        },
+        { name: "All Files", extensions: ["*"] },
       ],
     });
 
@@ -191,19 +205,22 @@ export class VideoService {
     try {
       return await this.probeMetadata(filePath);
     } catch (err: any) {
-      this.log.error('Failed to probe video metadata:', err);
+      this.log.error("Failed to probe video metadata:", err);
       throw err;
     }
   }
 
-  public async saveVideoFileDialog(win?: BrowserWindow | null, defaultName?: string): Promise<string | null> {
+  public async saveVideoFileDialog(
+    win?: BrowserWindow | null,
+    defaultName?: string,
+  ): Promise<string | null> {
     const result = await dialog.showSaveDialog(win || (undefined as any), {
-      title: 'Save Subtitled Video',
-      defaultPath: defaultName || 'subtitled_video.mp4',
+      title: "Save Subtitled Video",
+      defaultPath: defaultName || "subtitled_video.mp4",
       filters: [
-        { name: 'MP4 Video', extensions: ['mp4'] },
-        { name: 'MKV Video', extensions: ['mkv'] },
-        { name: 'All Files', extensions: ['*'] },
+        { name: "MP4 Video", extensions: ["mp4"] },
+        { name: "MKV Video", extensions: ["mkv"] },
+        { name: "All Files", extensions: ["*"] },
       ],
     });
     return result.canceled ? null : result.filePath;
@@ -213,14 +230,16 @@ export class VideoService {
    * Verify and resolve FFmpeg binary provided statically via ffmpeg-static or environment
    */
   public async downloadAndInstallFfmpeg(
-    onProgress?: (progressPercent: number) => void
+    onProgress?: (progressPercent: number) => void,
   ): Promise<{ success: boolean; path: string }> {
     const resolved = this.resolveFfmpegBinary();
     if (resolved) {
       if (onProgress) onProgress(100);
       return { success: true, path: resolved };
     }
-    throw new Error('FFmpeg binary could not be found. Please ensure ffmpeg-static is installed or set FFMPEG_PATH.');
+    throw new Error(
+      "FFmpeg binary could not be found. Please ensure ffmpeg-static is installed or set FFMPEG_PATH.",
+    );
   }
 
   /**
@@ -236,21 +255,23 @@ export class VideoService {
     const ffmpegBin = this.resolveFfmpegBinary();
 
     if (!ffmpegBin) {
-      throw new Error('FFmpeg binary is required to inspect video metadata.');
+      throw new Error("FFmpeg binary is required to inspect video metadata.");
     }
 
     // Run ffmpeg -i "<videoPath>" to extract stream headers
-    let stderr = '';
+    let stderr = "";
     try {
-      await execFileAsync(ffmpegBin, ['-i', videoPath]);
+      await execFileAsync(ffmpegBin, ["-i", videoPath]);
     } catch (err: any) {
       // FFmpeg returns exit code 1 when invoked with just -i without output
-      stderr = err.stderr || err.message || '';
+      stderr = err.stderr || err.message || "";
     }
 
     // 1. Duration (Duration: 00:01:23.45)
     let durationSeconds = 0;
-    const durMatch = stderr.match(/Duration:\s*(\d{2}):(\d{2}):(\d{2}(?:\.\d+)?)/i);
+    const durMatch = stderr.match(
+      /Duration:\s*(\d{2}):(\d{2}):(\d{2}(?:\.\d+)?)/i,
+    );
     if (durMatch) {
       const hours = parseInt(durMatch[1], 10);
       const mins = parseInt(durMatch[2], 10);
@@ -262,7 +283,7 @@ export class VideoService {
     let width = 1920;
     let height = 1080;
     let fps = 30;
-    let videoCodec = 'unknown';
+    let videoCodec = "unknown";
 
     const vidLineMatch = stderr.match(/Video:\s*([^\n\r]+)/i);
     if (vidLineMatch) {
@@ -290,9 +311,9 @@ export class VideoService {
       hasAudio = true;
       const audLine = audLineMatch[1];
       audioCodec = audLine.split(/[\s,]+/)[0];
-      if (audLine.includes('stereo')) audioChannels = 2;
-      else if (audLine.includes('mono')) audioChannels = 1;
-      else if (audLine.includes('5.1')) audioChannels = 6;
+      if (audLine.includes("stereo")) audioChannels = 2;
+      else if (audLine.includes("mono")) audioChannels = 1;
+      else if (audLine.includes("5.1")) audioChannels = 6;
       else audioChannels = 2;
     }
 
@@ -320,32 +341,44 @@ export class VideoService {
   /**
    * Extract audio from video as a 16kHz mono WAV suitable for speech transcription
    */
-  public async extractAudio(videoPath: string, targetWavPath?: string): Promise<string> {
+  public async extractAudio(
+    videoPath: string,
+    targetWavPath?: string,
+  ): Promise<string> {
     const ffmpegBin = this.resolveFfmpegBinary();
     if (!ffmpegBin) {
-      throw new Error('FFmpeg binary is required to extract audio from video.');
+      throw new Error("FFmpeg binary is required to extract audio from video.");
     }
 
     const meta = await this.probeMetadata(videoPath);
     if (!meta.hasAudio) {
-      throw new Error('The selected video does not contain an audio track to extract.');
+      throw new Error(
+        "The selected video does not contain an audio track to extract.",
+      );
     }
 
     const outputPath =
       targetWavPath ||
-      path.join(os.tmpdir(), `echolingo_extract_${Date.now()}_${Math.random().toString(36).slice(2)}.wav`);
+      path.join(
+        os.tmpdir(),
+        `echolingo_extract_${Date.now()}_${Math.random().toString(36).slice(2)}.wav`,
+      );
 
     const args = [
-      '-y',
-      '-i', videoPath,
-      '-vn',
-      '-acodec', 'pcm_s16le',
-      '-ar', '16000',
-      '-ac', '1',
+      "-y",
+      "-i",
+      videoPath,
+      "-vn",
+      "-acodec",
+      "pcm_s16le",
+      "-ar",
+      "16000",
+      "-ac",
+      "1",
       outputPath,
     ];
 
-    this.log.info(`Extracting audio: ${ffmpegBin} ${args.join(' ')}`);
+    this.log.info(`Extracting audio: ${ffmpegBin} ${args.join(" ")}`);
     await execFileAsync(ffmpegBin, args);
 
     return outputPath;
@@ -360,18 +393,22 @@ export class VideoService {
       sourceLang?: string;
       targetLang?: string;
     } = {},
-    onProgress?: (progress: VideoTranscribeProgress) => void
+    onProgress?: (progress: VideoTranscribeProgress) => void,
   ): Promise<SubtitleSegment[]> {
     const meta = await this.probeMetadata(videoPath);
     if (!meta.hasAudio) {
-      this.log.warn(`Cannot transcribe video "${videoPath}": No audio track found.`);
-      throw new Error('The selected video does not contain an audio track to transcribe.');
+      this.log.warn(
+        `Cannot transcribe video "${videoPath}": No audio track found.`,
+      );
+      throw new Error(
+        "The selected video does not contain an audio track to transcribe.",
+      );
     }
 
     onProgress?.({
-      phase: 'extracting',
+      phase: "extracting",
       percent: 5,
-      detail: 'Extracting audio from video...',
+      detail: "Extracting audio from video...",
     });
 
     const tempWav = await this.extractAudio(videoPath);
@@ -387,7 +424,7 @@ export class VideoService {
       if (activeProvider instanceof LocalWhisperProvider) {
         whisperProvider = activeProvider;
       } else {
-        const local = speechService.getProvider('whisper-local');
+        const local = speechService.getProvider("whisper-local");
         if (local instanceof LocalWhisperProvider) {
           whisperProvider = local;
         } else {
@@ -403,26 +440,38 @@ export class VideoService {
         const outPrefix = path.join(os.tmpdir(), `whisper_out_${Date.now()}`);
         const srtFile = `${outPrefix}.srt`;
 
-        const lang = options.sourceLang && options.sourceLang !== 'auto' ? options.sourceLang : 'auto';
+        const lang =
+          options.sourceLang && options.sourceLang !== "auto"
+            ? options.sourceLang
+            : "auto";
         const threads = Math.min(8, Math.max(2, (os.cpus()?.length || 4) - 2));
         const whisperArgs = [
-          '-m', modelPath,
-          '-f', tempWav,
-          '-l', lang,
-          '-osrt',
-          '-of', outPrefix,
-          '-t', String(threads),
-          '-bo', '1',
-          '-bs', '1',
-          '-pp',
+          "-m",
+          modelPath,
+          "-f",
+          tempWav,
+          "-l",
+          lang,
+          "-osrt",
+          "-of",
+          outPrefix,
+          "-t",
+          String(threads),
+          "-bo",
+          "1",
+          "-bs",
+          "1",
+          "-pp",
         ];
 
-        this.log.info(`Transcribing video via whisper.cpp CLI: ${whisperBin} ${whisperArgs.join(' ')}`);
+        this.log.info(
+          `Transcribing video via whisper.cpp CLI: ${whisperBin} ${whisperArgs.join(" ")}`,
+        );
 
         onProgress?.({
-          phase: 'transcribing',
+          phase: "transcribing",
           percent: 10,
-          detail: 'Starting Whisper speech recognition...',
+          detail: "Starting Whisper speech recognition...",
         });
 
         await new Promise<void>((resolve, reject) => {
@@ -430,8 +479,8 @@ export class VideoService {
             windowsHide: true,
           });
 
-          let stderrData = '';
-          let lastDetail = 'Recognizing speech...';
+          let stderrData = "";
+          let lastDetail = "Recognizing speech...";
           let lastWhisperPct = 0;
 
           const parseOutput = (chunk: Buffer) => {
@@ -443,22 +492,26 @@ export class VideoService {
               if (progMatch) {
                 lastWhisperPct = parseInt(progMatch[1], 10);
                 const maxRange = options.targetLang ? 65 : 85;
-                const totalPct = 10 + Math.round((lastWhisperPct / 100) * maxRange);
+                const totalPct =
+                  10 + Math.round((lastWhisperPct / 100) * maxRange);
                 onProgress?.({
-                  phase: 'transcribing',
+                  phase: "transcribing",
                   percent: Math.min(95, totalPct),
                   detail: lastDetail,
                 });
               }
 
-              const tsMatch = line.match(/\[(\d\d:\d\d:\d\d\.\d\d\d)\s*-->\s*(\d\d:\d\d:\d\d\.\d\d\d)\]\s*(.*)/);
+              const tsMatch = line.match(
+                /\[(\d\d:\d\d:\d\d\.\d\d\d)\s*-->\s*(\d\d:\d\d:\d\d\.\d\d\d)\]\s*(.*)/,
+              );
               if (tsMatch && tsMatch[3]?.trim()) {
                 const cueText = tsMatch[3].trim();
                 lastDetail = `[${tsMatch[1].slice(3, 8)}] ${cueText}`;
                 const maxRange = options.targetLang ? 65 : 85;
-                const totalPct = 10 + Math.round((lastWhisperPct / 100) * maxRange);
+                const totalPct =
+                  10 + Math.round((lastWhisperPct / 100) * maxRange);
                 onProgress?.({
-                  phase: 'transcribing',
+                  phase: "transcribing",
                   percent: Math.min(95, totalPct),
                   detail: lastDetail,
                 });
@@ -466,41 +519,45 @@ export class VideoService {
             }
           };
 
-          child.stdout?.on('data', parseOutput);
-          child.stderr?.on('data', parseOutput);
+          child.stdout?.on("data", parseOutput);
+          child.stderr?.on("data", parseOutput);
 
-          child.on('error', reject);
-          child.on('close', (code) => {
+          child.on("error", reject);
+          child.on("close", (code) => {
             if (code === 0) {
               resolve();
             } else {
-              reject(new Error(`whisper.cpp exited with code ${code}: ${stderrData.slice(-500)}`));
+              reject(
+                new Error(
+                  `whisper.cpp exited with code ${code}: ${stderrData.slice(-500)}`,
+                ),
+              );
             }
           });
         });
 
         if (fs.existsSync(srtFile)) {
-          const srtContent = await fsp.readFile(srtFile, 'utf-8');
+          const srtContent = await fsp.readFile(srtFile, "utf-8");
           segments = parseSrt(srtContent, {
-            sourceLanguage: options.sourceLang || 'en',
+            sourceLanguage: options.sourceLang || "en",
             targetLanguage: options.targetLang,
             isBilingual: false,
           });
           await fsp.unlink(srtFile).catch(() => {});
         }
-      } else if (activeProvider.id !== 'windows-speech') {
+      } else if (activeProvider.id !== "windows-speech") {
         // Fall back to active cloud provider if segments still empty
         onProgress?.({
-          phase: 'transcribing',
+          phase: "transcribing",
           percent: 20,
-          detail: 'Transcribing via cloud speech provider...',
+          detail: "Transcribing via cloud speech provider...",
         });
 
         const wavBuffer = await fsp.readFile(tempWav);
         const pcm16 = new Int16Array(
           wavBuffer.buffer,
           wavBuffer.byteOffset + 44,
-          (wavBuffer.byteLength - 44) / 2
+          (wavBuffer.byteLength - 44) / 2,
         );
         const float32 = new Float32Array(pcm16.length);
         for (let i = 0; i < pcm16.length; i++) {
@@ -516,17 +573,17 @@ export class VideoService {
           const durMs = Math.round((float32.length / 16000) * 1000);
           segments = [
             {
-              id: 'seg_' + Date.now(),
-              sessionId: 'video_session',
+              id: "seg_" + Date.now(),
+              sessionId: "video_session",
               startTime: 0,
               endTime: durMs,
               originalText: resp.text.trim(),
               translations: {},
-              sourceLanguage: options.sourceLang || 'auto',
+              sourceLanguage: options.sourceLang || "auto",
               targetLanguages: options.targetLang ? [options.targetLang] : [],
-              status: 'final',
+              status: "final",
               speechProvider: activeProvider.name,
-              translationProvider: '',
+              translationProvider: "",
               createdAt: Date.now(),
               updatedAt: Date.now(),
             },
@@ -534,14 +591,14 @@ export class VideoService {
         }
       } else {
         throw new Error(
-          'Whisper model is required to generate timestamped subtitles for videos. Please install a Whisper model or select a cloud provider.'
+          "Whisper model is required to generate timestamped subtitles for videos. Please install a Whisper model or select a cloud provider.",
         );
       }
 
       // If target language requested, translate segments in concurrent batches
       if (options.targetLang && segments.length > 0) {
         onProgress?.({
-          phase: 'translating',
+          phase: "translating",
           percent: 75,
           detail: `Translating ${segments.length} cues to ${options.targetLang.toUpperCase()}...`,
         });
@@ -556,21 +613,25 @@ export class VideoService {
                 try {
                   const res = await translationService.translate({
                     text: seg.originalText,
-                    sourceLanguage: seg.sourceLanguage || 'auto',
+                    sourceLanguage: seg.sourceLanguage || "auto",
                     targetLanguage: options.targetLang!,
-                    priority: 'high',
+                    priority: "high",
                   });
                   seg.translations[options.targetLang!] = res.translatedText;
                 } catch (err) {
-                  this.log.error(`Translation error for segment ${seg.id}:`, err);
+                  this.log.error(
+                    `Translation error for segment ${seg.id}:`,
+                    err,
+                  );
                 }
               }
-            })
+            }),
           );
           const doneCount = Math.min(segments.length, i + CHUNK_SIZE);
-          const transPercent = 75 + Math.round((doneCount / segments.length) * 23);
+          const transPercent =
+            75 + Math.round((doneCount / segments.length) * 23);
           onProgress?.({
-            phase: 'translating',
+            phase: "translating",
             percent: Math.min(98, transPercent),
             detail: `Translated ${doneCount} of ${segments.length} cues (${transPercent}%)`,
           });
@@ -578,7 +639,7 @@ export class VideoService {
       }
 
       onProgress?.({
-        phase: 'completed',
+        phase: "completed",
         percent: 100,
         detail: `Completed! ${segments.length} cues generated.`,
       });
@@ -593,7 +654,7 @@ export class VideoService {
    * Escape ASS path for FFmpeg filter graph (crucial for Windows C:\ paths)
    */
   public escapeFilterPath(rawPath: string): string {
-    return rawPath.replace(/\\/g, '/').replace(/:/g, '\\:');
+    return rawPath.replace(/\\/g, "/").replace(/:/g, "\\:");
   }
 
   /**
@@ -601,14 +662,15 @@ export class VideoService {
    */
   public async exportSubtitledVideo(
     options: VideoExportOptions,
-    onProgress: (progress: VideoExportProgress) => void
+    onProgress: (progress: VideoExportProgress) => void,
   ): Promise<{ outputPath: string }> {
     const ffmpegBin = this.resolveFfmpegBinary();
     if (!ffmpegBin) {
-      throw new Error('FFmpeg binary is required to export subtitled video.');
+      throw new Error("FFmpeg binary is required to export subtitled video.");
     }
 
-    const jobId = 'export_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+    const jobId =
+      "export_" + Date.now() + "_" + Math.random().toString(36).slice(2);
     const tempFiles: string[] = [];
 
     // Probe metadata for total duration
@@ -618,7 +680,7 @@ export class VideoService {
     // Generate ASS subtitle script
     onProgress({
       jobId,
-      phase: 'generating-ass',
+      phase: "generating-ass",
       progressPercent: 5,
       totalDurationSeconds,
     });
@@ -631,10 +693,15 @@ export class VideoService {
       ...options.style,
       fontSize: Math.max(14, Math.round(options.style.fontSize * scaleFactor)),
       verticalMargin: Math.round(options.style.verticalMargin * scaleFactor),
-      horizontalMargin: Math.round(options.style.horizontalMargin * scaleFactor),
+      horizontalMargin: Math.round(
+        options.style.horizontalMargin * scaleFactor,
+      ),
       outlineWidth:
         options.style.outlineWidth > 0
-          ? Math.max(1, Math.round(options.style.outlineWidth * scaleFactor * 10) / 10)
+          ? Math.max(
+              1,
+              Math.round(options.style.outlineWidth * scaleFactor * 10) / 10,
+            )
           : 0,
       shadowDistance:
         options.style.shadowDistance > 0
@@ -649,45 +716,47 @@ export class VideoService {
 
     const tempAssPath = path.join(
       os.tmpdir(),
-      `echolingo_sub_${Date.now()}_${Math.random().toString(36).slice(2)}.ass`
+      `echolingo_sub_${Date.now()}_${Math.random().toString(36).slice(2)}.ass`,
     );
-    await fsp.writeFile(tempAssPath, assScript, 'utf-8');
+    await fsp.writeFile(tempAssPath, assScript, "utf-8");
     tempFiles.push(tempAssPath);
 
     const escapedAss = this.escapeFilterPath(tempAssPath);
 
     // Build FFmpeg command arguments
-    const ffmpegArgs: string[] = ['-y', '-i', options.inputVideoPath];
+    const ffmpegArgs: string[] = ["-y", "-i", options.inputVideoPath];
 
-    if (options.exportMode === 'hardsub-burnin') {
-      ffmpegArgs.push('-vf', `ass='${escapedAss}'`);
-      ffmpegArgs.push('-c:v', options.videoCodec || 'libx264');
-      ffmpegArgs.push('-preset', options.qualityPreset || 'veryfast');
-      ffmpegArgs.push('-crf', String(options.crf || 21));
+    if (options.exportMode === "hardsub-burnin") {
+      ffmpegArgs.push("-vf", `ass='${escapedAss}'`);
+      ffmpegArgs.push("-c:v", options.videoCodec || "libx264");
+      ffmpegArgs.push("-preset", options.qualityPreset || "veryfast");
+      ffmpegArgs.push("-crf", String(options.crf || 21));
       // Enforce constant frame rate to prevent sync drift on variable frame rate clips
-      ffmpegArgs.push('-vsync', 'cfr');
+      ffmpegArgs.push("-vsync", "cfr");
     } else {
       // Softsub muxing mode
-      ffmpegArgs.push('-i', tempAssPath);
-      ffmpegArgs.push('-c:v', 'copy');
-      ffmpegArgs.push('-c:s', 'mov_text');
+      ffmpegArgs.push("-i", tempAssPath);
+      ffmpegArgs.push("-c:v", "copy");
+      ffmpegArgs.push("-c:s", "mov_text");
     }
 
     // Audio encoding / copy
     if (meta.hasAudio) {
-      if (options.audioCodec === 'aac') {
-        ffmpegArgs.push('-c:a', 'aac', '-b:a', '192k');
+      if (options.audioCodec === "aac") {
+        ffmpegArgs.push("-c:a", "aac", "-b:a", "192k");
       } else {
-        ffmpegArgs.push('-c:a', 'copy');
+        ffmpegArgs.push("-c:a", "copy");
       }
     } else {
       // Input video has no audio stream, disable audio stream in output
-      ffmpegArgs.push('-an');
+      ffmpegArgs.push("-an");
     }
 
     ffmpegArgs.push(options.outputVideoPath);
 
-    this.log.info(`Spawning FFmpeg burn-in process [Job ${jobId}]: ${ffmpegBin} ${ffmpegArgs.join(' ')}`);
+    this.log.info(
+      `Spawning FFmpeg burn-in process [Job ${jobId}]: ${ffmpegBin} ${ffmpegArgs.join(" ")}`,
+    );
 
     return new Promise<{ outputPath: string }>((resolve, reject) => {
       const child = spawn(ffmpegBin, ffmpegArgs, { windowsHide: true });
@@ -700,9 +769,9 @@ export class VideoService {
       };
       this.activeJobs.set(jobId, activeJob);
 
-      let stderrAccum = '';
+      let stderrAccum = "";
 
-      child.stderr.on('data', (chunk: Buffer) => {
+      child.stderr.on("data", (chunk: Buffer) => {
         const text = chunk.toString();
         stderrAccum += text;
 
@@ -719,24 +788,32 @@ export class VideoService {
 
           const progressPercent = Math.min(
             99,
-            Math.max(5, Math.round((currentTimeSeconds / totalDurationSeconds) * 94) + 5)
+            Math.max(
+              5,
+              Math.round((currentTimeSeconds / totalDurationSeconds) * 94) + 5,
+            ),
           );
 
           const currentFps = fpsMatch ? parseFloat(fpsMatch[1]) : undefined;
-          const currentFrame = frameMatch ? parseInt(frameMatch[1], 10) : undefined;
+          const currentFrame = frameMatch
+            ? parseInt(frameMatch[1], 10)
+            : undefined;
 
           let estimatedRemaining: number | undefined;
           if (currentTimeSeconds > 2 && progressPercent > 5) {
             const remainingSecs = totalDurationSeconds - currentTimeSeconds;
             if (currentFps && currentFps > 0) {
               const remainingFrames = (meta.fps || 30) * remainingSecs;
-              estimatedRemaining = Math.max(1, Math.round(remainingFrames / currentFps));
+              estimatedRemaining = Math.max(
+                1,
+                Math.round(remainingFrames / currentFps),
+              );
             }
           }
 
           onProgress({
             jobId,
-            phase: 'encoding',
+            phase: "encoding",
             progressPercent,
             currentTimeSeconds,
             totalDurationSeconds,
@@ -747,12 +824,12 @@ export class VideoService {
         }
       });
 
-      child.on('error', async (err) => {
+      child.on("error", async (err) => {
         this.log.error(`FFmpeg process spawn error [Job ${jobId}]:`, err);
         await this.cleanupJob(jobId);
         onProgress({
           jobId,
-          phase: 'failed',
+          phase: "failed",
           progressPercent: 0,
           totalDurationSeconds,
           errorMessage: err.message,
@@ -760,8 +837,10 @@ export class VideoService {
         reject(err);
       });
 
-      child.on('close', async (code) => {
-        this.log.info(`FFmpeg process finished with code ${code} [Job ${jobId}]`);
+      child.on("close", async (code) => {
+        this.log.info(
+          `FFmpeg process finished with code ${code} [Job ${jobId}]`,
+        );
         await this.cleanupJob(jobId);
 
         if (activeJob.cancelled) {
@@ -776,34 +855,36 @@ export class VideoService {
 
           onProgress({
             jobId,
-            phase: 'cancelled',
+            phase: "cancelled",
             progressPercent: 0,
             totalDurationSeconds,
-            errorMessage: 'Export was cancelled by user.',
+            errorMessage: "Export was cancelled by user.",
           });
-          reject(new Error('Export was cancelled by user.'));
+          reject(new Error("Export was cancelled by user."));
           return;
         }
 
         if (code === 0) {
           onProgress({
             jobId,
-            phase: 'completed',
+            phase: "completed",
             progressPercent: 100,
             totalDurationSeconds,
           });
           resolve({ outputPath: options.outputVideoPath });
         } else {
-          const errDetail = stderrAccum.split(/\r?\n/).slice(-10).join('\n');
+          const errDetail = stderrAccum.split(/\r?\n/).slice(-10).join("\n");
           this.log.error(`FFmpeg failed with exit code ${code}:\n${errDetail}`);
           onProgress({
             jobId,
-            phase: 'failed',
+            phase: "failed",
             progressPercent: 0,
             totalDurationSeconds,
             errorMessage: `FFmpeg failed with exit code ${code}.`,
           });
-          reject(new Error(`FFmpeg export failed (code ${code}): ${errDetail}`));
+          reject(
+            new Error(`FFmpeg export failed (code ${code}): ${errDetail}`),
+          );
         }
       });
     });
@@ -820,10 +901,10 @@ export class VideoService {
     this.log.info(`Cancelling export job ${jobId}`);
 
     try {
-      if (process.platform === 'win32') {
-        execFile('taskkill', ['/pid', String(job.process.pid), '/f', '/t']);
+      if (process.platform === "win32") {
+        execFile("taskkill", ["/pid", String(job.process.pid), "/f", "/t"]);
       } else {
-        job.process.kill('SIGTERM');
+        job.process.kill("SIGTERM");
       }
     } catch (err) {
       this.log.error(`Error terminating process for job ${jobId}:`, err);

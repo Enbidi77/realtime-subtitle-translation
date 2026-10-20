@@ -20,6 +20,7 @@ win:
   target:
     - nsis
     - portable
+    - msi
   artifactName: ${productName}-Setup-${version}.${ext}
 
 nsis:
@@ -27,6 +28,13 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: true
   deleteAppDataOnUninstall: false
+
+msi:
+  oneClick: false
+  perMachine: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  runAfterFinish: false
 
 mac:
   target:
