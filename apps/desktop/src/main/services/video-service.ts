@@ -485,12 +485,17 @@ export class VideoService {
 
           const parseOutput = (chunk: Buffer) => {
             const str = chunk.toString();
+            // Accumulate output for debugging / error reporting if whisper.cpp exits with error
             stderrData += str;
+
+            // Process output line-by-line to parse progress indicators and live transcription cues
             const lines = str.split(/\r?\n/);
             for (const line of lines) {
+              // 1. Parse progress percentage printed by whisper.cpp with "-pp" flag (e.g. "progress = 45%")
               const progMatch = line.match(/progress\s*=\s*(\d+)%/i);
               if (progMatch) {
                 lastWhisperPct = parseInt(progMatch[1], 10);
+                // Scale progress: allocate 10%-75% if subsequent translation is required, or 10%-95% otherwise
                 const maxRange = options.targetLang ? 65 : 85;
                 const totalPct =
                   10 + Math.round((lastWhisperPct / 100) * maxRange);
@@ -501,11 +506,13 @@ export class VideoService {
                 });
               }
 
+              // 2. Parse timestamped subtitle cues: [hh:mm:ss.mmm --> hh:mm:ss.mmm] <recognized text>
               const tsMatch = line.match(
                 /\[(\d\d:\d\d:\d\d\.\d\d\d)\s*-->\s*(\d\d:\d\d:\d\d\.\d\d\d)\]\s*(.*)/,
               );
               if (tsMatch && tsMatch[3]?.trim()) {
                 const cueText = tsMatch[3].trim();
+                // Format detail text as "[mm:ss] text" for a live preview on the UI
                 lastDetail = `[${tsMatch[1].slice(3, 8)}] ${cueText}`;
                 const maxRange = options.targetLang ? 65 : 85;
                 const totalPct =
