@@ -32,6 +32,8 @@ export class DotnetBinaryLocator {
       const resourcesPath = (process as unknown as { resourcesPath: string }).resourcesPath;
       candidatePaths.push(path.join(resourcesPath, 'bin', 'EchoLingo.Ipc.exe'));
       candidatePaths.push(path.join(resourcesPath, 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(resourcesPath, 'app.asar.unpacked', 'resources', 'bin', 'EchoLingo.Ipc.exe'));
+      candidatePaths.push(path.join(resourcesPath, 'app.asar.unpacked', 'bin', 'EchoLingo.Ipc.exe'));
     }
 
     // 3. Relative to process.cwd() (handles when cwd is apps/desktop or repo root)
@@ -61,8 +63,16 @@ export class DotnetBinaryLocator {
       candidatePaths.push(path.join(root, 'ipc', 'bin', 'Debug', 'net8.0-windows10.0.19041.0', 'win-x64', 'EchoLingo.Ipc.exe'));
     }
 
-    // 6. Check candidates
-    for (const candidate of candidatePaths) {
+    // 6. Check candidates (prioritize unpacked filesystem binaries over inside-ASAR paths)
+    const sortedCandidates = [...candidatePaths].sort((a, b) => {
+      const aInAsar = a.includes('.asar') && !a.includes('.asar.unpacked');
+      const bInAsar = b.includes('.asar') && !b.includes('.asar.unpacked');
+      if (aInAsar && !bInAsar) return 1;
+      if (!aInAsar && bInAsar) return -1;
+      return 0;
+    });
+
+    for (const candidate of sortedCandidates) {
       try {
         if (candidate && fs.existsSync(candidate)) {
           this.cachedPath = path.resolve(candidate);
