@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { OverlayView } from '@/features/overlay/OverlayView.js';
+import { createLogger } from '@echo-lingo/logger';
 import '@/styles/globals.css';
+
+const log = createLogger('OverlayApp');
 
 interface ErrorFallbackProps {
   errorMessage: string;
@@ -19,12 +22,12 @@ export const OverlayApp: React.FC = () => {
 
   useEffect(() => {
     const handleGlobalError = (event: ErrorEvent) => {
-      console.error('[OverlayApp] Caught error in overlay:', event.error || event.message);
+      log.error('Caught error in overlay:', event.error || event.message);
       setErrorMessage(event.error?.message || event.message || 'An unexpected error occurred');
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
-      console.error('[OverlayApp] Unhandled rejection in overlay:', event.reason);
+      log.error('Unhandled rejection in overlay:', event.reason);
       const msg = event.reason instanceof Error ? event.reason.message : String(event.reason);
       setErrorMessage(msg || 'An unhandled promise rejection occurred');
     };

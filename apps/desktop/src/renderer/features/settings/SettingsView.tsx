@@ -5,6 +5,7 @@ import { useOnboardingStore } from '@/stores/onboarding-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
 import { AppSettings } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import { GlassCard } from '@/components/ui/GlassCard.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassSelect } from '@/components/ui/GlassSelect.js';
@@ -35,6 +36,8 @@ import {
   Radio,
   ScanText,
 } from 'lucide-react';
+
+const log = createLogger('SettingsView');
 
 export const SettingsView: React.FC = () => {
   const { t } = useI18n();
@@ -766,7 +769,7 @@ export const SettingsView: React.FC = () => {
               try {
                 await window.electronAPI.app.openLogs();
               } catch (err) {
-                console.error('Failed to open logs directory:', err);
+                log.error('Failed to open logs directory', err);
               }
             }}
             icon={<FolderOpen className="w-3.5 h-3.5" />}

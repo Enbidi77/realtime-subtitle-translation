@@ -2,7 +2,10 @@ import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
 import { toMediaProtocolUrl } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import { Play, Pause, Volume2, VolumeX, Maximize2, AlertCircle } from 'lucide-react';
+
+const log = createLogger('VideoPlayerPreview');
 
 export const VideoPlayerPreview: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -59,7 +62,7 @@ export const VideoPlayerPreview: React.FC = () => {
           message = mediaError.message || 'Unable to play video.';
       }
     }
-    console.error('Video preview error:', mediaError, effectiveVideoUrl);
+    log.error('Video preview error', mediaError, effectiveVideoUrl);
     setVideoError(message);
   };
 

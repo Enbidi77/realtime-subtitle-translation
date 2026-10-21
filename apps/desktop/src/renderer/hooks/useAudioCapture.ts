@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { createLogger } from '@echo-lingo/logger';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import audioCaptureProcessorCode from './audio-capture-processor.js?raw';
+
+const log = createLogger('AudioCapture');
 
 function getHumanReadableAudioError(err: unknown): string {
   if (err instanceof DOMException || (typeof err === 'object' && err !== null && 'name' in err)) {
@@ -52,7 +55,7 @@ export function useAudioCapture() {
       mediaStreamRef.current = null;
     }
     if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-      audioContextRef.current.close().catch(console.error);
+      audioContextRef.current.close().catch((err) => log.error('Failed to close AudioContext', err));
       audioContextRef.current = null;
     }
     setAudioLevels(0, 0);
@@ -106,7 +109,7 @@ export function useAudioCapture() {
         try {
           stream = await navigator.mediaDevices.getUserMedia(constraints);
         } catch (initialErr: any) {
-          console.warn('[AudioCapture] Preferred constraints failed, retrying with fallback audio constraints:', initialErr);
+          log.warn('Preferred constraints failed, retrying with fallback audio constraints', initialErr);
           // Fallback to basic unconstrained audio capture
           stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         }
@@ -153,7 +156,9 @@ export function useAudioCapture() {
 
         // Send resampled chunks to main process for VAD & speech recognition
         if (window.electronAPI) {
-          window.electronAPI.audio.processChunk(Array.from(new Float32Array(resampled)), isSpeech).catch(console.error);
+          window.electronAPI.audio.processChunk(Array.from(new Float32Array(resampled)), isSpeech).catch((err) =>
+            log.error('Failed to process audio chunk', err)
+          );
         }
       };
 
@@ -161,7 +166,7 @@ export function useAudioCapture() {
     } catch (err: any) {
       const errName = err?.name || 'Error';
       const errMsg = err?.message || '';
-      console.error(`[AudioCapture] Error accessing audio source [${errName}]: ${errMsg}`, err);
+      log.error(`Error accessing audio source [${errName}]: ${errMsg}`, err);
 
       const friendlyMsg = getHumanReadableAudioError(err);
       setHasPermission(false);

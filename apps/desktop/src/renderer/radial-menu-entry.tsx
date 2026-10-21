@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import ReactDOM from 'react-dom/client';
 import '@/styles/globals.css';
 import { RadialMenuActionId, RadialMenuState } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import {
   Settings,
   EyeOff,
@@ -378,6 +379,8 @@ const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
   );
 };
 
+const log = createLogger('RadialMenu');
+
 export const RadialMenuApp: React.FC = () => {
   const [state, setState] = useState<RadialMenuState | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(7); // Default to item 7 (Live Speech, like image)
@@ -389,7 +392,7 @@ export const RadialMenuApp: React.FC = () => {
   // Sync state and window open trigger from Electron main process
   useEffect(() => {
     if (window.electronAPI?.radialMenu) {
-      window.electronAPI.radialMenu.getState().then(setState).catch(console.error);
+      window.electronAPI.radialMenu.getState().then(setState).catch((err) => log.error('Failed to get radial menu state:', err));
 
       const unsubState = window.electronAPI.radialMenu.onState((fresh) => {
         setState(fresh);
@@ -446,7 +449,7 @@ export const RadialMenuApp: React.FC = () => {
         await window.electronAPI.radialMenu.executeAction(item.id);
       }
     } catch (err) {
-      console.error('Failed to execute action:', err);
+      log.error('Failed to execute action:', err);
     }
   }, []);
 

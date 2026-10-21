@@ -8,6 +8,7 @@ import {
   SubtitleExportFormat,
 } from "@echo-lingo/contracts";
 import { formatDisplayTime } from "@echo-lingo/subtitle-core";
+import { createLogger } from "@echo-lingo/logger";
 import { GlassCard } from "@/components/ui/GlassCard.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassInput } from "@/components/ui/GlassInput.js";
@@ -27,6 +28,8 @@ import {
   ExternalLink,
   Layers3,
 } from "lucide-react";
+
+const log = createLogger("SessionsView");
 
 export const SessionsView: React.FC = () => {
   const { t } = useI18n();
@@ -62,7 +65,7 @@ export const SessionsView: React.FC = () => {
           setSelectedSessionId(list[0].id);
         }
       } catch (e) {
-        console.error(e);
+        log.error("Failed to list sessions", e);
       }
     }
   };
@@ -79,7 +82,7 @@ export const SessionsView: React.FC = () => {
             await window.electronAPI.sessions.getSegments(selectedSessionId);
           setSegments(segs);
         } catch (e) {
-          console.error(e);
+          log.error("Failed to load session segments", e);
         }
       }
     }
@@ -196,7 +199,7 @@ export const SessionsView: React.FC = () => {
       );
       setEditingSegment(null);
     } catch (err) {
-      console.error(err);
+      log.error("Failed to update segment", err);
     }
   };
 

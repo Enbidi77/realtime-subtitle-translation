@@ -67,14 +67,14 @@ const api = {
   },
 
   log: {
-    debug: (message: string, ...args: unknown[]) =>
-      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'debug', message, args }),
-    info: (message: string, ...args: unknown[]) =>
-      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'info', message, args }),
-    warn: (message: string, ...args: unknown[]) =>
-      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'warn', message, args }),
-    error: (message: string, ...args: unknown[]) =>
-      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'error', message, args }),
+    debug: (message: string, scope?: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'debug', scope, message, args }),
+    info: (message: string, scope?: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'info', scope, message, args }),
+    warn: (message: string, scope?: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'warn', scope, message, args }),
+    error: (message: string, scope?: string, ...args: unknown[]) =>
+      ipcRenderer.send(IPC_CHANNELS.LOG_MESSAGE, { level: 'error', scope, message, args }),
   },
 
   audio: {

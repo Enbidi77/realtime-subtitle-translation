@@ -11,6 +11,9 @@ import {
 } from '@echo-lingo/contracts';
 import { exportToSrt, exportToVtt, exportToTxt } from '@echo-lingo/subtitle-core';
 import { DEFAULT_SUBTITLE_STYLE, SUBTITLE_STYLE_PRESETS } from '@echo-lingo/config';
+import { createLogger } from '@echo-lingo/logger';
+
+const log = createLogger('VideoSubtitleStore');
 
 interface VideoSubtitleState {
   // Video Ingestion
@@ -209,7 +212,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       get().setVideo(meta, mediaUrl);
       get().checkFfmpeg();
     } catch (err: any) {
-      console.error('Failed to open video:', err);
+      log.error('Failed to open video', err);
     }
   },
 
@@ -259,7 +262,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
         get().selectSegment(matchingSeg ? matchingSeg.id : segs[0].id);
       }
     } catch (err: any) {
-      console.error('Transcription error:', err);
+      log.error('Transcription error', err);
       let message = err.message || 'Transcription failed';
       if (
         message.includes('Output file does not contain any stream') ||

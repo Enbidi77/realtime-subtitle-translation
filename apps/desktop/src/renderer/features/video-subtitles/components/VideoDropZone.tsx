@@ -3,6 +3,7 @@ import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { parseSubtitles } from '@echo-lingo/subtitle-core';
 import { toMediaProtocolUrl } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import {
   UploadCloud,
   FileVideo,
@@ -13,6 +14,8 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
+
+const log = createLogger('VideoDropZone');
 
 export const VideoDropZone: React.FC = () => {
   const { t } = useI18n();
@@ -51,7 +54,7 @@ export const VideoDropZone: React.FC = () => {
           const meta = await window.electronAPI.video.probeMetadata(file.path);
           setVideo(meta, meta.mediaUrl || toMediaProtocolUrl(file.path));
         } catch (err) {
-          console.error('Error probing dropped video:', err);
+          log.error('Error probing dropped video', err);
         }
       }
     }
@@ -71,7 +74,7 @@ export const VideoDropZone: React.FC = () => {
         setSegments(segs);
       }
     } catch (err) {
-      console.error('Failed to parse imported subtitle file:', err);
+      log.error('Failed to parse imported subtitle file', err);
     }
   };
 

@@ -1,5 +1,8 @@
 import { create } from 'zustand';
+import { createLogger } from '@echo-lingo/logger';
 import { useSettingsStore } from './settings-store.js';
+
+const log = createLogger('OnboardingStore');
 
 export interface OnboardingStore {
   isOpen: boolean;
@@ -50,7 +53,7 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
     try {
       await useSettingsStore.getState().updateSettings({ hasCompletedOnboarding: true });
     } catch (err) {
-      console.error('Failed to persist onboarding completion:', err);
+      log.error('Failed to persist onboarding completion', err);
     }
   },
 
@@ -58,7 +61,7 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
     try {
       await useSettingsStore.getState().updateSettings({ hasCompletedOnboarding: false });
     } catch (err) {
-      console.error('Failed to reset onboarding setting:', err);
+      log.error('Failed to reset onboarding setting', err);
     }
     set({ isOpen: true, currentStep: 0 });
   },

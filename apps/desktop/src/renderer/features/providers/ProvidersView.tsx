@@ -8,6 +8,7 @@ import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassInput } from '@/components/ui/GlassInput.js';
 import { GlassBadge } from '@/components/ui/GlassBadge.js';
 import { GlassModal } from '@/components/ui/GlassModal.js';
+import { createLogger } from '@echo-lingo/logger';
 import {
   Cpu,
   Globe,
@@ -34,6 +35,8 @@ interface ConfigurableProvider {
   isPaid?: boolean;
   signupUrl?: string;
 }
+
+const log = createLogger('ProvidersView');
 
 export const ProvidersView: React.FC = () => {
   const { t } = useI18n();
@@ -130,7 +133,7 @@ export const ProvidersView: React.FC = () => {
         })
       );
     } catch (e) {
-      console.error(e);
+      log.error('Failed to load provider data', e);
     }
   };
 
@@ -160,7 +163,7 @@ export const ProvidersView: React.FC = () => {
       await window.electronAPI.speech.downloadModel(modelId);
       await loadData();
     } catch (err) {
-      console.error('Failed to download model:', err);
+      log.error('Failed to download model', err);
       await loadData();
     }
   };
@@ -176,7 +179,7 @@ export const ProvidersView: React.FC = () => {
       setEditingProvider(null);
       await loadData();
     } catch (e) {
-      console.error(e);
+      log.error('Failed to save credential', e);
     }
   };
 

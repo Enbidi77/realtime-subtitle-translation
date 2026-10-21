@@ -9,6 +9,7 @@ import { GlassCard } from '@/components/ui/GlassCard.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassSelect } from '@/components/ui/GlassSelect.js';
 import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { createLogger } from '@echo-lingo/logger';
 import {
   Mic,
   Square,
@@ -24,6 +25,8 @@ import {
   CheckCircle2,
   Headphones,
 } from 'lucide-react';
+
+const log = createLogger('DashboardView');
 
 export const DashboardView: React.FC = () => {
   const { t } = useI18n();
@@ -43,7 +46,7 @@ export const DashboardView: React.FC = () => {
           const totalSec = list.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
           setTotalMinutes(Math.round(totalSec / 60));
         } catch (e) {
-          console.error(e);
+          log.error('Failed to load recent sessions:', e);
         }
       }
     }

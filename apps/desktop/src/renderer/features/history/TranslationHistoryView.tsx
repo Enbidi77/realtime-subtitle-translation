@@ -6,7 +6,10 @@ import { GlassCard } from '@/components/ui/GlassCard.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassInput } from '@/components/ui/GlassInput.js';
 import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { createLogger } from '@echo-lingo/logger';
 import { History, Search, Copy, Check, Clock } from 'lucide-react';
+
+const log = createLogger('TranslationHistoryView');
 
 export const TranslationHistoryView: React.FC = () => {
   const { t } = useI18n();
@@ -24,7 +27,7 @@ export const TranslationHistoryView: React.FC = () => {
           const flattened = results.flat().sort((a, b) => b.createdAt - a.createdAt);
           setAllSegments(flattened);
         } catch (e) {
-          console.error(e);
+          log.error('Failed to load translation history:', e);
         }
       }
     }

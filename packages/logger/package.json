@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Enterprise-grade Winston logging for EchoLingo",
   "main": "./src/index.ts",
+  "browser": "./src/browser.ts",
   "types": "./src/index.ts",
   "exports": {
-    ".": "./src/index.ts",
+    ".": {
+      "browser": "./src/browser.ts",
+      "default": "./src/index.ts"
+    },
     "./*.js": "./src/*.ts",
     "./*": "./src/*.ts"
   },

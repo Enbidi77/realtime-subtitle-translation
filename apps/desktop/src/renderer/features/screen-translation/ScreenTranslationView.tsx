@@ -13,6 +13,7 @@ import {
   SUPPORTED_LANGUAGES,
   TARGET_LANGUAGES,
 } from '@echo-lingo/config';
+import { createLogger } from '@echo-lingo/logger';
 import {
   GlassButton,
   GlassCard,
@@ -44,6 +45,8 @@ import {
   ChevronRight,
   Info,
 } from 'lucide-react';
+
+const log = createLogger('ScreenTranslationView');
 
 export const ScreenTranslationView: React.FC = () => {
   const { t } = useI18n();
@@ -117,7 +120,7 @@ export const ScreenTranslationView: React.FC = () => {
             setSelectedProvider(providers[0].id);
           }
         })
-        .catch(console.error);
+        .catch((err) => log.error('Failed to get OCR providers', err));
 
       loadHistory();
 
@@ -150,7 +153,7 @@ export const ScreenTranslationView: React.FC = () => {
           setHistoryItems(items);
         });
       } catch (err) {
-        console.error('Failed to load history:', err);
+        log.error('Failed to load history', err);
       }
     }
   }, []);
@@ -194,7 +197,7 @@ export const ScreenTranslationView: React.FC = () => {
       // Reload history list
       loadHistory();
     } catch (err: any) {
-      console.error('Capture failed:', err);
+      log.error('Capture failed', err);
       setErrorMessage(err.message || t('ocr.messages.captureFailed', 'Capture failed'));
     } finally {
       setIsCapturing(false);
@@ -240,7 +243,7 @@ export const ScreenTranslationView: React.FC = () => {
         setContinuousRegion(region);
       }
     } catch (err) {
-      console.error('Failed to select continuous region:', err);
+      log.error('Failed to select continuous region', err);
     }
   };
 

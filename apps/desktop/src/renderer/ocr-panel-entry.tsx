@@ -5,6 +5,7 @@ import { FloatingPanelPayload } from '@echo-lingo/contracts';
 import { applyTheme } from '@/stores/settings-store.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { createLogger } from '@echo-lingo/logger';
 import {
   GripHorizontal,
   X,
@@ -14,6 +15,8 @@ import {
   Clock,
   Sparkles,
 } from 'lucide-react';
+
+const log = createLogger('OcrPanel');
 
 const FloatingResultPanel: React.FC = () => {
   const [data, setData] = useState<FloatingPanelPayload | null>(null);
@@ -29,7 +32,7 @@ const FloatingResultPanel: React.FC = () => {
           applyTheme(loaded.theme, loaded.glassIntensity);
           if (loaded.locale) setLocale(loaded.locale);
         })
-        .catch(console.error);
+        .catch((err) => log.error('Failed to load settings:', err));
 
       const unsubSettings = window.electronAPI.settings.onUpdate?.((updated) => {
         applyTheme(updated.theme, updated.glassIntensity);
@@ -76,7 +79,7 @@ const FloatingResultPanel: React.FC = () => {
         });
       }
     } catch (err) {
-      console.error('Failed to capture another region:', err);
+      log.error('Failed to capture another region:', err);
     }
   };
 

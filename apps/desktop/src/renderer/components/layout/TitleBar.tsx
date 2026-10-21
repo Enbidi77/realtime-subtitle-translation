@@ -6,6 +6,7 @@ import { useOnboardingStore } from '@/stores/onboarding-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { TitleBarSearchButton } from '@/features/global-search/index.js';
+import { createLogger } from '@echo-lingo/logger';
 import appLogo from '@/assets/logo.png';
 import {
   Minus,
@@ -17,6 +18,8 @@ import {
   HelpCircle,
   Mic,
 } from 'lucide-react';
+
+const log = createLogger('TitleBar');
 
 export const TitleBar: React.FC = () => {
   const { t } = useI18n();
@@ -79,7 +82,7 @@ export const TitleBar: React.FC = () => {
         setActivePage('live-subtitles');
       }
     } catch (err) {
-      console.error('[TitleBar] Failed to toggle listening session:', err);
+      log.error('Failed to toggle listening session:', err);
     } finally {
       setIsTogglingListening(false);
     }

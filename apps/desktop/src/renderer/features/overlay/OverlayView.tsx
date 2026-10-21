@@ -2,7 +2,10 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { SubtitleSegment, AppSettings } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { applyTheme } from '@/stores/settings-store.js';
+import { createLogger } from '@echo-lingo/logger';
 import { GripHorizontal, MousePointer, X, ZoomIn, ZoomOut, Captions, AlignJustify } from 'lucide-react';
+
+const log = createLogger('OverlayView');
 
 export const OverlayView: React.FC = () => {
   const [segments, setSegments] = useState<SubtitleSegment[]>([]);
@@ -64,7 +67,7 @@ export const OverlayView: React.FC = () => {
         if (loaded.overlaySettings?.captionMode === 'history') {
           setIsYouTubeMode(false);
         }
-      }).catch(console.error);
+      }).catch((err) => log.error('Failed to load settings:', err));
 
       // Subscribe to real-time settings update stream
       const unsubSettings = window.electronAPI.settings.onUpdate?.((updated) => {
@@ -80,7 +83,7 @@ export const OverlayView: React.FC = () => {
           if (segs && segs.length > 0) {
             handleNewSegments(segs);
           }
-        }).catch(console.error);
+        }).catch((err) => log.error('Failed to get overlay segments:', err));
       }
 
       // Subscribe to real-time subtitle stream

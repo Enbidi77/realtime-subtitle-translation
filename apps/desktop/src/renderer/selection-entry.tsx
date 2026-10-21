@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom/client';
 import '@/styles/globals.css';
 import { ScreenCaptureRegion } from '@echo-lingo/contracts';
+import { createLogger } from '@echo-lingo/logger';
 import { Crop } from 'lucide-react';
+
+const log = createLogger('SelectionOverlay');
 
 interface Point {
   x: number;
@@ -20,7 +23,7 @@ const SelectionOverlay: React.FC = () => {
     if (window.electronAPI?.settings) {
       window.electronAPI.settings.get().then((s) => {
         if (s?.locale) setLocale(s.locale);
-      }).catch(console.error);
+      }).catch((err) => log.error('Failed to get settings:', err));
     }
 
     // Parse target display ID from URL query

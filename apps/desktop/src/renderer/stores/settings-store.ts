@@ -1,6 +1,9 @@
 import { create } from 'zustand';
+import { createLogger } from '@echo-lingo/logger';
 import { AppSettings } from '@echo-lingo/contracts';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
+
+const log = createLogger('SettingsStore');
 
 interface SettingsStore {
   settings: AppSettings;
@@ -25,7 +28,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         applyTheme(DEFAULT_APP_SETTINGS.theme, DEFAULT_APP_SETTINGS.glassIntensity);
       }
     } catch (e) {
-      console.error('Failed to load settings:', e);
+      log.error('Failed to load settings', e);
       set({ isLoading: false });
     }
   },
@@ -41,7 +44,7 @@ export const useSettingsStore = create<SettingsStore>((set, get) => ({
         const saved = await window.electronAPI.settings.update(updates);
         set({ settings: saved });
       } catch (err) {
-        console.error('Failed to persist settings:', err);
+        log.error('Failed to persist settings', err);
       }
     }
   },

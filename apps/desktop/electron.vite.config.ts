@@ -81,6 +81,7 @@ export default defineConfig({
         '@echo-lingo/config': resolve(__dirname, '../../packages/config/src'),
         '@echo-lingo/subtitle-core': resolve(__dirname, '../../packages/subtitle-core/src'),
         '@echo-lingo/ocr-core': resolve(__dirname, '../../packages/ocr-core/src'),
+        '@echo-lingo/logger': resolve(__dirname, '../../packages/logger/src/browser.ts'),
       },
     },
   },
