@@ -16,7 +16,8 @@
     "clean:lock": "node scripts/clean-lock.cjs",
     "build:dotnet": "node scripts/build-dotnet.cjs",
     "package": "pnpm --filter @echo-lingo/desktop package",
-    "package:msi": "pnpm --filter @echo-lingo/desktop package:msi"
+    "package:msi": "pnpm --filter @echo-lingo/desktop package:msi",
+    "build:msi:version": "node scripts/build-version.cjs"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",
