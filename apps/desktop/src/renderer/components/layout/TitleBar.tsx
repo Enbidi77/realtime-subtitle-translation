@@ -15,6 +15,7 @@ import {
   Sun,
   Moon,
   HelpCircle,
+  Mic,
 } from 'lucide-react';
 
 export const TitleBar: React.FC = () => {
@@ -22,12 +23,17 @@ export const TitleBar: React.FC = () => {
   const isListening = useSessionStore((s) => s.isListening);
   const isPaused = useSessionStore((s) => s.isPaused);
   const activeSession = useSessionStore((s) => s.activeSession);
+  const startSession = useSessionStore((s) => s.startSession);
+  const stopSession = useSessionStore((s) => s.stopSession);
+  const settings = useSettingsStore((s) => s.settings);
   const theme = useSettingsStore((s) => s.settings.theme);
   const closeBehavior = useSettingsStore((s) => s.settings.closeBehavior);
   const updateSettings = useSettingsStore((s) => s.updateSettings);
+  const setActivePage = useNavigationStore((s) => s.setActivePage);
   const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
   const openTour = useOnboardingStore((s) => s.openTour);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
+  const [isTogglingListening, setIsTogglingListening] = useState(false);
 
   useEffect(() => {
     if (window.electronAPI?.overlay?.onVisibilityChange) {
@@ -54,6 +60,30 @@ export const TitleBar: React.FC = () => {
     }
   };
   const handleToggleOverlay = () => window.electronAPI?.overlay.toggle();
+
+  const handleToggleListening = async () => {
+    if (isTogglingListening) return;
+    setIsTogglingListening(true);
+    try {
+      if (isListening) {
+        await stopSession();
+      } else {
+        await startSession({
+          sourceLanguage: settings.sourceLanguage,
+          targetLanguages: settings.targetLanguages,
+          audioSourceType: settings.audioSourceType,
+          audioDeviceId: settings.audioDeviceId,
+          speechProvider: settings.speechEngine,
+          translationProvider: settings.translationProvider,
+        });
+        setActivePage('live-subtitles');
+      }
+    } catch (err) {
+      console.error('[TitleBar] Failed to toggle listening session:', err);
+    } finally {
+      setIsTogglingListening(false);
+    }
+  };
 
   const handleToggleTheme = () => {
     const nextTheme = theme === 'dark' ? 'light' : 'dark';
@@ -135,6 +165,44 @@ export const TitleBar: React.FC = () => {
 
       {/* Right actions & Window controls */}
       <div className="flex items-center gap-1.5">
+        {/* Start / Stop Live Listening Quick Action */}
+        <button
+          type="button"
+          onClick={handleToggleListening}
+          disabled={isTogglingListening}
+          title={
+            isListening
+              ? t('layout.stopListening', 'Stop Listening')
+              : t('layout.startListening', 'Start Listening')
+          }
+          aria-label={
+            isListening
+              ? t('layout.stopListening', 'Stop Listening')
+              : t('layout.startListening', 'Start Listening')
+          }
+          className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl cursor-pointer transition-all duration-150 border font-medium ${
+            isListening
+              ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive/40 shadow-xs shadow-destructive/25'
+              : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-white/20 shadow-xs shadow-indigo-500/25 active:scale-95'
+          } ${isTogglingListening ? 'opacity-70 cursor-not-allowed' : ''}`}
+        >
+          {isListening ? (
+            <>
+              <Square className="w-3.5 h-3.5 fill-current" />
+              <span className="hidden sm:inline text-[11px]">
+                {t('layout.stopListening', 'Stop Listening')}
+              </span>
+            </>
+          ) : (
+            <>
+              <Mic className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline text-[11px]">
+                {t('layout.startListening', 'Start Listening')}
+              </span>
+            </>
+          )}
+        </button>
+
         {/* Floating Subtitle Overlay Toggle Button */}
         <button
           type="button"

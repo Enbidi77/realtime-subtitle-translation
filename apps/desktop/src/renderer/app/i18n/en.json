@@ -16,6 +16,8 @@
     "localPrivateDesc": "Whisper offline inference & zero data harvesting.",
     "expandSidebar": "Expand Sidebar",
     "collapseSidebar": "Collapse Sidebar",
+    "startListening": "Start Listening",
+    "stopListening": "Stop Listening",
     "overlayActive": "Overlay Active",
     "hideOverlay": "Hide Subtitle Overlay",
     "switchToLight": "Switch to light mode",
