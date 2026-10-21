@@ -10,3 +10,4 @@ export * from './screen-translation-service.js';
 export * from './video-service.js';
 export * from './settings-service.js';
 export * from './search-service.js';
+export * from './radial-menu-service.js';

@@ -175,6 +175,10 @@ export function setOverlayClickThrough(enable: boolean): void {
   }
 }
 
+export function getOverlayClickThrough(): boolean {
+  return isClickThrough;
+}
+
 export function getOverlayWindow(): BrowserWindow | null {
   return overlayWindow;
 }

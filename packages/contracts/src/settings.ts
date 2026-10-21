@@ -83,7 +83,8 @@ export const AppSettingsSchema = z.object({
   overlaySettings: OverlaySettingsSchema.default({}),
   screenTranslation: ScreenTranslationSettingsSchema.default({}),
   keyboardShortcuts: z.record(z.string(), z.string()).default({
-    'toggle-listening': 'CommandOrControl+Shift+Space',
+    'open-radial-menu': 'CommandOrControl+Shift+Space',
+    'toggle-listening': 'CommandOrControl+Shift+L',
     'pause-listening': 'CommandOrControl+Shift+P',
     'toggle-overlay': 'CommandOrControl+Shift+O',
     'copy-latest': 'CommandOrControl+Shift+C',

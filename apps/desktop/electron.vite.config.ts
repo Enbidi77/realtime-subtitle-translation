@@ -69,6 +69,7 @@ export default defineConfig({
           selection: resolve(__dirname, 'src/renderer/selection.html'),
           'ocr-panel': resolve(__dirname, 'src/renderer/ocr-panel.html'),
           splash: resolve(__dirname, 'src/renderer/splash.html'),
+          'radial-menu': resolve(__dirname, 'src/renderer/radial-menu.html'),
         },
       },
     },

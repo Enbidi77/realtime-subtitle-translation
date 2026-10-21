@@ -17,7 +17,10 @@
     "build:dotnet": "node scripts/build-dotnet.cjs",
     "package": "pnpm --filter @echo-lingo/desktop package",
     "package:msi": "pnpm --filter @echo-lingo/desktop package:msi",
-    "build:msi:version": "node scripts/build-version.cjs"
+    "build:msi:version": "node scripts/build-version.cjs",
+    "package:appx": "pnpm --filter @echo-lingo/desktop package:appx",
+    "package:msix": "pnpm --filter @echo-lingo/desktop package:msix",
+    "build:msix:version": "node scripts/build-msix.cjs"
   },
   "devDependencies": {
     "@types/node": "^22.13.4",

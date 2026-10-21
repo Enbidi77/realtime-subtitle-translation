@@ -22,6 +22,7 @@ win:
     - nsis
     - portable
     - msi
+    - appx
   artifactName: ${productName}-Setup-${version}.${ext}
   extraResources:
     - from: resources/bin
@@ -41,6 +42,18 @@ msi:
   createDesktopShortcut: true
   createStartMenuShortcut: true
   runAfterFinish: false
+
+appx:
+  applicationId: EchoLingoApp
+  identityName: Enbidi.EchoLingoApp
+  publisher: CN=7D350121-9482-4DA4-B852-3D95D4F0BF11
+  publisherDisplayName: Enbidi
+  backgroundColor: "#0B132B"
+  showNameOnTiles: true
+  languages:
+    - en-US
+    - vi-VN
+  artifactName: ${productName}-${version}.${ext}
 
 mac:
   target:

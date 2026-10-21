@@ -477,5 +477,33 @@
     "translatingPhase": "Translating subtitles...",
     "liveRecognitionLabel": "Live recognized speech",
     "translatingProgressLabel": "Current translation batch"
+  },
+  "radialMenu": {
+    "title": "Quick Actions",
+    "expressions": "Expressions",
+    "toggleListening": "Live Speech",
+    "toggleListeningDesc": "Toggle real-time audio transcription",
+    "pauseSpeech": "Pause Speech",
+    "pauseSpeechDesc": "Pause or resume live microphone capture",
+    "screenOcr": "Screen OCR",
+    "screenOcrDesc": "Snip screen region to extract & translate text",
+    "continuousOcr": "Continuous OCR",
+    "continuousOcrDesc": "Auto-scan on-screen text with difference detection",
+    "translateClipboard": "Translate Clipboard",
+    "translateClipboardDesc": "Translate copied text in clipboard immediately",
+    "subtitleOverlay": "Subtitles HUD",
+    "subtitleOverlayDesc": "Show or hide floating glass subtitle overlay",
+    "clickThrough": "Click-Through",
+    "clickThroughDesc": "Allow mouse clicks to pass through overlay",
+    "ocrPanel": "OCR Results",
+    "ocrPanelDesc": "Toggle floating OCR translation card",
+    "clearSubtitles": "Clear Subtitles",
+    "clearSubtitlesDesc": "Clear all active subtitle lines from overlay",
+    "copyLast": "Copy Latest",
+    "copyLastDesc": "Copy the most recent recognized subtitle",
+    "settings": "Preferences",
+    "settingsDesc": "Configure languages, models & shortcuts",
+    "openApp": "Open EchoLingo",
+    "openAppDesc": "Bring the main EchoLingo application to front"
   }
 }

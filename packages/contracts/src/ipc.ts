@@ -162,6 +162,14 @@ export const IPC_CHANNELS = {
   VIDEO_CHECK_FFMPEG: 'video:check-ffmpeg',
   VIDEO_INSTALL_FFMPEG: 'video:install-ffmpeg',
   VIDEO_TRANSCRIBE_PROGRESS: 'video:transcribe-progress',
+
+  // Radial / Global Context Menu
+  RADIAL_MENU_SHOW: 'radial-menu:show',
+  RADIAL_MENU_HIDE: 'radial-menu:hide',
+  RADIAL_MENU_TOGGLE: 'radial-menu:toggle',
+  RADIAL_MENU_EXECUTE_ACTION: 'radial-menu:execute-action',
+  RADIAL_MENU_GET_STATE: 'radial-menu:get-state',
+  RADIAL_MENU_STATE_STREAM: 'radial-menu:state-stream',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];
@@ -249,5 +257,40 @@ export const SplashStatusEventSchema = z.object({
   progress: z.number().min(0).max(100).optional(),
 });
 export type SplashStatusEvent = z.infer<typeof SplashStatusEventSchema>;
+
+export const RadialMenuActionIdSchema = z.enum([
+  'toggle-listening',
+  'pause-listening',
+  'capture-translate',
+  'continuous-ocr',
+  'translate-clipboard',
+  'toggle-overlay',
+  'toggle-click-through',
+  'show-ocr-panel',
+  'clear-subtitles',
+  'copy-last',
+  'open-settings',
+  'open-app',
+]);
+export type RadialMenuActionId = z.infer<typeof RadialMenuActionIdSchema>;
+
+export const RadialMenuStateSchema = z.object({
+  isListening: z.boolean(),
+  isPaused: z.boolean(),
+  isOverlayVisible: z.boolean(),
+  isClickThrough: z.boolean(),
+  isContinuousOcr: z.boolean(),
+  isOcrPanelVisible: z.boolean(),
+  sourceLanguage: z.string(),
+  targetLanguages: z.array(z.string()),
+  lastSubtitleText: z.string().optional(),
+});
+export type RadialMenuState = z.infer<typeof RadialMenuStateSchema>;
+
+export const RadialMenuExecuteRequestSchema = z.object({
+  actionId: RadialMenuActionIdSchema,
+});
+export type RadialMenuExecuteRequest = z.infer<typeof RadialMenuExecuteRequestSchema>;
+
 
 

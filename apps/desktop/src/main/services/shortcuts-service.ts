@@ -3,6 +3,7 @@ import { toggleOverlay } from '@/windows/overlay-window.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { getSessionService } from '@/services/session-service.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
+import { getRadialMenuService } from '@/services/radial-menu-service.js';
 import { getDatabase } from '@/database/db-instance.js';
 import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { createLogger, ILogger } from '@echo-lingo/logger';
@@ -50,6 +51,14 @@ export class ShortcutsService {
         await this.handleToggleContinuousOcr();
       });
 
+      // 5. Open Global Radial Context Menu (centered at mouse location)
+      const db = getDatabase();
+      const settings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
+      const radialShortcut = settings?.keyboardShortcuts?.['open-radial-menu'] || 'CommandOrControl+Shift+Space';
+      globalShortcut.register(radialShortcut, () => {
+        getRadialMenuService().toggleMenu();
+      });
+
       this.registered = true;
     } catch (err) {
       this.log.warn('Could not register some global shortcuts:', err);
@@ -68,11 +77,11 @@ export class ShortcutsService {
     return this.registered;
   }
 
-  private handleToggleOverlay(): void {
+  public handleToggleOverlay(): void {
     toggleOverlay();
   }
 
-  private handleToggleSession(): void {
+  public handleToggleSession(): void {
     const sessionService = getSessionService();
     const active = sessionService.getActiveSession();
     if (active) {
@@ -84,7 +93,7 @@ export class ShortcutsService {
     }
   }
 
-  private async handleCaptureAndTranslate(): Promise<void> {
+  public async handleCaptureAndTranslate(): Promise<void> {
     try {
       const screenService = getScreenTranslationService();
       const region = await screenService.selectRegion();
@@ -109,7 +118,7 @@ export class ShortcutsService {
     }
   }
 
-  private async handleToggleContinuousOcr(): Promise<void> {
+  public async handleToggleContinuousOcr(): Promise<void> {
     try {
       const screenService = getScreenTranslationService();
       const stats = screenService.getContinuousStats();

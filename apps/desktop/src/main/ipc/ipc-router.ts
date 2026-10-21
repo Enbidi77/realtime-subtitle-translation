@@ -14,6 +14,7 @@ import {
   OcrHistoryQuerySchema,
   FloatingPanelPayloadSchema,
   VideoExportOptionsSchema,
+  RadialMenuExecuteRequestSchema,
 } from '@echo-lingo/contracts';
 import {
   getAppService,
@@ -25,6 +26,7 @@ import {
   getSettingsService,
   getSearchService,
   getVideoService,
+  getRadialMenuService,
 } from '@/services/index.js';
 
 export function registerIpcHandlers(): void {
@@ -37,6 +39,7 @@ export function registerIpcHandlers(): void {
   const settingsService = getSettingsService();
   const searchService = getSearchService();
   const videoService = getVideoService();
+  const radialMenuService = getRadialMenuService();
 
   // ================= App Window =================
   ipcMain.handle(IPC_CHANNELS.APP_GET_INFO, () => appService.getSystemInfo());
@@ -423,5 +426,30 @@ export function registerIpcHandlers(): void {
 
   ipcMain.handle(IPC_CHANNELS.VIDEO_CANCEL_EXPORT, async (_, jobId: string) => {
     return videoService.cancelExport(jobId);
+  });
+
+  // ================= Radial / Global Context Menu =================
+  ipcMain.handle(IPC_CHANNELS.RADIAL_MENU_SHOW, async () => {
+    radialMenuService.showMenu();
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.RADIAL_MENU_HIDE, async () => {
+    radialMenuService.hideMenu();
+    return { ok: true };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.RADIAL_MENU_TOGGLE, async () => {
+    const visible = radialMenuService.toggleMenu();
+    return { visible };
+  });
+
+  ipcMain.handle(IPC_CHANNELS.RADIAL_MENU_GET_STATE, async () => {
+    return radialMenuService.getState();
+  });
+
+  ipcMain.handle(IPC_CHANNELS.RADIAL_MENU_EXECUTE_ACTION, async (_, payload) => {
+    const parsed = RadialMenuExecuteRequestSchema.parse(payload);
+    return radialMenuService.executeAction(parsed.actionId);
   });
 }

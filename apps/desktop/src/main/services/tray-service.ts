@@ -5,6 +5,7 @@ import { DEFAULT_APP_SETTINGS } from '@echo-lingo/config';
 import { getDatabase } from '@/database/db-instance.js';
 import { getSessionService } from '@/services/session-service.js';
 import { getScreenTranslationService } from '@/services/screen-translation-service.js';
+import { getRadialMenuService } from '@/services/radial-menu-service.js';
 import { toggleOverlay, getOverlayWindow } from '@/windows/overlay-window.js';
 import { createMainWindow, getMainWindow, setIsQuitting } from '@/windows/main-window.js';
 import { getAppIconService } from '@/services/app-icon.js';
@@ -188,6 +189,12 @@ export class TrayService {
         label: 'Open EchoLingo',
         click: () => {
           this.showMainWindow();
+        },
+      },
+      {
+        label: '✨ Quick Radial Menu (Ctrl+Shift+Space)',
+        click: () => {
+          getRadialMenuService().showMenu();
         },
       },
       { type: 'separator' },

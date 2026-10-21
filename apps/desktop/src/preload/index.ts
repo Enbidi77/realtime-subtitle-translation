@@ -38,6 +38,8 @@ import {
   VideoExportProgress,
   VideoTranscribeProgress,
   toMediaProtocolUrl,
+  RadialMenuActionId,
+  RadialMenuState,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -151,6 +153,11 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_SAVE_EXPORT_FILE, { content, defaultName, format }),
     import: (content: string, fileName: string, sourceLang?: string, targetLang?: string): Promise<{ count: number; sessionId: string }> =>
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_IMPORT, { content, fileName, sourceLanguage: sourceLang, targetLanguage: targetLang }),
+    onQuickStart: (callback: () => void) => {
+      const handler = () => callback();
+      ipcRenderer.on('session:quick-start', handler);
+      return () => ipcRenderer.removeListener('session:quick-start', handler);
+    },
   },
 
   glossary: {
@@ -296,6 +303,25 @@ const api = {
       const handler = (_: unknown, progress: VideoTranscribeProgress) => callback(progress);
       ipcRenderer.on(IPC_CHANNELS.VIDEO_TRANSCRIBE_PROGRESS, handler);
       return () => ipcRenderer.removeListener(IPC_CHANNELS.VIDEO_TRANSCRIBE_PROGRESS, handler);
+    },
+  },
+
+  radialMenu: {
+    show: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.RADIAL_MENU_SHOW),
+    hide: (): Promise<{ ok: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.RADIAL_MENU_HIDE),
+    toggle: (): Promise<{ visible: boolean }> => ipcRenderer.invoke(IPC_CHANNELS.RADIAL_MENU_TOGGLE),
+    getState: (): Promise<RadialMenuState> => ipcRenderer.invoke(IPC_CHANNELS.RADIAL_MENU_GET_STATE),
+    executeAction: (actionId: RadialMenuActionId): Promise<{ ok: boolean; error?: string }> =>
+      ipcRenderer.invoke(IPC_CHANNELS.RADIAL_MENU_EXECUTE_ACTION, { actionId }),
+    onState: (callback: (state: RadialMenuState) => void) => {
+      const handler = (_: unknown, state: RadialMenuState) => callback(state);
+      ipcRenderer.on(IPC_CHANNELS.RADIAL_MENU_STATE_STREAM, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.RADIAL_MENU_STATE_STREAM, handler);
+    },
+    onOpened: (callback: () => void) => {
+      const handler = () => callback();
+      ipcRenderer.on('radial-menu:opened', handler);
+      return () => ipcRenderer.removeListener('radial-menu:opened', handler);
     },
   },
 };

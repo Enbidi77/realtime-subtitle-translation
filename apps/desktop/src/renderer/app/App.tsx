@@ -91,6 +91,24 @@ export const App: React.FC = () => {
         }
       });
 
+      const unsubQuickStart = (window.electronAPI.sessions as any)?.onQuickStart?.(async () => {
+        const { isListening, startSession, stopSession } = useSessionStore.getState();
+        if (!isListening) {
+          const settings = useSettingsStore.getState().settings;
+          await startSession({
+            title: `Live Session ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+            sourceLanguage: settings.sourceLanguage || 'auto',
+            targetLanguages: settings.targetLanguages || ['vi'],
+            speechProvider: settings.speechEngine || 'whisper-local',
+            translationProvider: settings.translationProvider || 'google-web',
+            audioSourceType: settings.audioSourceType || 'microphone',
+            audioDeviceId: settings.audioDeviceId || 'default',
+          });
+        } else {
+          await stopSession();
+        }
+      });
+
       // Window-level keydown handler for Ctrl+K, Cmd+K, Ctrl+Shift+P, Cmd+Shift+P
       const handleGlobalKeyDown = (e: KeyboardEvent) => {
         // Ctrl+K or Cmd+K: Toggle search
@@ -118,6 +136,7 @@ export const App: React.FC = () => {
         if (unsubNavigate) unsubNavigate();
         if (unsubCloseConfirm) unsubCloseConfirm();
         if (unsubSearchToggle) unsubSearchToggle();
+        if (unsubQuickStart) unsubQuickStart();
         window.removeEventListener('keydown', handleGlobalKeyDown, { capture: true });
       };
     }

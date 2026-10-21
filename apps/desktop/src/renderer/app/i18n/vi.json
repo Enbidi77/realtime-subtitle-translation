@@ -477,5 +477,33 @@
     "translatingPhase": "Đang dịch phụ đề...",
     "liveRecognitionLabel": "Nội dung đang nhận diện trực tiếp",
     "translatingProgressLabel": "Nhóm câu đang dịch"
+  },
+  "radialMenu": {
+    "title": "Thao tác nhanh",
+    "expressions": "Biểu cảm & Lệnh",
+    "toggleListening": "Nhận diện giọng nói",
+    "toggleListeningDesc": "Bật/tắt phiên ghi âm phụ đề trực tiếp",
+    "pauseSpeech": "Tạm dừng giọng nói",
+    "pauseSpeechDesc": "Tạm dừng hoặc tiếp tục phiên hiện tại",
+    "screenOcr": "Chụp màn hình OCR",
+    "screenOcrDesc": "Chọn vùng màn hình để quét và dịch",
+    "continuousOcr": "OCR liên tục",
+    "continuousOcrDesc": "Tự động theo dõi và dịch văn bản màn hình",
+    "translateClipboard": "Dịch Clipboard",
+    "translateClipboardDesc": "Dịch văn bản vừa sao chép trong bộ nhớ tạm",
+    "subtitleOverlay": "Lớp phủ phụ đề",
+    "subtitleOverlayDesc": "Hiện hoặc ẩn thanh phụ đề nổi",
+    "clickThrough": "Xuyên chuột (Click-Through)",
+    "clickThroughDesc": "Cho phép bấm xuyên qua thanh phụ đề",
+    "ocrPanel": "Bảng kết quả OCR",
+    "ocrPanelDesc": "Hiện bảng dịch kết quả nổi",
+    "clearSubtitles": "Xóa phụ đề",
+    "clearSubtitlesDesc": "Xóa các dòng phụ đề trên lớp phủ",
+    "copyLast": "Sao chép câu mới nhất",
+    "copyLastDesc": "Sao chép câu phụ đề vừa nhận diện",
+    "settings": "Cài đặt",
+    "settingsDesc": "Mở trang cấu hình ứng dụng",
+    "openApp": "Mở EchoLingo",
+    "openAppDesc": "Hiển thị cửa sổ ứng dụng chính"
   }
 }
