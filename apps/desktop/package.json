@@ -1,11 +1,12 @@
 {
   "name": "@echo-lingo/desktop",
+  "productName": "EchoLingo",
   "version": "1.0.0",
-  "description": "EchoLingo Desktop Application",
+  "description": "EchoLingo",
   "author": "EchoLingo Team",
   "main": "./out/main/index.js",
   "scripts": {
-    "predev": "node ../../scripts/build-dotnet.cjs",
+    "predev": "node ../../scripts/build-dotnet.cjs && node ../../scripts/rebrand-electron.cjs",
     "prebuild": "node ../../scripts/build-dotnet.cjs",
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",

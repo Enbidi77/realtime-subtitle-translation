@@ -58,6 +58,7 @@ export function createOverlayWindow(): BrowserWindow {
   const defaultY = Math.round(workArea.y + workArea.height - defaultHeight - 50);
 
   overlayWindow = new BrowserWindow({
+    title: 'EchoLingo Overlay',
     width: defaultWidth,
     height: defaultHeight,
     x: defaultX,

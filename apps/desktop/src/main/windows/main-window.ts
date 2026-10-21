@@ -25,6 +25,7 @@ export function createMainWindow(options?: { showImmediately?: boolean }): Brows
   const showImmediately = options?.showImmediately !== false;
 
   mainWindow = new BrowserWindow({
+    title: 'EchoLingo',
     width: 1200,
     height: 800,
     minWidth: 960,

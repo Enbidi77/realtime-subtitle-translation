@@ -21,6 +21,7 @@ export function createSplashWindow(): BrowserWindow {
   splashStartTime = Date.now();
 
   splashWindow = new BrowserWindow({
+    title: "EchoLingo",
     width: 480,
     height: 300,
     minWidth: 480,

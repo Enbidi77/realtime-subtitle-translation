@@ -3,6 +3,7 @@ import path from 'path';
 import { ScreenCaptureRegion } from '@echo-lingo/contracts';
 import { createLogger } from '@echo-lingo/logger';
 import { setupSecurityPolicies } from '@/security/security.js';
+import { getAppIconService } from '@/services/app-icon.js';
 
 const log = createLogger('SelectionWindow');
 
@@ -28,6 +29,8 @@ export async function openSelectionOverlay(
     currentResolve = resolve;
 
     selectionWindow = new BrowserWindow({
+      title: 'EchoLingo Region Selector',
+      icon: getAppIconService().getAppIcon(),
       x: display.bounds.x,
       y: display.bounds.y,
       width: display.bounds.width,

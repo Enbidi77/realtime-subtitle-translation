@@ -2,6 +2,13 @@ import path from "path";
 import { app, BrowserWindow } from "electron";
 import { initLogger, createLogger } from "@echo-lingo/logger";
 
+// Set application identity early so that app.name, userData, notifications, and taskbar use "EchoLingo"
+app.name = "EchoLingo";
+if (process.platform === "win32") {
+  process.title = "EchoLingo";
+  app.setAppUserModelId("com.echolingo.desktop");
+}
+
 // Initialize persistent file logging in userData/logs
 try {
   const logDir = path.join(app.getPath("userData"), "logs");

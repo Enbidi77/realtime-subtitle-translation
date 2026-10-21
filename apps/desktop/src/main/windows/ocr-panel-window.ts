@@ -21,6 +21,7 @@ export function createOcrPanelWindow(): BrowserWindow {
   const defaultH = 260;
 
   panelWindow = new BrowserWindow({
+    title: "EchoLingo Floating Result",
     width: defaultW,
     height: defaultH,
     minWidth: 320,
