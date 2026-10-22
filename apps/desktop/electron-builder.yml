@@ -44,6 +44,7 @@ msi:
   runAfterFinish: false
 
 appx:
+  displayName: EchoLingoApp
   applicationId: EchoLingoApp
   identityName: Enbidi.EchoLingoApp
   publisher: CN=7D350121-9482-4DA4-B852-3D95D4F0BF11

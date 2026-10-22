@@ -282,15 +282,19 @@ const MENU_ITEMS: MenuItemConfig[] = [
 ];
 
 // Mascot Bongo Cat typing on keyboard at top right
-const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
-  isInteracting,
-  animKey,
-}) => {
+const BongoCatMascot: React.FC<{
+  isInteracting: boolean;
+  animKey: number;
+  cx: number;
+  cy: number;
+}> = ({ isInteracting, animKey, cx, cy }) => {
   return (
     <div
       key={`mascot-${animKey}`}
-      className="absolute top-2 right-4 pointer-events-none select-none"
+      className="absolute pointer-events-none select-none z-20"
       style={{
+        left: `${cx + 115}px`,
+        top: `${cy - 240}px`,
         animation:
           "mascotBloom 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms both",
         transform: isInteracting ? "scale(1.04) rotate(-1deg)" : "scale(1)",
@@ -547,7 +551,10 @@ export const RadialMenuApp: React.FC = () => {
         setHoveredIndex(
           (prev) => ((prev ?? 0) - 1 + MENU_ITEMS.length) % MENU_ITEMS.length,
         );
-      } else if (e.key === "Enter" || e.key === " ") {
+      } else if (
+        (e.key === "Enter" && !e.repeat) ||
+        (e.key === " " && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && !e.repeat)
+      ) {
         e.preventDefault();
         if (hoveredIndex !== null) {
           triggerAction(MENU_ITEMS[hoveredIndex]);
@@ -572,9 +579,11 @@ export const RadialMenuApp: React.FC = () => {
     }
   }, []);
 
-  // Geometry constants
-  const cx = 280;
-  const cy = 280;
+  // Geometry & Canvas dimensions
+  const W = 760;
+  const H = 720;
+  const cx = W / 2; // 380
+  const cy = H / 2; // 360
   const rIn = 76;
   const rOut = 176;
   const rMid = (rIn + rOut) / 2; // 126
@@ -583,12 +592,12 @@ export const RadialMenuApp: React.FC = () => {
 
   const currentItem = hoveredIndex !== null ? MENU_ITEMS[hoveredIndex] : null;
 
-  // Calculate callout cards position for hovered slice
+  // Calculate callout cards position for hovered slice with bulletproof viewport clamping
   const calloutInfo = useMemo(() => {
     if (!currentItem) return null;
     const midAngle = currentItem.angleIndex * sliceSpan + sliceSpan / 2;
     // Radial projection outwards beyond rOut
-    const calloutRadius = rOut + 46;
+    const calloutRadius = rOut + 42;
     const pos = polarToCartesian(cx, cy, calloutRadius, midAngle);
     const callouts = currentItem.callouts(state);
 
@@ -596,20 +605,39 @@ export const RadialMenuApp: React.FC = () => {
     const isLeft = pos.x < cx;
     const isTop = pos.y < cy;
 
+    // Smart bounds clamping so callout pills are NEVER cut off by the window boundary!
+    const estCardWidth = 210;
+    const estCardHeight = callouts.length * 36;
+    const pad = 18;
+
+    let clampedX = pos.x;
+    if (isLeft) {
+      // Stack expands to the left from clampedX (-100%)
+      clampedX = Math.max(estCardWidth + pad, pos.x);
+    } else {
+      // Stack expands to the right from clampedX (0%)
+      clampedX = Math.min(W - pad - estCardWidth, pos.x);
+    }
+
+    const clampedY = Math.max(
+      estCardHeight / 2 + pad,
+      Math.min(H - estCardHeight / 2 - pad, pos.y),
+    );
+
     return {
-      x: pos.x,
-      y: pos.y,
+      x: clampedX,
+      y: clampedY,
       isLeft,
       isTop,
       callouts,
     };
-  }, [currentItem, state, cx, cy, rOut, sliceSpan]);
+  }, [currentItem, state, cx, cy, rOut, sliceSpan, W, H]);
 
   return (
     <div
       ref={containerRef}
       key={`radial-menu-root-${animKey}`}
-      className="relative w-[560px] h-[560px] flex items-center justify-center select-none overflow-visible"
+      className="relative w-[760px] h-[720px] flex items-center justify-center select-none overflow-visible"
       onClick={(e) => {
         // If clicking on root container outside interactive elements, dismiss
         if (e.target === containerRef.current) {
@@ -704,8 +732,12 @@ export const RadialMenuApp: React.FC = () => {
 
       {/* Background radial ambient glow */}
       <div
-        className="absolute w-[460px] h-[460px] rounded-full blur-3xl pointer-events-none transition-all duration-500 opacity-60"
+        className="absolute rounded-full blur-3xl pointer-events-none transition-all duration-500 opacity-60"
         style={{
+          width: "460px",
+          height: "460px",
+          left: `${cx - 230}px`,
+          top: `${cy - 230}px`,
           animation: "ambientPulse 500ms ease-out both",
           background: currentItem
             ? `radial-gradient(circle, ${currentItem.accentColor}33 0%, rgba(59, 130, 246, 0.1) 50%, transparent 70%)`
@@ -714,13 +746,18 @@ export const RadialMenuApp: React.FC = () => {
       />
 
       {/* Cute Mascot Bongo Cat at Top Right */}
-      <BongoCatMascot isInteracting={hoveredIndex !== null} animKey={animKey} />
+      <BongoCatMascot
+        isInteracting={hoveredIndex !== null}
+        animKey={animKey}
+        cx={cx}
+        cy={cy}
+      />
 
       {/* SVG Petal Segments */}
       <svg
-        width="560"
-        height="560"
-        viewBox="0 0 560 560"
+        width={W}
+        height={H}
+        viewBox={`0 0 ${W} ${H}`}
         className="absolute inset-0 overflow-visible cursor-default pointer-events-auto"
       >
         <defs>
@@ -905,6 +942,8 @@ export const RadialMenuApp: React.FC = () => {
       <div
         className="absolute flex flex-col items-center justify-center text-center pointer-events-none select-none z-20"
         style={{
+          left: `${cx - (rIn - 10)}px`,
+          top: `${cy - (rIn - 10)}px`,
           width: `${(rIn - 10) * 2}px`,
           height: `${(rIn - 10) * 2}px`,
           animation: "hubBloom 350ms cubic-bezier(0.16, 1, 0.3, 1) both",
@@ -926,12 +965,12 @@ export const RadialMenuApp: React.FC = () => {
             </div>
 
             {/* Title / Label */}
-            <div className="font-bold text-[13px] tracking-tight text-[#0284c7] leading-tight px-1 line-clamp-1">
+            <div className="font-bold text-[13px] tracking-tight text-[#0284c7] leading-tight px-2 line-clamp-1 max-w-[124px]">
               {currentItem.label}
             </div>
 
             {/* Shortcut or Category Subtext */}
-            <div className="text-[10px] text-slate-500 font-mono mt-0.5 opacity-90">
+            <div className="text-[10px] text-slate-500 font-mono mt-0.5 opacity-90 max-w-[124px] truncate">
               {currentItem.shortcut}
             </div>
           </>
@@ -964,13 +1003,13 @@ export const RadialMenuApp: React.FC = () => {
           {calloutInfo.callouts.map((text, idx) => (
             <div
               key={idx}
-              className="bg-white/95 text-slate-800 text-[11px] font-mono font-medium px-3 py-1.5 rounded-xl border border-white/90 shadow-[0_8px_20px_-3px_rgba(0,0,0,0.15)] backdrop-blur-md whitespace-nowrap flex items-center gap-1.5"
+              className="bg-white/95 text-slate-800 text-[11px] font-mono font-medium px-3 py-1.5 rounded-xl border border-white/90 shadow-[0_8px_20px_-3px_rgba(0,0,0,0.15)] backdrop-blur-md whitespace-nowrap flex items-center gap-1.5 max-w-[240px]"
               style={{
                 animation: `calloutCascade 260ms cubic-bezier(0.16, 1, 0.3, 1) ${300 + idx * 50}ms both`,
               }}
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-sky-500" />
-              <span>{text}</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-500 shrink-0" />
+              <span className="truncate">{text}</span>
             </div>
           ))}
         </div>
@@ -978,7 +1017,7 @@ export const RadialMenuApp: React.FC = () => {
 
       {/* Executed Action Temporary Toast Banner */}
       {executedFeedback && (
-        <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-2 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-150">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-2 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-150">
           <Check className="w-3.5 h-3.5 text-emerald-400" />
           <span>Executing: {executedFeedback}</span>
         </div>

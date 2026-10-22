@@ -8,23 +8,29 @@ import { createLogger } from '@echo-lingo/logger';
 const log = createLogger('RadialMenuWindow');
 
 let radialWindow: BrowserWindow | null = null;
+let isShortcutHeld = false;
+let lastShortcutTriggerTime = 0;
+
+export function onShortcutReleased(): void {
+  isShortcutHeld = false;
+}
 
 export function createRadialMenuWindow(): BrowserWindow {
   if (radialWindow && !radialWindow.isDestroyed()) {
     return radialWindow;
   }
 
-  const defaultW = 560;
-  const defaultH = 560;
+  const defaultW = 760;
+  const defaultH = 720;
 
   radialWindow = new BrowserWindow({
     title: 'EchoLingo Radial Menu',
     width: defaultW,
     height: defaultH,
-    minWidth: 480,
-    minHeight: 480,
-    maxWidth: 720,
-    maxHeight: 720,
+    minWidth: 560,
+    minHeight: 560,
+    maxWidth: 900,
+    maxHeight: 900,
     icon: getAppIconService().getAppIcon(),
     show: false,
     frame: false,
@@ -51,6 +57,12 @@ export function createRadialMenuWindow(): BrowserWindow {
 
   setupSecurityPolicies(radialWindow.webContents);
 
+  radialWindow.webContents.on('before-input-event', (_event, input) => {
+    if (input.type === 'keyUp') {
+      isShortcutHeld = false;
+    }
+  });
+
   radialWindow.webContents.on('console-message', (_event, level, message, line, sourceId) => {
     const levels = ['DEBUG', 'INFO', 'WARN', 'ERROR'] as const;
     const tag = `[RadialMenu ${levels[level] || level}] (${sourceId}:${line})`;
@@ -69,11 +81,13 @@ export function createRadialMenuWindow(): BrowserWindow {
 
   radialWindow.on('blur', () => {
     // Automatically hide radial menu when focus is lost
+    isShortcutHeld = false;
     hideRadialMenu();
   });
 
   radialWindow.on('closed', () => {
     radialWindow = null;
+    isShortcutHeld = false;
   });
 
   return radialWindow;
@@ -81,6 +95,14 @@ export function createRadialMenuWindow(): BrowserWindow {
 
 export function showRadialMenu(state?: RadialMenuState): void {
   const win = radialWindow && !radialWindow.isDestroyed() ? radialWindow : createRadialMenuWindow();
+
+  // If already visible, do not re-position or re-trigger entrance animations!
+  if (win.isVisible()) {
+    if (state) {
+      sendRadialMenuState(state);
+    }
+    return;
+  }
 
   // Position center at current mouse position
   const cursor = screen.getCursorScreenPoint();
@@ -116,16 +138,32 @@ export function showRadialMenu(state?: RadialMenuState): void {
 }
 
 export function hideRadialMenu(): void {
+  isShortcutHeld = false;
   if (radialWindow && !radialWindow.isDestroyed() && radialWindow.isVisible()) {
     radialWindow.hide();
   }
 }
 
 export function toggleRadialMenu(state?: RadialMenuState): boolean {
-  if (radialWindow && !radialWindow.isDestroyed() && radialWindow.isVisible()) {
+  const now = Date.now();
+  const timeSinceLast = now - lastShortcutTriggerTime;
+  lastShortcutTriggerTime = now;
+
+  const isVisible = isRadialMenuVisible();
+
+  if (isVisible) {
+    // If the shortcut is currently held down without releasing,
+    // or if rapid triggers arrive faster than human double-tap interval (< 250ms),
+    // this is an OS auto-repeat while holding the shortcut. Suppress it so it stays open stably.
+    if (isShortcutHeld || timeSinceLast < 250) {
+      log.debug('Ignoring toggle while shortcut held down (auto-repeat suppressed)');
+      return true;
+    }
+
     hideRadialMenu();
     return false;
   } else {
+    isShortcutHeld = true;
     showRadialMenu(state);
     return true;
   }
