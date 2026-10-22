@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useLayoutEffect, useEffect } from 'react';
 import { useNavigationStore, AppPage } from '@/stores/navigation-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useI18n } from '@/app/i18n/index.js';
@@ -29,6 +29,15 @@ export const Sidebar: React.FC = () => {
   const isListening = useSessionStore((s) => s.isListening);
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  const navRef = useRef<HTMLElement | null>(null);
+  const itemRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [indicatorStyle, setIndicatorStyle] = useState<{
+    top: number;
+    height: number;
+    ready: boolean;
+  }>({ top: 0, height: 0, ready: false });
+  const [isAnimated, setIsAnimated] = useState(false);
+
   const navItems: NavItem[] = [
     { id: 'dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
     {
@@ -44,6 +53,43 @@ export const Sidebar: React.FC = () => {
     { id: 'providers', labelKey: 'nav.providers', icon: Cpu },
     { id: 'settings', labelKey: 'nav.settings', icon: Settings },
   ];
+
+  const updateIndicator = useCallback(() => {
+    const el = itemRefs.current[activePage];
+    if (el) {
+      setIndicatorStyle({
+        top: el.offsetTop,
+        height: el.offsetHeight,
+        ready: true,
+      });
+    }
+  }, [activePage]);
+
+  // Synchronously compute indicator position before paint
+  useLayoutEffect(() => {
+    updateIndicator();
+  }, [updateIndicator, isCollapsed]);
+
+  // Handle container resizing and enable smooth sliding transition after initial mount
+  useEffect(() => {
+    const rafId = requestAnimationFrame(() => {
+      setIsAnimated(true);
+    });
+
+    const nav = navRef.current;
+    if (!nav) return () => cancelAnimationFrame(rafId);
+
+    const observer = new ResizeObserver(() => {
+      updateIndicator();
+    });
+
+    observer.observe(nav);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      observer.disconnect();
+    };
+  }, [updateIndicator]);
 
   return (
     <aside
@@ -77,7 +123,23 @@ export const Sidebar: React.FC = () => {
         </div>
 
         {/* Navigation items list */}
-        <nav className="space-y-1.5">
+        <nav ref={navRef} className="relative flex flex-col gap-1.5" aria-label={t('layout.workspace', 'Workspace')}>
+          {/* Smooth sliding indicator pill */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 rounded-xl pointer-events-none bg-gradient-to-r from-blue-600/90 to-indigo-600/90 shadow-md shadow-indigo-500/20 border border-white/20 z-0"
+            style={{
+              top: 0,
+              transform: `translate3d(0, ${indicatorStyle.top}px, 0)`,
+              height: `${indicatorStyle.height}px`,
+              opacity: indicatorStyle.ready ? 1 : 0,
+              transition: isAnimated
+                ? 'transform 300ms cubic-bezier(0.2, 0.8, 0.2, 1), height 300ms cubic-bezier(0.2, 0.8, 0.2, 1), opacity 200ms ease'
+                : 'none',
+              willChange: 'transform, height, opacity',
+            }}
+          />
+
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = activePage === item.id;
@@ -85,19 +147,26 @@ export const Sidebar: React.FC = () => {
               <button
                 type="button"
                 key={item.id}
+                ref={(el) => {
+                  if (el) {
+                    itemRefs.current[item.id] = el;
+                  } else {
+                    delete itemRefs.current[item.id];
+                  }
+                }}
                 onClick={() => setActivePage(item.id)}
                 title={isCollapsed ? t(item.labelKey) : undefined}
                 className={`w-full flex items-center ${
                   isCollapsed ? 'justify-center px-0' : 'justify-between px-3'
-                } py-2.5 rounded-xl text-xs font-medium cursor-pointer app-no-drag transition-all duration-150 ${
+                } py-2.5 rounded-xl text-xs cursor-pointer app-no-drag relative z-10 transition-colors duration-200 border border-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 ${
                   isActive
-                    ? 'bg-gradient-to-r from-blue-600/90 to-indigo-600/90 text-white shadow-md shadow-indigo-500/20 border border-white/20 font-semibold'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border/40'
+                    ? 'text-white font-semibold'
+                    : 'text-muted-foreground font-medium hover:text-foreground hover:bg-glass-subtle hover:border-glass-border/40'
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Icon
-                    className={`w-4 h-4 shrink-0 transition-transform ${
+                    className={`w-4 h-4 shrink-0 transition-all duration-200 ${
                       isActive ? 'text-white scale-105' : 'text-muted-foreground'
                     }`}
                   />
