@@ -1,8 +1,8 @@
-import { create } from 'zustand';
-import { createLogger } from '@echo-lingo/logger';
-import { useSettingsStore } from './settings-store.js';
+import { create } from "zustand";
+import { createRendererLogger } from "@echo-lingo/logger";
+import { useSettingsStore } from "./settings-store.js";
 
-const log = createLogger('OnboardingStore');
+const log = createRendererLogger("OnboardingStore");
 
 export interface OnboardingStore {
   isOpen: boolean;
@@ -22,7 +22,11 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
   currentStep: 0,
   totalSteps: 6,
 
-  openTour: (step = 0) => set({ isOpen: true, currentStep: Math.max(0, Math.min(step, get().totalSteps - 1)) }),
+  openTour: (step = 0) =>
+    set({
+      isOpen: true,
+      currentStep: Math.max(0, Math.min(step, get().totalSteps - 1)),
+    }),
   closeTour: () => set({ isOpen: false }),
 
   nextStep: () => {
@@ -51,19 +55,22 @@ export const useOnboardingStore = create<OnboardingStore>((set, get) => ({
   completeTour: async () => {
     set({ isOpen: false });
     try {
-      await useSettingsStore.getState().updateSettings({ hasCompletedOnboarding: true });
+      await useSettingsStore
+        .getState()
+        .updateSettings({ hasCompletedOnboarding: true });
     } catch (err) {
-      log.error('Failed to persist onboarding completion', err);
+      log.error("Failed to persist onboarding completion", err);
     }
   },
 
   resetTour: async () => {
     try {
-      await useSettingsStore.getState().updateSettings({ hasCompletedOnboarding: false });
+      await useSettingsStore
+        .getState()
+        .updateSettings({ hasCompletedOnboarding: false });
     } catch (err) {
-      log.error('Failed to reset onboarding setting', err);
+      log.error("Failed to reset onboarding setting", err);
     }
     set({ isOpen: true, currentStep: 0 });
   },
 }));
-

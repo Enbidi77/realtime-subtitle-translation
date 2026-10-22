@@ -1,33 +1,36 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { createLogger } from '@echo-lingo/logger';
-import { useSessionStore } from '@/stores/session-store.js';
-import { useSettingsStore } from '@/stores/settings-store.js';
-import audioCaptureProcessorCode from './audio-capture-processor.js?raw';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { createRendererLogger } from "@echo-lingo/logger";
+import { useSessionStore } from "@/stores/session-store.js";
+import { useSettingsStore } from "@/stores/settings-store.js";
+import audioCaptureProcessorCode from "./audio-capture-processor.js?raw";
 
-const log = createLogger('AudioCapture');
+const log = createRendererLogger("AudioCapture");
 
 function getHumanReadableAudioError(err: unknown): string {
-  if (err instanceof DOMException || (typeof err === 'object' && err !== null && 'name' in err)) {
+  if (
+    err instanceof DOMException ||
+    (typeof err === "object" && err !== null && "name" in err)
+  ) {
     const domErr = err as { name: string; message: string };
     switch (domErr.name) {
-      case 'NotAllowedError':
-      case 'PermissionDeniedError':
-        return 'Microphone permission was denied. Please allow microphone access in Windows Settings > Privacy & security > Microphone.';
-      case 'NotFoundError':
-      case 'DevicesNotFoundError':
+      case "NotAllowedError":
+      case "PermissionDeniedError":
+        return "Microphone permission was denied. Please allow microphone access in Windows Settings > Privacy & security > Microphone.";
+      case "NotFoundError":
+      case "DevicesNotFoundError":
         return 'No microphone detected. Please connect an audio input device or switch Audio Source to "System Audio" in the Dashboard.';
-      case 'NotReadableError':
-      case 'TrackStartError':
-        return 'Microphone is currently in use by another application or audio driver is busy.';
-      case 'OverconstrainedError':
-        return 'The selected microphone is unavailable. Reverting to default system audio device.';
-      case 'AbortError':
-        return 'Audio capture was canceled or interrupted.';
+      case "NotReadableError":
+      case "TrackStartError":
+        return "Microphone is currently in use by another application or audio driver is busy.";
+      case "OverconstrainedError":
+        return "The selected microphone is unavailable. Reverting to default system audio device.";
+      case "AbortError":
+        return "Audio capture was canceled or interrupted.";
       default:
-        return `Audio device error (${domErr.name}): ${domErr.message || 'Unable to access audio input.'}`;
+        return `Audio device error (${domErr.name}): ${domErr.message || "Unable to access audio input."}`;
     }
   }
-  return err instanceof Error ? err.message : 'Unknown audio capture error';
+  return err instanceof Error ? err.message : "Unknown audio capture error";
 }
 
 export function useAudioCapture() {
@@ -35,7 +38,9 @@ export function useAudioCapture() {
   const isPaused = useSessionStore((s) => s.isPaused);
   const setAudioLevels = useSessionStore((s) => s.setAudioLevels);
   const setAudioError = useSessionStore((s) => s.setAudioError);
-  const { audioSourceType, audioDeviceId, vadSensitivity } = useSettingsStore((s) => s.settings);
+  const { audioSourceType, audioDeviceId, vadSensitivity } = useSettingsStore(
+    (s) => s.settings,
+  );
 
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -54,8 +59,10 @@ export function useAudioCapture() {
       mediaStreamRef.current.getTracks().forEach((track) => track.stop());
       mediaStreamRef.current = null;
     }
-    if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
-      audioContextRef.current.close().catch((err) => log.error('Failed to close AudioContext', err));
+    if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      audioContextRef.current
+        .close()
+        .catch((err) => log.error("Failed to close AudioContext", err));
       audioContextRef.current = null;
     }
     setAudioLevels(0, 0);
@@ -69,7 +76,7 @@ export function useAudioCapture() {
     try {
       let stream: MediaStream;
 
-      if (audioSourceType === 'system') {
+      if (audioSourceType === "system") {
         // Capture system/desktop audio via getDisplayMedia
         try {
           stream = await navigator.mediaDevices.getDisplayMedia({
@@ -80,7 +87,7 @@ export function useAudioCapture() {
           const audioTracks = stream.getAudioTracks();
           if (audioTracks.length === 0) {
             throw new Error(
-              'No system audio track provided. When prompted, ensure "Share system audio" is enabled.'
+              'No system audio track provided. When prompted, ensure "Share system audio" is enabled.',
             );
           }
 
@@ -89,13 +96,18 @@ export function useAudioCapture() {
             t.enabled = false;
           });
         } catch (e: any) {
-          const domName = e?.name || 'Error';
-          const domMsg = e?.message || 'Access canceled';
-          throw new Error(`System audio capture could not be started (${domName}: ${domMsg})`);
+          const domName = e?.name || "Error";
+          const domMsg = e?.message || "Access canceled";
+          throw new Error(
+            `System audio capture could not be started (${domName}: ${domMsg})`,
+          );
         }
       } else {
         // Standard microphone audio with soft ideal constraints
-        const hasSpecificDevice = audioDeviceId && audioDeviceId !== 'default' && audioDeviceId !== 'communications';
+        const hasSpecificDevice =
+          audioDeviceId &&
+          audioDeviceId !== "default" &&
+          audioDeviceId !== "communications";
         const constraints: MediaStreamConstraints = {
           audio: {
             deviceId: hasSpecificDevice ? { ideal: audioDeviceId } : undefined,
@@ -109,27 +121,37 @@ export function useAudioCapture() {
         try {
           stream = await navigator.mediaDevices.getUserMedia(constraints);
         } catch (initialErr: any) {
-          log.warn('Preferred constraints failed, retrying with fallback audio constraints', initialErr);
+          log.warn(
+            "Preferred constraints failed, retrying with fallback audio constraints",
+            initialErr,
+          );
           // Fallback to basic unconstrained audio capture
-          stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: true,
+            video: false,
+          });
         }
       }
 
       setHasPermission(true);
       mediaStreamRef.current = stream;
 
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const audioCtx = new (
+        window.AudioContext || (window as any).webkitAudioContext
+      )();
       audioContextRef.current = audioCtx;
 
       // Resume context if suspended by browser policy
-      if (audioCtx.state === 'suspended') {
+      if (audioCtx.state === "suspended") {
         await audioCtx.resume();
       }
 
       const sourceNode = audioCtx.createMediaStreamSource(stream);
 
       // Register audio worklet processor via blob URL
-      const workletBlob = new Blob([audioCaptureProcessorCode], { type: 'application/javascript' });
+      const workletBlob = new Blob([audioCaptureProcessorCode], {
+        type: "application/javascript",
+      });
       const workletUrl = URL.createObjectURL(workletBlob);
       try {
         await audioCtx.audioWorklet.addModule(workletUrl);
@@ -137,13 +159,23 @@ export function useAudioCapture() {
         URL.revokeObjectURL(workletUrl);
       }
 
-      const workletNode = new AudioWorkletNode(audioCtx, 'audio-capture-processor', {
-        numberOfInputs: 1,
-        numberOfOutputs: 0,
-      });
+      const workletNode = new AudioWorkletNode(
+        audioCtx,
+        "audio-capture-processor",
+        {
+          numberOfInputs: 1,
+          numberOfOutputs: 0,
+        },
+      );
       processorRef.current = workletNode;
 
-      workletNode.port.onmessage = (event: MessageEvent<{ rms: number; peak: number; resampled: ArrayBuffer }>) => {
+      workletNode.port.onmessage = (
+        event: MessageEvent<{
+          rms: number;
+          peak: number;
+          resampled: ArrayBuffer;
+        }>,
+      ) => {
         if (useSessionStore.getState().isPaused) {
           setAudioLevels(0, 0);
           return;
@@ -156,16 +188,16 @@ export function useAudioCapture() {
 
         // Send resampled chunks to main process for VAD & speech recognition
         if (window.electronAPI) {
-          window.electronAPI.audio.processChunk(Array.from(new Float32Array(resampled)), isSpeech).catch((err) =>
-            log.error('Failed to process audio chunk', err)
-          );
+          window.electronAPI.audio
+            .processChunk(Array.from(new Float32Array(resampled)), isSpeech)
+            .catch((err) => log.error("Failed to process audio chunk", err));
         }
       };
 
       sourceNode.connect(workletNode);
     } catch (err: any) {
-      const errName = err?.name || 'Error';
-      const errMsg = err?.message || '';
+      const errName = err?.name || "Error";
+      const errMsg = err?.message || "";
       log.error(`Error accessing audio source [${errName}]: ${errMsg}`, err);
 
       const friendlyMsg = getHumanReadableAudioError(err);
@@ -174,7 +206,14 @@ export function useAudioCapture() {
       setAudioError(friendlyMsg);
       useSessionStore.getState().stopSession();
     }
-  }, [audioSourceType, audioDeviceId, vadSensitivity, setAudioLevels, setAudioError, stopCapture]);
+  }, [
+    audioSourceType,
+    audioDeviceId,
+    vadSensitivity,
+    setAudioLevels,
+    setAudioError,
+    stopCapture,
+  ]);
 
   useEffect(() => {
     if (isListening && !isPaused) {

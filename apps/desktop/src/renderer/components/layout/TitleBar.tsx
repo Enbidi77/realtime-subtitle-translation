@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { useSessionStore } from '@/stores/session-store.js';
-import { useSettingsStore } from '@/stores/settings-store.js';
-import { useNavigationStore } from '@/stores/navigation-store.js';
-import { useOnboardingStore } from '@/stores/onboarding-store.js';
-import { useI18n } from '@/app/i18n/index.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { TitleBarSearchButton } from '@/features/global-search/index.js';
-import { createLogger } from '@echo-lingo/logger';
-import appLogo from '@/assets/logo.png';
+import React, { useState, useEffect } from "react";
+import { useSessionStore } from "@/stores/session-store.js";
+import { useSettingsStore } from "@/stores/settings-store.js";
+import { useNavigationStore } from "@/stores/navigation-store.js";
+import { useOnboardingStore } from "@/stores/onboarding-store.js";
+import { useI18n } from "@/app/i18n/index.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { TitleBarSearchButton } from "@/features/global-search/index.js";
+import { createRendererLogger } from "@echo-lingo/logger";
+import appLogo from "@/assets/logo.png";
 import {
   Minus,
   Square,
@@ -17,9 +17,9 @@ import {
   Moon,
   HelpCircle,
   Mic,
-} from 'lucide-react';
+} from "lucide-react";
 
-const log = createLogger('TitleBar');
+const log = createRendererLogger("TitleBar");
 
 export const TitleBar: React.FC = () => {
   const { t } = useI18n();
@@ -52,10 +52,10 @@ export const TitleBar: React.FC = () => {
   const handleMinimize = () => window.electronAPI?.app.minimize();
   const handleMaximize = () => window.electronAPI?.app.maximize();
   const handleClose = () => {
-    const behavior = closeBehavior || 'ask';
-    if (behavior === 'ask') {
+    const behavior = closeBehavior || "ask";
+    if (behavior === "ask") {
       setIsExitModalOpen(true);
-    } else if (behavior === 'quit') {
+    } else if (behavior === "quit") {
       window.electronAPI?.app.quit();
     } else {
       // 'minimize-to-tray'
@@ -79,17 +79,17 @@ export const TitleBar: React.FC = () => {
           speechProvider: settings.speechEngine,
           translationProvider: settings.translationProvider,
         });
-        setActivePage('live-subtitles');
+        setActivePage("live-subtitles");
       }
     } catch (err) {
-      log.error('Failed to toggle listening session:', err);
+      log.error("Failed to toggle listening session:", err);
     } finally {
       setIsTogglingListening(false);
     }
   };
 
   const handleToggleTheme = () => {
-    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    const nextTheme = theme === "dark" ? "light" : "dark";
     updateSettings({ theme: nextTheme });
   };
 
@@ -100,17 +100,20 @@ export const TitleBar: React.FC = () => {
 
     const onMouseMove = (moveEvt: MouseEvent) => {
       if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
-        window.electronAPI?.app.moveWindow(moveEvt.movementX, moveEvt.movementY);
+        window.electronAPI?.app.moveWindow(
+          moveEvt.movementX,
+          moveEvt.movementY,
+        );
       }
     };
 
     const onMouseUp = () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   return (
@@ -142,15 +145,16 @@ export const TitleBar: React.FC = () => {
           <div className="flex items-center gap-1.5 ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-xs">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
-                isPaused ? 'bg-amber-400' : 'bg-emerald-400 animate-pulse'
+                isPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
               }`}
             />
             <span>
-              {isPaused ? t('app.status.paused') : t('app.status.listening')}
+              {isPaused ? t("app.status.paused") : t("app.status.listening")}
             </span>
             {activeSession && (
               <span className="text-[10px] opacity-75 hidden md:inline font-mono">
-                ({activeSession.sourceLanguage} → {activeSession.targetLanguages.join(', ')})
+                ({activeSession.sourceLanguage} →{" "}
+                {activeSession.targetLanguages.join(", ")})
               </span>
             )}
           </div>
@@ -175,32 +179,32 @@ export const TitleBar: React.FC = () => {
           disabled={isTogglingListening}
           title={
             isListening
-              ? t('layout.stopListening', 'Stop Listening')
-              : t('layout.startListening', 'Start Listening')
+              ? t("layout.stopListening", "Stop Listening")
+              : t("layout.startListening", "Start Listening")
           }
           aria-label={
             isListening
-              ? t('layout.stopListening', 'Stop Listening')
-              : t('layout.startListening', 'Start Listening')
+              ? t("layout.stopListening", "Stop Listening")
+              : t("layout.startListening", "Start Listening")
           }
           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl cursor-pointer transition-all duration-150 border font-medium ${
             isListening
-              ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive/40 shadow-xs shadow-destructive/25'
-              : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-white/20 shadow-xs shadow-indigo-500/25 active:scale-95'
-          } ${isTogglingListening ? 'opacity-70 cursor-not-allowed' : ''}`}
+              ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 border-destructive/40 shadow-xs shadow-destructive/25"
+              : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white border-white/20 shadow-xs shadow-indigo-500/25 active:scale-95"
+          } ${isTogglingListening ? "opacity-70 cursor-not-allowed" : ""}`}
         >
           {isListening ? (
             <>
               <Square className="w-3.5 h-3.5 fill-current" />
               <span className="hidden sm:inline text-[11px]">
-                {t('layout.stopListening', 'Stop Listening')}
+                {t("layout.stopListening", "Stop Listening")}
               </span>
             </>
           ) : (
             <>
               <Mic className="w-3.5 h-3.5" />
               <span className="hidden sm:inline text-[11px]">
-                {t('layout.startListening', 'Start Listening')}
+                {t("layout.startListening", "Start Listening")}
               </span>
             </>
           )}
@@ -210,16 +214,22 @@ export const TitleBar: React.FC = () => {
         <button
           type="button"
           onClick={handleToggleOverlay}
-          title={isOverlayOpen ? t('layout.hideOverlay', 'Hide Subtitle Overlay') : t('live.openOverlay')}
+          title={
+            isOverlayOpen
+              ? t("layout.hideOverlay", "Hide Subtitle Overlay")
+              : t("live.openOverlay")
+          }
           className={`flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-xl cursor-pointer transition-all duration-150 border ${
             isOverlayOpen
-              ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-medium'
-              : 'bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border-glass-border'
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-white/20 shadow-sm shadow-primary/20 font-medium"
+              : "bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border-glass-border"
           }`}
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span className="hidden lg:inline text-[11px]">
-            {isOverlayOpen ? t('layout.overlayActive', 'Overlay Active') : t('live.openOverlay')}
+            {isOverlayOpen
+              ? t("layout.overlayActive", "Overlay Active")
+              : t("live.openOverlay")}
           </span>
         </button>
 
@@ -227,10 +237,14 @@ export const TitleBar: React.FC = () => {
         <button
           type="button"
           onClick={handleToggleTheme}
-          title={theme === 'dark' ? t('layout.switchToLight', 'Switch to light mode') : t('layout.switchToDark', 'Switch to dark mode')}
+          title={
+            theme === "dark"
+              ? t("layout.switchToLight", "Switch to light mode")
+              : t("layout.switchToDark", "Switch to dark mode")
+          }
           className="w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
         >
-          {theme === 'dark' ? (
+          {theme === "dark" ? (
             <Sun className="w-3.5 h-3.5 text-amber-300" />
           ) : (
             <Moon className="w-3.5 h-3.5 text-indigo-500" />
@@ -241,8 +255,8 @@ export const TitleBar: React.FC = () => {
         <button
           type="button"
           onClick={() => openTour(0)}
-          title={t('layout.helpTour', 'Interactive App Tour')}
-          aria-label={t('layout.helpTour', 'Interactive App Tour')}
+          title={t("layout.helpTour", "Interactive App Tour")}
+          aria-label={t("layout.helpTour", "Interactive App Tour")}
           className="w-7 h-7 flex items-center justify-center rounded-lg cursor-pointer bg-glass-subtle text-muted-foreground hover:text-foreground hover:bg-glass border border-glass-border transition-colors"
         >
           <HelpCircle className="w-3.5 h-3.5 text-primary" />
@@ -255,8 +269,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleMinimize}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
-          title={t('layout.minimize', 'Minimize')}
-          aria-label={t('layout.minimize', 'Minimize')}
+          title={t("layout.minimize", "Minimize")}
+          aria-label={t("layout.minimize", "Minimize")}
         >
           <Minus className="w-3.5 h-3.5" />
         </button>
@@ -264,8 +278,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleMaximize}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-foreground hover:bg-glass rounded-lg border border-transparent hover:border-glass-border transition-colors"
-          title={t('layout.maximize', 'Maximize')}
-          aria-label={t('layout.maximize', 'Maximize')}
+          title={t("layout.maximize", "Maximize")}
+          aria-label={t("layout.maximize", "Maximize")}
         >
           <Square className="w-3 h-3" />
         </button>
@@ -273,8 +287,8 @@ export const TitleBar: React.FC = () => {
           type="button"
           onClick={handleClose}
           className="w-7 h-7 flex items-center justify-center cursor-pointer text-muted-foreground hover:text-white hover:bg-destructive/90 rounded-lg transition-colors"
-          title={t('layout.close', 'Close')}
-          aria-label={t('layout.close', 'Close')}
+          title={t("layout.close", "Close")}
+          aria-label={t("layout.close", "Close")}
         >
           <X className="w-3.5 h-3.5" />
         </button>

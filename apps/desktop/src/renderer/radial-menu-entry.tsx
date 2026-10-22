@@ -1,8 +1,14 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import ReactDOM from 'react-dom/client';
-import '@/styles/globals.css';
-import { RadialMenuActionId, RadialMenuState } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import ReactDOM from "react-dom/client";
+import "@/styles/globals.css";
+import { RadialMenuActionId, RadialMenuState } from "@echo-lingo/contracts";
+import { createRendererLogger } from "@echo-lingo/logger";
 import {
   Settings,
   EyeOff,
@@ -23,14 +29,17 @@ import {
   Play,
   Scissors,
   Bot,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface MenuItemConfig {
   id: RadialMenuActionId;
   angleIndex: number;
   label: string;
   category: string;
-  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  icon: React.ComponentType<{
+    className?: string;
+    style?: React.CSSProperties;
+  }>;
   accentColor: string;
   shortcut: string;
   description: string;
@@ -53,7 +62,7 @@ function createPetalPath(
   rOut: number,
   startAngle: number,
   endAngle: number,
-  cornerRadius = 7
+  cornerRadius = 7,
 ): string {
   const maxCr = Math.min((rOut - rIn) / 2, 10);
   const cr = Math.min(cornerRadius, maxCr);
@@ -86,193 +95,224 @@ function createPetalPath(
     `A ${cr} ${cr} 0 0 1 ${pRayInStart.x.toFixed(2)} ${pRayInStart.y.toFixed(2)}`,
     `L ${pRayOutStart.x.toFixed(2)} ${pRayOutStart.y.toFixed(2)}`,
     `A ${cr} ${cr} 0 0 1 ${pOuterStart.x.toFixed(2)} ${pOuterStart.y.toFixed(2)}`,
-    'Z',
-  ].join(' ');
+    "Z",
+  ].join(" ");
 }
 
 // 12 Items aligned around 360 degrees (each 30 degrees apart)
 const MENU_ITEMS: MenuItemConfig[] = [
   {
-    id: 'open-settings',
+    id: "open-settings",
     angleIndex: 0, // 12 o'clock (0°)
-    label: 'Preferences',
-    category: 'System',
+    label: "Preferences",
+    category: "System",
     icon: Settings,
-    accentColor: '#3b82f6',
-    shortcut: 'Settings',
-    description: 'Configure languages, models & shortcuts',
-    callouts: () => ['System Settings', 'Ctrl+,', 'Voice & AI Config'],
+    accentColor: "#3b82f6",
+    shortcut: "Settings",
+    description: "Configure languages, models & shortcuts",
+    callouts: () => ["System Settings", "Ctrl+,", "Voice & AI Config"],
   },
   {
-    id: 'toggle-click-through',
+    id: "toggle-click-through",
     angleIndex: 1, // 1 o'clock (30°)
-    label: 'Click-Through',
-    category: 'Overlay',
+    label: "Click-Through",
+    category: "Overlay",
     icon: EyeOff,
-    accentColor: '#0ea5e9',
-    shortcut: 'Mouse Bypass',
-    description: 'Allow mouse clicks to pass through overlay',
+    accentColor: "#0ea5e9",
+    shortcut: "Mouse Bypass",
+    description: "Allow mouse clicks to pass through overlay",
     callouts: (state) => [
-      `Overlay: ${state?.isOverlayVisible ? 'Visible' : 'Hidden'}`,
-      `Click-Through: ${state?.isClickThrough ? 'Active' : 'Off'}`,
-      'Gaming / Video Mode',
+      `Overlay: ${state?.isOverlayVisible ? "Visible" : "Hidden"}`,
+      `Click-Through: ${state?.isClickThrough ? "Active" : "Off"}`,
+      "Gaming / Video Mode",
     ],
   },
   {
-    id: 'capture-translate',
+    id: "capture-translate",
     angleIndex: 2, // 2 o'clock (60°)
-    label: 'Screen OCR',
-    category: 'Translate',
+    label: "Screen OCR",
+    category: "Translate",
     icon: Wand2,
-    accentColor: '#06b6d4',
-    shortcut: 'Ctrl+Shift+T',
-    description: 'Snip screen region to extract & translate text',
-    callouts: () => ['Snip Screen Region', 'Ctrl+Shift+T', 'Floating Card Result'],
+    accentColor: "#06b6d4",
+    shortcut: "Ctrl+Shift+T",
+    description: "Snip screen region to extract & translate text",
+    callouts: () => [
+      "Snip Screen Region",
+      "Ctrl+Shift+T",
+      "Floating Card Result",
+    ],
   },
   {
-    id: 'pause-listening',
+    id: "pause-listening",
     angleIndex: 3, // 3 o'clock (90°)
-    label: 'Pause Speech',
-    category: 'Audio',
+    label: "Pause Speech",
+    category: "Audio",
     icon: MicOff,
-    accentColor: '#ec4899',
-    shortcut: 'Ctrl+Shift+P',
-    description: 'Pause or resume live microphone capture',
+    accentColor: "#ec4899",
+    shortcut: "Ctrl+Shift+P",
+    description: "Pause or resume live microphone capture",
     callouts: (state) => [
-      state?.isPaused ? 'Speech: Paused' : state?.isListening ? 'Speech: Active' : 'Speech: Idle',
-      'Ctrl+Shift+P',
-      'VAD Audio Gate',
+      state?.isPaused
+        ? "Speech: Paused"
+        : state?.isListening
+          ? "Speech: Active"
+          : "Speech: Idle",
+      "Ctrl+Shift+P",
+      "VAD Audio Gate",
     ],
   },
   {
-    id: 'open-app',
+    id: "open-app",
     angleIndex: 4, // 4 o'clock (120°)
-    label: 'Open EchoLingo',
-    category: 'App',
+    label: "Open EchoLingo",
+    category: "App",
     icon: Maximize2,
-    accentColor: '#10b981',
-    shortcut: 'Dashboard',
-    description: 'Bring the main EchoLingo application to front',
-    callouts: () => ['Full Application', 'Dashboard & History', 'Session Analytics'],
+    accentColor: "#10b981",
+    shortcut: "Dashboard",
+    description: "Bring the main EchoLingo application to front",
+    callouts: () => [
+      "Full Application",
+      "Dashboard & History",
+      "Session Analytics",
+    ],
   },
   {
-    id: 'show-ocr-panel',
+    id: "show-ocr-panel",
     angleIndex: 5, // 5 o'clock (150°)
-    label: 'OCR Results',
-    category: 'Panel',
+    label: "OCR Results",
+    category: "Panel",
     icon: FileText,
-    accentColor: '#6366f1',
-    shortcut: 'Ctrl+Shift+H',
-    description: 'Toggle floating OCR translation card',
+    accentColor: "#6366f1",
+    shortcut: "Ctrl+Shift+H",
+    description: "Toggle floating OCR translation card",
     callouts: (state) => [
-      state?.isOcrPanelVisible ? 'Panel: Open' : 'Panel: Hidden',
-      'Ctrl+Shift+H',
-      'Recent OCR Extractions',
+      state?.isOcrPanelVisible ? "Panel: Open" : "Panel: Hidden",
+      "Ctrl+Shift+H",
+      "Recent OCR Extractions",
     ],
   },
   {
-    id: 'continuous-ocr',
+    id: "continuous-ocr",
     angleIndex: 6, // 6 o'clock (180°)
-    label: 'Continuous OCR',
-    category: 'Automation',
+    label: "Continuous OCR",
+    category: "Automation",
     icon: Zap,
-    accentColor: '#eab308',
-    shortcut: 'Ctrl+Shift+R',
-    description: 'Auto-scan on-screen text with difference detection',
+    accentColor: "#eab308",
+    shortcut: "Ctrl+Shift+R",
+    description: "Auto-scan on-screen text with difference detection",
     callouts: (state) => [
-      state?.isContinuousOcr ? 'Scheduler: Running' : 'Scheduler: Standby',
-      'Ctrl+Shift+R',
-      'Smart Diff Tracker',
+      state?.isContinuousOcr ? "Scheduler: Running" : "Scheduler: Standby",
+      "Ctrl+Shift+R",
+      "Smart Diff Tracker",
     ],
   },
   {
-    id: 'toggle-listening',
+    id: "toggle-listening",
     angleIndex: 7, // 7 o'clock (210°) - Signature blue active petal in reference image!
-    label: 'Live Speech',
-    category: 'Expressions',
+    label: "Live Speech",
+    category: "Expressions",
     icon: Smile,
-    accentColor: '#2563eb',
-    shortcut: 'Ctrl+Shift+Space',
-    description: 'Real-time speech transcription & live subtitles',
+    accentColor: "#2563eb",
+    shortcut: "Ctrl+Shift+Space",
+    description: "Real-time speech transcription & live subtitles",
     callouts: (state) => [
-      state?.isListening ? 'Status: Listening' : 'Status: Ready',
-      'Ctrl+Shift+Space',
-      '16kHz VAD Pipeline',
+      state?.isListening ? "Status: Listening" : "Status: Ready",
+      "Ctrl+Shift+Space",
+      "16kHz VAD Pipeline",
     ],
   },
   {
-    id: 'translate-clipboard',
+    id: "translate-clipboard",
     angleIndex: 8, // 8 o'clock (240°)
-    label: 'Clipboard',
-    category: 'Translate',
+    label: "Clipboard",
+    category: "Translate",
     icon: Sparkles,
-    accentColor: '#14b8a6',
-    shortcut: 'Instant',
-    description: 'Translate copied text in clipboard immediately',
+    accentColor: "#14b8a6",
+    shortcut: "Instant",
+    description: "Translate copied text in clipboard immediately",
     callouts: (state) => [
-      `Target: ${state?.targetLanguages?.[0]?.toUpperCase() || 'VI'}`,
-      'Instant Floating Card',
-      'Direct Clipboard Snip',
+      `Target: ${state?.targetLanguages?.[0]?.toUpperCase() || "VI"}`,
+      "Instant Floating Card",
+      "Direct Clipboard Snip",
     ],
   },
   {
-    id: 'toggle-overlay',
+    id: "toggle-overlay",
     angleIndex: 9, // 9 o'clock (270°)
-    label: 'Subtitles HUD',
-    category: 'Overlay',
+    label: "Subtitles HUD",
+    category: "Overlay",
     icon: Layers,
-    accentColor: '#8b5cf6',
-    shortcut: 'Ctrl+Shift+O',
-    description: 'Show or hide floating glass subtitle overlay',
+    accentColor: "#8b5cf6",
+    shortcut: "Ctrl+Shift+O",
+    description: "Show or hide floating glass subtitle overlay",
     callouts: (state) => [
-      state?.isOverlayVisible ? 'Overlay: Visible' : 'Overlay: Hidden',
-      'Ctrl+Shift+O',
-      'Glassmorphic HUD',
+      state?.isOverlayVisible ? "Overlay: Visible" : "Overlay: Hidden",
+      "Ctrl+Shift+O",
+      "Glassmorphic HUD",
     ],
   },
   {
-    id: 'clear-subtitles',
+    id: "clear-subtitles",
     angleIndex: 10, // 10 o'clock (300°)
-    label: 'Clear Subtitles',
-    category: 'Timeline',
+    label: "Clear Subtitles",
+    category: "Timeline",
     icon: RotateCcw,
-    accentColor: '#f97316',
-    shortcut: 'Reset',
-    description: 'Clear all active subtitle lines from overlay',
-    callouts: () => ['Clear Screen HUD', 'Reset Timeline', 'Empty Canvas'],
+    accentColor: "#f97316",
+    shortcut: "Reset",
+    description: "Clear all active subtitle lines from overlay",
+    callouts: () => ["Clear Screen HUD", "Reset Timeline", "Empty Canvas"],
   },
   {
-    id: 'copy-last',
+    id: "copy-last",
     angleIndex: 11, // 11 o'clock (330°)
-    label: 'Copy Latest',
-    category: 'Clipboard',
+    label: "Copy Latest",
+    category: "Clipboard",
     icon: Copy,
-    accentColor: '#f43f5e',
-    shortcut: 'Ctrl+Shift+C',
-    description: 'Copy the most recent recognized subtitle',
+    accentColor: "#f43f5e",
+    shortcut: "Ctrl+Shift+C",
+    description: "Copy the most recent recognized subtitle",
     callouts: (state) => [
-      state?.lastSubtitleText ? `"${state.lastSubtitleText.slice(0, 24)}..."` : 'No recent subtitle',
-      'Ctrl+Shift+C',
-      'Copy to Clipboard',
+      state?.lastSubtitleText
+        ? `"${state.lastSubtitleText.slice(0, 24)}..."`
+        : "No recent subtitle",
+      "Ctrl+Shift+C",
+      "Copy to Clipboard",
     ],
   },
 ];
 
 // Mascot Bongo Cat typing on keyboard at top right
-const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({ isInteracting, animKey }) => {
+const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
+  isInteracting,
+  animKey,
+}) => {
   return (
     <div
       key={`mascot-${animKey}`}
       className="absolute top-2 right-4 pointer-events-none select-none"
       style={{
-        animation: 'mascotBloom 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms both',
-        transform: isInteracting ? 'scale(1.04) rotate(-1deg)' : 'scale(1)',
-        transition: 'transform 0.2s ease',
+        animation:
+          "mascotBloom 520ms cubic-bezier(0.34, 1.56, 0.64, 1) 140ms both",
+        transform: isInteracting ? "scale(1.04) rotate(-1deg)" : "scale(1)",
+        transition: "transform 0.2s ease",
       }}
     >
-      <svg width="150" height="110" viewBox="0 0 150 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        width="150"
+        height="110"
+        viewBox="0 0 150 110"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         {/* Drop shadow underneath */}
-        <ellipse cx="80" cy="98" rx="55" ry="8" fill="rgba(0,0,0,0.18)" filter="blur(4px)" />
+        <ellipse
+          cx="80"
+          cy="98"
+          rx="55"
+          ry="8"
+          fill="rgba(0,0,0,0.18)"
+          filter="blur(4px)"
+        />
 
         {/* Cat Body & Head */}
         <path
@@ -314,7 +354,14 @@ const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
 
         {/* Pink Cheek Blushes */}
         <ellipse cx="70" cy="53" rx="5" ry="3.5" fill="#FDA4AF" opacity="0.8" />
-        <ellipse cx="120" cy="55" rx="5" ry="3.5" fill="#FDA4AF" opacity="0.8" />
+        <ellipse
+          cx="120"
+          cy="55"
+          rx="5"
+          ry="3.5"
+          fill="#FDA4AF"
+          opacity="0.8"
+        />
 
         {/* Cute Mouth :3 */}
         <path
@@ -339,26 +386,83 @@ const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
             strokeWidth="2.8"
           />
           {/* Key rows grid */}
-          <line x1="3" y1="8" x2="79" y2="8" stroke="#CBD5E1" strokeWidth="1.5" />
-          <line x1="3" y1="16" x2="79" y2="16" stroke="#CBD5E1" strokeWidth="1.5" />
-          <line x1="3" y1="24" x2="79" y2="24" stroke="#CBD5E1" strokeWidth="1.5" />
+          <line
+            x1="3"
+            y1="8"
+            x2="79"
+            y2="8"
+            stroke="#CBD5E1"
+            strokeWidth="1.5"
+          />
+          <line
+            x1="3"
+            y1="16"
+            x2="79"
+            y2="16"
+            stroke="#CBD5E1"
+            strokeWidth="1.5"
+          />
+          <line
+            x1="3"
+            y1="24"
+            x2="79"
+            y2="24"
+            stroke="#CBD5E1"
+            strokeWidth="1.5"
+          />
           {/* Key columns */}
-          <line x1="16" y1="2" x2="16" y2="30" stroke="#CBD5E1" strokeWidth="1.2" />
-          <line x1="32" y1="2" x2="32" y2="30" stroke="#CBD5E1" strokeWidth="1.2" />
-          <line x1="48" y1="2" x2="48" y2="30" stroke="#CBD5E1" strokeWidth="1.2" />
-          <line x1="64" y1="2" x2="64" y2="30" stroke="#CBD5E1" strokeWidth="1.2" />
+          <line
+            x1="16"
+            y1="2"
+            x2="16"
+            y2="30"
+            stroke="#CBD5E1"
+            strokeWidth="1.2"
+          />
+          <line
+            x1="32"
+            y1="2"
+            x2="32"
+            y2="30"
+            stroke="#CBD5E1"
+            strokeWidth="1.2"
+          />
+          <line
+            x1="48"
+            y1="2"
+            x2="48"
+            y2="30"
+            stroke="#CBD5E1"
+            strokeWidth="1.2"
+          />
+          <line
+            x1="64"
+            y1="2"
+            x2="64"
+            y2="30"
+            stroke="#CBD5E1"
+            strokeWidth="1.2"
+          />
         </g>
 
         {/* Left Paw tapping keyboard */}
         <g
           style={{
             transform: isInteracting
-              ? 'translate(64px, 68px) rotate(-6deg)'
-              : 'translate(66px, 62px)',
-            transition: 'transform 0.12s ease',
+              ? "translate(64px, 68px) rotate(-6deg)"
+              : "translate(66px, 62px)",
+            transition: "transform 0.12s ease",
           }}
         >
-          <ellipse cx="0" cy="0" rx="11" ry="8" fill="#FFFFFF" stroke="#1E293B" strokeWidth="2.6" />
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="11"
+            ry="8"
+            fill="#FFFFFF"
+            stroke="#1E293B"
+            strokeWidth="2.6"
+          />
           <ellipse cx="-2" cy="0" rx="4" ry="3" fill="#F472B6" />
         </g>
 
@@ -366,12 +470,20 @@ const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
         <g
           style={{
             transform: isInteracting
-              ? 'translate(108px, 64px) rotate(4deg)'
-              : 'translate(106px, 70px)',
-            transition: 'transform 0.12s ease',
+              ? "translate(108px, 64px) rotate(4deg)"
+              : "translate(106px, 70px)",
+            transition: "transform 0.12s ease",
           }}
         >
-          <ellipse cx="0" cy="0" rx="11" ry="8" fill="#FFFFFF" stroke="#1E293B" strokeWidth="2.6" />
+          <ellipse
+            cx="0"
+            cy="0"
+            rx="11"
+            ry="8"
+            fill="#FFFFFF"
+            stroke="#1E293B"
+            strokeWidth="2.6"
+          />
           <ellipse cx="0" cy="0" rx="4" ry="3" fill="#F472B6" />
         </g>
       </svg>
@@ -379,7 +491,7 @@ const BongoCatMascot: React.FC<{ isInteracting: boolean; animKey: number }> = ({
   );
 };
 
-const log = createLogger('RadialMenu');
+const log = createRendererLogger("RadialMenu");
 
 export const RadialMenuApp: React.FC = () => {
   const [state, setState] = useState<RadialMenuState | null>(null);
@@ -392,19 +504,24 @@ export const RadialMenuApp: React.FC = () => {
   // Sync state and window open trigger from Electron main process
   useEffect(() => {
     if (window.electronAPI?.radialMenu) {
-      window.electronAPI.radialMenu.getState().then(setState).catch((err) => log.error('Failed to get radial menu state:', err));
+      window.electronAPI.radialMenu
+        .getState()
+        .then(setState)
+        .catch((err) => log.error("Failed to get radial menu state:", err));
 
       const unsubState = window.electronAPI.radialMenu.onState((fresh) => {
         setState(fresh);
       });
 
-      const unsubOpened = (window.electronAPI.radialMenu as any).onOpened?.(() => {
-        // Re-trigger the progressive disclosure entrance animation on every show!
-        setAnimKey((prev) => prev + 1);
-        setHoveredIndex(7);
-        setClickedIndex(null);
-        setExecutedFeedback(null);
-      });
+      const unsubOpened = (window.electronAPI.radialMenu as any).onOpened?.(
+        () => {
+          // Re-trigger the progressive disclosure entrance animation on every show!
+          setAnimKey((prev) => prev + 1);
+          setHoveredIndex(7);
+          setClickedIndex(null);
+          setExecutedFeedback(null);
+        },
+      );
 
       return () => {
         if (unsubState) unsubState();
@@ -416,19 +533,21 @@ export const RadialMenuApp: React.FC = () => {
   // Keyboard navigation & dismissal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         e.preventDefault();
         window.electronAPI?.radialMenu?.hide();
         return;
       }
 
-      if (e.key === 'ArrowRight' || e.key === 'Tab') {
+      if (e.key === "ArrowRight" || e.key === "Tab") {
         e.preventDefault();
         setHoveredIndex((prev) => ((prev ?? 0) + 1) % MENU_ITEMS.length);
-      } else if (e.key === 'ArrowLeft') {
+      } else if (e.key === "ArrowLeft") {
         e.preventDefault();
-        setHoveredIndex((prev) => ((prev ?? 0) - 1 + MENU_ITEMS.length) % MENU_ITEMS.length);
-      } else if (e.key === 'Enter' || e.key === ' ') {
+        setHoveredIndex(
+          (prev) => ((prev ?? 0) - 1 + MENU_ITEMS.length) % MENU_ITEMS.length,
+        );
+      } else if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         if (hoveredIndex !== null) {
           triggerAction(MENU_ITEMS[hoveredIndex]);
@@ -436,8 +555,8 @@ export const RadialMenuApp: React.FC = () => {
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [hoveredIndex]);
 
   const triggerAction = useCallback(async (item: MenuItemConfig) => {
@@ -449,7 +568,7 @@ export const RadialMenuApp: React.FC = () => {
         await window.electronAPI.radialMenu.executeAction(item.id);
       }
     } catch (err) {
-      log.error('Failed to execute action:', err);
+      log.error("Failed to execute action:", err);
     }
   }, []);
 
@@ -587,10 +706,10 @@ export const RadialMenuApp: React.FC = () => {
       <div
         className="absolute w-[460px] h-[460px] rounded-full blur-3xl pointer-events-none transition-all duration-500 opacity-60"
         style={{
-          animation: 'ambientPulse 500ms ease-out both',
+          animation: "ambientPulse 500ms ease-out both",
           background: currentItem
             ? `radial-gradient(circle, ${currentItem.accentColor}33 0%, rgba(59, 130, 246, 0.1) 50%, transparent 70%)`
-            : 'radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%)',
+            : "radial-gradient(circle, rgba(56, 189, 248, 0.2) 0%, transparent 70%)",
         }}
       />
 
@@ -606,13 +725,25 @@ export const RadialMenuApp: React.FC = () => {
       >
         <defs>
           {/* Active radiant sky-to-royal-blue gradient (exact from reference image) */}
-          <linearGradient id="activePetalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id="activePetalGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="#38bdf8" />
             <stop offset="100%" stopColor="#2563eb" />
           </linearGradient>
 
           {/* Idle frosted glass petal gradient */}
-          <linearGradient id="idlePetalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <linearGradient
+            id="idlePetalGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="100%"
+          >
             <stop offset="0%" stopColor="rgba(255, 255, 255, 0.95)" />
             <stop offset="100%" stopColor="rgba(241, 245, 249, 0.88)" />
           </linearGradient>
@@ -626,12 +757,33 @@ export const RadialMenuApp: React.FC = () => {
 
           {/* Drop shadow filters */}
           <filter id="petalShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="rgba(0, 0, 0, 0.12)" />
+            <feDropShadow
+              dx="0"
+              dy="4"
+              stdDeviation="6"
+              floodColor="rgba(0, 0, 0, 0.12)"
+            />
           </filter>
 
-          <filter id="activePetalGlow" x="-30%" y="-30%" width="160%" height="160%">
-            <feDropShadow dx="0" dy="0" stdDeviation="12" floodColor="rgba(56, 189, 248, 0.75)" />
-            <feDropShadow dx="0" dy="6" stdDeviation="8" floodColor="rgba(37, 99, 235, 0.4)" />
+          <filter
+            id="activePetalGlow"
+            x="-30%"
+            y="-30%"
+            width="160%"
+            height="160%"
+          >
+            <feDropShadow
+              dx="0"
+              dy="0"
+              stdDeviation="12"
+              floodColor="rgba(56, 189, 248, 0.75)"
+            />
+            <feDropShadow
+              dx="0"
+              dy="6"
+              stdDeviation="8"
+              floodColor="rgba(37, 99, 235, 0.4)"
+            />
           </filter>
         </defs>
 
@@ -641,7 +793,15 @@ export const RadialMenuApp: React.FC = () => {
           const isClicked = clickedIndex === item.angleIndex;
           const startAngle = item.angleIndex * sliceSpan + gapDeg / 2;
           const endAngle = (item.angleIndex + 1) * sliceSpan - gapDeg / 2;
-          const pathD = createPetalPath(cx, cy, rIn, rOut, startAngle, endAngle, 8);
+          const pathD = createPetalPath(
+            cx,
+            cy,
+            rIn,
+            rOut,
+            startAngle,
+            endAngle,
+            8,
+          );
 
           // Progressive staggered delay: Clockwise cascade from index 0 to 11
           const staggerDelayMs = 25 + item.angleIndex * 24;
@@ -660,13 +820,23 @@ export const RadialMenuApp: React.FC = () => {
               {/* Petal Path */}
               <path
                 d={pathD}
-                fill={isHovered ? 'url(#activePetalGradient)' : 'url(#idlePetalGradient)'}
-                stroke={isHovered ? '#93c5fd' : 'rgba(255, 255, 255, 0.95)'}
-                strokeWidth={isHovered ? '2' : '1.5'}
-                filter={isHovered ? 'url(#activePetalGlow)' : 'url(#petalShadow)'}
+                fill={
+                  isHovered
+                    ? "url(#activePetalGradient)"
+                    : "url(#idlePetalGradient)"
+                }
+                stroke={isHovered ? "#93c5fd" : "rgba(255, 255, 255, 0.95)"}
+                strokeWidth={isHovered ? "2" : "1.5"}
+                filter={
+                  isHovered ? "url(#activePetalGlow)" : "url(#petalShadow)"
+                }
                 className="transition-all duration-150"
                 style={{
-                  transform: isHovered ? 'scale(1.03)' : isClicked ? 'scale(0.97)' : 'scale(1)',
+                  transform: isHovered
+                    ? "scale(1.03)"
+                    : isClicked
+                      ? "scale(0.97)"
+                      : "scale(1)",
                   transformOrigin: `${cx}px ${cy}px`,
                 }}
               />
@@ -678,7 +848,7 @@ export const RadialMenuApp: React.FC = () => {
         <g
           style={{
             transformOrigin: `${cx}px ${cy}px`,
-            animation: 'hubBloom 350ms cubic-bezier(0.16, 1, 0.3, 1) both',
+            animation: "hubBloom 350ms cubic-bezier(0.16, 1, 0.3, 1) both",
           }}
         >
           <circle
@@ -711,20 +881,20 @@ export const RadialMenuApp: React.FC = () => {
             style={{
               left: `${pt.x}px`,
               top: `${pt.y}px`,
-              width: '40px',
-              height: '40px',
+              width: "40px",
+              height: "40px",
               animation: `iconBloom 360ms cubic-bezier(0.16, 1, 0.3, 1) ${iconStaggerDelayMs}ms both`,
               transform: isHovered
-                ? 'translate(-50%, -50%) scale(1.18)'
-                : 'translate(-50%, -50%) scale(1)',
-              transition: 'transform 0.15s ease',
+                ? "translate(-50%, -50%) scale(1.18)"
+                : "translate(-50%, -50%) scale(1)",
+              transition: "transform 0.15s ease",
             }}
             title={item.label}
           >
             <IconComponent
               className="w-6 h-6 transition-colors duration-150 drop-shadow-sm"
               style={{
-                color: isHovered ? '#FFFFFF' : item.accentColor,
+                color: isHovered ? "#FFFFFF" : item.accentColor,
               }}
             />
           </div>
@@ -737,7 +907,7 @@ export const RadialMenuApp: React.FC = () => {
         style={{
           width: `${(rIn - 10) * 2}px`,
           height: `${(rIn - 10) * 2}px`,
-          animation: 'hubBloom 350ms cubic-bezier(0.16, 1, 0.3, 1) both',
+          animation: "hubBloom 350ms cubic-bezier(0.16, 1, 0.3, 1) both",
         }}
       >
         {currentItem ? (
@@ -746,7 +916,10 @@ export const RadialMenuApp: React.FC = () => {
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center mb-1 transition-all duration-200"
               style={{
-                color: currentItem.angleIndex === 7 ? '#EC4899' : currentItem.accentColor,
+                color:
+                  currentItem.angleIndex === 7
+                    ? "#EC4899"
+                    : currentItem.accentColor,
               }}
             >
               <currentItem.icon className="w-8 h-8" />
@@ -784,8 +957,8 @@ export const RadialMenuApp: React.FC = () => {
             left: `${calloutInfo.x}px`,
             top: `${calloutInfo.y}px`,
             transform: calloutInfo.isLeft
-              ? 'translate(-100%, -50%)'
-              : 'translate(0%, -50%)',
+              ? "translate(-100%, -50%)"
+              : "translate(0%, -50%)",
           }}
         >
           {calloutInfo.callouts.map((text, idx) => (
@@ -814,11 +987,11 @@ export const RadialMenuApp: React.FC = () => {
   );
 };
 
-const root = document.getElementById('root');
+const root = document.getElementById("root");
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <RadialMenuApp />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }

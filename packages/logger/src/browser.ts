@@ -1,4 +1,4 @@
-export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+export type LogLevel = "debug" | "info" | "warn" | "error";
 
 export interface LoggerOptions {
   logDir?: string;
@@ -18,22 +18,22 @@ export interface ILogger {
 }
 
 export const ANSI = {
-  reset: '',
-  bold: '',
-  dim: '',
-  gray: '',
-  red: '',
-  green: '',
-  yellow: '',
-  blue: '',
-  magenta: '',
-  cyan: '',
-  brightRed: '',
-  brightGreen: '',
-  brightYellow: '',
-  brightBlue: '',
-  brightMagenta: '',
-  brightCyan: '',
+  reset: "",
+  bold: "",
+  dim: "",
+  gray: "",
+  red: "",
+  green: "",
+  yellow: "",
+  blue: "",
+  magenta: "",
+  cyan: "",
+  brightRed: "",
+  brightGreen: "",
+  brightYellow: "",
+  brightBlue: "",
+  brightMagenta: "",
+  brightCyan: "",
 } as const;
 
 export function stripAnsi(text: string): string {
@@ -46,7 +46,7 @@ function formatArgs(args: unknown[]): string {
       if (arg instanceof Error) {
         return arg.stack || arg.message || String(arg);
       }
-      if (typeof arg === 'object' && arg !== null) {
+      if (typeof arg === "object" && arg !== null) {
         try {
           return JSON.stringify(arg);
         } catch {
@@ -55,7 +55,7 @@ function formatArgs(args: unknown[]): string {
       }
       return String(arg);
     })
-    .join(' ');
+    .join(" ");
 }
 
 class BrowserLogger implements ILogger {
@@ -67,7 +67,7 @@ class BrowserLogger implements ILogger {
 
   private sendToMain(level: LogLevel, args: unknown[]): void {
     try {
-      if (typeof window !== 'undefined' && (window as any).electronAPI?.log) {
+      if (typeof window !== "undefined" && (window as any).electronAPI?.log) {
         const msg = formatArgs(args);
         (window as any).electronAPI.log[level](msg, this.scope);
       }
@@ -77,23 +77,39 @@ class BrowserLogger implements ILogger {
   }
 
   public debug(...args: unknown[]): void {
-    this.sendToMain('debug', args);
-    console.debug(`%c[${this.scope}]`, 'color: #c084fc; font-weight: bold;', ...args);
+    this.sendToMain("debug", args);
+    console.debug(
+      `%c[${this.scope}]`,
+      "color: #c084fc; font-weight: bold;",
+      ...args,
+    );
   }
 
   public info(...args: unknown[]): void {
-    this.sendToMain('info', args);
-    console.info(`%c[${this.scope}]`, 'color: #4ade80; font-weight: bold;', ...args);
+    this.sendToMain("info", args);
+    console.info(
+      `%c[${this.scope}]`,
+      "color: #4ade80; font-weight: bold;",
+      ...args,
+    );
   }
 
   public warn(...args: unknown[]): void {
-    this.sendToMain('warn', args);
-    console.warn(`%c[${this.scope}]`, 'color: #facc15; font-weight: bold;', ...args);
+    this.sendToMain("warn", args);
+    console.warn(
+      `%c[${this.scope}]`,
+      "color: #facc15; font-weight: bold;",
+      ...args,
+    );
   }
 
   public error(...args: unknown[]): void {
-    this.sendToMain('error', args);
-    console.error(`%c[${this.scope}]`, 'color: #f87171; font-weight: bold;', ...args);
+    this.sendToMain("error", args);
+    console.error(
+      `%c[${this.scope}]`,
+      "color: #f87171; font-weight: bold;",
+      ...args,
+    );
   }
 
   public child(subScope: string): ILogger {
@@ -101,16 +117,16 @@ class BrowserLogger implements ILogger {
   }
 }
 
-export function createLogger(scope: string): ILogger {
+export function createRendererLogger(scope: string): ILogger {
   return new BrowserLogger(scope);
 }
 
-export const logger: ILogger = new BrowserLogger('EchoLingo');
+export const logger: ILogger = new BrowserLogger("EchoLingo");
 
 export function initLogger(_options: LoggerOptions = {}): void {
   // No-op in browser environment
 }
 
 export function getLogDirectory(): string {
-  return '';
+  return "";
 }

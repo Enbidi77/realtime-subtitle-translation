@@ -1,14 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { TranslationCapability, SpeechModelStatus, GlossaryEntry } from '@echo-lingo/contracts';
-import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
-import { useI18n } from '@/app/i18n/index.js';
-import { useSettingsStore } from '@/stores/settings-store.js';
-import { GlassCard } from '@/components/ui/GlassCard.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { GlassInput } from '@/components/ui/GlassInput.js';
-import { GlassBadge } from '@/components/ui/GlassBadge.js';
-import { GlassModal } from '@/components/ui/GlassModal.js';
-import { createLogger } from '@echo-lingo/logger';
+import React, { useEffect, useState } from "react";
+import {
+  TranslationCapability,
+  SpeechModelStatus,
+  GlossaryEntry,
+} from "@echo-lingo/contracts";
+import {
+  isPaidSpeechEngine,
+  isPaidTranslationProvider,
+} from "@echo-lingo/config";
+import { useI18n } from "@/app/i18n/index.js";
+import { useSettingsStore } from "@/stores/settings-store.js";
+import { GlassCard } from "@/components/ui/GlassCard.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { GlassInput } from "@/components/ui/GlassInput.js";
+import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { GlassModal } from "@/components/ui/GlassModal.js";
+import { createRendererLogger } from "@echo-lingo/logger";
 import {
   Cpu,
   Globe,
@@ -23,7 +30,7 @@ import {
   Sparkles,
   Download,
   HardDrive,
-} from 'lucide-react';
+} from "lucide-react";
 
 interface ConfigurableProvider {
   id: string;
@@ -36,13 +43,17 @@ interface ConfigurableProvider {
   signupUrl?: string;
 }
 
-const log = createLogger('ProvidersView');
+const log = createRendererLogger("ProvidersView");
 
 export const ProvidersView: React.FC = () => {
   const { t } = useI18n();
   const speechEngine = useSettingsStore((s) => s.settings.speechEngine);
-  const localWhisperModel = useSettingsStore((s) => s.settings.localWhisperModel || 'tiny');
-  const showPaidProviders = useSettingsStore((s) => s.settings.showPaidProviders ?? false);
+  const localWhisperModel = useSettingsStore(
+    (s) => s.settings.localWhisperModel || "tiny",
+  );
+  const showPaidProviders = useSettingsStore(
+    (s) => s.settings.showPaidProviders ?? false,
+  );
   const updateSettings = useSettingsStore((s) => s.updateSettings);
 
   const [models, setModels] = useState<SpeechModelStatus[]>([]);
@@ -52,47 +63,52 @@ export const ProvidersView: React.FC = () => {
   // Speech engine providers with credential states
   const [speechEngines, setSpeechEngines] = useState<ConfigurableProvider[]>([
     {
-      id: 'groq-whisper',
-      name: 'Groq Cloud Whisper (Ultra-Fast & Free)',
-      description: 'Ultra-fast (<300ms) transcription powered by whisper-large-v3-turbo. Free tier includes 14,400 audio seconds per day.',
+      id: "groq-whisper",
+      name: "Groq Cloud Whisper (Ultra-Fast & Free)",
+      description:
+        "Ultra-fast (<300ms) transcription powered by whisper-large-v3-turbo. Free tier includes 14,400 audio seconds per day.",
       requiresApiKey: true,
       isConfigured: false,
       isLocal: false,
       isPaid: false,
-      signupUrl: 'https://console.groq.com/keys',
+      signupUrl: "https://console.groq.com/keys",
     },
     {
-      id: 'openai-whisper',
-      name: 'OpenAI Whisper Cloud',
-      description: 'Official OpenAI whisper-1 cloud transcription with high punctuation and multi-lingual grammar accuracy.',
+      id: "openai-whisper",
+      name: "OpenAI Whisper Cloud",
+      description:
+        "Official OpenAI whisper-1 cloud transcription with high punctuation and multi-lingual grammar accuracy.",
       requiresApiKey: true,
       isConfigured: false,
       isLocal: false,
       isPaid: true,
-      signupUrl: 'https://platform.openai.com/api-keys',
+      signupUrl: "https://platform.openai.com/api-keys",
     },
     {
-      id: 'mock',
-      name: 'Mock Speech Engine (Instant Test & Demo)',
-      description: 'Simulates live speech subtitles on audio energy detection. Zero API key needed, ideal for testing the pipeline over YouTube.',
+      id: "mock",
+      name: "Mock Speech Engine (Instant Test & Demo)",
+      description:
+        "Simulates live speech subtitles on audio energy detection. Zero API key needed, ideal for testing the pipeline over YouTube.",
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
       isPaid: false,
     },
     {
-      id: 'windows-speech',
-      name: 'Windows System Speech (SAPI)',
-      description: 'Native Windows built-in speech recognition (SAPI 5.4 / System.Speech). 100% offline, zero setup or downloads required.',
+      id: "windows-speech",
+      name: "Windows System Speech (SAPI)",
+      description:
+        "Native Windows built-in speech recognition (SAPI 5.4 / System.Speech). 100% offline, zero setup or downloads required.",
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
       isPaid: false,
     },
     {
-      id: 'whisper-local',
-      name: 'Local Whisper Engine',
-      description: 'Offline speech inference using managed local worker or whisper.cpp.',
+      id: "whisper-local",
+      name: "Local Whisper Engine",
+      description:
+        "Offline speech inference using managed local worker or whisper.cpp.",
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
@@ -101,15 +117,19 @@ export const ProvidersView: React.FC = () => {
   ]);
 
   // Key config modal
-  const [editingProvider, setEditingProvider] = useState<{ id: string; name: string; signupUrl?: string } | null>(null);
-  const [apiKeyInput, setApiKeyInput] = useState('');
+  const [editingProvider, setEditingProvider] = useState<{
+    id: string;
+    name: string;
+    signupUrl?: string;
+  } | null>(null);
+  const [apiKeyInput, setApiKeyInput] = useState("");
   const [testResult, setTestResult] = useState<string | null>(null);
   const [isTesting, setIsTesting] = useState(false);
 
   // New glossary entry modal
   const [showAddGlossary, setShowAddGlossary] = useState(false);
-  const [sourceTerm, setSourceTerm] = useState('');
-  const [targetTerm, setTargetTerm] = useState('');
+  const [sourceTerm, setSourceTerm] = useState("");
+  const [targetTerm, setTargetTerm] = useState("");
   const [caseSensitive, setCaseSensitive] = useState(false);
 
   const loadData = async () => {
@@ -119,21 +139,23 @@ export const ProvidersView: React.FC = () => {
         window.electronAPI.speech.getModels(),
         window.electronAPI.translation.getProviders(),
         window.electronAPI.glossary.list(),
-        window.electronAPI.translation.hasCredential('groq-whisper'),
-        window.electronAPI.translation.hasCredential('openai-whisper'),
+        window.electronAPI.translation.hasCredential("groq-whisper"),
+        window.electronAPI.translation.hasCredential("openai-whisper"),
       ]);
       setModels(m);
       setProviders(p);
       setGlossary(g);
       setSpeechEngines((prev) =>
         prev.map((eng) => {
-          if (eng.id === 'groq-whisper') return { ...eng, isConfigured: Boolean(hasGroq) };
-          if (eng.id === 'openai-whisper') return { ...eng, isConfigured: Boolean(hasOpenAI) };
+          if (eng.id === "groq-whisper")
+            return { ...eng, isConfigured: Boolean(hasGroq) };
+          if (eng.id === "openai-whisper")
+            return { ...eng, isConfigured: Boolean(hasOpenAI) };
           return eng;
-        })
+        }),
       );
     } catch (e) {
-      log.error('Failed to load provider data', e);
+      log.error("Failed to load provider data", e);
     }
   };
 
@@ -143,7 +165,7 @@ export const ProvidersView: React.FC = () => {
     if (window.electronAPI?.speech?.onModelProgress) {
       const unsub = window.electronAPI.speech.onModelProgress((status) => {
         setModels((prev) =>
-          prev.map((m) => (m.id === status.id ? { ...m, ...status } : m))
+          prev.map((m) => (m.id === status.id ? { ...m, ...status } : m)),
         );
       });
       return () => {
@@ -157,13 +179,15 @@ export const ProvidersView: React.FC = () => {
     try {
       setModels((prev) =>
         prev.map((m) =>
-          m.id === modelId ? { ...m, isInstalled: false, downloadProgress: 1 } : m
-        )
+          m.id === modelId
+            ? { ...m, isInstalled: false, downloadProgress: 1 }
+            : m,
+        ),
       );
       await window.electronAPI.speech.downloadModel(modelId);
       await loadData();
     } catch (err) {
-      log.error('Failed to download model', err);
+      log.error("Failed to download model", err);
       await loadData();
     }
   };
@@ -171,15 +195,21 @@ export const ProvidersView: React.FC = () => {
   const handleSaveKey = async () => {
     if (!editingProvider || !window.electronAPI) return;
     try {
-      await window.electronAPI.translation.setCredential(editingProvider.id, apiKeyInput);
-      if (editingProvider.id === 'groq-whisper' || editingProvider.id === 'openai-whisper') {
+      await window.electronAPI.translation.setCredential(
+        editingProvider.id,
+        apiKeyInput,
+      );
+      if (
+        editingProvider.id === "groq-whisper" ||
+        editingProvider.id === "openai-whisper"
+      ) {
         await updateSettings({ speechEngine: editingProvider.id as any });
       }
-      setApiKeyInput('');
+      setApiKeyInput("");
       setEditingProvider(null);
       await loadData();
     } catch (e) {
-      log.error('Failed to save credential', e);
+      log.error("Failed to save credential", e);
     }
   };
 
@@ -189,14 +219,16 @@ export const ProvidersView: React.FC = () => {
     setTestResult(null);
     try {
       const res = await window.electronAPI.translation.translate({
-        text: 'Hello, welcome to EchoLingo!',
-        sourceLanguage: 'en',
-        targetLanguage: 'vi',
-        priority: 'high',
+        text: "Hello, welcome to EchoLingo!",
+        sourceLanguage: "en",
+        targetLanguage: "vi",
+        priority: "high",
       });
       setTestResult(`Success: "${res.translatedText}" (${res.durationMs}ms)`);
     } catch (err) {
-      setTestResult(`Error: ${err instanceof Error ? err.message : String(err)}`);
+      setTestResult(
+        `Error: ${err instanceof Error ? err.message : String(err)}`,
+      );
     } finally {
       setIsTesting(false);
     }
@@ -205,17 +237,17 @@ export const ProvidersView: React.FC = () => {
   const handleAddGlossary = async () => {
     if (!sourceTerm.trim() || !targetTerm.trim() || !window.electronAPI) return;
     const entry: GlossaryEntry = {
-      id: 'gl_' + Date.now(),
+      id: "gl_" + Date.now(),
       sourceTerm: sourceTerm.trim(),
       targetTerm: targetTerm.trim(),
-      sourceLanguage: 'auto',
-      targetLanguage: 'vi',
+      sourceLanguage: "auto",
+      targetLanguage: "vi",
       caseSensitive,
       createdAt: Date.now(),
     };
     await window.electronAPI.glossary.add(entry);
-    setSourceTerm('');
-    setTargetTerm('');
+    setSourceTerm("");
+    setTargetTerm("");
     setShowAddGlossary(false);
     await loadData();
   };
@@ -231,10 +263,10 @@ export const ProvidersView: React.FC = () => {
       <div>
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Cpu className="w-5 h-5 text-primary" />
-          <span>{t('providers.title')}</span>
+          <span>{t("providers.title")}</span>
         </h1>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {t('providers.subtitle')}
+          {t("providers.subtitle")}
         </p>
       </div>
 
@@ -247,7 +279,11 @@ export const ProvidersView: React.FC = () => {
 
         <div className="space-y-2.5">
           {speechEngines
-            .filter((eng) => showPaidProviders || (!eng.isPaid && !isPaidSpeechEngine(eng.id)))
+            .filter(
+              (eng) =>
+                showPaidProviders ||
+                (!eng.isPaid && !isPaidSpeechEngine(eng.id)),
+            )
             .map((eng) => {
               const isPaid = eng.isPaid || isPaidSpeechEngine(eng.id);
               return (
@@ -258,7 +294,9 @@ export const ProvidersView: React.FC = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center flex-wrap gap-2">
-                      <span className="font-semibold text-xs text-foreground">{eng.name}</span>
+                      <span className="font-semibold text-xs text-foreground">
+                        {eng.name}
+                      </span>
                       {speechEngine === eng.id && (
                         <GlassBadge variant="accent" className="font-semibold">
                           <Check className="w-3 h-3" />
@@ -268,66 +306,75 @@ export const ProvidersView: React.FC = () => {
                       {eng.isConfigured ? (
                         <GlassBadge variant="success">
                           <CheckCircle2 className="w-3 h-3" />
-                          {t('providers.configured')}
+                          {t("providers.configured")}
                         </GlassBadge>
                       ) : (
                         <GlassBadge variant="warning">
                           <AlertCircle className="w-3 h-3" />
-                          {t('providers.notConfigured')}
+                          {t("providers.notConfigured")}
                         </GlassBadge>
                       )}
                       {isPaid ? (
-                        <GlassBadge variant="warning">{t('providers.paid', 'Paid API')}</GlassBadge>
+                        <GlassBadge variant="warning">
+                          {t("providers.paid", "Paid API")}
+                        </GlassBadge>
                       ) : (
-                        <GlassBadge variant="neutral">{t('providers.free', 'Free')}</GlassBadge>
+                        <GlassBadge variant="neutral">
+                          {t("providers.free", "Free")}
+                        </GlassBadge>
                       )}
                       {eng.isLocal && (
                         <GlassBadge variant="neutral">Local</GlassBadge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{eng.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {eng.description}
+                    </p>
                   </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                {speechEngine !== eng.id && (eng.isConfigured || !eng.requiresApiKey) && (
-                  <GlassButton
-                    variant="glass"
-                    size="sm"
-                    onClick={() => updateSettings({ speechEngine: eng.id as any })}
-                  >
-                    Activate
-                  </GlassButton>
-                )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {speechEngine !== eng.id &&
+                      (eng.isConfigured || !eng.requiresApiKey) && (
+                        <GlassButton
+                          variant="glass"
+                          size="sm"
+                          onClick={() =>
+                            updateSettings({ speechEngine: eng.id as any })
+                          }
+                        >
+                          Activate
+                        </GlassButton>
+                      )}
 
-                {eng.signupUrl && (
-                  <a
-                    href={eng.signupUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-glass-border bg-glass-subtle text-xs text-primary hover:bg-glass hover:border-glass-border-elevated transition-colors"
-                  >
-                    <span>Get Key</span>
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
+                    {eng.signupUrl && (
+                      <a
+                        href={eng.signupUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-glass-border bg-glass-subtle text-xs text-primary hover:bg-glass hover:border-glass-border-elevated transition-colors"
+                      >
+                        <span>Get Key</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    )}
 
-                {eng.requiresApiKey && (
-                  <GlassButton
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      setEditingProvider(eng);
-                      setApiKeyInput('');
-                    }}
-                    icon={<Key className="w-3.5 h-3.5" />}
-                  >
-                    <span>API Key</span>
-                  </GlassButton>
-                )}
-              </div>
-            </GlassCard>
-          );
-        })}
+                    {eng.requiresApiKey && (
+                      <GlassButton
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setEditingProvider(eng);
+                          setApiKeyInput("");
+                        }}
+                        icon={<Key className="w-3.5 h-3.5" />}
+                      >
+                        <span>API Key</span>
+                      </GlassButton>
+                    )}
+                  </div>
+                </GlassCard>
+              );
+            })}
         </div>
       </div>
 
@@ -345,21 +392,28 @@ export const ProvidersView: React.FC = () => {
 
         <div className="space-y-2.5">
           {models.map((m) => {
-            const isDownloading = !m.isInstalled && (m.downloadProgress ?? 0) > 0 && (m.downloadProgress ?? 0) < 100;
+            const isDownloading =
+              !m.isInstalled &&
+              (m.downloadProgress ?? 0) > 0 &&
+              (m.downloadProgress ?? 0) < 100;
             const isSelected = localWhisperModel === m.id;
-            const mbSize = m.sizeBytes ? `${Math.round(m.sizeBytes / (1024 * 1024))} MB` : '';
+            const mbSize = m.sizeBytes
+              ? `${Math.round(m.sizeBytes / (1024 * 1024))} MB`
+              : "";
 
             return (
               <GlassCard
                 key={m.id}
-                variant={isSelected ? 'elevated' : 'default'}
+                variant={isSelected ? "elevated" : "default"}
                 className={`p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all ${
-                  isSelected ? 'border-primary/40 shadow-sm' : ''
+                  isSelected ? "border-primary/40 shadow-sm" : ""
                 }`}
               >
                 <div className="space-y-1">
                   <div className="flex items-center flex-wrap gap-2">
-                    <span className="font-semibold text-xs text-foreground">{m.name}</span>
+                    <span className="font-semibold text-xs text-foreground">
+                      {m.name}
+                    </span>
                     {mbSize && (
                       <span className="text-[11px] text-muted-foreground font-mono">
                         ({mbSize})
@@ -418,7 +472,9 @@ export const ProvidersView: React.FC = () => {
                       onClick={() => handleDownloadModel(m.id)}
                       icon={<Download className="w-3.5 h-3.5" />}
                     >
-                      <span>{isDownloading ? `${m.downloadProgress}%` : 'Download'}</span>
+                      <span>
+                        {isDownloading ? `${m.downloadProgress}%` : "Download"}
+                      </span>
                     </GlassButton>
                   )}
                 </div>
@@ -432,12 +488,16 @@ export const ProvidersView: React.FC = () => {
       <div className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Globe className="w-4 h-4 text-primary" />
-          <span>{t('providers.translationProviders')}</span>
+          <span>{t("providers.translationProviders")}</span>
         </h2>
 
         <div className="space-y-2.5">
           {providers
-            .filter((p) => showPaidProviders || (!p.isPaid && !isPaidTranslationProvider(p.id)))
+            .filter(
+              (p) =>
+                showPaidProviders ||
+                (!p.isPaid && !isPaidTranslationProvider(p.id)),
+            )
             .map((p) => {
               const isPaid = p.isPaid || isPaidTranslationProvider(p.id);
               return (
@@ -448,61 +508,74 @@ export const ProvidersView: React.FC = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center flex-wrap gap-2">
-                      <span className="font-semibold text-xs text-foreground">{p.name}</span>
+                      <span className="font-semibold text-xs text-foreground">
+                        {p.name}
+                      </span>
                       {p.isConfigured ? (
                         <GlassBadge variant="success">
                           <CheckCircle2 className="w-3 h-3" />
-                          {t('providers.configured')}
+                          {t("providers.configured")}
                         </GlassBadge>
                       ) : (
                         <GlassBadge variant="warning">
                           <AlertCircle className="w-3 h-3" />
-                          {t('providers.notConfigured')}
+                          {t("providers.notConfigured")}
                         </GlassBadge>
                       )}
                       {isPaid ? (
-                        <GlassBadge variant="warning">{t('providers.paid', 'Paid API')}</GlassBadge>
+                        <GlassBadge variant="warning">
+                          {t("providers.paid", "Paid API")}
+                        </GlassBadge>
                       ) : (
-                        <GlassBadge variant="neutral">{t('providers.free', 'Free')}</GlassBadge>
+                        <GlassBadge variant="neutral">
+                          {t("providers.free", "Free")}
+                        </GlassBadge>
                       )}
                       {p.isLocal && (
                         <GlassBadge variant="neutral">Local</GlassBadge>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground">{p.description}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {p.description}
+                    </p>
                   </div>
 
-              <div className="flex items-center gap-2 shrink-0">
-                <GlassButton
-                  variant="glass"
-                  size="sm"
-                  onClick={() => handleTestConnection(p)}
-                  disabled={isTesting || (!p.isConfigured && p.requiresApiKey)}
-                >
-                  {isTesting ? 'Testing...' : t('providers.testConnection')}
-                </GlassButton>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <GlassButton
+                      variant="glass"
+                      size="sm"
+                      onClick={() => handleTestConnection(p)}
+                      disabled={
+                        isTesting || (!p.isConfigured && p.requiresApiKey)
+                      }
+                    >
+                      {isTesting ? "Testing..." : t("providers.testConnection")}
+                    </GlassButton>
 
-                {p.requiresApiKey && (
-                  <GlassButton
-                    variant="primary"
-                    size="sm"
-                    onClick={() => {
-                      setEditingProvider(p);
-                      setApiKeyInput('');
-                    }}
-                    icon={<Key className="w-3.5 h-3.5" />}
-                  >
-                    <span>API Key</span>
-                  </GlassButton>
-                )}
-              </div>
-            </GlassCard>
-          );
-        })}
+                    {p.requiresApiKey && (
+                      <GlassButton
+                        variant="primary"
+                        size="sm"
+                        onClick={() => {
+                          setEditingProvider(p);
+                          setApiKeyInput("");
+                        }}
+                        icon={<Key className="w-3.5 h-3.5" />}
+                      >
+                        <span>API Key</span>
+                      </GlassButton>
+                    )}
+                  </div>
+                </GlassCard>
+              );
+            })}
         </div>
 
         {testResult && (
-          <GlassCard variant="subtle" className="p-3 text-xs text-foreground font-mono">
+          <GlassCard
+            variant="subtle"
+            className="p-3 text-xs text-foreground font-mono"
+          >
             {testResult}
           </GlassCard>
         )}
@@ -513,7 +586,7 @@ export const ProvidersView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <BookA className="w-4 h-4 text-primary" />
-            <span>{t('providers.glossary')}</span>
+            <span>{t("providers.glossary")}</span>
           </h2>
           <GlassButton
             variant="glass"
@@ -521,13 +594,14 @@ export const ProvidersView: React.FC = () => {
             onClick={() => setShowAddGlossary(true)}
             icon={<Plus className="w-3.5 h-3.5" />}
           >
-            <span>{t('providers.addTerm')}</span>
+            <span>{t("providers.addTerm")}</span>
           </GlassButton>
         </div>
 
         {glossary.length === 0 ? (
           <GlassCard className="p-6 text-center text-xs text-muted-foreground">
-            No custom terms defined. Add domain-specific terms or company names for consistent translations.
+            No custom terms defined. Add domain-specific terms or company names
+            for consistent translations.
           </GlassCard>
         ) : (
           <div className="space-y-1.5">
@@ -538,9 +612,13 @@ export const ProvidersView: React.FC = () => {
                 className="p-3 flex items-center justify-between text-xs"
               >
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-foreground">{entry.sourceTerm}</span>
+                  <span className="font-semibold text-foreground">
+                    {entry.sourceTerm}
+                  </span>
                   <span className="text-muted-foreground">→</span>
-                  <span className="font-medium text-primary">{entry.targetTerm}</span>
+                  <span className="font-medium text-primary">
+                    {entry.targetTerm}
+                  </span>
                   {entry.caseSensitive && (
                     <GlassBadge variant="neutral" className="text-[10px]">
                       Case-sensitive
@@ -573,7 +651,9 @@ export const ProvidersView: React.FC = () => {
       >
         <div className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">API Key / Token</label>
+            <label className="text-muted-foreground font-medium">
+              API Key / Token
+            </label>
             <GlassInput
               type="password"
               placeholder="Paste your API key here..."
@@ -585,7 +665,7 @@ export const ProvidersView: React.FC = () => {
 
           {editingProvider?.signupUrl && (
             <p className="text-[11px] text-muted-foreground">
-              Don't have a key?{' '}
+              Don't have a key?{" "}
               <a
                 href={editingProvider.signupUrl}
                 target="_blank"
@@ -627,7 +707,9 @@ export const ProvidersView: React.FC = () => {
       >
         <div className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">Source Term (Original)</label>
+            <label className="text-muted-foreground font-medium">
+              Source Term (Original)
+            </label>
             <GlassInput
               placeholder="e.g. EchoLingo, Kubernetes"
               value={sourceTerm}
@@ -636,7 +718,9 @@ export const ProvidersView: React.FC = () => {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">Target Term (Replacement)</label>
+            <label className="text-muted-foreground font-medium">
+              Target Term (Replacement)
+            </label>
             <GlassInput
               placeholder="e.g. EchoLingo, Kubernetes"
               value={targetTerm}

@@ -1,8 +1,8 @@
-import React, { Component, ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
-import { createLogger } from '@echo-lingo/logger';
+import React, { Component, ErrorInfo, ReactNode } from "react";
+import { AlertTriangle, RefreshCw } from "lucide-react";
+import { createRendererLogger } from "@echo-lingo/logger";
 
-const log = createLogger('ErrorBoundary');
+const log = createRendererLogger("ErrorBoundary");
 
 interface Props {
   children: ReactNode;
@@ -25,7 +25,7 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   public override componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    log.error('Caught render error:', error, errorInfo);
+    log.error("Caught render error:", error, errorInfo);
   }
 
   private handleReload = () => {
@@ -43,10 +43,11 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div className="space-y-1">
               <h2 className="text-base font-bold text-foreground">
-                {this.props.fallbackTitle || 'Application Notice'}
+                {this.props.fallbackTitle || "Application Notice"}
               </h2>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                An unexpected UI state occurred. You can reload the window to restore normal state.
+                An unexpected UI state occurred. You can reload the window to
+                restore normal state.
               </p>
             </div>
 
@@ -71,4 +72,3 @@ export class ErrorBoundary extends Component<Props, State> {
     return this.props.children;
   }
 }
-

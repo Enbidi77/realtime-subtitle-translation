@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useSessionStore } from '@/stores/session-store.js';
-import { useSettingsStore } from '@/stores/settings-store.js';
-import { useNavigationStore } from '@/stores/navigation-store.js';
-import { useI18n } from '@/app/i18n/index.js';
-import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from '@echo-lingo/config';
-import { SessionMetadata } from '@echo-lingo/contracts';
-import { GlassCard } from '@/components/ui/GlassCard.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { GlassSelect } from '@/components/ui/GlassSelect.js';
-import { GlassBadge } from '@/components/ui/GlassBadge.js';
-import { createLogger } from '@echo-lingo/logger';
+import React, { useEffect, useState } from "react";
+import { useSessionStore } from "@/stores/session-store.js";
+import { useSettingsStore } from "@/stores/settings-store.js";
+import { useNavigationStore } from "@/stores/navigation-store.js";
+import { useI18n } from "@/app/i18n/index.js";
+import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from "@echo-lingo/config";
+import { SessionMetadata } from "@echo-lingo/contracts";
+import { GlassCard } from "@/components/ui/GlassCard.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { GlassSelect } from "@/components/ui/GlassSelect.js";
+import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { createRendererLogger } from "@echo-lingo/logger";
 import {
   Mic,
   Square,
@@ -24,13 +24,14 @@ import {
   Activity,
   CheckCircle2,
   Headphones,
-} from 'lucide-react';
+} from "lucide-react";
 
-const log = createLogger('DashboardView');
+const log = createRendererLogger("DashboardView");
 
 export const DashboardView: React.FC = () => {
   const { t } = useI18n();
-  const { isListening, audioError, setAudioError, startSession, stopSession } = useSessionStore();
+  const { isListening, audioError, setAudioError, startSession, stopSession } =
+    useSessionStore();
   const { settings, updateSettings } = useSettingsStore();
   const { setActivePage } = useNavigationStore();
 
@@ -43,10 +44,13 @@ export const DashboardView: React.FC = () => {
         try {
           const list = await window.electronAPI.sessions.list();
           setRecentSessions(list.slice(0, 5));
-          const totalSec = list.reduce((acc, s) => acc + (s.durationSeconds || 0), 0);
+          const totalSec = list.reduce(
+            (acc, s) => acc + (s.durationSeconds || 0),
+            0,
+          );
           setTotalMinutes(Math.round(totalSec / 60));
         } catch (e) {
-          log.error('Failed to load recent sessions:', e);
+          log.error("Failed to load recent sessions:", e);
         }
       }
     }
@@ -64,7 +68,7 @@ export const DashboardView: React.FC = () => {
         speechProvider: settings.speechEngine,
         translationProvider: settings.translationProvider,
       });
-      setActivePage('live-subtitles');
+      setActivePage("live-subtitles");
     }
   };
 
@@ -74,23 +78,26 @@ export const DashboardView: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground flex items-center gap-2.5">
-            <span>{t('dashboard.welcome', 'Welcome to EchoLingo')}</span>
+            <span>{t("dashboard.welcome", "Welcome to EchoLingo")}</span>
             <span className="text-xl">✨</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
-            {t('dashboard.tagline', 'Real-time speech recognition, live subtitling, and AI translation pipeline.')}
+            {t(
+              "dashboard.tagline",
+              "Real-time speech recognition, live subtitling, and AI translation pipeline.",
+            )}
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {isListening ? (
             <GlassBadge variant="live" pulse>
-              {t('dashboard.liveSessionActive', 'Live Session Active')}
+              {t("dashboard.liveSessionActive", "Live Session Active")}
             </GlassBadge>
           ) : (
             <GlassBadge variant="neutral">
               <span className="w-1.5 h-1.5 rounded-full bg-primary/70 mr-1" />
-              {t('dashboard.pipelineStandby', 'Pipeline Standby')}
+              {t("dashboard.pipelineStandby", "Pipeline Standby")}
             </GlassBadge>
           )}
         </div>
@@ -105,8 +112,12 @@ export const DashboardView: React.FC = () => {
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5 text-destructive" />
             <div>
-              <div className="text-xs font-semibold text-destructive">{t('layout.audioNotice', 'Audio Capture Notice')}</div>
-              <div className="text-xs mt-1 text-foreground/90 leading-relaxed">{audioError}</div>
+              <div className="text-xs font-semibold text-destructive">
+                {t("layout.audioNotice", "Audio Capture Notice")}
+              </div>
+              <div className="text-xs mt-1 text-foreground/90 leading-relaxed">
+                {audioError}
+              </div>
             </div>
           </div>
           <GlassButton
@@ -115,7 +126,7 @@ export const DashboardView: React.FC = () => {
             onClick={() => setAudioError(null)}
             className="flex-shrink-0"
           >
-            {t('layout.dismiss', 'Dismiss')}
+            {t("layout.dismiss", "Dismiss")}
           </GlassButton>
         </GlassCard>
       )}
@@ -132,13 +143,13 @@ export const DashboardView: React.FC = () => {
           <div className="space-y-2.5 max-w-xl">
             <GlassBadge variant="accent" className="font-semibold">
               <Sparkles className="w-3.5 h-3.5 mr-1" />
-              {t('dashboard.realtimeIntelligence', 'Real-Time Intelligence')}
+              {t("dashboard.realtimeIntelligence", "Real-Time Intelligence")}
             </GlassBadge>
             <h2 className="text-xl md:text-2xl font-bold tracking-tight text-foreground">
-              {t('dashboard.heroTitle')}
+              {t("dashboard.heroTitle")}
             </h2>
             <p className="text-xs md:text-sm text-muted-foreground leading-relaxed">
-              {t('dashboard.heroSubtitle')}
+              {t("dashboard.heroSubtitle")}
             </p>
           </div>
 
@@ -149,19 +160,19 @@ export const DashboardView: React.FC = () => {
               onClick={handleToggleListening}
               className={`flex items-center justify-center gap-3 px-7 py-3.5 rounded-2xl font-semibold text-sm cursor-pointer app-no-drag transition-all duration-200 active:scale-[0.98] ${
                 isListening
-                  ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/25 border border-destructive/40'
-                  : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-primary text-white hover:brightness-110 shadow-lg shadow-indigo-500/30 border border-white/25'
+                  ? "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-lg shadow-destructive/25 border border-destructive/40"
+                  : "bg-gradient-to-r from-blue-600 via-indigo-600 to-primary text-white hover:brightness-110 shadow-lg shadow-indigo-500/30 border border-white/25"
               }`}
             >
               {isListening ? (
                 <>
                   <Square className="w-4 h-4 fill-current" />
-                  <span>{t('dashboard.stopListening')}</span>
+                  <span>{t("dashboard.stopListening")}</span>
                 </>
               ) : (
                 <>
                   <Mic className="w-4 h-4" />
-                  <span>{t('dashboard.startListening')}</span>
+                  <span>{t("dashboard.startListening")}</span>
                 </>
               )}
             </button>
@@ -175,21 +186,39 @@ export const DashboardView: React.FC = () => {
             <label className="text-muted-foreground font-medium flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-foreground/90 font-semibold">
                 <Radio className="w-3.5 h-3.5 text-primary" />
-                {t('dashboard.audioSource')}
+                {t("dashboard.audioSource")}
               </span>
             </label>
             <GlassSelect
               value={settings.audioSourceType}
-              onChange={(e) => updateSettings({ audioSourceType: e.target.value as any })}
+              onChange={(e) =>
+                updateSettings({ audioSourceType: e.target.value as any })
+              }
               disabled={isListening}
             >
-              <option value="system">{t('dashboard.audioSources.system', '🔊 System Audio (YouTube, PC)')}</option>
-              <option value="microphone">{t('dashboard.audioSources.microphone', '🎙️ Microphone (Voice)')}</option>
+              <option value="system">
+                {t(
+                  "dashboard.audioSources.system",
+                  "🔊 System Audio (YouTube, PC)",
+                )}
+              </option>
+              <option value="microphone">
+                {t(
+                  "dashboard.audioSources.microphone",
+                  "🎙️ Microphone (Voice)",
+                )}
+              </option>
             </GlassSelect>
             <p className="text-[10px] text-muted-foreground/80 leading-tight">
-              {settings.audioSourceType === 'system'
-                ? t('dashboard.audioSources.systemHint', '⚡ Captures YouTube, meetings & PC audio directly.')
-                : t('dashboard.audioSources.microphoneHint', '🎙️ Physical mic. For YouTube, choose System Audio.')}
+              {settings.audioSourceType === "system"
+                ? t(
+                    "dashboard.audioSources.systemHint",
+                    "⚡ Captures YouTube, meetings & PC audio directly.",
+                  )
+                : t(
+                    "dashboard.audioSources.microphoneHint",
+                    "🎙️ Physical mic. For YouTube, choose System Audio.",
+                  )}
             </p>
           </div>
 
@@ -198,39 +227,59 @@ export const DashboardView: React.FC = () => {
             <label className="text-muted-foreground font-medium flex items-center justify-between">
               <span className="flex items-center gap-1.5 text-foreground/90 font-semibold">
                 <Cpu className="w-3.5 h-3.5 text-primary" />
-                {t('dashboard.speechEngine', 'Speech Engine')}
+                {t("dashboard.speechEngine", "Speech Engine")}
               </span>
               <button
                 type="button"
-                onClick={() => setActivePage('providers')}
+                onClick={() => setActivePage("providers")}
                 className="text-[10px] text-primary hover:underline font-medium"
               >
-                {t('dashboard.keys', 'Keys')}
+                {t("dashboard.keys", "Keys")}
               </button>
             </label>
             <GlassSelect
               value={settings.speechEngine}
-              onChange={(e) => updateSettings({ speechEngine: e.target.value as any })}
+              onChange={(e) =>
+                updateSettings({ speechEngine: e.target.value as any })
+              }
               disabled={isListening}
             >
-              <option value="windows-speech">Windows System Speech (Built-in SAPI)</option>
+              <option value="windows-speech">
+                Windows System Speech (Built-in SAPI)
+              </option>
               <option value="groq-whisper">Groq Whisper (Free & Fast)</option>
-              {(settings.showPaidProviders || settings.speechEngine === 'openai-whisper') && (
+              {(settings.showPaidProviders ||
+                settings.speechEngine === "openai-whisper") && (
                 <option value="openai-whisper">OpenAI Whisper (Cloud)</option>
               )}
               <option value="mock">Mock Engine (Instant Demo)</option>
               <option value="whisper-local">Whisper Local (Offline)</option>
             </GlassSelect>
             <p className="text-[10px] text-muted-foreground/80 leading-tight">
-              {settings.speechEngine === 'windows-speech'
-                ? t('dashboard.engineDescriptions.windowsSpeech', '💻 Native Windows SAPI. 100% offline, zero setup.')
-                : settings.speechEngine === 'groq-whisper'
-                ? t('dashboard.engineDescriptions.groqWhisper', '⚡ Ultra-fast Whisper Large cloud. Free key.')
-                : settings.speechEngine === 'mock'
-                ? t('dashboard.engineDescriptions.mock', '🧪 Simulates subtitles on sound energy.')
-                : settings.speechEngine === 'openai-whisper'
-                ? t('dashboard.engineDescriptions.openaiWhisper', 'OpenAI whisper-1 model.')
-                : t('dashboard.engineDescriptions.whisperLocal', 'Offline Whisper inference.')}
+              {settings.speechEngine === "windows-speech"
+                ? t(
+                    "dashboard.engineDescriptions.windowsSpeech",
+                    "💻 Native Windows SAPI. 100% offline, zero setup.",
+                  )
+                : settings.speechEngine === "groq-whisper"
+                  ? t(
+                      "dashboard.engineDescriptions.groqWhisper",
+                      "⚡ Ultra-fast Whisper Large cloud. Free key.",
+                    )
+                  : settings.speechEngine === "mock"
+                    ? t(
+                        "dashboard.engineDescriptions.mock",
+                        "🧪 Simulates subtitles on sound energy.",
+                      )
+                    : settings.speechEngine === "openai-whisper"
+                      ? t(
+                          "dashboard.engineDescriptions.openaiWhisper",
+                          "OpenAI whisper-1 model.",
+                        )
+                      : t(
+                          "dashboard.engineDescriptions.whisperLocal",
+                          "Offline Whisper inference.",
+                        )}
             </p>
           </div>
 
@@ -238,40 +287,54 @@ export const DashboardView: React.FC = () => {
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center gap-1.5 text-foreground/90 font-semibold">
               <Globe className="w-3.5 h-3.5 text-primary" />
-              {t('dashboard.sourceLanguage')}
+              {t("dashboard.sourceLanguage")}
             </label>
             <GlassSelect
               value={settings.sourceLanguage}
-              onChange={(e) => updateSettings({ sourceLanguage: e.target.value })}
+              onChange={(e) =>
+                updateSettings({ sourceLanguage: e.target.value })
+              }
               disabled={isListening}
             >
               {SUPPORTED_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
-                  {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ''}
+                  {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ""}
                 </option>
               ))}
             </GlassSelect>
-            <p className="text-[10px] text-muted-foreground/80">{t('dashboard.sourceLanguageHint', 'Spoken language of the audio.')}</p>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "dashboard.sourceLanguageHint",
+                "Spoken language of the audio.",
+              )}
+            </p>
           </div>
 
           {/* Target Language */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center gap-1.5 text-foreground/90 font-semibold">
               <Globe className="w-3.5 h-3.5 text-primary" />
-              {t('dashboard.targetLanguage')}
+              {t("dashboard.targetLanguage")}
             </label>
             <GlassSelect
-              value={settings.targetLanguages[0] || 'vi'}
-              onChange={(e) => updateSettings({ targetLanguages: [e.target.value] })}
+              value={settings.targetLanguages[0] || "vi"}
+              onChange={(e) =>
+                updateSettings({ targetLanguages: [e.target.value] })
+              }
               disabled={isListening}
             >
               {TARGET_LANGUAGES.map((lang) => (
                 <option key={lang.code} value={lang.code}>
-                  {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ''}
+                  {lang.name} {lang.nativeName ? `(${lang.nativeName})` : ""}
                 </option>
               ))}
             </GlassSelect>
-            <p className="text-[10px] text-muted-foreground/80">{t('dashboard.targetLanguageHint', 'Real-time translated subtitle.')}</p>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "dashboard.targetLanguageHint",
+                "Real-time translated subtitle.",
+              )}
+            </p>
           </div>
         </div>
       </GlassCard>
@@ -285,7 +348,7 @@ export const DashboardView: React.FC = () => {
           </div>
           <div className="overflow-hidden">
             <div className="text-[11px] font-medium text-muted-foreground">
-              {t('dashboard.totalSessions')}
+              {t("dashboard.totalSessions")}
             </div>
             <div className="text-xl font-bold tracking-tight text-foreground">
               {recentSessions.length}
@@ -300,7 +363,7 @@ export const DashboardView: React.FC = () => {
           </div>
           <div className="overflow-hidden">
             <div className="text-[11px] font-medium text-muted-foreground">
-              {t('dashboard.totalMinutes')}
+              {t("dashboard.totalMinutes")}
             </div>
             <div className="text-xl font-bold tracking-tight text-foreground">
               {totalMinutes}m
@@ -315,7 +378,7 @@ export const DashboardView: React.FC = () => {
           </div>
           <div className="overflow-hidden">
             <div className="text-[11px] font-medium text-muted-foreground">
-              {t('dashboard.activeEngine')}
+              {t("dashboard.activeEngine")}
             </div>
             <div className="text-xs font-semibold text-foreground truncate mt-1">
               {settings.speechEngine}
@@ -330,7 +393,7 @@ export const DashboardView: React.FC = () => {
           </div>
           <div className="overflow-hidden">
             <div className="text-[11px] font-medium text-muted-foreground">
-              {t('dashboard.activeTranslator')}
+              {t("dashboard.activeTranslator")}
             </div>
             <div className="text-xs font-semibold text-foreground truncate mt-1">
               {settings.translationProvider}
@@ -340,30 +403,50 @@ export const DashboardView: React.FC = () => {
       </div>
 
       {/* System Status Indicators (Lumina bottom bar inspired) */}
-      <GlassCard variant="subtle" className="px-5 py-3 flex flex-wrap items-center justify-between gap-4 text-xs">
+      <GlassCard
+        variant="subtle"
+        className="px-5 py-3 flex flex-wrap items-center justify-between gap-4 text-xs"
+      >
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-muted-foreground">{t('dashboard.systemStatus.speechEngine', 'Speech Engine:')}</span>
-            <span className="font-semibold text-foreground">{settings.speechEngine}</span>
+            <span className="text-muted-foreground">
+              {t("dashboard.systemStatus.speechEngine", "Speech Engine:")}
+            </span>
+            <span className="font-semibold text-foreground">
+              {settings.speechEngine}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-muted-foreground">{t('dashboard.systemStatus.database', 'Database:')}</span>
-            <span className="font-semibold text-foreground">{t('dashboard.systemStatus.operational', 'Operational')}</span>
+            <span className="text-muted-foreground">
+              {t("dashboard.systemStatus.database", "Database:")}
+            </span>
+            <span className="font-semibold text-foreground">
+              {t("dashboard.systemStatus.operational", "Operational")}
+            </span>
           </div>
 
           <div className="flex items-center gap-2 hidden md:flex">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-muted-foreground">{t('dashboard.systemStatus.audioDriver', 'Audio Driver:')}</span>
-            <span className="font-semibold text-foreground">{settings.audioSourceType}</span>
+            <span className="text-muted-foreground">
+              {t("dashboard.systemStatus.audioDriver", "Audio Driver:")}
+            </span>
+            <span className="font-semibold text-foreground">
+              {settings.audioSourceType}
+            </span>
           </div>
         </div>
 
         <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-          <span>{t('dashboard.systemStatus.localWhisperReady', 'Local Whisper Ready')}</span>
+          <span>
+            {t(
+              "dashboard.systemStatus.localWhisperReady",
+              "Local Whisper Ready",
+            )}
+          </span>
         </div>
       </GlassCard>
 
@@ -372,15 +455,15 @@ export const DashboardView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Layers className="w-4 h-4 text-primary" />
-            <span>{t('dashboard.recentSessions')}</span>
+            <span>{t("dashboard.recentSessions")}</span>
           </h2>
           <GlassButton
             variant="ghost"
             size="sm"
-            onClick={() => setActivePage('sessions')}
+            onClick={() => setActivePage("sessions")}
             className="text-xs font-medium text-primary hover:text-primary gap-1"
           >
-            <span>{t('dashboard.viewAll', 'View all')}</span>
+            <span>{t("dashboard.viewAll", "View all")}</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </GlassButton>
         </div>
@@ -388,9 +471,14 @@ export const DashboardView: React.FC = () => {
         {recentSessions.length === 0 ? (
           <GlassCard className="p-8 text-center text-muted-foreground text-sm space-y-2">
             <Headphones className="w-8 h-8 mx-auto opacity-40 text-primary" />
-            <div className="font-medium text-foreground">{t('dashboard.noSessions')}</div>
+            <div className="font-medium text-foreground">
+              {t("dashboard.noSessions")}
+            </div>
             <p className="text-xs text-muted-foreground/80 max-w-sm mx-auto">
-              {t('dashboard.noSessionsSubtitle', 'Start listening to capture live audio and transcribe subtitles in real-time.')}
+              {t(
+                "dashboard.noSessionsSubtitle",
+                "Start listening to capture live audio and transcribe subtitles in real-time.",
+              )}
             </p>
           </GlassCard>
         ) : (
@@ -401,7 +489,7 @@ export const DashboardView: React.FC = () => {
                 variant="interactive"
                 onClick={() => {
                   useSessionStore.getState().loadSession(session.id);
-                  setActivePage('live-subtitles');
+                  setActivePage("live-subtitles");
                 }}
                 className="flex items-center justify-between p-4"
               >
@@ -412,19 +500,22 @@ export const DashboardView: React.FC = () => {
                   <div className="text-[11px] text-muted-foreground flex items-center gap-2.5">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3 text-muted-foreground/80" />
-                      {Math.floor(session.durationSeconds / 60)}m {session.durationSeconds % 60}s
+                      {Math.floor(session.durationSeconds / 60)}m{" "}
+                      {session.durationSeconds % 60}s
                     </span>
                     <span>•</span>
                     <span className="flex items-center gap-1">
                       <Layers className="w-3 h-3 text-muted-foreground/80" />
-                      {session.segmentCount} {t('dashboard.segmentsCount', 'segments')}
+                      {session.segmentCount}{" "}
+                      {t("dashboard.segmentsCount", "segments")}
                     </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-3 shrink-0">
                   <span className="px-2.5 py-1 rounded-lg bg-glass-subtle border border-glass-border text-[11px] font-mono text-muted-foreground">
-                    {session.sourceLanguage} → {session.targetLanguages.join(', ')}
+                    {session.sourceLanguage} →{" "}
+                    {session.targetLanguages.join(", ")}
                   </span>
                   <div className="w-7 h-7 rounded-lg bg-glass-subtle border border-glass-border flex items-center justify-center text-muted-foreground">
                     <ArrowRight className="w-3.5 h-3.5" />

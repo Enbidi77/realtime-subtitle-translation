@@ -1,4 +1,4 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   VideoMetadata,
   SubtitleSegment,
@@ -8,12 +8,19 @@ import {
   VideoExportProgress,
   VideoTranscribeProgress,
   toMediaProtocolUrl,
-} from '@echo-lingo/contracts';
-import { exportToSrt, exportToVtt, exportToTxt } from '@echo-lingo/subtitle-core';
-import { DEFAULT_SUBTITLE_STYLE, SUBTITLE_STYLE_PRESETS } from '@echo-lingo/config';
-import { createLogger } from '@echo-lingo/logger';
+} from "@echo-lingo/contracts";
+import {
+  exportToSrt,
+  exportToVtt,
+  exportToTxt,
+} from "@echo-lingo/subtitle-core";
+import {
+  DEFAULT_SUBTITLE_STYLE,
+  SUBTITLE_STYLE_PRESETS,
+} from "@echo-lingo/config";
+import { createRendererLogger } from "@echo-lingo/logger";
 
-const log = createLogger('VideoSubtitleStore');
+const log = createRendererLogger("VideoSubtitleStore");
 
 interface VideoSubtitleState {
   // Video Ingestion
@@ -70,8 +77,15 @@ interface VideoSubtitleState {
   checkFfmpeg: () => Promise<void>;
   openVideoDialog: () => Promise<void>;
   startAutoTranscription: () => Promise<void>;
-  startExport: (outputCustomPath?: string, videoCodec?: any, exportMode?: VideoExportMode) => Promise<void>;
-  exportSubtitleFile: (format?: 'srt' | 'vtt' | 'txt', includeOriginal?: boolean) => Promise<boolean>;
+  startExport: (
+    outputCustomPath?: string,
+    videoCodec?: any,
+    exportMode?: VideoExportMode,
+  ) => Promise<void>;
+  exportSubtitleFile: (
+    format?: "srt" | "vtt" | "txt",
+    includeOriginal?: boolean,
+  ) => Promise<boolean>;
   cancelExport: () => Promise<void>;
   reset: () => void;
 }
@@ -86,11 +100,11 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
   segments: [],
   selectedSegmentId: null,
 
-  sourceLang: 'auto',
-  targetLang: 'vi',
+  sourceLang: "auto",
+  targetLang: "vi",
 
   style: { ...DEFAULT_SUBTITLE_STYLE },
-  selectedPreset: 'default',
+  selectedPreset: "default",
 
   isTranscribing: false,
   transcriptionError: null,
@@ -107,11 +121,13 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
 
   setVideo: (meta, fileUrl) => {
     const prevUrl = get().videoFileUrl;
-    if (prevUrl && prevUrl.startsWith('blob:')) {
+    if (prevUrl && prevUrl.startsWith("blob:")) {
       URL.revokeObjectURL(prevUrl);
     }
     const resolvedUrl =
-      fileUrl || meta?.mediaUrl || (meta ? toMediaProtocolUrl(meta.filePath) : null);
+      fileUrl ||
+      meta?.mediaUrl ||
+      (meta ? toMediaProtocolUrl(meta.filePath) : null);
     set({
       videoMetadata: meta,
       videoFileUrl: resolvedUrl,
@@ -131,21 +147,24 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
   updateSegment: (id, updates) => {
     set((state) => ({
       segments: state.segments.map((s) =>
-        s.id === id ? { ...s, ...updates, updatedAt: Date.now() } : s
+        s.id === id ? { ...s, ...updates, updatedAt: Date.now() } : s,
       ),
     }));
   },
 
   addSegment: (segment) => {
     set((state) => ({
-      segments: [...state.segments, segment].sort((a, b) => a.startTime - b.startTime),
+      segments: [...state.segments, segment].sort(
+        (a, b) => a.startTime - b.startTime,
+      ),
     }));
   },
 
   removeSegment: (id) => {
     set((state) => ({
       segments: state.segments.filter((s) => s.id !== id),
-      selectedSegmentId: state.selectedSegmentId === id ? null : state.selectedSegmentId,
+      selectedSegmentId:
+        state.selectedSegmentId === id ? null : state.selectedSegmentId,
     }));
   },
 
@@ -156,7 +175,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
   updateStyle: (updates) => {
     set((state) => ({
       style: { ...state.style, ...updates },
-      selectedPreset: 'custom',
+      selectedPreset: "custom",
     }));
   },
 
@@ -183,12 +202,23 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     try {
       const res = await window.electronAPI.video.installFfmpeg();
       if (res.success) {
-        set({ ffmpegAvailable: true, ffmpegPath: res.path, isInstallingFfmpeg: false });
+        set({
+          ffmpegAvailable: true,
+          ffmpegPath: res.path,
+          isInstallingFfmpeg: false,
+        });
       } else {
-        set({ isInstallingFfmpeg: false, installFfmpegError: 'Installation completed but FFmpeg was not verified.' });
+        set({
+          isInstallingFfmpeg: false,
+          installFfmpegError:
+            "Installation completed but FFmpeg was not verified.",
+        });
       }
     } catch (err: any) {
-      set({ isInstallingFfmpeg: false, installFfmpegError: err.message || 'Failed to install FFmpeg' });
+      set({
+        isInstallingFfmpeg: false,
+        installFfmpegError: err.message || "Failed to install FFmpeg",
+      });
     }
   },
 
@@ -212,7 +242,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       get().setVideo(meta, mediaUrl);
       get().checkFfmpeg();
     } catch (err: any) {
-      log.error('Failed to open video', err);
+      log.error("Failed to open video", err);
     }
   },
 
@@ -232,18 +262,24 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     set({
       isTranscribing: true,
       transcriptionError: null,
-      transcribeProgress: { phase: 'extracting', percent: 5, detail: 'Preparing audio extraction...' },
+      transcribeProgress: {
+        phase: "extracting",
+        percent: 5,
+        detail: "Preparing audio extraction...",
+      },
     });
 
-    const unsubscribeProgress = window.electronAPI.video.onTranscribeProgress?.((progress) => {
-      set({ transcribeProgress: progress });
-    });
+    const unsubscribeProgress = window.electronAPI.video.onTranscribeProgress?.(
+      (progress) => {
+        set({ transcribeProgress: progress });
+      },
+    );
 
     try {
       const segs = await window.electronAPI.video.extractAudio(
         videoMetadata.filePath,
         sourceLang,
-        targetLang
+        targetLang,
       );
       set({
         segments: segs,
@@ -258,17 +294,20 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
           get().setCurrentTime(segs[0].startTime / 1000);
         }
         const currentMs = currentTime * 1000;
-        const matchingSeg = segs.find((s) => currentMs >= s.startTime && currentMs <= s.endTime);
+        const matchingSeg = segs.find(
+          (s) => currentMs >= s.startTime && currentMs <= s.endTime,
+        );
         get().selectSegment(matchingSeg ? matchingSeg.id : segs[0].id);
       }
     } catch (err: any) {
-      log.error('Transcription error', err);
-      let message = err.message || 'Transcription failed';
+      log.error("Transcription error", err);
+      let message = err.message || "Transcription failed";
       if (
-        message.includes('Output file does not contain any stream') ||
-        message.includes('does not contain an audio')
+        message.includes("Output file does not contain any stream") ||
+        message.includes("does not contain an audio")
       ) {
-        message = 'The selected video does not contain an audio track to transcribe.';
+        message =
+          "The selected video does not contain an audio track to transcribe.";
       }
       set({
         isTranscribing: false,
@@ -280,21 +319,26 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     }
   },
 
-  startExport: async (outputCustomPath, videoCodec, exportMode = 'hardsub-burnin') => {
+  startExport: async (
+    outputCustomPath,
+    videoCodec,
+    exportMode = "hardsub-burnin",
+  ) => {
     const { videoMetadata, segments, style } = get();
     if (!videoMetadata || !window.electronAPI?.video) return;
 
     if (segments.length === 0) {
       set({
         isExportModalOpen: true,
-        exportError: 'No subtitle cues available to export. Please auto-transcribe or add cues first.',
+        exportError:
+          "No subtitle cues available to export. Please auto-transcribe or add cues first.",
       });
       return;
     }
 
     let targetOut = outputCustomPath;
     if (!targetOut) {
-      const defaultName = `${videoMetadata.fileName.replace(/\.[^/.]+$/, '')}_subtitled.mp4`;
+      const defaultName = `${videoMetadata.fileName.replace(/\.[^/.]+$/, "")}_subtitled.mp4`;
       const picked = await window.electronAPI.video.saveFileDialog(defaultName);
       if (!picked) return;
       targetOut = picked;
@@ -304,8 +348,8 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
       isExporting: true,
       isExportModalOpen: true,
       exportProgress: {
-        jobId: 'init',
-        phase: 'generating-ass',
+        jobId: "init",
+        phase: "generating-ass",
         progressPercent: 0,
         totalDurationSeconds: videoMetadata.durationSeconds,
       },
@@ -316,11 +360,14 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     // Subscribe to progress
     const unsub = window.electronAPI.video.onExportProgress((p) => {
       set({ exportProgress: p, activeJobId: p.jobId });
-      if (p.phase === 'completed') {
+      if (p.phase === "completed") {
         set({ isExporting: false, exportResult: { outputPath: targetOut! } });
-      } else if (p.phase === 'failed') {
-        set({ isExporting: false, exportError: p.errorMessage || 'Export failed' });
-      } else if (p.phase === 'cancelled') {
+      } else if (p.phase === "failed") {
+        set({
+          isExporting: false,
+          exportError: p.errorMessage || "Export failed",
+        });
+      } else if (p.phase === "cancelled") {
         set({ isExporting: false });
       }
     });
@@ -332,51 +379,70 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
         segments,
         style,
         exportMode,
-        videoCodec: videoCodec || 'libx264',
-        audioCodec: 'copy',
-        qualityPreset: 'veryfast',
+        videoCodec: videoCodec || "libx264",
+        audioCodec: "copy",
+        qualityPreset: "veryfast",
         crf: 21,
       };
 
       const result = await window.electronAPI.video.startExport(options);
       set({ isExporting: false, exportResult: result });
     } catch (err: any) {
-      if (err.message !== 'Export was cancelled by user.') {
-        set({ isExporting: false, exportError: err.message || 'Export failed' });
+      if (err.message !== "Export was cancelled by user.") {
+        set({
+          isExporting: false,
+          exportError: err.message || "Export failed",
+        });
       }
     } finally {
       unsub();
     }
   },
 
-  exportSubtitleFile: async (format: 'srt' | 'vtt' | 'txt' = 'srt', includeOriginal = true) => {
+  exportSubtitleFile: async (
+    format: "srt" | "vtt" | "txt" = "srt",
+    includeOriginal = true,
+  ) => {
     const { videoMetadata, segments, targetLang } = get();
     if (segments.length === 0) {
-      alert('No subtitle cues available to export.');
+      alert("No subtitle cues available to export.");
       return false;
     }
 
-    let content = '';
-    if (format === 'vtt') {
-      content = exportToVtt(segments, { includeOriginal, targetLanguage: targetLang });
-    } else if (format === 'txt') {
-      content = exportToTxt(segments, { includeOriginal, targetLanguage: targetLang });
+    let content = "";
+    if (format === "vtt") {
+      content = exportToVtt(segments, {
+        includeOriginal,
+        targetLanguage: targetLang,
+      });
+    } else if (format === "txt") {
+      content = exportToTxt(segments, {
+        includeOriginal,
+        targetLanguage: targetLang,
+      });
     } else {
-      content = exportToSrt(segments, { includeOriginal, targetLanguage: targetLang });
+      content = exportToSrt(segments, {
+        includeOriginal,
+        targetLanguage: targetLang,
+      });
     }
 
     const baseName = videoMetadata?.fileName
-      ? videoMetadata.fileName.replace(/\.[^/.]+$/, '')
-      : 'subtitles';
+      ? videoMetadata.fileName.replace(/\.[^/.]+$/, "")
+      : "subtitles";
     const defaultName = `${baseName}.${format}`;
 
     if (window.electronAPI?.sessions?.saveExportFile) {
-      const res = await window.electronAPI.sessions.saveExportFile(content, defaultName, format);
+      const res = await window.electronAPI.sessions.saveExportFile(
+        content,
+        defaultName,
+        format,
+      );
       return Boolean(res?.success);
     } else {
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
       a.download = defaultName;
       a.click();
@@ -395,7 +461,7 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
 
   reset: () => {
     const prevUrl = get().videoFileUrl;
-    if (prevUrl && prevUrl.startsWith('blob:')) {
+    if (prevUrl && prevUrl.startsWith("blob:")) {
       URL.revokeObjectURL(prevUrl);
     }
     set({
@@ -415,4 +481,3 @@ export const useVideoSubtitleStore = create<VideoSubtitleState>((set, get) => ({
     });
   },
 }));
-

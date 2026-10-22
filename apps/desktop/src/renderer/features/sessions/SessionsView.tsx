@@ -8,7 +8,7 @@ import {
   SubtitleExportFormat,
 } from "@echo-lingo/contracts";
 import { formatDisplayTime } from "@echo-lingo/subtitle-core";
-import { createLogger } from "@echo-lingo/logger";
+import { createRendererLogger } from "@echo-lingo/logger";
 import { GlassCard } from "@/components/ui/GlassCard.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassInput } from "@/components/ui/GlassInput.js";
@@ -29,7 +29,7 @@ import {
   Layers3,
 } from "lucide-react";
 
-const log = createLogger("SessionsView");
+const log = createRendererLogger("SessionsView");
 
 export const SessionsView: React.FC = () => {
   const { t } = useI18n();
@@ -103,7 +103,12 @@ export const SessionsView: React.FC = () => {
   const handleExport = async () => {
     if (!selectedSessionId || !window.electronAPI) return;
     if (segments.length === 0) {
-      alert(t("sessions.noSegmentsToExport", "This session does not contain any subtitle segments to export."));
+      alert(
+        t(
+          "sessions.noSegmentsToExport",
+          "This session does not contain any subtitle segments to export.",
+        ),
+      );
       return;
     }
 
@@ -123,7 +128,10 @@ export const SessionsView: React.FC = () => {
       );
 
       const cleanTitle = currentSession?.title
-        ? currentSession.title.replace(/[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g, '_')
+        ? currentSession.title.replace(
+            /[^a-zA-Z0-9_\-\u00C0-\u024F\u1EA0-\u1EF9]/g,
+            "_",
+          )
         : selectedSessionId;
       const defaultName = `subtitles_${cleanTitle}.${exportFormat}`;
 
@@ -131,7 +139,7 @@ export const SessionsView: React.FC = () => {
         const res = await window.electronAPI.sessions.saveExportFile(
           output,
           defaultName,
-          exportFormat
+          exportFormat,
         );
         if (res.success) {
           setShowExportModal(false);

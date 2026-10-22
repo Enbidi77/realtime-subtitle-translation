@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
-import '@/styles/globals.css';
-import { FloatingPanelPayload } from '@echo-lingo/contracts';
-import { applyTheme } from '@/stores/settings-store.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { GlassBadge } from '@/components/ui/GlassBadge.js';
-import { createLogger } from '@echo-lingo/logger';
+import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom/client";
+import "@/styles/globals.css";
+import { FloatingPanelPayload } from "@echo-lingo/contracts";
+import { applyTheme } from "@/stores/settings-store.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { createRendererLogger } from "@echo-lingo/logger";
 import {
   GripHorizontal,
   X,
@@ -14,14 +14,14 @@ import {
   Crop,
   Clock,
   Sparkles,
-} from 'lucide-react';
+} from "lucide-react";
 
-const log = createLogger('OcrPanel');
+const log = createRendererLogger("OcrPanel");
 
 const FloatingResultPanel: React.FC = () => {
   const [data, setData] = useState<FloatingPanelPayload | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
-  const [locale, setLocale] = useState<string>('en');
+  const [locale, setLocale] = useState<string>("en");
 
   useEffect(() => {
     // Sync theme, glass intensity, and locale from settings
@@ -32,12 +32,14 @@ const FloatingResultPanel: React.FC = () => {
           applyTheme(loaded.theme, loaded.glassIntensity);
           if (loaded.locale) setLocale(loaded.locale);
         })
-        .catch((err) => log.error('Failed to load settings:', err));
+        .catch((err) => log.error("Failed to load settings:", err));
 
-      const unsubSettings = window.electronAPI.settings.onUpdate?.((updated) => {
-        applyTheme(updated.theme, updated.glassIntensity);
-        if (updated.locale) setLocale(updated.locale);
-      });
+      const unsubSettings = window.electronAPI.settings.onUpdate?.(
+        (updated) => {
+          applyTheme(updated.theme, updated.glassIntensity);
+          if (updated.locale) setLocale(updated.locale);
+        },
+      );
 
       return () => {
         if (unsubSettings) unsubSettings();
@@ -47,9 +49,11 @@ const FloatingResultPanel: React.FC = () => {
 
   useEffect(() => {
     if (window.electronAPI?.screenTranslation?.onFloatingPanelData) {
-      const unsub = window.electronAPI.screenTranslation.onFloatingPanelData((payload) => {
-        setData(payload);
-      });
+      const unsub = window.electronAPI.screenTranslation.onFloatingPanelData(
+        (payload) => {
+          setData(payload);
+        },
+      );
       return () => {
         if (unsub) unsub();
       };
@@ -68,18 +72,19 @@ const FloatingResultPanel: React.FC = () => {
 
   const handleCaptureAnother = async () => {
     try {
-      const region = await window.electronAPI?.screenTranslation?.selectRegion();
+      const region =
+        await window.electronAPI?.screenTranslation?.selectRegion();
       if (region) {
         await window.electronAPI?.screenTranslation?.translateRegion({
           region,
-          ocrLanguage: 'auto',
-          targetLanguages: [data?.targetLanguage || 'vi'],
-          sourceLanguage: 'auto',
+          ocrLanguage: "auto",
+          targetLanguages: [data?.targetLanguage || "vi"],
+          sourceLanguage: "auto",
           skipPreview: true,
         });
       }
     } catch (err) {
-      log.error('Failed to capture another region:', err);
+      log.error("Failed to capture another region:", err);
     }
   };
 
@@ -90,17 +95,20 @@ const FloatingResultPanel: React.FC = () => {
 
     const onMouseMove = (moveEvt: MouseEvent) => {
       if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
-        window.electronAPI?.app.moveWindow(moveEvt.movementX, moveEvt.movementY);
+        window.electronAPI?.app.moveWindow(
+          moveEvt.movementX,
+          moveEvt.movementY,
+        );
       }
     };
 
     const onMouseUp = () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
   };
 
   if (!data) {
@@ -111,7 +119,9 @@ const FloatingResultPanel: React.FC = () => {
           <span className="font-semibold text-foreground">EchoLingo OCR</span>
         </div>
         <span className="text-[11px] text-muted-foreground">
-          {locale === 'vi' ? 'Đang chờ kết quả dịch thuật...' : 'Waiting for translation result...'}
+          {locale === "vi"
+            ? "Đang chờ kết quả dịch thuật..."
+            : "Waiting for translation result..."}
         </span>
       </div>
     );
@@ -130,11 +140,17 @@ const FloatingResultPanel: React.FC = () => {
         <div className="flex items-center gap-2 pointer-events-none">
           <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground/70" />
           <div className="flex items-center gap-1.5">
-            <GlassBadge variant="neutral" className="px-1.5 py-0 text-[10px] uppercase font-mono">
+            <GlassBadge
+              variant="neutral"
+              className="px-1.5 py-0 text-[10px] uppercase font-mono"
+            >
               {data.sourceLanguage}
             </GlassBadge>
             <span className="text-muted-foreground/50 text-[11px]">→</span>
-            <GlassBadge variant="accent" className="px-1.5 py-0 text-[10px] uppercase font-mono font-bold">
+            <GlassBadge
+              variant="accent"
+              className="px-1.5 py-0 text-[10px] uppercase font-mono font-bold"
+            >
               {data.targetLanguage}
             </GlassBadge>
           </div>
@@ -151,7 +167,7 @@ const FloatingResultPanel: React.FC = () => {
             type="button"
             onClick={handleClose}
             className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-glass hover:text-foreground text-muted-foreground cursor-pointer transition-colors border border-transparent hover:border-glass-border"
-            title={locale === 'vi' ? 'Đóng bảng điều khiển' : 'Dismiss Panel'}
+            title={locale === "vi" ? "Đóng bảng điều khiển" : "Dismiss Panel"}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -179,9 +195,9 @@ const FloatingResultPanel: React.FC = () => {
           <GlassButton
             size="xs"
             variant="glass"
-            onClick={() => handleCopy(data.translatedText, 'trans')}
+            onClick={() => handleCopy(data.translatedText, "trans")}
             icon={
-              copiedKey === 'trans' ? (
+              copiedKey === "trans" ? (
                 <Check className="w-3 h-3 text-emerald-400" />
               ) : (
                 <Copy className="w-3 h-3" />
@@ -189,21 +205,34 @@ const FloatingResultPanel: React.FC = () => {
             }
           >
             <span>
-              {copiedKey === 'trans'
-                ? (locale === 'vi' ? 'Đã sao chép' : 'Copied')
-                : (locale === 'vi' ? 'Sao chép' : 'Copy')}
+              {copiedKey === "trans"
+                ? locale === "vi"
+                  ? "Đã sao chép"
+                  : "Copied"
+                : locale === "vi"
+                  ? "Sao chép"
+                  : "Copy"}
             </span>
           </GlassButton>
 
           <GlassButton
             size="xs"
             variant="subtle"
-            onClick={() => handleCopy(`${data.originalText}\n\n${data.translatedText}`, 'both')}
+            onClick={() =>
+              handleCopy(
+                `${data.originalText}\n\n${data.translatedText}`,
+                "both",
+              )
+            }
           >
             <span>
-              {copiedKey === 'both'
-                ? (locale === 'vi' ? 'Đã sao chép cả hai' : 'Copied Both')
-                : (locale === 'vi' ? 'Sao chép cả hai' : 'Copy Both')}
+              {copiedKey === "both"
+                ? locale === "vi"
+                  ? "Đã sao chép cả hai"
+                  : "Copied Both"
+                : locale === "vi"
+                  ? "Sao chép cả hai"
+                  : "Copy Both"}
             </span>
           </GlassButton>
         </div>
@@ -214,18 +243,18 @@ const FloatingResultPanel: React.FC = () => {
           onClick={handleCaptureAnother}
           icon={<Crop className="w-3 h-3" />}
         >
-          <span>{locale === 'vi' ? 'Chụp tiếp' : 'Capture Next'}</span>
+          <span>{locale === "vi" ? "Chụp tiếp" : "Capture Next"}</span>
         </GlassButton>
       </div>
     </div>
   );
 };
 
-const root = document.getElementById('root');
+const root = document.getElementById("root");
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <FloatingResultPanel />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }

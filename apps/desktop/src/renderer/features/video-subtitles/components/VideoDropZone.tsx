@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
-import { useI18n } from '@/app/i18n/index.js';
-import { parseSubtitles } from '@echo-lingo/subtitle-core';
-import { toMediaProtocolUrl } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
+import React, { useState } from "react";
+import { useVideoSubtitleStore } from "../stores/video-subtitle-store.js";
+import { useI18n } from "@/app/i18n/index.js";
+import { parseSubtitles } from "@echo-lingo/subtitle-core";
+import { toMediaProtocolUrl } from "@echo-lingo/contracts";
+import { createRendererLogger } from "@echo-lingo/logger";
 import {
   UploadCloud,
   FileVideo,
@@ -13,9 +13,9 @@ import {
   FolderOpen,
   AlertCircle,
   Loader2,
-} from 'lucide-react';
+} from "lucide-react";
 
-const log = createLogger('VideoDropZone');
+const log = createRendererLogger("VideoDropZone");
 
 export const VideoDropZone: React.FC = () => {
   const { t } = useI18n();
@@ -29,7 +29,9 @@ export const VideoDropZone: React.FC = () => {
   const targetLang = useVideoSubtitleStore((s) => s.targetLang);
 
   const openVideoDialog = useVideoSubtitleStore((s) => s.openVideoDialog);
-  const startAutoTranscription = useVideoSubtitleStore((s) => s.startAutoTranscription);
+  const startAutoTranscription = useVideoSubtitleStore(
+    (s) => s.startAutoTranscription,
+  );
   const setSegments = useVideoSubtitleStore((s) => s.setSegments);
   const setLanguages = useVideoSubtitleStore((s) => s.setLanguages);
   const setVideo = useVideoSubtitleStore((s) => s.setVideo);
@@ -54,13 +56,15 @@ export const VideoDropZone: React.FC = () => {
           const meta = await window.electronAPI.video.probeMetadata(file.path);
           setVideo(meta, meta.mediaUrl || toMediaProtocolUrl(file.path));
         } catch (err) {
-          log.error('Error probing dropped video', err);
+          log.error("Error probing dropped video", err);
         }
       }
     }
   };
 
-  const handleImportSubtitleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImportSubtitleFile = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -74,13 +78,14 @@ export const VideoDropZone: React.FC = () => {
         setSegments(segs);
       }
     } catch (err) {
-      log.error('Failed to parse imported subtitle file', err);
+      log.error("Failed to parse imported subtitle file", err);
     }
   };
 
   const formatFileSize = (bytes: number): string => {
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    if (bytes < 1024 * 1024 * 1024)
+      return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
     return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
   };
 
@@ -92,8 +97,8 @@ export const VideoDropZone: React.FC = () => {
         onDrop={handleDrop}
         className={`w-full py-12 px-6 rounded-2xl border-2 border-dashed transition-all duration-200 flex flex-col items-center justify-center text-center cursor-pointer ${
           isDragging
-            ? 'border-blue-500 bg-blue-500/10 scale-[1.01]'
-            : 'border-white/10 hover:border-white/20 bg-glass-card/40 hover:bg-glass-card/60'
+            ? "border-blue-500 bg-blue-500/10 scale-[1.01]"
+            : "border-white/10 hover:border-white/20 bg-glass-card/40 hover:bg-glass-card/60"
         }`}
         onClick={openVideoDialog}
       >
@@ -101,17 +106,20 @@ export const VideoDropZone: React.FC = () => {
           <UploadCloud className="w-7 h-7" />
         </div>
         <h3 className="text-base font-semibold text-foreground">
-          {t('video.dropzone.title', 'Choose a video or drag it here')}
+          {t("video.dropzone.title", "Choose a video or drag it here")}
         </h3>
         <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-          {t('video.dropzone.subtitle', 'Supports MP4, MKV, MOV, WebM, AVI. Subtitle text will be placed directly in the video.')}
+          {t(
+            "video.dropzone.subtitle",
+            "Supports MP4, MKV, MOV, WebM, AVI. Subtitle text will be placed directly in the video.",
+          )}
         </p>
         <button
           type="button"
           className="mt-4 px-4 py-2 rounded-xl text-xs font-medium bg-blue-600/80 hover:bg-blue-600 text-white transition-all shadow-md flex items-center gap-2"
         >
           <FolderOpen className="w-3.5 h-3.5" />
-          {t('video.dropzone.browse', 'Browse Video File')}
+          {t("video.dropzone.browse", "Browse Video File")}
         </button>
       </div>
     );
@@ -126,11 +134,16 @@ export const VideoDropZone: React.FC = () => {
             <FileVideo className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-sm font-semibold text-foreground truncate" title={videoMetadata.fileName}>
+            <h4
+              className="text-sm font-semibold text-foreground truncate"
+              title={videoMetadata.fileName}
+            >
               {videoMetadata.fileName}
             </h4>
             <div className="flex items-center gap-2 text-[11px] text-muted-foreground mt-0.5">
-              <span>{videoMetadata.width}x{videoMetadata.height}</span>
+              <span>
+                {videoMetadata.width}x{videoMetadata.height}
+              </span>
               <span>•</span>
               <span>{videoMetadata.fps.toFixed(0)} FPS</span>
               <span>•</span>
@@ -141,7 +154,7 @@ export const VideoDropZone: React.FC = () => {
                 <>
                   <span>•</span>
                   <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                    {t('video.noAudio', 'No Audio')}
+                    {t("video.noAudio", "No Audio")}
                   </span>
                 </>
               )}
@@ -158,15 +171,21 @@ export const VideoDropZone: React.FC = () => {
             disabled={isTranscribing || !videoMetadata.hasAudio}
             className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all shadow-sm flex items-center gap-1.5 ${
               isTranscribing
-                ? 'bg-blue-600 text-white cursor-wait opacity-100'
+                ? "bg-blue-600 text-white cursor-wait opacity-100"
                 : !videoMetadata.hasAudio
-                ? 'opacity-40 cursor-not-allowed bg-gradient-to-r from-blue-600 to-indigo-600 text-white'
-                : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white cursor-pointer'
+                  ? "opacity-40 cursor-not-allowed bg-gradient-to-r from-blue-600 to-indigo-600 text-white"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white cursor-pointer"
             }`}
             title={
               !videoMetadata.hasAudio
-                ? t('video.noAudioTooltip', 'This video does not contain an audio track to transcribe.')
-                : t('video.autoTranscribeTooltip', 'Extract audio and auto-transcribe with Whisper')
+                ? t(
+                    "video.noAudioTooltip",
+                    "This video does not contain an audio track to transcribe.",
+                  )
+                : t(
+                    "video.autoTranscribeTooltip",
+                    "Extract audio and auto-transcribe with Whisper",
+                  )
             }
           >
             {isTranscribing ? (
@@ -175,13 +194,13 @@ export const VideoDropZone: React.FC = () => {
                 <span>
                   {transcribeProgress
                     ? `${
-                        transcribeProgress.phase === 'translating'
-                          ? 'Translating'
-                          : transcribeProgress.phase === 'extracting'
-                          ? 'Extracting'
-                          : 'Transcribing'
+                        transcribeProgress.phase === "translating"
+                          ? "Translating"
+                          : transcribeProgress.phase === "extracting"
+                            ? "Extracting"
+                            : "Transcribing"
                       } ${transcribeProgress.percent}%`
-                    : 'Transcribing...'}
+                    : "Transcribing..."}
                 </span>
               </>
             ) : (
@@ -221,8 +240,8 @@ export const VideoDropZone: React.FC = () => {
           <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
           <span>
             {t(
-              'video.noAudioHint',
-              'This video does not have an audio track. You can add subtitles manually using "Add Cue Here" or import an existing .SRT / .VTT file.'
+              "video.noAudioHint",
+              'This video does not have an audio track. You can add subtitles manually using "Add Cue Here" or import an existing .SRT / .VTT file.',
             )}
           </span>
         </div>
@@ -237,4 +256,3 @@ export const VideoDropZone: React.FC = () => {
     </div>
   );
 };
-

@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import ReactDOM from 'react-dom/client';
-import '@/styles/globals.css';
-import { ScreenCaptureRegion } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
-import { Crop } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import ReactDOM from "react-dom/client";
+import "@/styles/globals.css";
+import { ScreenCaptureRegion } from "@echo-lingo/contracts";
+import { createRendererLogger } from "@echo-lingo/logger";
+import { Crop } from "lucide-react";
 
-const log = createLogger('SelectionOverlay');
+const log = createRendererLogger("SelectionOverlay");
 
 interface Point {
   x: number;
@@ -16,31 +16,34 @@ const SelectionOverlay: React.FC = () => {
   const [startPoint, setStartPoint] = useState<Point | null>(null);
   const [currentPoint, setCurrentPoint] = useState<Point | null>(null);
   const [isSelecting, setIsSelecting] = useState(false);
-  const [locale, setLocale] = useState<string>('en');
+  const [locale, setLocale] = useState<string>("en");
   const displayIdRef = useRef<number>(0);
 
   useEffect(() => {
     if (window.electronAPI?.settings) {
-      window.electronAPI.settings.get().then((s) => {
-        if (s?.locale) setLocale(s.locale);
-      }).catch((err) => log.error('Failed to get settings:', err));
+      window.electronAPI.settings
+        .get()
+        .then((s) => {
+          if (s?.locale) setLocale(s.locale);
+        })
+        .catch((err) => log.error("Failed to get settings:", err));
     }
 
     // Parse target display ID from URL query
     const params = new URLSearchParams(window.location.search);
-    const dId = params.get('displayId');
+    const dId = params.get("displayId");
     if (dId) {
       displayIdRef.current = parseInt(dId, 10);
     }
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         window.electronAPI?.screenTranslation?.cancelSelectionWindow();
       }
     };
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -103,19 +106,25 @@ const SelectionOverlay: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       className="w-screen h-screen relative select-none cursor-crosshair overflow-hidden"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.40)' }}
+      style={{ backgroundColor: "rgba(0, 0, 0, 0.40)" }}
     >
       {/* Top Floating Glass Instruction Pill */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full glass-panel-elevated shadow-glass-elevated border border-white/20 text-white text-xs font-medium flex items-center gap-3 pointer-events-none z-50 backdrop-blur-2xl">
         <div className="flex items-center gap-1.5 text-primary-foreground font-semibold">
           <Crop className="w-3.5 h-3.5 text-primary" />
-          <span>{locale === 'vi' ? 'Nhấp & kéo để chọn vùng' : 'Click & drag to select region'}</span>
+          <span>
+            {locale === "vi"
+              ? "Nhấp & kéo để chọn vùng"
+              : "Click & drag to select region"}
+          </span>
         </div>
         <span className="text-white/40">•</span>
         <span className="text-white/80 text-[11px]">
-          {locale === 'vi' ? 'Nhấn ' : 'Press '}
-          <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">Esc</kbd>
-          {locale === 'vi' ? ' để hủy' : ' to cancel'}
+          {locale === "vi" ? "Nhấn " : "Press "}
+          <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">
+            Esc
+          </kbd>
+          {locale === "vi" ? " để hủy" : " to cancel"}
         </span>
       </div>
 
@@ -130,7 +139,8 @@ const SelectionOverlay: React.FC = () => {
               top: `${rectY}px`,
               width: `${rectW}px`,
               height: `${rectH}px`,
-              boxShadow: '0 0 20px rgba(59, 130, 246, 0.45), inset 0 0 15px rgba(59, 130, 246, 0.2), 0 0 0 9999px rgba(0, 0, 0, 0.45)',
+              boxShadow:
+                "0 0 20px rgba(59, 130, 246, 0.45), inset 0 0 15px rgba(59, 130, 246, 0.2), 0 0 0 9999px rgba(0, 0, 0, 0.45)",
             }}
           >
             {/* Dimensions Glass Badge */}
@@ -164,11 +174,11 @@ const SelectionOverlay: React.FC = () => {
   );
 };
 
-const root = document.getElementById('root');
+const root = document.getElementById("root");
 if (root) {
   ReactDOM.createRoot(root).render(
     <React.StrictMode>
       <SelectionOverlay />
-    </React.StrictMode>
+    </React.StrictMode>,
   );
 }

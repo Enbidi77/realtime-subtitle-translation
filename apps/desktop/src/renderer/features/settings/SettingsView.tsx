@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
-import { useSettingsStore } from '@/stores/settings-store.js';
-import { useNavigationStore } from '@/stores/navigation-store.js';
-import { useOnboardingStore } from '@/stores/onboarding-store.js';
-import { useI18n } from '@/app/i18n/index.js';
-import { isPaidSpeechEngine, isPaidTranslationProvider } from '@echo-lingo/config';
-import { AppSettings } from '@echo-lingo/contracts';
-import { createLogger } from '@echo-lingo/logger';
-import { GlassCard } from '@/components/ui/GlassCard.js';
-import { GlassButton } from '@/components/ui/GlassButton.js';
-import { GlassSelect } from '@/components/ui/GlassSelect.js';
-import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import React, { useState } from "react";
+import { useSettingsStore } from "@/stores/settings-store.js";
+import { useNavigationStore } from "@/stores/navigation-store.js";
+import { useOnboardingStore } from "@/stores/onboarding-store.js";
+import { useI18n } from "@/app/i18n/index.js";
+import {
+  isPaidSpeechEngine,
+  isPaidTranslationProvider,
+} from "@echo-lingo/config";
+import { AppSettings } from "@echo-lingo/contracts";
+import { createRendererLogger } from "@echo-lingo/logger";
+import { GlassCard } from "@/components/ui/GlassCard.js";
+import { GlassButton } from "@/components/ui/GlassButton.js";
+import { GlassSelect } from "@/components/ui/GlassSelect.js";
+import { GlassBadge } from "@/components/ui/GlassBadge.js";
 import {
   Settings,
   Palette,
@@ -35,9 +38,9 @@ import {
   PlayCircle,
   Radio,
   ScanText,
-} from 'lucide-react';
+} from "lucide-react";
 
-const log = createLogger('SettingsView');
+const log = createRendererLogger("SettingsView");
 
 export const SettingsView: React.FC = () => {
   const { t } = useI18n();
@@ -52,7 +55,7 @@ export const SettingsView: React.FC = () => {
   };
 
   const handleReset = async () => {
-    if (confirm('Reset all preferences to default values?')) {
+    if (confirm("Reset all preferences to default values?")) {
       await resetSettings();
       showSaved();
     }
@@ -65,16 +68,20 @@ export const SettingsView: React.FC = () => {
         <div>
           <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
             <Settings className="w-5 h-5 text-primary" />
-            <span>{t('settings.title')}</span>
+            <span>{t("settings.title")}</span>
           </h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Configure application appearance, subtitle styles, and audio behavior.
+            Configure application appearance, subtitle styles, and audio
+            behavior.
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {savedBanner && (
-            <GlassBadge variant="success" className="animate-fade-in font-medium">
+            <GlassBadge
+              variant="success"
+              className="animate-fade-in font-medium"
+            >
               <Check className="w-3.5 h-3.5" />
               <span>Saved</span>
             </GlassBadge>
@@ -85,35 +92,45 @@ export const SettingsView: React.FC = () => {
             onClick={handleReset}
             icon={<RotateCcw className="w-3.5 h-3.5" />}
           >
-            <span>{t('settings.reset')}</span>
+            <span>{t("settings.reset")}</span>
           </GlassButton>
         </div>
       </div>
 
       {/* 0. Interactive Tour & Getting Started Card */}
-      <GlassCard variant="default" className="p-6 space-y-4 border border-primary/25 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-transparent">
+      <GlassCard
+        variant="default"
+        className="p-6 space-y-4 border border-primary/25 bg-gradient-to-r from-blue-500/5 via-indigo-500/5 to-transparent"
+      >
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
               <h2 className="text-sm font-semibold text-foreground">
-                {t('settings.interactiveTour.title', 'Interactive App Instructions & Tour')}
+                {t(
+                  "settings.interactiveTour.title",
+                  "Interactive App Instructions & Tour",
+                )}
               </h2>
               {settings.hasCompletedOnboarding ? (
                 <GlassBadge variant="success">
                   <Check className="w-3 h-3 mr-1" />
-                  <span>{t('settings.interactiveTour.completed', 'Completed')}</span>
+                  <span>
+                    {t("settings.interactiveTour.completed", "Completed")}
+                  </span>
                 </GlassBadge>
               ) : (
                 <GlassBadge variant="accent">
-                  <span>{t('settings.interactiveTour.notCompleted', 'New User')}</span>
+                  <span>
+                    {t("settings.interactiveTour.notCompleted", "New User")}
+                  </span>
                 </GlassBadge>
               )}
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               {t(
-                'settings.interactiveTour.desc',
-                'Replay the step-by-step walkthrough covering audio sources, live subtitles, screen OCR, and global hotkeys.'
+                "settings.interactiveTour.desc",
+                "Replay the step-by-step walkthrough covering audio sources, live subtitles, screen OCR, and global hotkeys.",
               )}
             </p>
           </div>
@@ -125,7 +142,12 @@ export const SettingsView: React.FC = () => {
               onClick={() => openTour(0)}
               icon={<PlayCircle className="w-3.5 h-3.5" />}
             >
-              <span>{t('settings.interactiveTour.replayBtn', 'Replay Interactive Tour')}</span>
+              <span>
+                {t(
+                  "settings.interactiveTour.replayBtn",
+                  "Replay Interactive Tour",
+                )}
+              </span>
             </GlassButton>
           </div>
         </div>
@@ -139,10 +161,15 @@ export const SettingsView: React.FC = () => {
           >
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
               <Radio className="w-3.5 h-3.5 text-primary" />
-              <span>{t('settings.interactiveTour.audioGuide', 'Audio Source Guide')}</span>
+              <span>
+                {t("settings.interactiveTour.audioGuide", "Audio Source Guide")}
+              </span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
-              {t('settings.interactiveTour.audioGuideDesc', 'Configure PC sound vs microphone')}
+              {t(
+                "settings.interactiveTour.audioGuideDesc",
+                "Configure PC sound vs microphone",
+              )}
             </p>
           </button>
 
@@ -153,10 +180,18 @@ export const SettingsView: React.FC = () => {
           >
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
               <ScanText className="w-3.5 h-3.5 text-indigo-400" />
-              <span>{t('settings.interactiveTour.ocrGuide', 'Screen OCR (Ctrl+Shift+T)')}</span>
+              <span>
+                {t(
+                  "settings.interactiveTour.ocrGuide",
+                  "Screen OCR (Ctrl+Shift+T)",
+                )}
+              </span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
-              {t('settings.interactiveTour.ocrGuideDesc', 'Learn instant visual translation')}
+              {t(
+                "settings.interactiveTour.ocrGuideDesc",
+                "Learn instant visual translation",
+              )}
             </p>
           </button>
 
@@ -167,10 +202,18 @@ export const SettingsView: React.FC = () => {
           >
             <div className="flex items-center gap-2 text-xs font-semibold text-foreground group-hover:text-primary">
               <Keyboard className="w-3.5 h-3.5 text-amber-400" />
-              <span>{t('settings.interactiveTour.shortcutsGuide', 'Shortcuts Cheatsheet')}</span>
+              <span>
+                {t(
+                  "settings.interactiveTour.shortcutsGuide",
+                  "Shortcuts Cheatsheet",
+                )}
+              </span>
             </div>
             <p className="text-[11px] text-muted-foreground mt-1">
-              {t('settings.interactiveTour.shortcutsGuideDesc', 'Master keyboard efficiency')}
+              {t(
+                "settings.interactiveTour.shortcutsGuideDesc",
+                "Master keyboard efficiency",
+              )}
             </p>
           </button>
         </div>
@@ -180,13 +223,15 @@ export const SettingsView: React.FC = () => {
       <GlassCard variant="default" className="p-6 space-y-5">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Palette className="w-4 h-4 text-primary" />
-          <span>{t('settings.appearance')}</span>
+          <span>{t("settings.appearance")}</span>
         </h2>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
           {/* Theme */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">{t('settings.theme')}</label>
+            <label className="text-muted-foreground font-medium">
+              {t("settings.theme")}
+            </label>
             <GlassSelect
               value={settings.theme}
               onChange={(e) => {
@@ -194,8 +239,8 @@ export const SettingsView: React.FC = () => {
                 showSaved();
               }}
             >
-              <option value="dark">{t('settings.themeDark')}</option>
-              <option value="light">{t('settings.themeLight')}</option>
+              <option value="dark">{t("settings.themeDark")}</option>
+              <option value="light">{t("settings.themeLight")}</option>
               <option value="system">Follow System</option>
             </GlassSelect>
           </div>
@@ -207,21 +252,27 @@ export const SettingsView: React.FC = () => {
               <span>Glass Intensity</span>
             </label>
             <GlassSelect
-              value={settings.glassIntensity || 'balanced'}
+              value={settings.glassIntensity || "balanced"}
               onChange={(e) => {
                 updateSettings({ glassIntensity: e.target.value as any });
                 showSaved();
               }}
             >
-              <option value="subtle">Subtle (Softer Blur & High Contrast)</option>
+              <option value="subtle">
+                Subtle (Softer Blur & High Contrast)
+              </option>
               <option value="balanced">Balanced (Recommended Default)</option>
-              <option value="strong">Strong (Vibrant Refraction & Deep Blur)</option>
+              <option value="strong">
+                Strong (Vibrant Refraction & Deep Blur)
+              </option>
             </GlassSelect>
           </div>
 
           {/* UI Language */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">{t('settings.language')}</label>
+            <label className="text-muted-foreground font-medium">
+              {t("settings.language")}
+            </label>
             <GlassSelect
               value={settings.locale}
               onChange={(e) => {
@@ -240,7 +291,7 @@ export const SettingsView: React.FC = () => {
       <GlassCard variant="default" className="p-6 space-y-5">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Captions className="w-4 h-4 text-primary" />
-          <span>{t('settings.subtitleStyle')}</span>
+          <span>{t("settings.subtitleStyle")}</span>
         </h2>
 
         {/* Live Subtitle Preview Box */}
@@ -253,7 +304,7 @@ export const SettingsView: React.FC = () => {
               textAlign: settings.subtitleAppearance.textAlignment,
             }}
           >
-            {settings.subtitleAppearance.displayMode !== 'translation-only' && (
+            {settings.subtitleAppearance.displayMode !== "translation-only" && (
               <div
                 style={{
                   fontSize: `${settings.subtitleAppearance.fontSize * 0.7}px`,
@@ -264,7 +315,7 @@ export const SettingsView: React.FC = () => {
                 Welcome to EchoLingo real-time translation.
               </div>
             )}
-            {settings.subtitleAppearance.displayMode !== 'original-only' && (
+            {settings.subtitleAppearance.displayMode !== "original-only" && (
               <div
                 style={{
                   fontSize: `${settings.subtitleAppearance.fontSize * 0.75}px`,
@@ -283,8 +334,12 @@ export const SettingsView: React.FC = () => {
           {/* Font size */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-muted-foreground font-medium">{t('settings.fontSize')}</label>
-              <span className="font-mono text-muted-foreground">{settings.subtitleAppearance.fontSize}px</span>
+              <label className="text-muted-foreground font-medium">
+                {t("settings.fontSize")}
+              </label>
+              <span className="font-mono text-muted-foreground">
+                {settings.subtitleAppearance.fontSize}px
+              </span>
             </div>
             <input
               type="range"
@@ -308,9 +363,14 @@ export const SettingsView: React.FC = () => {
           {/* Background Opacity */}
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-muted-foreground font-medium">{t('settings.backgroundOpacity')}</label>
+              <label className="text-muted-foreground font-medium">
+                {t("settings.backgroundOpacity")}
+              </label>
               <span className="font-mono text-muted-foreground">
-                {Math.round(settings.subtitleAppearance.backgroundOpacity * 100)}%
+                {Math.round(
+                  settings.subtitleAppearance.backgroundOpacity * 100,
+                )}
+                %
               </span>
             </div>
             <input
@@ -334,7 +394,9 @@ export const SettingsView: React.FC = () => {
 
           {/* Text Alignment */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">{t('settings.textAlignment')}</label>
+            <label className="text-muted-foreground font-medium">
+              {t("settings.textAlignment")}
+            </label>
             <GlassSelect
               value={settings.subtitleAppearance.textAlignment}
               onChange={(e) => {
@@ -355,7 +417,9 @@ export const SettingsView: React.FC = () => {
 
           {/* Display Mode */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">{t('settings.displayMode')}</label>
+            <label className="text-muted-foreground font-medium">
+              {t("settings.displayMode")}
+            </label>
             <GlassSelect
               value={settings.subtitleAppearance.displayMode}
               onChange={(e) => {
@@ -368,9 +432,11 @@ export const SettingsView: React.FC = () => {
                 showSaved();
               }}
             >
-              <option value="both">{t('settings.bothText')}</option>
-              <option value="translation-only">{t('settings.transOnly')}</option>
-              <option value="original-only">{t('settings.origOnly')}</option>
+              <option value="both">{t("settings.bothText")}</option>
+              <option value="translation-only">
+                {t("settings.transOnly")}
+              </option>
+              <option value="original-only">{t("settings.origOnly")}</option>
             </GlassSelect>
           </div>
         </div>
@@ -380,14 +446,18 @@ export const SettingsView: React.FC = () => {
       <GlassCard variant="default" className="p-6 space-y-4">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Layers className="w-4 h-4 text-primary" />
-          <span>{t('settings.overlay')}</span>
+          <span>{t("settings.overlay")}</span>
         </h2>
 
         <div className="space-y-3.5 text-xs">
           <label className="flex items-center justify-between cursor-pointer">
             <div>
-              <div className="font-medium text-foreground">{t('settings.alwaysOnTop')}</div>
-              <div className="text-[11px] text-muted-foreground">Keep subtitle overlay floating over other windows</div>
+              <div className="font-medium text-foreground">
+                {t("settings.alwaysOnTop")}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Keep subtitle overlay floating over other windows
+              </div>
             </div>
             <input
               type="checkbox"
@@ -407,8 +477,12 @@ export const SettingsView: React.FC = () => {
 
           <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
             <div>
-              <div className="font-medium text-foreground">{t('settings.clickThrough')}</div>
-              <div className="text-[11px] text-muted-foreground">Clicks pass through directly to background windows</div>
+              <div className="font-medium text-foreground">
+                {t("settings.clickThrough")}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Clicks pass through directly to background windows
+              </div>
             </div>
             <input
               type="checkbox"
@@ -429,8 +503,12 @@ export const SettingsView: React.FC = () => {
 
           <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
             <div>
-              <div className="font-medium text-foreground">{t('settings.hideOnCapture')}</div>
-              <div className="text-[11px] text-muted-foreground">{t('settings.hideOnCaptureDesc')}</div>
+              <div className="font-medium text-foreground">
+                {t("settings.hideOnCapture")}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                {t("settings.hideOnCaptureDesc")}
+              </div>
             </div>
             <input
               type="checkbox"
@@ -454,12 +532,17 @@ export const SettingsView: React.FC = () => {
 
           <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
-              <div className="font-medium text-foreground">Overlay Subtitle Style</div>
-              <div className="text-[11px] text-muted-foreground">Choose between YouTube-style single caption or multi-line transcript</div>
+              <div className="font-medium text-foreground">
+                Overlay Subtitle Style
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                Choose between YouTube-style single caption or multi-line
+                transcript
+              </div>
             </div>
             <div className="w-56">
               <GlassSelect
-                value={settings.overlaySettings.captionMode || 'youtube'}
+                value={settings.overlaySettings.captionMode || "youtube"}
                 onChange={(e) => {
                   updateSettings({
                     overlaySettings: {
@@ -488,8 +571,12 @@ export const SettingsView: React.FC = () => {
         <div className="space-y-3 text-xs">
           <div className="space-y-2">
             <div className="flex justify-between">
-              <label className="text-muted-foreground font-medium">Voice Activity Threshold (VAD Sensitivity)</label>
-              <span className="font-mono text-muted-foreground">{settings.vadSensitivity.toFixed(3)}</span>
+              <label className="text-muted-foreground font-medium">
+                Voice Activity Threshold (VAD Sensitivity)
+              </label>
+              <span className="font-mono text-muted-foreground">
+                {settings.vadSensitivity.toFixed(3)}
+              </span>
             </div>
             <input
               type="range"
@@ -504,7 +591,8 @@ export const SettingsView: React.FC = () => {
               className="w-full accent-primary"
             />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              0.008 is recommended for system audio & YouTube videos. Lower values detect quiet speech; higher values filter background noise.
+              0.008 is recommended for system audio & YouTube videos. Lower
+              values detect quiet speech; higher values filter background noise.
             </p>
           </div>
         </div>
@@ -515,16 +603,18 @@ export const SettingsView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Globe className="w-4 h-4 text-primary" />
-            <span>{t('settings.providersTitle', 'AI & Translation Providers')}</span>
+            <span>
+              {t("settings.providersTitle", "AI & Translation Providers")}
+            </span>
           </h2>
 
           <GlassButton
             variant="glass"
             size="sm"
-            onClick={() => setActivePage('providers')}
+            onClick={() => setActivePage("providers")}
             icon={<ExternalLink className="w-3.5 h-3.5" />}
           >
-            <span>{t('providers.title', 'Providers & Models')}</span>
+            <span>{t("providers.title", "Providers & Models")}</span>
           </GlassButton>
         </div>
 
@@ -533,12 +623,17 @@ export const SettingsView: React.FC = () => {
             <div className="space-y-0.5 max-w-xl">
               <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                 <CreditCard className="w-3.5 h-3.5 text-primary" />
-                <span>{t('settings.showPaidProviders', 'Show Paid Translation & Subtitle Providers')}</span>
+                <span>
+                  {t(
+                    "settings.showPaidProviders",
+                    "Show Paid Translation & Subtitle Providers",
+                  )}
+                </span>
               </span>
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 {t(
-                  'settings.showPaidProvidersDesc',
-                  'Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.'
+                  "settings.showPaidProvidersDesc",
+                  "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
                 )}
               </p>
             </div>
@@ -548,13 +643,17 @@ export const SettingsView: React.FC = () => {
                 checked={settings.showPaidProviders ?? false}
                 onChange={(e) => {
                   const checked = e.target.checked;
-                  const updates: Partial<AppSettings> = { showPaidProviders: checked };
+                  const updates: Partial<AppSettings> = {
+                    showPaidProviders: checked,
+                  };
                   if (!checked) {
                     if (isPaidSpeechEngine(settings.speechEngine)) {
-                      updates.speechEngine = 'whisper-local';
+                      updates.speechEngine = "whisper-local";
                     }
-                    if (isPaidTranslationProvider(settings.translationProvider)) {
-                      updates.translationProvider = 'google-web';
+                    if (
+                      isPaidTranslationProvider(settings.translationProvider)
+                    ) {
+                      updates.translationProvider = "google-web";
                     }
                   }
                   updateSettings(updates);
@@ -573,7 +672,9 @@ export const SettingsView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <AppWindow className="w-4 h-4 text-primary" />
-            <span>{t('settings.windowAndTray', 'Application & System Tray')}</span>
+            <span>
+              {t("settings.windowAndTray", "Application & System Tray")}
+            </span>
           </h2>
 
           <GlassButton
@@ -582,19 +683,19 @@ export const SettingsView: React.FC = () => {
             onClick={() => window.electronAPI?.app.minimizeToTray()}
             icon={<Minimize2 className="w-3.5 h-3.5" />}
           >
-            <span>{t('settings.minimizeNow', 'Minimize to Tray Now')}</span>
+            <span>{t("settings.minimizeNow", "Minimize to Tray Now")}</span>
           </GlassButton>
         </div>
 
         <div className="space-y-3 text-xs">
           <div>
             <label className="text-muted-foreground font-medium block mb-1">
-              {t('settings.closeBehavior', 'When Closing Application')}
+              {t("settings.closeBehavior", "When Closing Application")}
             </label>
             <p className="text-[11px] text-muted-foreground mb-3 leading-relaxed">
               {t(
-                'settings.closeBehaviorDesc',
-                'Choose whether closing the window minimizes EchoLingo to the system tray or exits completely.'
+                "settings.closeBehaviorDesc",
+                "Choose whether closing the window minimizes EchoLingo to the system tray or exits completely.",
               )}
             </p>
           </div>
@@ -604,26 +705,31 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                updateSettings({ closeBehavior: 'minimize-to-tray' });
+                updateSettings({ closeBehavior: "minimize-to-tray" });
                 showSaved();
               }}
               className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === 'minimize-to-tray'
-                  ? 'bg-primary/10 border-primary/50 text-foreground shadow-sm shadow-primary/10'
-                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+                settings.closeBehavior === "minimize-to-tray"
+                  ? "bg-primary/10 border-primary/50 text-foreground shadow-sm shadow-primary/10"
+                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-1.5">
                 <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                   <Minimize2 className="w-3.5 h-3.5 text-primary" />
-                  <span>{t('settings.minimizeToTrayTitle', 'Minimize to Tray')}</span>
+                  <span>
+                    {t("settings.minimizeToTrayTitle", "Minimize to Tray")}
+                  </span>
                 </span>
-                {settings.closeBehavior === 'minimize-to-tray' && (
+                {settings.closeBehavior === "minimize-to-tray" && (
                   <Check className="w-3.5 h-3.5 text-primary" />
                 )}
               </div>
               <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t('settings.minimizeToTrayDesc', 'Stays running in background for hotkeys and overlay.')}
+                {t(
+                  "settings.minimizeToTrayDesc",
+                  "Stays running in background for hotkeys and overlay.",
+                )}
               </span>
             </button>
 
@@ -631,26 +737,29 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                updateSettings({ closeBehavior: 'quit' });
+                updateSettings({ closeBehavior: "quit" });
                 showSaved();
               }}
               className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === 'quit'
-                  ? 'bg-destructive/10 border-destructive/50 text-foreground shadow-sm shadow-destructive/10'
-                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+                settings.closeBehavior === "quit"
+                  ? "bg-destructive/10 border-destructive/50 text-foreground shadow-sm shadow-destructive/10"
+                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-1.5">
                 <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                   <Power className="w-3.5 h-3.5 text-destructive" />
-                  <span>{t('settings.quitAppTitle', 'Close Application')}</span>
+                  <span>{t("settings.quitAppTitle", "Close Application")}</span>
                 </span>
-                {settings.closeBehavior === 'quit' && (
+                {settings.closeBehavior === "quit" && (
                   <Check className="w-3.5 h-3.5 text-destructive" />
                 )}
               </div>
               <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t('settings.quitAppDesc', 'Completely terminates app and background tasks.')}
+                {t(
+                  "settings.quitAppDesc",
+                  "Completely terminates app and background tasks.",
+                )}
               </span>
             </button>
 
@@ -658,26 +767,31 @@ export const SettingsView: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                updateSettings({ closeBehavior: 'ask' });
+                updateSettings({ closeBehavior: "ask" });
                 showSaved();
               }}
               className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === 'ask'
-                  ? 'bg-amber-500/10 border-amber-500/50 text-foreground shadow-sm shadow-amber-500/10'
-                  : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
+                settings.closeBehavior === "ask"
+                  ? "bg-amber-500/10 border-amber-500/50 text-foreground shadow-sm shadow-amber-500/10"
+                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
               }`}
             >
               <div className="flex items-center justify-between w-full mb-1.5">
                 <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                   <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                  <span>{t('settings.askEveryTimeTitle', 'Ask Every Time')}</span>
+                  <span>
+                    {t("settings.askEveryTimeTitle", "Ask Every Time")}
+                  </span>
                 </span>
-                {settings.closeBehavior === 'ask' && (
+                {settings.closeBehavior === "ask" && (
                   <Check className="w-3.5 h-3.5 text-amber-400" />
                 )}
               </div>
               <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t('settings.askEveryTimeDesc', 'Prompts with dialog options before closing.')}
+                {t(
+                  "settings.askEveryTimeDesc",
+                  "Prompts with dialog options before closing.",
+                )}
               </span>
             </button>
           </div>
@@ -687,10 +801,18 @@ export const SettingsView: React.FC = () => {
             <div className="space-y-0.5">
               <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span>{t('settings.enableSplashScreen', 'Show Splash Screen on Startup')}</span>
+                <span>
+                  {t(
+                    "settings.enableSplashScreen",
+                    "Show Splash Screen on Startup",
+                  )}
+                </span>
               </span>
               <p className="text-[11px] text-muted-foreground">
-                {t('settings.enableSplashScreenDesc', 'Display animated glass splash screen while initializing core services.')}
+                {t(
+                  "settings.enableSplashScreenDesc",
+                  "Display animated glass splash screen while initializing core services.",
+                )}
               </p>
             </div>
             <label className="relative inline-flex items-center cursor-pointer">
@@ -711,8 +833,8 @@ export const SettingsView: React.FC = () => {
             <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
             <p className="text-[11px] text-muted-foreground leading-relaxed">
               {t(
-                'settings.trayHint',
-                'When minimized to system tray, right-click the EchoLingo tray icon anytime to toggle live subtitles, open the subtitle overlay, trigger screen OCR capture, or open preferences.'
+                "settings.trayHint",
+                "When minimized to system tray, right-click the EchoLingo tray icon anytime to toggle live subtitles, open the subtitle overlay, trigger screen OCR capture, or open preferences.",
               )}
             </p>
           </div>
@@ -728,8 +850,13 @@ export const SettingsView: React.FC = () => {
 
         <div className="space-y-2 text-xs">
           {Object.entries(settings.keyboardShortcuts).map(([key, shortcut]) => (
-            <div key={key} className="flex items-center justify-between py-1.5 border-b border-glass-border/40">
-              <span className="capitalize text-muted-foreground">{key.replace(/-/g, ' ')}</span>
+            <div
+              key={key}
+              className="flex items-center justify-between py-1.5 border-b border-glass-border/40"
+            >
+              <span className="capitalize text-muted-foreground">
+                {key.replace(/-/g, " ")}
+              </span>
               <kbd className="px-2.5 py-1 rounded-lg bg-glass-subtle font-mono text-[11px] text-foreground border border-glass-border">
                 {shortcut}
               </kbd>
@@ -742,11 +869,13 @@ export const SettingsView: React.FC = () => {
       <GlassCard variant="subtle" className="p-6 space-y-2">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Shield className="w-4 h-4 text-primary" />
-          <span>{t('settings.privacy')}</span>
+          <span>{t("settings.privacy")}</span>
         </h2>
 
         <p className="text-xs text-muted-foreground/80 leading-relaxed">
-          EchoLingo processes audio directly through in-memory streams. Offline models run entirely on your local machine, and API keys are protected using your operating system's hardware-backed credential vault.
+          EchoLingo processes audio directly through in-memory streams. Offline
+          models run entirely on your local machine, and API keys are protected
+          using your operating system's hardware-backed credential vault.
         </p>
       </GlassCard>
 
@@ -756,10 +885,10 @@ export const SettingsView: React.FC = () => {
           <div className="space-y-1">
             <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
-              <span>{t('settings.diagnostics')}</span>
+              <span>{t("settings.diagnostics")}</span>
             </h2>
             <p className="text-xs text-muted-foreground/80 leading-relaxed">
-              {t('settings.openLogsDesc')}
+              {t("settings.openLogsDesc")}
             </p>
           </div>
           <GlassButton
@@ -769,12 +898,12 @@ export const SettingsView: React.FC = () => {
               try {
                 await window.electronAPI.app.openLogs();
               } catch (err) {
-                log.error('Failed to open logs directory', err);
+                log.error("Failed to open logs directory", err);
               }
             }}
             icon={<FolderOpen className="w-3.5 h-3.5" />}
           >
-            <span>{t('settings.openLogs')}</span>
+            <span>{t("settings.openLogs")}</span>
           </GlassButton>
         </div>
       </GlassCard>

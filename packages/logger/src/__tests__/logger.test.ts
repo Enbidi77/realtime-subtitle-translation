@@ -4,6 +4,7 @@ import path from 'path';
 import os from 'os';
 import {
   createLogger,
+  createRendererLogger,
   initLogger,
   logger,
   getLogDirectory,
@@ -199,6 +200,30 @@ describe('Logger Module', () => {
           delete process.env.TERM;
         }
       }
+    });
+  });
+
+  describe('Browser / Renderer Logger', () => {
+    it('creates browser logger instance and logs to console without throwing', () => {
+      const rendererLog = createRendererLogger('RendererTest');
+      expect(rendererLog).toBeDefined();
+      expect(typeof rendererLog.debug).toBe('function');
+      expect(typeof rendererLog.info).toBe('function');
+      expect(typeof rendererLog.warn).toBe('function');
+      expect(typeof rendererLog.error).toBe('function');
+      expect(typeof rendererLog.child).toBe('function');
+
+      // Test execution of log methods in node environment without window.electronAPI
+      expect(() => {
+        rendererLog.info('Testing renderer info', { key: 'val' });
+        rendererLog.warn('Testing renderer warn');
+        rendererLog.error('Testing renderer error', new Error('Renderer err'));
+        rendererLog.debug('Testing renderer debug');
+      }).not.toThrow();
+
+      const childLog = rendererLog.child('Sub');
+      expect(childLog).toBeDefined();
+      expect(() => childLog.info('Child log message')).not.toThrow();
     });
   });
 });
