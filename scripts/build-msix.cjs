@@ -27,7 +27,7 @@ const desktopPkg = JSON.parse(fs.readFileSync(desktopPkgPath, 'utf8'));
 const args = process.argv.slice(2);
 let targetVersion = null;
 let identityName = process.env.APPX_IDENTITY_NAME || 'Enbidi.EchoLingoApp';
-let publisher = process.env.APPX_PUBLISHER || 'CN=7D350121-9482-4DA4-B852-3D95D4F08F11';
+let publisher = process.env.APPX_PUBLISHER || 'CN=7D350121-9482-4DA4-B852-3D95D4F0BF11';
 let publisherDisplayName = process.env.APPX_PUBLISHER_DISPLAY_NAME || 'Enbidi';
 
 for (let i = 0; i < args.length; i++) {

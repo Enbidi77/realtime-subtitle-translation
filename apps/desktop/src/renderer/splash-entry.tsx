@@ -8,6 +8,7 @@ import vi from "@/app/i18n/vi.json";
 
 export const SplashScreen: React.FC = () => {
   const [locale, setLocale] = useState<string>("en");
+  const [appVersion, setAppVersion] = useState<string>("1.0.1");
   const [status, setStatus] = useState<SplashStatusEvent>({
     message: "Starting EchoLingo...",
     step: 1,
@@ -21,6 +22,17 @@ export const SplashScreen: React.FC = () => {
         .get()
         .then((s) => {
           if (s?.locale) setLocale(s.locale);
+        })
+        .catch(() => {});
+    }
+
+    if (window.electronAPI?.app?.getSystemInfo) {
+      window.electronAPI.app
+        .getSystemInfo()
+        .then((info) => {
+          if (info?.appVersion) {
+            setAppVersion(info.appVersion);
+          }
         })
         .catch(() => {});
     }
@@ -96,7 +108,7 @@ export const SplashScreen: React.FC = () => {
                 EchoLingo
               </h1>
               <span className="px-2 py-0.5 text-[10px] font-mono font-semibold bg-primary/20 text-primary border border-primary/30 rounded-full">
-                v1.0.0
+                v{appVersion}
               </span>
             </div>
             <p className="text-xs text-muted-foreground/90 font-medium mt-0.5">
