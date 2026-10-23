@@ -274,7 +274,7 @@ export const ProvidersView: React.FC = () => {
       <div className="space-y-3">
         <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Cpu className="w-4 h-4 text-primary" />
-          <span>Speech Recognition Engines</span>
+          <span>{t("providers.speechEnginesTitle", "Speech Recognition Engines")}</span>
         </h2>
 
         <div className="space-y-2.5">
@@ -324,7 +324,9 @@ export const ProvidersView: React.FC = () => {
                         </GlassBadge>
                       )}
                       {eng.isLocal && (
-                        <GlassBadge variant="neutral">Local</GlassBadge>
+                        <GlassBadge variant="neutral">
+                          {t("providers.badgeLocal", "Local")}
+                        </GlassBadge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -353,7 +355,7 @@ export const ProvidersView: React.FC = () => {
                         rel="noreferrer"
                         className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border border-glass-border bg-glass-subtle text-xs text-primary hover:bg-glass hover:border-glass-border-elevated transition-colors"
                       >
-                        <span>Get Key</span>
+                        <span>{t("providers.getKey", "Get Key")}</span>
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
@@ -368,7 +370,7 @@ export const ProvidersView: React.FC = () => {
                         }}
                         icon={<Key className="w-3.5 h-3.5" />}
                       >
-                        <span>API Key</span>
+                        <span>{t("providers.apiKeyButton", "API Key")}</span>
                       </GlassButton>
                     )}
                   </div>
@@ -383,10 +385,10 @@ export const ProvidersView: React.FC = () => {
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <HardDrive className="w-4 h-4 text-primary" />
-            <span>Offline Speech Models (whisper.cpp)</span>
+            <span>{t("providers.offlineModelsTitle", "Offline Speech Models (whisper.cpp)")}</span>
           </h2>
           <GlassBadge variant="neutral" className="text-[10px]">
-            100% Offline • On-Device Neural
+            {t("providers.offlineBadge", "100% Offline • On-Device Neural")}
           </GlassBadge>
         </div>
 
@@ -435,7 +437,9 @@ export const ProvidersView: React.FC = () => {
                         Downloading {m.downloadProgress}%
                       </GlassBadge>
                     ) : (
-                      <GlassBadge variant="neutral">Not Downloaded</GlassBadge>
+                      <GlassBadge variant="neutral">
+                        {t("providers.notDownloaded", "Not Downloaded")}
+                      </GlassBadge>
                     )}
                   </div>
                   {m.error && (
@@ -532,7 +536,9 @@ export const ProvidersView: React.FC = () => {
                         </GlassBadge>
                       )}
                       {p.isLocal && (
-                        <GlassBadge variant="neutral">Local</GlassBadge>
+                        <GlassBadge variant="neutral">
+                          {t("providers.badgeLocal", "Local")}
+                        </GlassBadge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -562,7 +568,7 @@ export const ProvidersView: React.FC = () => {
                         }}
                         icon={<Key className="w-3.5 h-3.5" />}
                       >
-                        <span>API Key</span>
+                        <span>{t("providers.apiKeyButton", "API Key")}</span>
                       </GlassButton>
                     )}
                   </div>
@@ -629,8 +635,8 @@ export const ProvidersView: React.FC = () => {
                   variant="ghost"
                   size="icon-sm"
                   onClick={() => handleDeleteGlossary(entry.id)}
-                  title="Delete term"
-                  aria-label="Delete term"
+                  title={t("providers.deleteTerm", "Delete term")}
+                  aria-label={t("providers.deleteTerm", "Delete term")}
                   className="text-muted-foreground hover:text-destructive"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
@@ -656,7 +662,7 @@ export const ProvidersView: React.FC = () => {
             </label>
             <GlassInput
               type="password"
-              placeholder="Paste your API key here..."
+              placeholder={t("providers.apiKeyPlaceholder", "Paste your API key here...")}
               value={apiKeyInput}
               onChange={(e) => setApiKeyInput(e.target.value)}
               autoFocus

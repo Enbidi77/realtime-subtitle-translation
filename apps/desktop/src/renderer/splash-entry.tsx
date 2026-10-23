@@ -3,14 +3,28 @@ import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
 import { SplashStatusEvent } from "@echo-lingo/contracts";
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
+import en from "@/app/i18n/en.json";
+import vi from "@/app/i18n/vi.json";
 
 export const SplashScreen: React.FC = () => {
+  const [locale, setLocale] = useState<string>("en");
   const [status, setStatus] = useState<SplashStatusEvent>({
     message: "Starting EchoLingo...",
     step: 1,
     totalSteps: 4,
     progress: 15,
   });
+
+  useEffect(() => {
+    if (window.electronAPI?.settings?.get) {
+      window.electronAPI.settings
+        .get()
+        .then((s) => {
+          if (s?.locale) setLocale(s.locale);
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   useEffect(() => {
     // Listen for real-time initialization steps from Electron main process
@@ -44,6 +58,7 @@ export const SplashScreen: React.FC = () => {
   }, []);
 
   const progressPercent = Math.min(100, Math.max(5, status.progress ?? 20));
+  const dict = locale === "vi" ? vi : en;
 
   return (
     <div className="w-screen h-screen flex items-center justify-center p-3 bg-transparent select-none">
@@ -85,7 +100,7 @@ export const SplashScreen: React.FC = () => {
               </span>
             </div>
             <p className="text-xs text-muted-foreground/90 font-medium mt-0.5">
-              Offline-First AI Subtitles & Screen Translation
+              {dict.splash.subtitle}
             </p>
           </div>
         </div>
@@ -109,7 +124,7 @@ export const SplashScreen: React.FC = () => {
 
             <div className="flex items-center gap-1 text-[10px] text-emerald-400 font-mono font-medium shrink-0">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>100% Offline & Private</span>
+              <span>{dict.splash.offlineNotice}</span>
             </div>
           </div>
         </div>

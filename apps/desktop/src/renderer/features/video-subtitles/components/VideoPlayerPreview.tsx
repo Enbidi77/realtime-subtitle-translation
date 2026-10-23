@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from "react";
 import { useVideoSubtitleStore } from "../stores/video-subtitle-store.js";
+import { useI18n } from "@/app/i18n/index.js";
 import { formatDisplayTime } from "@echo-lingo/subtitle-core";
 import { toMediaProtocolUrl } from "@echo-lingo/contracts";
 import { createRendererLogger } from "@echo-lingo/logger";
@@ -15,6 +16,7 @@ import {
 const log = createRendererLogger("VideoPlayerPreview");
 
 export const VideoPlayerPreview: React.FC = () => {
+  const { t } = useI18n();
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -54,23 +56,23 @@ export const VideoPlayerPreview: React.FC = () => {
     e: React.SyntheticEvent<HTMLVideoElement, Event>,
   ) => {
     const mediaError = (e.target as HTMLVideoElement).error;
-    let message = "Failed to load video preview.";
+    let message = t("video.preview.errorLoad", "Failed to load video preview.");
     if (mediaError) {
       switch (mediaError.code) {
         case mediaError.MEDIA_ERR_ABORTED:
-          message = "Video playback aborted.";
+          message = t("video.preview.errorAborted", "Video playback aborted.");
           break;
         case mediaError.MEDIA_ERR_NETWORK:
-          message = "Network error while loading video stream.";
+          message = t("video.preview.errorNetwork", "Network error while loading video stream.");
           break;
         case mediaError.MEDIA_ERR_DECODE:
-          message = "Video decoding failed or codec unsupported by browser.";
+          message = t("video.preview.errorDecode", "Video decoding failed or codec unsupported by browser.");
           break;
         case mediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-          message = "Video format or codec not supported in HTML5 preview.";
+          message = t("video.preview.errorUnsupported", "Video format or codec not supported in HTML5 preview.");
           break;
         default:
-          message = mediaError.message || "Unable to play video.";
+          message = mediaError.message || t("video.preview.errorGeneric", "Unable to play video.");
       }
     }
     log.error("Video preview error", mediaError, effectiveVideoUrl);
@@ -177,9 +179,11 @@ export const VideoPlayerPreview: React.FC = () => {
         />
       ) : (
         <div className="w-full h-full flex flex-col items-center justify-center text-slate-400 p-6 text-center">
-          <p className="text-sm font-medium text-slate-300">No video loaded</p>
+          <p className="text-sm font-medium text-slate-300">
+            {t("video.preview.noVideoLoaded", "No video loaded")}
+          </p>
           <p className="text-xs text-slate-500 mt-1">
-            Select a video file to begin subtitling
+            {t("video.preview.selectVideoPrompt", "Select a video file to begin subtitling")}
           </p>
         </div>
       )}
@@ -190,9 +194,10 @@ export const VideoPlayerPreview: React.FC = () => {
           <AlertCircle className="w-10 h-10 text-amber-400 mb-2 animate-pulse" />
           <p className="text-sm font-semibold text-white">{videoError}</p>
           <p className="text-xs text-slate-300 mt-1 max-w-md">
-            The video could not be decoded by the browser preview.
-            Auto-transcription and FFmpeg subtitle export will still function
-            normally.
+            {t(
+              "video.preview.decodeErrorNotice",
+              "The video could not be decoded by the browser preview. Auto-transcription and FFmpeg subtitle export will still function normally."
+            )}
           </p>
         </div>
       )}
@@ -296,7 +301,7 @@ export const VideoPlayerPreview: React.FC = () => {
                 type="button"
                 onClick={togglePlay}
                 className="p-1 rounded-lg hover:bg-white/20 transition-colors"
-                title={isPlaying ? "Pause" : "Play"}
+                title={isPlaying ? t("common.pause", "Pause") : t("common.play", "Play")}
               >
                 {isPlaying ? (
                   <Pause className="w-4 h-4" />
@@ -322,7 +327,7 @@ export const VideoPlayerPreview: React.FC = () => {
                 type="button"
                 onClick={toggleFullScreen}
                 className="p-1 rounded-lg hover:bg-white/20 transition-colors"
-                title="Fullscreen"
+                title={t("common.fullscreen", "Fullscreen")}
               >
                 <Maximize2 className="w-4 h-4" />
               </button>

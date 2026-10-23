@@ -9,6 +9,8 @@ import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
 import { RadialMenuActionId, RadialMenuState } from "@echo-lingo/contracts";
 import { createRendererLogger } from "@echo-lingo/logger";
+import en from "@/app/i18n/en.json";
+import vi from "@/app/i18n/vi.json";
 import {
   Settings,
   EyeOff,
@@ -44,6 +46,38 @@ interface MenuItemConfig {
   shortcut: string;
   description: string;
   callouts: (state: RadialMenuState | null) => string[];
+}
+
+function getLocalizedItem(id: RadialMenuActionId, locale: string) {
+  const dict = locale === "vi" ? vi : en;
+  switch (id) {
+    case "open-settings":
+      return { label: dict.radialMenu.settings, desc: dict.radialMenu.settingsDesc };
+    case "toggle-click-through":
+      return { label: dict.radialMenu.clickThrough, desc: dict.radialMenu.clickThroughDesc };
+    case "capture-translate":
+      return { label: dict.radialMenu.screenOcr, desc: dict.radialMenu.screenOcrDesc };
+    case "pause-listening":
+      return { label: dict.radialMenu.pauseSpeech, desc: dict.radialMenu.pauseSpeechDesc };
+    case "open-app":
+      return { label: dict.radialMenu.openApp, desc: dict.radialMenu.openAppDesc };
+    case "show-ocr-panel":
+      return { label: dict.radialMenu.ocrPanel, desc: dict.radialMenu.ocrPanelDesc };
+    case "continuous-ocr":
+      return { label: dict.radialMenu.continuousOcr, desc: dict.radialMenu.continuousOcrDesc };
+    case "toggle-listening":
+      return { label: dict.radialMenu.toggleListening, desc: dict.radialMenu.toggleListeningDesc };
+    case "translate-clipboard":
+      return { label: dict.radialMenu.translateClipboard, desc: dict.radialMenu.translateClipboardDesc };
+    case "toggle-overlay":
+      return { label: dict.radialMenu.subtitleOverlay, desc: dict.radialMenu.subtitleOverlayDesc };
+    case "clear-subtitles":
+      return { label: dict.radialMenu.clearSubtitles, desc: dict.radialMenu.clearSubtitlesDesc };
+    case "copy-last":
+      return { label: dict.radialMenu.copyLast, desc: dict.radialMenu.copyLastDesc };
+    default:
+      return null;
+  }
 }
 
 function polarToCartesian(cx: number, cy: number, r: number, angleDeg: number) {
@@ -498,12 +532,24 @@ const BongoCatMascot: React.FC<{
 const log = createRendererLogger("RadialMenu");
 
 export const RadialMenuApp: React.FC = () => {
+  const [locale, setLocale] = useState<string>("en");
   const [state, setState] = useState<RadialMenuState | null>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(7); // Default to item 7 (Live Speech, like image)
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
   const [executedFeedback, setExecutedFeedback] = useState<string | null>(null);
   const [animKey, setAnimKey] = useState<number>(0);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.electronAPI?.settings?.get) {
+      window.electronAPI.settings
+        .get()
+        .then((s) => {
+          if (s?.locale) setLocale(s.locale);
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Sync state and window open trigger from Electron main process
   useEffect(() => {
@@ -568,7 +614,8 @@ export const RadialMenuApp: React.FC = () => {
 
   const triggerAction = useCallback(async (item: MenuItemConfig) => {
     setClickedIndex(item.angleIndex);
-    setExecutedFeedback(item.label);
+    const loc = getLocalizedItem(item.id, locale);
+    setExecutedFeedback(loc?.label || item.label);
 
     try {
       if (window.electronAPI?.radialMenu) {
@@ -577,7 +624,7 @@ export const RadialMenuApp: React.FC = () => {
     } catch (err) {
       log.error("Failed to execute action:", err);
     }
-  }, []);
+  }, [locale]);
 
   // Geometry & Canvas dimensions
   const W = 760;
@@ -926,7 +973,7 @@ export const RadialMenuApp: React.FC = () => {
                 : "translate(-50%, -50%) scale(1)",
               transition: "transform 0.15s ease",
             }}
-            title={item.label}
+            title={getLocalizedItem(item.id, locale)?.label || item.label}
           >
             <IconComponent
               className="w-6 h-6 transition-colors duration-150 drop-shadow-sm"
@@ -966,7 +1013,7 @@ export const RadialMenuApp: React.FC = () => {
 
             {/* Title / Label */}
             <div className="font-bold text-[13px] tracking-tight text-[#0284c7] leading-tight px-2 line-clamp-1 max-w-[124px]">
-              {currentItem.label}
+              {getLocalizedItem(currentItem.id, locale)?.label || currentItem.label}
             </div>
 
             {/* Shortcut or Category Subtext */}
@@ -979,10 +1026,10 @@ export const RadialMenuApp: React.FC = () => {
             {/* Idle Default: Pink smiley and "Expressions" (exact homage to user's image) */}
             <Smile className="w-8 h-8 text-[#EC4899] mb-1" />
             <div className="font-bold text-[13px] tracking-tight text-[#0284c7] leading-tight">
-              Expressions
+              {locale === "vi" ? vi.radialMenu.expressions : "Expressions"}
             </div>
             <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-              Quick Actions
+              {locale === "vi" ? vi.radialMenu.title : "Quick Actions"}
             </div>
           </>
         )}
@@ -1019,7 +1066,10 @@ export const RadialMenuApp: React.FC = () => {
       {executedFeedback && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full bg-slate-900/90 text-white text-xs font-medium shadow-lg backdrop-blur-md border border-slate-700/50 flex items-center gap-2 pointer-events-none animate-in fade-in slide-in-from-bottom-2 duration-150">
           <Check className="w-3.5 h-3.5 text-emerald-400" />
-          <span>Executing: {executedFeedback}</span>
+          <span>
+            {locale === "vi" ? "Đang thực thi: " : "Executing: "}
+            {executedFeedback}
+          </span>
         </div>
       )}
     </div>

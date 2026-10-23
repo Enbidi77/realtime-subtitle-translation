@@ -101,8 +101,8 @@ export const VideoExportModal: React.FC = () => {
                 <Loader2 className="w-4 h-4 animate-spin text-blue-600 dark:text-blue-400" />
                 <span className="font-medium text-foreground">
                   {exportProgress?.phase === 'generating-ass'
-                    ? 'Preparing Subtitle Styles...'
-                    : 'Burning Subtitles into Video (FFmpeg)...'}
+                    ? t('video.export.preparingStyles', 'Preparing Subtitle Styles...')
+                    : t('video.export.burningSubtitles', 'Burning Subtitles into Video (FFmpeg)...')}
                 </span>
               </div>
               <span className="font-mono text-blue-600 dark:text-blue-400 font-semibold">
@@ -125,7 +125,7 @@ export const VideoExportModal: React.FC = () => {
                   ? `Time: ${Math.round(exportProgress.currentTimeSeconds)}s / ${Math.round(
                       exportProgress.totalDurationSeconds
                     )}s`
-                  : 'Starting encoding...'}
+                  : t('video.export.startingEncoding', 'Starting encoding...')}
               </span>
               {exportProgress?.estimatedSecondsRemaining && (
                 <span>ETA: ~{exportProgress.estimatedSecondsRemaining}s</span>
@@ -140,7 +140,7 @@ export const VideoExportModal: React.FC = () => {
                 className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <XCircle className="w-3.5 h-3.5" />
-                <span>Cancel Export</span>
+                <span>{t('video.export.cancelExport', 'Cancel Export')}</span>
               </button>
             </div>
           </div>
@@ -214,8 +214,12 @@ export const VideoExportModal: React.FC = () => {
                       onChange={(e) => setVideoCodec(e.target.value as any)}
                       className="bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-blue-500"
                     >
-                      <option value="libx264">x264 (CPU - Highest Quality & Compatibility)</option>
-                      <option value="h264_nvenc">NVIDIA NVENC (Fast Hardware Acceleration)</option>
+                      <option value="libx264">
+                        {t('video.export.codecCpu', 'x264 (CPU - Highest Quality & Compatibility)')}
+                      </option>
+                      <option value="h264_nvenc">
+                        {t('video.export.codecNvenc', 'NVIDIA NVENC (Fast Hardware Acceleration)')}
+                      </option>
                     </select>
                   </div>
 
@@ -286,9 +290,15 @@ export const VideoExportModal: React.FC = () => {
                       onChange={(e) => setSubtitleFormat(e.target.value as any)}
                       className="bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-blue-500"
                     >
-                      <option value="srt">SRT - SubRip (.srt, Standard Player Format)</option>
-                      <option value="vtt">VTT - WebVTT (.vtt, HTML5 & Modern Web)</option>
-                      <option value="txt">TXT - Plain Text Transcript (.txt)</option>
+                      <option value="srt">
+                        {t('video.export.formatSrt', 'SRT - SubRip (.srt, Standard Player Format)')}
+                      </option>
+                      <option value="vtt">
+                        {t('video.export.formatVtt', 'VTT - WebVTT (.vtt, HTML5 & Modern Web)')}
+                      </option>
+                      <option value="txt">
+                        {t('video.export.formatTxt', 'TXT - Plain Text Transcript (.txt)')}
+                      </option>
                     </select>
                   </div>
 

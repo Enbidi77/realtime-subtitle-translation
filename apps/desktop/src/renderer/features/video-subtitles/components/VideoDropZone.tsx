@@ -195,18 +195,18 @@ export const VideoDropZone: React.FC = () => {
                   {transcribeProgress
                     ? `${
                         transcribeProgress.phase === "translating"
-                          ? "Translating"
+                          ? t("video.translating", "Translating")
                           : transcribeProgress.phase === "extracting"
-                            ? "Extracting"
-                            : "Transcribing"
+                            ? t("video.extracting", "Extracting")
+                            : t("video.transcribing", "Transcribing")
                       } ${transcribeProgress.percent}%`
-                    : "Transcribing..."}
+                    : `${t("video.transcribing", "Transcribing")}...`}
                 </span>
               </>
             ) : (
               <>
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Auto-Transcribe</span>
+                <span>{t("video.autoTranscribe", "Auto-Transcribe")}</span>
               </>
             )}
           </button>
@@ -214,7 +214,7 @@ export const VideoDropZone: React.FC = () => {
           {/* Import Subtitle File */}
           <label className="px-3 py-1.5 rounded-xl text-xs font-medium bg-glass hover:bg-glass-subtle border border-white/10 hover:border-white/20 text-foreground transition-all flex items-center gap-1.5 cursor-pointer">
             <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-            <span>Import .SRT/.VTT</span>
+            <span>{t("video.importSubtitles", "Import .SRT/.VTT")}</span>
             <input
               type="file"
               accept=".srt,.vtt,.txt"
@@ -228,7 +228,7 @@ export const VideoDropZone: React.FC = () => {
             type="button"
             onClick={openVideoDialog}
             className="px-2.5 py-1.5 rounded-xl text-xs text-muted-foreground hover:text-foreground hover:bg-glass border border-transparent hover:border-white/10 transition-all flex items-center gap-1 cursor-pointer"
-            title="Choose a different video file"
+            title={t("video.changeVideoTooltip", "Choose a different video file")}
           >
             <RefreshCw className="w-3.5 h-3.5" />
           </button>

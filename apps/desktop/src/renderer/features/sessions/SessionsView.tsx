@@ -293,8 +293,8 @@ export const SessionsView: React.FC = () => {
                   <button
                     onClick={(e) => handleDeleteSession(session.id, e)}
                     className="p-1.5 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/15 transition-colors opacity-40 hover:opacity-100 shrink-0"
-                    title="Delete session"
-                    aria-label="Delete session"
+                    title={t("sessions.deleteSessionTooltip", "Delete session")}
+                    aria-label={t("sessions.deleteSessionTooltip", "Delete session")}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -335,7 +335,7 @@ export const SessionsView: React.FC = () => {
                   }}
                   icon={<ExternalLink className="w-3.5 h-3.5" />}
                 >
-                  <span>Open in Workspace</span>
+                  <span>{t("sessions.openInWorkspace", "Open in Workspace")}</span>
                 </GlassButton>
 
                 <GlassButton
@@ -378,8 +378,8 @@ export const SessionsView: React.FC = () => {
                             setEditTransText(trans);
                           }}
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
-                          title="Edit text"
-                          aria-label="Edit text"
+                          title={t("sessions.editTextTooltip", "Edit text")}
+                          aria-label={t("sessions.editTextTooltip", "Edit text")}
                         >
                           <Edit2 className="w-3 h-3 text-muted-foreground hover:text-foreground" />
                         </GlassButton>
@@ -402,7 +402,9 @@ export const SessionsView: React.FC = () => {
         ) : (
           <div className="h-full flex flex-col items-center justify-center text-xs text-muted-foreground space-y-2">
             <Layers3 className="w-8 h-8 opacity-40 text-primary" />
-            <span>Select a session on the left to inspect segments</span>
+            <span>
+              {t("sessions.selectSessionPrompt", "Select a session on the left to inspect segments")}
+            </span>
           </div>
         )}
       </div>
@@ -411,21 +413,34 @@ export const SessionsView: React.FC = () => {
       <GlassModal
         isOpen={showExportModal}
         onClose={() => setShowExportModal(false)}
-        title="Export Subtitles"
-        description="Download transcription and translation file in your preferred format."
+        title={t("sessions.exportTitle", "Export Subtitles")}
+        description={t(
+          "sessions.exportDescription",
+          "Download transcription and translation file in your preferred format."
+        )}
         maxWidth="sm"
       >
         <div className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">Format</label>
+            <label className="text-muted-foreground font-medium">
+              {t("sessions.format", "Format")}
+            </label>
             <GlassSelect
               value={exportFormat}
               onChange={(e) => setExportFormat(e.target.value as any)}
             >
-              <option value="srt">SubRip Subtitle (.srt)</option>
-              <option value="vtt">WebVTT (.vtt)</option>
-              <option value="txt">Plain Text Transcript (.txt)</option>
-              <option value="json">JSON Metadata (.json)</option>
+              <option value="srt">
+                {t("sessions.formatSrt", "SubRip Subtitle (.srt)")}
+              </option>
+              <option value="vtt">
+                {t("sessions.formatVtt", "WebVTT (.vtt)")}
+              </option>
+              <option value="txt">
+                {t("sessions.formatTxt", "Plain Text Transcript (.txt)")}
+              </option>
+              <option value="json">
+                {t("sessions.formatJson", "JSON Metadata (.json)")}
+              </option>
             </GlassSelect>
           </div>
 
@@ -438,7 +453,7 @@ export const SessionsView: React.FC = () => {
               className="rounded accent-primary"
             />
             <span className="text-foreground">
-              Include original spoken text
+              {t("sessions.includeOriginal", "Include original language")}
             </span>
           </label>
 

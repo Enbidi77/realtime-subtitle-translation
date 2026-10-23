@@ -83,7 +83,7 @@ export const SettingsView: React.FC = () => {
               className="animate-fade-in font-medium"
             >
               <Check className="w-3.5 h-3.5" />
-              <span>Saved</span>
+              <span>{t("common.saved", "Saved")}</span>
             </GlassBadge>
           )}
           <GlassButton
@@ -241,7 +241,7 @@ export const SettingsView: React.FC = () => {
             >
               <option value="dark">{t("settings.themeDark")}</option>
               <option value="light">{t("settings.themeLight")}</option>
-              <option value="system">Follow System</option>
+              <option value="system">{t("settings.themeSystem", "Follow System")}</option>
             </GlassSelect>
           </div>
 
@@ -249,7 +249,7 @@ export const SettingsView: React.FC = () => {
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center gap-1.5">
               <Sparkles className="w-3 h-3 text-primary" />
-              <span>Glass Intensity</span>
+              <span>{t("settings.glassIntensity", "Glass Intensity")}</span>
             </label>
             <GlassSelect
               value={settings.glassIntensity || "balanced"}
@@ -259,11 +259,13 @@ export const SettingsView: React.FC = () => {
               }}
             >
               <option value="subtle">
-                Subtle (Softer Blur & High Contrast)
+                {t("settings.glassSubtle", "Subtle (Softer Blur & High Contrast)")}
               </option>
-              <option value="balanced">Balanced (Recommended Default)</option>
+              <option value="balanced">
+                {t("settings.glassBalanced", "Balanced (Recommended Default)")}
+              </option>
               <option value="strong">
-                Strong (Vibrant Refraction & Deep Blur)
+                {t("settings.glassStrong", "Strong (Vibrant Refraction & Deep Blur)")}
               </option>
             </GlassSelect>
           </div>
@@ -409,9 +411,9 @@ export const SettingsView: React.FC = () => {
                 showSaved();
               }}
             >
-              <option value="center">Center</option>
-              <option value="left">Left</option>
-              <option value="right">Right</option>
+              <option value="center">{t("settings.alignmentCenter", "Center")}</option>
+              <option value="left">{t("settings.alignmentLeft", "Left")}</option>
+              <option value="right">{t("settings.alignmentRight", "Right")}</option>
             </GlassSelect>
           </div>
 
@@ -553,8 +555,12 @@ export const SettingsView: React.FC = () => {
                   showSaved();
                 }}
               >
-                <option value="youtube">YouTube CC (Active auto-fade)</option>
-                <option value="history">Multi-Line History (Stacked)</option>
+                <option value="youtube">
+                  {t("settings.captionModeYoutube", "YouTube CC (Active auto-fade)")}
+                </option>
+                <option value="history">
+                  {t("settings.captionModeHistory", "Multi-Line History (Stacked)")}
+                </option>
               </GlassSelect>
             </div>
           </div>

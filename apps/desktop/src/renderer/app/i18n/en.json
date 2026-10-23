@@ -84,7 +84,14 @@
     "viewAll": "View all",
     "noSessions": "No sessions yet. Start your first session above!",
     "noSessionsSubtitle": "Start listening to capture live audio and transcribe subtitles in real-time.",
-    "segmentsCount": "segments"
+    "segmentsCount": "segments",
+    "speechOptions": {
+      "windowsSpeech": "Windows System Speech (Built-in SAPI)",
+      "groqWhisper": "Groq Whisper (Free & Fast)",
+      "openaiWhisper": "OpenAI Whisper (Cloud)",
+      "mock": "Mock Engine (Instant Demo)",
+      "whisperLocal": "Whisper Local (Offline)"
+    }
   },
   "live": {
     "listeningNow": "Listening & Translating",
@@ -183,7 +190,9 @@
         "stopping": "Stopping"
       },
       "streamChanges": "Detected Stream Changes",
-      "emptyStream": "Start continuous monitoring to view real-time text detections."
+      "emptyStream": "Start continuous monitoring to view real-time text detections.",
+      "stopMonitoring": "Stop Monitoring",
+      "startMonitoring": "Start Monitoring"
     },
     "history": {
       "searchPlaceholder": "Search captured text or translations...",
@@ -215,7 +224,10 @@
       "dismiss": "Dismiss Panel",
       "copied": "Copied",
       "copiedBoth": "Copied Both"
-    }
+    },
+    "engineLabel": "Engine:",
+    "ocrLangLabel": "OCR Lang:",
+    "targetLabel": "Target:"
   },
   "sessions": {
     "title": "Saved Sessions",
@@ -227,7 +239,19 @@
     "duration": "Duration",
     "noSegments": "No subtitle segments recorded in this session.",
     "noSegmentsToExport": "This session does not contain any subtitle segments to export.",
-    "exportSuccess": "Subtitle file exported successfully!"
+    "exportSuccess": "Subtitle file exported successfully!",
+    "openInWorkspace": "Open in Workspace",
+    "selectSessionPrompt": "Select a session on the left to inspect segments",
+    "exportTitle": "Export Subtitles",
+    "exportDescription": "Download transcription and translation file in your preferred format.",
+    "format": "Format",
+    "formatSrt": "SubRip Subtitle (.srt)",
+    "formatVtt": "WebVTT (.vtt)",
+    "formatTxt": "Plain Text Transcript (.txt)",
+    "formatJson": "JSON Metadata (.json)",
+    "includeOriginal": "Include original language",
+    "deleteSessionTooltip": "Delete session",
+    "editTextTooltip": "Edit text"
   },
   "history": {
     "title": "Translation History",
@@ -249,7 +273,16 @@
     "notConfigured": "Not Configured",
     "localEngine": "Runs 100% locally and offline",
     "paid": "Paid API",
-    "free": "Free"
+    "free": "Free",
+    "speechEnginesTitle": "Speech Recognition Engines",
+    "badgeLocal": "Local",
+    "getKey": "Get Key",
+    "apiKeyButton": "API Key",
+    "offlineModelsTitle": "Offline Speech Models (whisper.cpp)",
+    "offlineBadge": "100% Offline • On-Device Neural",
+    "notDownloaded": "Not Downloaded",
+    "deleteTerm": "Delete term",
+    "apiKeyPlaceholder": "Paste your API key here..."
   },
   "settings": {
     "title": "Preferences & Settings",
@@ -318,7 +351,17 @@
       "ocrGuideDesc": "Learn instant visual translation",
       "shortcutsGuide": "Shortcuts Cheatsheet",
       "shortcutsGuideDesc": "Master keyboard efficiency"
-    }
+    },
+    "themeSystem": "Follow System",
+    "glassIntensity": "Glass Intensity",
+    "glassSubtle": "Subtle (Softer Blur & High Contrast)",
+    "glassBalanced": "Balanced (Recommended Default)",
+    "glassStrong": "Strong (Vibrant Refraction & Deep Blur)",
+    "alignmentCenter": "Center",
+    "alignmentLeft": "Left",
+    "alignmentRight": "Right",
+    "captionModeYoutube": "YouTube CC (Active auto-fade)",
+    "captionModeHistory": "Multi-Line History (Stacked)"
   },
   "onboarding": {
     "badge": "Interactive Getting Started",
@@ -379,7 +422,23 @@
         "searchHint": "Press Ctrl+K or Ctrl+Shift+P anytime to open the global command palette.",
         "settingsHint": "You can revisit this interactive tour anytime in Settings > Interactive App Instructions."
       }
-    }
+    },
+    "defaultTargetLang": "Default Target Language:",
+    "systemAudio": "System Audio",
+    "microphone": "Microphone",
+    "clickToSelect": "Click to select",
+    "toggleHint": "You can toggle this anytime in Home or by pressing",
+    "instantSnapshot": "Instant Snapshot",
+    "continuousAutoOcr": "Continuous Auto-OCR",
+    "openOcrView": "Open Screen OCR View",
+    "subripStandard": "SubRip standard",
+    "webVideoText": "Web Video Text",
+    "stylizedBurnin": "Stylized Burn-in",
+    "openVideoStudio": "Open Video Studio",
+    "startStopListening": "Start/Stop Listening",
+    "toggleOverlay": "Toggle Floating Overlay",
+    "screenOcrTranslation": "Screen OCR Translation",
+    "commandPalette": "Command Palette"
   },
   "splash": {
     "title": "EchoLingo",
@@ -424,7 +483,10 @@
     "navHint": "Navigate",
     "selectHint": "Select",
     "closeHint": "Close",
-    "filterHint": "Category"
+    "filterHint": "Category",
+    "clearQuery": "Clear query",
+    "searching": "Searching...",
+    "removeFromRecent": "Remove from recent"
   },
   "video": {
     "title": "Video Subtitle Studio",
@@ -441,7 +503,23 @@
       "cinema": "Cinema Classic",
       "glass": "Modern Glass",
       "social": "Social Reel",
-      "bilingual": "Bilingual Dual"
+      "bilingual": "Bilingual Dual",
+      "font": "Font",
+      "size": "Size",
+      "textColor": "Text Color",
+      "outline": "Outline",
+      "position": "Position",
+      "positions": {
+        "bottomCenter": "Bottom Center",
+        "bottomLeft": "Bottom Left",
+        "bottomRight": "Bottom Right",
+        "topCenter": "Top Center",
+        "center": "Center"
+      },
+      "marginV": "Margin V",
+      "backgroundBox": "Background Pill Box",
+      "bilingualStacked": "Bilingual Stacked (Original + Translation)",
+      "subColor": "Sub color:"
     },
     "export": {
       "modalTitle": "Export Subtitles & Video",
@@ -460,7 +538,16 @@
       "encoderLabel": "Video Encoder",
       "renderingLabel": "Subtitle Rendering",
       "renderingHardsub": "Hardsub (Burn directly on video frames)",
-      "cuesReady": "{count} subtitle cues ready"
+      "cuesReady": "{count} subtitle cues ready",
+      "preparingStyles": "Preparing Subtitle Styles...",
+      "burningSubtitles": "Burning Subtitles into Video (FFmpeg)...",
+      "cancelExport": "Cancel Export",
+      "startingEncoding": "Starting encoding...",
+      "codecCpu": "x264 (CPU - Highest Quality & Compatibility)",
+      "codecNvenc": "NVIDIA NVENC (Fast Hardware Acceleration)",
+      "formatSrt": "SRT - SubRip (.srt, Standard Player Format)",
+      "formatVtt": "VTT - WebVTT (.vtt, HTML5 & Modern Web)",
+      "formatTxt": "TXT - Plain Text Transcript (.txt)"
     },
     "ffmpegMissing": {
       "title": "FFmpeg Not Detected",
@@ -476,7 +563,38 @@
     "transcribingPhase": "Transcribing speech with Whisper...",
     "translatingPhase": "Translating subtitles...",
     "liveRecognitionLabel": "Live recognized speech",
-    "translatingProgressLabel": "Current translation batch"
+    "translatingProgressLabel": "Current translation batch",
+    "autoTranscribe": "Auto-Transcribe",
+    "importSubtitles": "Import .SRT/.VTT",
+    "changeVideoTooltip": "Choose a different video file",
+    "translating": "Translating",
+    "extracting": "Extracting",
+    "transcribing": "Transcribing",
+    "timeline": {
+      "title": "Subtitle Timeline ({count} cues)",
+      "exportSrt": "Export .SRT",
+      "exportSrtTooltip": "Export subtitles as .SRT file",
+      "saved": "Saved!",
+      "addCue": "Add Cue Here",
+      "emptyState": "No subtitles yet. Click Auto-Transcribe, Import .SRT, or Add Cue Here.",
+      "seekTooltip": "Seek video to cue start",
+      "deleteCue": "Delete cue",
+      "original": "Original",
+      "translation": "Translation ({lang})",
+      "newCueOriginal": "New subtitle cue",
+      "newCueTranslation": "New translation"
+    },
+    "preview": {
+      "noVideoLoaded": "No video loaded",
+      "selectVideoPrompt": "Select a video file to begin subtitling",
+      "decodeErrorNotice": "The video could not be decoded by the browser preview. Auto-transcription and FFmpeg subtitle export will still function normally.",
+      "errorLoad": "Failed to load video preview.",
+      "errorAborted": "Video playback aborted.",
+      "errorNetwork": "Network error while loading video stream.",
+      "errorDecode": "Video decoding failed or codec unsupported by browser.",
+      "errorUnsupported": "Video format or codec not supported in HTML5 preview.",
+      "errorGeneric": "Unable to play video."
+    }
   },
   "radialMenu": {
     "title": "Quick Actions",
@@ -505,5 +623,37 @@
     "settingsDesc": "Configure languages, models & shortcuts",
     "openApp": "Open EchoLingo",
     "openAppDesc": "Bring the main EchoLingo application to front"
+  },
+  "common": {
+    "done": "Done",
+    "cancel": "Cancel",
+    "play": "Play",
+    "pause": "Pause",
+    "fullscreen": "Fullscreen",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "saved": "Saved",
+    "close": "Close",
+    "copy": "Copy",
+    "copied": "Copied",
+    "searching": "Searching...",
+    "local": "Local",
+    "free": "Free",
+    "offline": "100% Offline",
+    "reload": "Reload Application"
+  },
+  "overlay": {
+    "title": "EchoLingo Subtitle Overlay",
+    "historyTitle": "EchoLingo History Mode",
+    "captionModeSingle": "CC Single",
+    "captionModeHistory": "History",
+    "decreaseFontSize": "Decrease font size",
+    "increaseFontSize": "Increase font size",
+    "enableClickThrough": "Enable click-through mode",
+    "disableClickThrough": "Disable click-through",
+    "closeOverlay": "Close overlay",
+    "readyForSpeech": "Ready for speech",
+    "waitingForSpeech": "Waiting for speech..."
   }
 }

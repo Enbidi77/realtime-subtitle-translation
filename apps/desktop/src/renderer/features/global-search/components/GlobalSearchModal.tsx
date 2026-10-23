@@ -143,7 +143,7 @@ export const GlobalSearchModal: React.FC = () => {
                 type="button"
                 onClick={() => setQuery('')}
                 className="p-1 rounded-md text-muted-foreground hover:text-foreground hover:bg-glass cursor-pointer"
-                title="Clear query"
+                title={t('search.clearQuery', 'Clear query')}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -198,7 +198,7 @@ export const GlobalSearchModal: React.FC = () => {
             /* Loading State */
             <div className="flex items-center justify-center p-8 text-muted-foreground text-xs gap-2 select-none">
               <Loader2 className="w-4 h-4 animate-spin text-primary" />
-              <span>Searching...</span>
+              <span>{t('search.searching', 'Searching...')}</span>
             </div>
           )}
         </div>

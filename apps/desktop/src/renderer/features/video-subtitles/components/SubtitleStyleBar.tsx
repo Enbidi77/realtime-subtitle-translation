@@ -59,7 +59,7 @@ export const SubtitleStyleBar: React.FC = () => {
         <div className="flex flex-col gap-1">
           <label className="text-[10px] text-muted-foreground font-medium flex items-center gap-1">
             <Type className="w-3 h-3" />
-            <span>Font</span>
+            <span>{t('video.style.font', 'Font')}</span>
           </label>
           <select
             value={style.fontFamily}
@@ -77,7 +77,7 @@ export const SubtitleStyleBar: React.FC = () => {
         {/* Font Size */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-            <span>Size</span>
+            <span>{t('video.style.size', 'Size')}</span>
             <span className="text-foreground">{style.fontSize}px</span>
           </div>
           <input
@@ -92,7 +92,9 @@ export const SubtitleStyleBar: React.FC = () => {
 
         {/* Primary Color */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-muted-foreground font-medium">Text Color</span>
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {t('video.style.textColor', 'Text Color')}
+          </span>
           <div className="flex items-center gap-2 mt-0.5">
             <input
               type="color"
@@ -109,7 +111,7 @@ export const SubtitleStyleBar: React.FC = () => {
         {/* Outline / Stroke */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-            <span>Outline</span>
+            <span>{t('video.style.outline', 'Outline')}</span>
             <span className="text-foreground">{style.outlineWidth}px</span>
           </div>
           <div className="flex items-center gap-2 mt-0.5">
@@ -133,24 +135,26 @@ export const SubtitleStyleBar: React.FC = () => {
 
         {/* Position / Alignment */}
         <div className="flex flex-col gap-1">
-          <span className="text-[10px] text-muted-foreground font-medium">Position</span>
+          <span className="text-[10px] text-muted-foreground font-medium">
+            {t('video.style.position', 'Position')}
+          </span>
           <select
             value={style.alignment}
             onChange={(e) => updateStyle({ alignment: e.target.value as SubtitleAlignment })}
             className="w-full bg-background/80 dark:bg-glass border border-input dark:border-white/10 rounded-lg px-2 py-1 text-xs text-foreground focus:outline-none focus:border-blue-500"
           >
-            <option value="bottom-center">Bottom Center</option>
-            <option value="bottom-left">Bottom Left</option>
-            <option value="bottom-right">Bottom Right</option>
-            <option value="top-center">Top Center</option>
-            <option value="middle-center">Center</option>
+            <option value="bottom-center">{t('video.style.positions.bottomCenter', 'Bottom Center')}</option>
+            <option value="bottom-left">{t('video.style.positions.bottomLeft', 'Bottom Left')}</option>
+            <option value="bottom-right">{t('video.style.positions.bottomRight', 'Bottom Right')}</option>
+            <option value="top-center">{t('video.style.positions.topCenter', 'Top Center')}</option>
+            <option value="middle-center">{t('video.style.positions.center', 'Center')}</option>
           </select>
         </div>
 
         {/* Vertical Margin */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px] text-muted-foreground font-medium">
-            <span>Margin V</span>
+            <span>{t('video.style.marginV', 'Margin V')}</span>
             <span className="text-foreground">{style.verticalMargin}px</span>
           </div>
           <input
@@ -173,7 +177,7 @@ export const SubtitleStyleBar: React.FC = () => {
             onChange={(e) => updateStyle({ backgroundBox: e.target.checked })}
             className="w-4 h-4 rounded border-white/20 bg-glass text-blue-600 focus:ring-0 cursor-pointer"
           />
-          <span>Background Pill Box</span>
+          <span>{t('video.style.backgroundBox', 'Background Pill Box')}</span>
         </label>
 
         <label className="flex items-center gap-2 cursor-pointer select-none">
@@ -187,12 +191,12 @@ export const SubtitleStyleBar: React.FC = () => {
             }
             className="w-4 h-4 rounded border-white/20 bg-glass text-blue-600 focus:ring-0 cursor-pointer"
           />
-          <span>Bilingual Stacked (Original + Translation)</span>
+          <span>{t('video.style.bilingualStacked', 'Bilingual Stacked (Original + Translation)')}</span>
         </label>
 
         {style.layoutMode === 'bilingual-stacked' && (
           <div className="flex items-center gap-2">
-            <span className="text-[11px]">Sub color:</span>
+            <span className="text-[11px]">{t('video.style.subColor', 'Sub color:')}</span>
             <input
               type="color"
               value={style.secondaryColor.slice(0, 7)}

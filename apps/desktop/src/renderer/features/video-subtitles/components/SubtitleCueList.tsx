@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
+import { useI18n } from '@/app/i18n/index.js';
 import { formatDisplayTime } from '@echo-lingo/subtitle-core';
 import { SubtitleSegment } from '@echo-lingo/contracts';
 import {
@@ -14,6 +15,7 @@ import {
 } from 'lucide-react';
 
 export const SubtitleCueList: React.FC = () => {
+  const { t } = useI18n();
   const segments = useVideoSubtitleStore((s) => s.segments);
   const selectedSegmentId = useVideoSubtitleStore((s) => s.selectedSegmentId);
   const currentTime = useVideoSubtitleStore((s) => s.currentTime);
@@ -35,7 +37,7 @@ export const SubtitleCueList: React.FC = () => {
     try {
       const ok = await exportSubtitleFile('srt', true);
       if (ok) {
-        setExportedStatus('Saved!');
+        setExportedStatus(t('video.timeline.saved', 'Saved!'));
         setTimeout(() => setExportedStatus(null), 3000);
       }
     } finally {
@@ -54,8 +56,8 @@ export const SubtitleCueList: React.FC = () => {
       sessionId: 'video_session',
       startTime: startMs,
       endTime: endMs,
-      originalText: 'New subtitle cue',
-      translations: { [targetLang]: 'Phụ đề mới' },
+      originalText: t('video.timeline.newCueOriginal', 'New subtitle cue'),
+      translations: { [targetLang]: t('video.timeline.newCueTranslation', 'New translation') },
       sourceLanguage: 'auto',
       targetLanguages: [targetLang],
       status: 'final',
@@ -81,7 +83,10 @@ export const SubtitleCueList: React.FC = () => {
         <div className="flex items-center gap-2">
           <FileText className="w-4 h-4 text-blue-400" />
           <h3 className="text-xs font-semibold text-foreground">
-            Subtitle Timeline ({segments.length} cues)
+            {t('video.timeline.title', 'Subtitle Timeline ({count} cues)').replace(
+              '{count}',
+              String(segments.length)
+            )}
           </h3>
         </div>
 
@@ -92,7 +97,7 @@ export const SubtitleCueList: React.FC = () => {
               onClick={handleQuickExportSrt}
               disabled={isExportingFile}
               className="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/15 text-foreground transition-all flex items-center gap-1.5 cursor-pointer border border-border dark:border-white/10 shadow-sm disabled:opacity-50"
-              title="Export subtitles as .SRT file"
+              title={t('video.timeline.exportSrtTooltip', 'Export subtitles as .SRT file')}
             >
               {exportedStatus ? (
                 <>
@@ -102,7 +107,7 @@ export const SubtitleCueList: React.FC = () => {
               ) : (
                 <>
                   <Download className="w-3.5 h-3.5 text-blue-500" />
-                  <span>Export .SRT</span>
+                  <span>{t('video.timeline.exportSrt', 'Export .SRT')}</span>
                 </>
               )}
             </button>
@@ -114,7 +119,7 @@ export const SubtitleCueList: React.FC = () => {
             className="px-2.5 py-1 rounded-xl text-xs font-medium bg-blue-600/80 hover:bg-blue-600 text-white transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
             <ListPlus className="w-3.5 h-3.5" />
-            <span>Add Cue Here</span>
+            <span>{t('video.timeline.addCue', 'Add Cue Here')}</span>
           </button>
         </div>
       </div>
@@ -123,7 +128,10 @@ export const SubtitleCueList: React.FC = () => {
       <div className="max-h-[340px] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
         {segments.length === 0 ? (
           <div className="py-8 text-center text-xs text-muted-foreground border border-dashed border-border dark:border-white/10 rounded-xl">
-            No subtitles yet. Click <strong className="text-foreground font-semibold">Auto-Transcribe</strong>, <strong className="text-foreground font-semibold">Import .SRT</strong>, or <strong className="text-foreground font-semibold">Add Cue Here</strong>.
+            {t(
+              'video.timeline.emptyState',
+              'No subtitles yet. Click Auto-Transcribe, Import .SRT, or Add Cue Here.'
+            )}
           </div>
         ) : (
           segments.map((seg, idx) => {
@@ -158,7 +166,7 @@ export const SubtitleCueList: React.FC = () => {
                         handleSeekToCue(seg.startTime, seg.id);
                       }}
                       className="flex items-center gap-1 font-mono text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                      title="Seek video to cue start"
+                      title={t('video.timeline.seekTooltip', 'Seek video to cue start')}
                     >
                       <Play className="w-2.5 h-2.5 fill-current" />
                       <span>{formatDisplayTime(seg.startTime)}</span>
@@ -174,7 +182,7 @@ export const SubtitleCueList: React.FC = () => {
                       removeSegment(seg.id);
                     }}
                     className="p-1 text-muted-foreground hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
-                    title="Delete cue"
+                    title={t('video.timeline.deleteCue', 'Delete cue')}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -183,7 +191,9 @@ export const SubtitleCueList: React.FC = () => {
                 {/* Text Editors */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">Original</label>
+                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">
+                      {t('video.timeline.original', 'Original')}
+                    </label>
                     <input
                       type="text"
                       value={seg.originalText}
@@ -193,7 +203,12 @@ export const SubtitleCueList: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">Translation ({targetLang})</label>
+                    <label className="text-[10px] text-muted-foreground font-medium block mb-0.5">
+                      {t('video.timeline.translation', 'Translation ({lang})').replace(
+                        '{lang}',
+                        targetLang
+                      )}
+                    </label>
                     <input
                       type="text"
                       value={translationText}

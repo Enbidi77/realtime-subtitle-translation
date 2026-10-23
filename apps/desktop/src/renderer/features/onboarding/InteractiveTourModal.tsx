@@ -133,7 +133,9 @@ export const InteractiveTourModal: React.FC = () => {
 
             {/* Language preview banner */}
             <div className="p-3 rounded-xl bg-black/20 border border-white/5 flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">Default Target Language:</span>
+              <span className="text-muted-foreground">
+                {t('onboarding.defaultTargetLang', 'Default Target Language:')}
+              </span>
               <GlassBadge variant="neutral" className="font-semibold text-primary">
                 Vietnamese (Tiếng Việt)
               </GlassBadge>
@@ -172,7 +174,7 @@ export const InteractiveTourModal: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 font-semibold text-xs text-foreground">
                     <Volume2 className="w-4 h-4 text-primary" />
-                    <span>System Audio</span>
+                    <span>{t('onboarding.systemAudio', 'System Audio')}</span>
                   </div>
                   {settings.audioSourceType === 'system' ? (
                     <GlassBadge variant="success">
@@ -180,7 +182,9 @@ export const InteractiveTourModal: React.FC = () => {
                       Active
                     </GlassBadge>
                   ) : (
-                    <span className="text-[10px] text-muted-foreground group-hover:text-foreground">Click to select</span>
+                    <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
+                      {t('onboarding.clickToSelect', 'Click to select')}
+                    </span>
                   )}
                 </div>
                 <div className="text-[10px] font-semibold text-primary mb-1">
@@ -207,7 +211,7 @@ export const InteractiveTourModal: React.FC = () => {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2 font-semibold text-xs text-foreground">
                     <Mic className="w-4 h-4 text-indigo-400" />
-                    <span>Microphone</span>
+                    <span>{t('onboarding.microphone', 'Microphone')}</span>
                   </div>
                   {settings.audioSourceType === 'microphone' ? (
                     <GlassBadge variant="success">
@@ -215,7 +219,9 @@ export const InteractiveTourModal: React.FC = () => {
                       Active
                     </GlassBadge>
                   ) : (
-                    <span className="text-[10px] text-muted-foreground group-hover:text-foreground">Click to select</span>
+                    <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
+                      {t('onboarding.clickToSelect', 'Click to select')}
+                    </span>
                   )}
                 </div>
                 <div className="text-[10px] font-semibold text-indigo-400 mb-1">
@@ -232,7 +238,8 @@ export const InteractiveTourModal: React.FC = () => {
 
             <div className="p-3 rounded-xl bg-black/20 border border-white/5 flex items-center justify-between text-xs">
               <span className="text-muted-foreground text-[11px]">
-                You can toggle this anytime in Home or by pressing <kbd className="px-1.5 py-0.5 rounded bg-glass font-mono text-[10px] border border-glass-border">Ctrl+Shift+Space</kbd>.
+                {t('onboarding.toggleHint', 'You can toggle this anytime in Home or by pressing')}{' '}
+                <kbd className="px-1.5 py-0.5 rounded bg-glass font-mono text-[10px] border border-glass-border">Ctrl+Shift+Space</kbd>.
               </span>
             </div>
           </div>
@@ -320,7 +327,7 @@ export const InteractiveTourModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <ScanText className="w-4 h-4 text-primary" />
-                    <span>Instant Snapshot</span>
+                    <span>{t('onboarding.instantSnapshot', 'Instant Snapshot')}</span>
                   </span>
                   <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-primary border border-primary/30">
                     Ctrl+Shift+T
@@ -339,7 +346,7 @@ export const InteractiveTourModal: React.FC = () => {
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <Zap className="w-4 h-4 text-amber-400" />
-                    <span>Continuous Auto-OCR</span>
+                    <span>{t('onboarding.continuousAutoOcr', 'Continuous Auto-OCR')}</span>
                   </span>
                   <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-amber-400 border border-amber-400/30">
                     Ctrl+Shift+R
@@ -367,7 +374,7 @@ export const InteractiveTourModal: React.FC = () => {
                 }}
                 className="text-primary hover:underline text-xs font-semibold flex items-center gap-1"
               >
-                <span>Open Screen OCR View</span>
+                <span>{t('onboarding.openOcrView', 'Open Screen OCR View')}</span>
                 <ChevronRight className="w-3 h-3" />
               </button>
             </div>
@@ -405,15 +412,15 @@ export const InteractiveTourModal: React.FC = () => {
               <div className="grid grid-cols-3 gap-2 pt-1">
                 <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-center">
                   <div className="text-[10px] font-mono text-primary font-bold">.SRT</div>
-                  <div className="text-[9px] text-muted-foreground">SubRip standard</div>
+                  <div className="text-[9px] text-muted-foreground">{t('onboarding.subripStandard', 'SubRip standard')}</div>
                 </div>
                 <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-center">
                   <div className="text-[10px] font-mono text-indigo-400 font-bold">.VTT</div>
-                  <div className="text-[9px] text-muted-foreground">Web Video Text</div>
+                  <div className="text-[9px] text-muted-foreground">{t('onboarding.webVideoText', 'Web Video Text')}</div>
                 </div>
                 <div className="p-2 rounded-lg bg-black/30 border border-white/5 text-center">
                   <div className="text-[10px] font-mono text-purple-400 font-bold">.ASS</div>
-                  <div className="text-[9px] text-muted-foreground">Stylized Burn-in</div>
+                  <div className="text-[9px] text-muted-foreground">{t('onboarding.stylizedBurnin', 'Stylized Burn-in')}</div>
                 </div>
               </div>
             </div>
@@ -430,7 +437,7 @@ export const InteractiveTourModal: React.FC = () => {
                 }}
                 className="text-primary hover:underline text-xs font-semibold flex items-center gap-1"
               >
-                <span>Open Video Studio</span>
+                <span>{t('onboarding.openVideoStudio', 'Open Video Studio')}</span>
                 <ChevronRight className="w-3 h-3" />
               </button>
             </div>
@@ -457,28 +464,36 @@ export const InteractiveTourModal: React.FC = () => {
             {/* Shortcuts Table */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-glass-subtle border border-glass-border">
-                <span className="text-muted-foreground font-medium">Start/Stop Listening</span>
+                <span className="text-muted-foreground font-medium">
+                  {t('onboarding.startStopListening', 'Start/Stop Listening')}
+                </span>
                 <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-foreground border border-glass-border">
                   Ctrl+Shift+Space
                 </kbd>
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-glass-subtle border border-glass-border">
-                <span className="text-muted-foreground font-medium">Toggle Floating Overlay</span>
+                <span className="text-muted-foreground font-medium">
+                  {t('onboarding.toggleOverlay', 'Toggle Floating Overlay')}
+                </span>
                 <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-foreground border border-glass-border">
                   Ctrl+Shift+O
                 </kbd>
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-glass-subtle border border-glass-border">
-                <span className="text-muted-foreground font-medium">Screen OCR Translation</span>
+                <span className="text-muted-foreground font-medium">
+                  {t('onboarding.screenOcrTranslation', 'Screen OCR Translation')}
+                </span>
                 <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-foreground border border-glass-border">
                   Ctrl+Shift+T
                 </kbd>
               </div>
 
               <div className="flex items-center justify-between p-2.5 rounded-xl bg-glass-subtle border border-glass-border">
-                <span className="text-muted-foreground font-medium">Command Palette</span>
+                <span className="text-muted-foreground font-medium">
+                  {t('onboarding.commandPalette', 'Command Palette')}
+                </span>
                 <kbd className="px-2 py-0.5 rounded bg-glass font-mono text-[10px] text-foreground border border-glass-border">
                   Ctrl+K / Ctrl+Shift+P
                 </kbd>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '@/app/i18n/index.js';
 import { SearchResultItem } from '../types.js';
 import { SearchHighlight } from './SearchHighlight.js';
 import {
@@ -84,6 +85,7 @@ export const SearchResultRow: React.FC<SearchResultRowProps> = ({
   onSelect,
   onRemoveRecent,
 }) => {
+  const { t } = useI18n();
   const IconComponent = ICON_MAP[item.icon] || Search;
 
   const handleRemove = (e: React.MouseEvent) => {
@@ -165,7 +167,7 @@ export const SearchResultRow: React.FC<SearchResultRowProps> = ({
           <button
             type="button"
             onClick={handleRemove}
-            title="Remove from recent"
+            title={t('search.removeFromRecent', 'Remove from recent')}
             className="p-1 rounded-md text-muted-foreground/60 hover:text-foreground hover:bg-glass opacity-0 group-hover:opacity-100 transition-opacity"
           >
             <X className="w-3.5 h-3.5" />

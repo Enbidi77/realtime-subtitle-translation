@@ -84,7 +84,14 @@
     "viewAll": "Xem tất cả",
     "noSessions": "Chưa có phiên nào. Bấm Bắt đầu Lắng nghe ở trên để trải nghiệm!",
     "noSessionsSubtitle": "Bắt đầu lắng nghe để thu âm thanh trực tiếp và tạo phụ đề thời gian thực.",
-    "segmentsCount": "đoạn"
+    "segmentsCount": "đoạn",
+    "speechOptions": {
+      "windowsSpeech": "Giọng nói Windows SAPI (Tích hợp sẵn)",
+      "groqWhisper": "Groq Whisper (Nhanh & Miễn phí)",
+      "openaiWhisper": "OpenAI Whisper (Đám mây)",
+      "mock": "Mô phỏng Thử nghiệm (Mẫu Demo)",
+      "whisperLocal": "Whisper Cục bộ (Ngoại tuyến)"
+    }
   },
   "live": {
     "listeningNow": "Đang nhận dạng & Dịch thuật",
@@ -183,7 +190,9 @@
         "stopping": "Đang dừng"
       },
       "streamChanges": "Thay đổi văn bản phát hiện được",
-      "emptyStream": "Bắt đầu giám sát liên tục để xem các văn bản được phát hiện theo thời gian thực."
+      "emptyStream": "Bắt đầu giám sát liên tục để xem các văn bản được phát hiện theo thời gian thực.",
+      "stopMonitoring": "Dừng theo dõi",
+      "startMonitoring": "Bắt đầu theo dõi"
     },
     "history": {
       "searchPlaceholder": "Tìm kiếm văn bản hoặc bản dịch đã lưu...",
@@ -215,7 +224,10 @@
       "dismiss": "Đóng bảng điều khiển",
       "copied": "Đã sao chép",
       "copiedBoth": "Đã sao chép cả hai"
-    }
+    },
+    "engineLabel": "Công cụ:",
+    "ocrLangLabel": "Ngôn ngữ OCR:",
+    "targetLabel": "Ngôn ngữ đích:"
   },
   "sessions": {
     "title": "Các phiên đã lưu",
@@ -227,7 +239,19 @@
     "duration": "Thời lượng",
     "noSegments": "Chưa có đoạn phụ đề nào trong phiên này.",
     "noSegmentsToExport": "Phiên này không có đoạn phụ đề nào để xuất file.",
-    "exportSuccess": "Đã xuất tệp phụ đề thành công!"
+    "exportSuccess": "Đã xuất tệp phụ đề thành công!",
+    "openInWorkspace": "Mở trong không gian làm việc",
+    "selectSessionPrompt": "Chọn một phiên bên trái để xem các đoạn phụ đề",
+    "exportTitle": "Xuất Tệp Phụ Đề",
+    "exportDescription": "Tải tệp nhận diện và bản dịch theo định dạng bạn mong muốn.",
+    "format": "Định dạng",
+    "formatSrt": "Phụ đề SubRip (.srt)",
+    "formatVtt": "WebVTT (.vtt)",
+    "formatTxt": "Văn bản thô (.txt)",
+    "formatJson": "Dữ liệu JSON (.json)",
+    "includeOriginal": "Bao gồm ngôn ngữ gốc",
+    "deleteSessionTooltip": "Xóa phiên",
+    "editTextTooltip": "Chỉnh sửa văn bản"
   },
   "history": {
     "title": "Lịch sử Dịch thuật",
@@ -249,7 +273,16 @@
     "notConfigured": "Chưa cấu hình",
     "localEngine": "Chạy hoàn toàn cục bộ, bảo mật ngoại tuyến",
     "paid": "API trả phí",
-    "free": "Miễn phí"
+    "free": "Miễn phí",
+    "speechEnginesTitle": "Công cụ Nhận diện Giọng nói",
+    "badgeLocal": "Cục bộ",
+    "getKey": "Lấy khóa API",
+    "apiKeyButton": "Khóa API",
+    "offlineModelsTitle": "Mô hình Nhận diện Ngoại tuyến (whisper.cpp)",
+    "offlineBadge": "100% Ngoại tuyến • Trí tuệ nhân tạo trên máy",
+    "notDownloaded": "Chưa tải về",
+    "deleteTerm": "Xóa thuật ngữ",
+    "apiKeyPlaceholder": "Dán khóa API của bạn vào đây..."
   },
   "settings": {
     "title": "Tùy chọn & Cài đặt",
@@ -318,7 +351,17 @@
       "ocrGuideDesc": "Tìm hiểu cách dịch trực quan tức thì",
       "shortcutsGuide": "Bảng tra cứu phím tắt",
       "shortcutsGuideDesc": "Làm chủ các phím tắt tiện lợi"
-    }
+    },
+    "themeSystem": "Theo hệ thống",
+    "glassIntensity": "Độ mờ kính (Glass)",
+    "glassSubtle": "Nhẹ nhàng (Mờ dịu & Độ tương phản cao)",
+    "glassBalanced": "Cân bằng (Khuyên dùng mặc định)",
+    "glassStrong": "Đậm đà (Khúc xạ sâu & Hiệu ứng nổi bật)",
+    "alignmentCenter": "Chính giữa",
+    "alignmentLeft": "Căn trái",
+    "alignmentRight": "Căn phải",
+    "captionModeYoutube": "Kiểu YouTube CC (Tự động mờ khi im lặng)",
+    "captionModeHistory": "Lịch sử nhiều dòng (Xếp tầng)"
   },
   "onboarding": {
     "badge": "Hướng dẫn bắt đầu tương tác",
@@ -379,7 +422,23 @@
         "searchHint": "Nhấn Ctrl+K hoặc Ctrl+Shift+P bất kỳ lúc nào để mở thanh lệnh nhanh toàn cục.",
         "settingsHint": "Bạn có thể xem lại hướng dẫn này bất cứ lúc nào trong Cài đặt > Hướng dẫn sử dụng & Khám phá."
       }
-    }
+    },
+    "defaultTargetLang": "Ngôn ngữ đích mặc định:",
+    "systemAudio": "Âm thanh Hệ thống",
+    "microphone": "Micrô",
+    "clickToSelect": "Nhấn để chọn",
+    "toggleHint": "Bạn có thể bật tắt bất kỳ lúc nào tại Trang chủ hoặc nhấn",
+    "instantSnapshot": "Chụp nhanh tức thì",
+    "continuousAutoOcr": "Tự động OCR liên tục",
+    "openOcrView": "Mở giao diện Dịch màn hình",
+    "subripStandard": "Chuẩn phụ đề SubRip",
+    "webVideoText": "Phụ đề Web Video",
+    "stylizedBurnin": "Gắn cứng phụ đề nghệ thuật",
+    "openVideoStudio": "Mở Xưởng Phụ đề Video",
+    "startStopListening": "Bắt đầu/Dừng lắng nghe",
+    "toggleOverlay": "Bật/Tắt cửa sổ phụ đề nổi",
+    "screenOcrTranslation": "Dịch màn hình bằng OCR",
+    "commandPalette": "Bảng lệnh tìm kiếm nhanh"
   },
   "splash": {
     "title": "EchoLingo",
@@ -424,7 +483,10 @@
     "navHint": "Di chuyển",
     "selectHint": "Chọn",
     "closeHint": "Đóng",
-    "filterHint": "Danh mục"
+    "filterHint": "Danh mục",
+    "clearQuery": "Xóa từ khóa",
+    "searching": "Đang tìm kiếm...",
+    "removeFromRecent": "Xóa khỏi danh sách gần đây"
   },
   "video": {
     "title": "Xưởng Phụ đề Video",
@@ -441,7 +503,23 @@
       "cinema": "Điện ảnh Cổ điển",
       "glass": "Kính Mờ Hiện đại",
       "social": "Video Ngắn Nổi bật",
-      "bilingual": "Song ngữ Đối xứng"
+      "bilingual": "Song ngữ Đối xứng",
+      "font": "Phông chữ",
+      "size": "Kích thước",
+      "textColor": "Màu chữ",
+      "outline": "Viền chữ",
+      "position": "Vị trí",
+      "positions": {
+        "bottomCenter": "Dưới - Giữa",
+        "bottomLeft": "Dưới - Trái",
+        "bottomRight": "Dưới - Phải",
+        "topCenter": "Trên - Giữa",
+        "center": "Chính giữa"
+      },
+      "marginV": "Lề dọc",
+      "backgroundBox": "Hộp nền mờ (Pill Box)",
+      "bilingualStacked": "Song ngữ xếp tầng (Gốc + Dịch)",
+      "subColor": "Màu phụ:"
     },
     "export": {
       "modalTitle": "Xuất Phụ đề & Video",
@@ -460,7 +538,16 @@
       "encoderLabel": "Bộ mã hóa Video",
       "renderingLabel": "Cách hiển thị phụ đề",
       "renderingHardsub": "Hardsub (Gắn trực tiếp vào khung hình)",
-      "cuesReady": "{count} đoạn phụ đề sẵn sàng"
+      "cuesReady": "{count} đoạn phụ đề sẵn sàng",
+      "preparingStyles": "Đang tạo kiểu dáng phụ đề...",
+      "burningSubtitles": "Đang gắn phụ đề vào khung hình video (FFmpeg)...",
+      "cancelExport": "Hủy xuất video",
+      "startingEncoding": "Đang chuẩn bị mã hóa...",
+      "codecCpu": "x264 (CPU - Tương thích & Chất lượng cao nhất)",
+      "codecNvenc": "NVIDIA NVENC (Tăng tốc phần cứng siêu nhanh)",
+      "formatSrt": "SRT - SubRip (.srt, Định dạng phổ biến nhất)",
+      "formatVtt": "VTT - WebVTT (.vtt, Dành cho Web & HTML5)",
+      "formatTxt": "TXT - Văn bản thô (.txt)"
     },
     "ffmpegMissing": {
       "title": "Chưa phát hiện FFmpeg",
@@ -476,7 +563,38 @@
     "transcribingPhase": "Đang nhận diện giọng nói bằng Whisper...",
     "translatingPhase": "Đang dịch phụ đề...",
     "liveRecognitionLabel": "Nội dung đang nhận diện trực tiếp",
-    "translatingProgressLabel": "Nhóm câu đang dịch"
+    "translatingProgressLabel": "Nhóm câu đang dịch",
+    "autoTranscribe": "Tự động tạo phụ đề",
+    "importSubtitles": "Nhập .SRT/.VTT",
+    "changeVideoTooltip": "Chọn tệp video khác",
+    "translating": "Đang dịch",
+    "extracting": "Đang trích xuất",
+    "transcribing": "Đang nhận diện",
+    "timeline": {
+      "title": "Dòng thời gian phụ đề ({count} đoạn)",
+      "exportSrt": "Xuất .SRT",
+      "exportSrtTooltip": "Xuất phụ đề thành tệp .SRT",
+      "saved": "Đã lưu!",
+      "addCue": "Thêm mốc tại đây",
+      "emptyState": "Chưa có phụ đề. Nhấn Tự động tạo phụ đề, Nhập .SRT, hoặc Thêm mốc tại đây.",
+      "seekTooltip": "Tua video đến đầu đoạn này",
+      "deleteCue": "Xóa đoạn phụ đề",
+      "original": "Văn bản gốc",
+      "translation": "Bản dịch ({lang})",
+      "newCueOriginal": "Đoạn phụ đề mới",
+      "newCueTranslation": "Bản dịch mới"
+    },
+    "preview": {
+      "noVideoLoaded": "Chưa nạp video",
+      "selectVideoPrompt": "Chọn một tệp video để bắt đầu gắn phụ đề",
+      "decodeErrorNotice": "Trình duyệt không thể giải mã xem trước video này. Tính năng tự động tạo phụ đề và xuất video bằng FFmpeg vẫn hoạt động bình thường.",
+      "errorLoad": "Không thể tải xem trước video.",
+      "errorAborted": "Đã hủy phát video.",
+      "errorNetwork": "Lỗi mạng khi tải luồng video.",
+      "errorDecode": "Giải mã video thất bại hoặc bộ giải mã không được trình duyệt hỗ trợ.",
+      "errorUnsupported": "Định dạng hoặc bộ codec video không hỗ trợ xem trước HTML5.",
+      "errorGeneric": "Không thể phát video."
+    }
   },
   "radialMenu": {
     "title": "Thao tác nhanh",
@@ -505,5 +623,37 @@
     "settingsDesc": "Mở trang cấu hình ứng dụng",
     "openApp": "Mở EchoLingo",
     "openAppDesc": "Hiển thị cửa sổ ứng dụng chính"
+  },
+  "common": {
+    "done": "Xong",
+    "cancel": "Hủy",
+    "play": "Phát",
+    "pause": "Tạm dừng",
+    "fullscreen": "Toàn màn hình",
+    "edit": "Chỉnh sửa",
+    "delete": "Xóa",
+    "save": "Lưu",
+    "saved": "Đã lưu",
+    "close": "Đóng",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "searching": "Đang tìm kiếm...",
+    "local": "Cục bộ",
+    "free": "Miễn phí",
+    "offline": "100% Ngoại tuyến",
+    "reload": "Tải lại ứng dụng"
+  },
+  "overlay": {
+    "title": "Thanh Phụ đề EchoLingo",
+    "historyTitle": "Lịch sử Phụ đề EchoLingo",
+    "captionModeSingle": "CC Đơn",
+    "captionModeHistory": "Lịch sử",
+    "decreaseFontSize": "Giảm cỡ chữ",
+    "increaseFontSize": "Tăng cỡ chữ",
+    "enableClickThrough": "Bật chế độ xuyên chuột",
+    "disableClickThrough": "Tắt chế độ xuyên chuột",
+    "closeOverlay": "Đóng lớp phủ",
+    "readyForSpeech": "Sẵn sàng nhận diện giọng nói",
+    "waitingForSpeech": "Đang chờ âm thanh giọng nói..."
   }
 }

@@ -245,15 +245,23 @@ export const DashboardView: React.FC = () => {
               disabled={isListening}
             >
               <option value="windows-speech">
-                Windows System Speech (Built-in SAPI)
+                {t("dashboard.speechOptions.windowsSpeech", "Windows System Speech (Built-in SAPI)")}
               </option>
-              <option value="groq-whisper">Groq Whisper (Free & Fast)</option>
+              <option value="groq-whisper">
+                {t("dashboard.speechOptions.groqWhisper", "Groq Whisper (Free & Fast)")}
+              </option>
               {(settings.showPaidProviders ||
                 settings.speechEngine === "openai-whisper") && (
-                <option value="openai-whisper">OpenAI Whisper (Cloud)</option>
+                <option value="openai-whisper">
+                  {t("dashboard.speechOptions.openaiWhisper", "OpenAI Whisper (Cloud)")}
+                </option>
               )}
-              <option value="mock">Mock Engine (Instant Demo)</option>
-              <option value="whisper-local">Whisper Local (Offline)</option>
+              <option value="mock">
+                {t("dashboard.speechOptions.mock", "Mock Engine (Instant Demo)")}
+              </option>
+              <option value="whisper-local">
+                {t("dashboard.speechOptions.whisperLocal", "Whisper Local (Offline)")}
+              </option>
             </GlassSelect>
             <p className="text-[10px] text-muted-foreground/80 leading-tight">
               {settings.speechEngine === "windows-speech"

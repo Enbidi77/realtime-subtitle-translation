@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { SubtitleSegment, AppSettings } from "@echo-lingo/contracts";
 import { DEFAULT_APP_SETTINGS } from "@echo-lingo/config";
-import { applyTheme } from "@/stores/settings-store.js";
+import { applyTheme, useSettingsStore } from "@/stores/settings-store.js";
+import { useI18n } from "@/app/i18n/index.js";
 import { createRendererLogger } from "@echo-lingo/logger";
 import {
   GripHorizontal,
@@ -16,6 +17,7 @@ import {
 const log = createRendererLogger("OverlayView");
 
 export const OverlayView: React.FC = () => {
+  const { t } = useI18n();
   const [segments, setSegments] = useState<SubtitleSegment[]>([]);
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_APP_SETTINGS);
   const [isClickThrough, setIsClickThrough] = useState(false);
@@ -75,6 +77,7 @@ export const OverlayView: React.FC = () => {
         .get()
         .then((loaded) => {
           setSettings(loaded);
+          useSettingsStore.setState({ settings: loaded });
           applyTheme(loaded.theme, loaded.glassIntensity);
           if (loaded.overlaySettings?.captionMode === "history") {
             setIsYouTubeMode(false);
@@ -86,6 +89,7 @@ export const OverlayView: React.FC = () => {
       const unsubSettings = window.electronAPI.settings.onUpdate?.(
         (updated) => {
           setSettings(updated);
+          useSettingsStore.setState({ settings: updated });
           applyTheme(updated.theme, updated.glassIntensity);
           if (updated.overlaySettings?.captionMode) {
             setIsYouTubeMode(updated.overlaySettings.captionMode !== "history");
@@ -298,23 +302,27 @@ export const OverlayView: React.FC = () => {
             ) : (
               <AlignJustify className="w-3 h-3" />
             )}
-            <span>{isYouTubeMode ? "CC Single" : "History"}</span>
+            <span>
+              {isYouTubeMode
+                ? t("overlay.captionModeSingle", "CC Single")
+                : t("overlay.captionModeHistory", "History")}
+            </span>
           </button>
 
           {/* Font scale buttons */}
           <button
             onClick={() => handleAdjustFontSize(-2)}
             className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border transition-colors"
-            title="Decrease font size"
-            aria-label="Decrease font size"
+            title={t("overlay.decreaseFontSize", "Decrease font size")}
+            aria-label={t("overlay.decreaseFontSize", "Decrease font size")}
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={() => handleAdjustFontSize(2)}
             className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent hover:border-glass-border transition-colors"
-            title="Increase font size"
-            aria-label="Increase font size"
+            title={t("overlay.increaseFontSize", "Increase font size")}
+            aria-label={t("overlay.increaseFontSize", "Increase font size")}
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
@@ -329,8 +337,8 @@ export const OverlayView: React.FC = () => {
             }`}
             title={
               isClickThrough
-                ? "Disable click-through"
-                : "Enable click-through mode"
+                ? t("overlay.disableClickThrough", "Disable click-through")
+                : t("overlay.enableClickThrough", "Enable click-through mode")
             }
             aria-label="Toggle click-through mode"
           >
@@ -341,8 +349,8 @@ export const OverlayView: React.FC = () => {
           <button
             onClick={handleCloseOverlay}
             className="p-1 rounded-lg text-muted-foreground hover:text-white hover:bg-destructive/80 transition-colors"
-            title="Close overlay"
-            aria-label="Close overlay"
+            title={t("overlay.closeOverlay", "Close overlay")}
+            aria-label={t("overlay.closeOverlay", "Close overlay")}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -408,10 +416,10 @@ export const OverlayView: React.FC = () => {
             <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-pill text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold text-foreground">
-                EchoLingo Subtitle Overlay
+                {t("overlay.title", "EchoLingo Subtitle Overlay")}
               </span>
               <span className="text-muted-foreground text-[11px]">
-                • Ready for speech
+                • {t("overlay.readyForSpeech", "Ready for speech")}
               </span>
             </div>
           )}
@@ -435,10 +443,10 @@ export const OverlayView: React.FC = () => {
             <div className="flex items-center justify-center gap-2 py-1 text-muted-foreground text-xs">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="font-semibold text-foreground">
-                EchoLingo History Mode
+                {t("overlay.historyTitle", "EchoLingo History Mode")}
               </span>
               <span className="text-muted-foreground text-[11px]">
-                • Waiting for speech...
+                • {t("overlay.waitingForSpeech", "Waiting for speech...")}
               </span>
             </div>
           ) : (
