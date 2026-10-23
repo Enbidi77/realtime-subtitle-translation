@@ -125,7 +125,7 @@ export class RadialMenuService {
             // 2. Notify main window to start audio capture stream
             const mainWin = getMainWindow();
             if (mainWin && !mainWin.isDestroyed() && !mainWin.webContents.isDestroyed()) {
-              mainWin.webContents.send('session:quick-start');
+              mainWin.webContents.send(IPC_CHANNELS.SESSION_QUICK_START);
             } else {
               // Fallback to direct SessionService creation
               const db = getDatabase();

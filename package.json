@@ -13,7 +13,7 @@
     "typecheck": "turbo run typecheck",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "turbo run typecheck",
     "clean:lock": "node scripts/clean-lock.cjs",
     "build:dotnet": "node scripts/build-dotnet.cjs",
     "package": "turbo run package",

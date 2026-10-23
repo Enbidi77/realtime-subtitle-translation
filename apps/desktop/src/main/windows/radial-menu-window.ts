@@ -127,7 +127,7 @@ export function showRadialMenu(state?: RadialMenuState): void {
   win.focus();
 
   try {
-    win.webContents.send('radial-menu:opened');
+    win.webContents.send(IPC_CHANNELS.RADIAL_MENU_OPENED);
   } catch {
     // webContents not ready yet
   }

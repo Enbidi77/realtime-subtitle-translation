@@ -58,7 +58,7 @@ echo-lingo/
 │       │   │   ├── ipc/              # Typed IPC routers and handlers
 │       │   │   ├── screen-capture/   # DesktopCapturer and display geometry manager
 │       │   │   ├── services/         # SessionService, ScreenTranslationService, ShortcutsService
-│       │   │   └── windows/          # MainWindow, OverlayWindow, SelectionWindow, OcrPanelWindow
+│       │   │   └── windows/          # MainWindow, OverlayWindow, SelectionWindow, OcrPanelWindow, SplashWindow, RadialMenuWindow
 │       │   ├── preload/              # Secure contextBridge exposed to renderer
 │       │   └── renderer/             # React 19 application
 │       │       ├── app/              # App root, providers, i18n dictionaries (en.json, vi.json)
@@ -69,9 +69,12 @@ echo-lingo/
 │       │       ├── index.html        # Main app entry
 │       │       ├── overlay.html      # Floating subtitle overlay entry
 │       │       ├── selection.html    # Interactive screen selection overlay entry
-│       │       └── ocr-panel.html    # Compact floating OCR result panel entry
+│       │       ├── ocr-panel.html    # Compact floating OCR result panel entry
+│       │       ├── splash.html       # Startup splash screen entry
+│       │       └── radial-menu.html  # Quick radial action menu entry
 │       ├── electron.vite.config.ts   # Electron-Vite multi-target build configuration
 │       └── package.json
+├── ipc/                              # C# .NET 8 self-contained IPC server (WinRT OCR & SAPI Named Pipe)
 ├── packages/
 │   ├── contracts/                    # Pure TypeScript types & Zod schemas (Zero platform dependencies)
 │   ├── config/                       # Language lists, audio params, OCR profiles, default settings
@@ -81,6 +84,7 @@ echo-lingo/
 │   ├── subtitle-core/                # SRT/VTT formatters, parsers, and SubtitleTimeline
 │   ├── translation-core/             # Translation registry, LRU memory cache, GlossaryEngine
 │   ├── speech-core/                  # 16kHz linear resampling, RMS meter, VAD, BoundedAudioQueue
+│   ├── dotnet-bridge/                # .NET Named Pipe IPC bridge for Windows native WinRT OCR and SAPI speech
 │   ├── provider-adapters/            # Adapters: OCR (Windows WinRT, Tesseract.js), Speech, Translation
 │   ├── database/                     # SQLite driver, versioned migrations, typed repository
 │   └── test-utils/                   # Mock bridges, audio generators, test fixtures
@@ -235,9 +239,10 @@ Before marking any feature or bug fix complete:
    - `shared` (zero dependencies, cross-cutting utilities and network helpers)
    - `config` (depends on `contracts`)
    - `logger` (structured Winston logger)
+   - `dotnet-bridge` (depends on `contracts`, `logger`, `shared`)
    - Core packages (`speech-core`, `subtitle-core`, `translation-core`, `ocr-core`) depend on `contracts`, `config`, and `shared`.
-   - `provider-adapters` depends on core packages, `contracts`, `config`, and `shared`.
-   - `database` depends on `contracts` and `config`.
+   - `provider-adapters` depends on core packages, `contracts`, `config`, `shared`, and `dotnet-bridge`.
+   - `database` depends on `contracts`, `config`, and `logger`.
    - `apps/desktop` depends on all packages.
    - NEVER introduce circular dependencies between packages.
 2. **Coordinate Mathematics**:

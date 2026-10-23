@@ -1,4 +1,5 @@
 import { globalShortcut } from 'electron';
+import { IPC_CHANNELS } from '@echo-lingo/contracts';
 import { toggleOverlay } from '@/windows/overlay-window.js';
 import { getMainWindow } from '@/windows/main-window.js';
 import { getSessionService } from '@/services/session-service.js';
@@ -37,7 +38,7 @@ export class ShortcutsService {
           if (!win.isVisible()) win.show();
           if (win.isMinimized()) win.restore();
           win.focus();
-          win.webContents.send('search:toggle', { initialCategory: 'command' });
+          win.webContents.send(IPC_CHANNELS.SEARCH_TOGGLE, { initialCategory: 'command' });
         }
       });
 

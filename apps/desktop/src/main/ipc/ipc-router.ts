@@ -1,7 +1,9 @@
 import { ipcMain, BrowserWindow, dialog } from 'electron';
 import * as fsp from 'node:fs/promises';
+import { z } from 'zod';
 import {
   IPC_CHANNELS,
+  AppSettingsSchema,
   CreateSessionRequestSchema,
   GlossaryEntrySchema,
   SubtitleExportOptionsSchema,
@@ -15,7 +17,59 @@ import {
   FloatingPanelPayloadSchema,
   VideoExportOptionsSchema,
   RadialMenuExecuteRequestSchema,
+  SearchDatabaseRequestSchema,
 } from '@echo-lingo/contracts';
+
+const MoveWindowSchema = z.object({
+  deltaX: z.number(),
+  deltaY: z.number(),
+});
+
+const AudioProcessChunkSchema = z.object({
+  samples: z.array(z.number()),
+  isSpeech: z.boolean().optional(),
+});
+
+const ModelDownloadSchema = z.object({
+  modelId: z.string().min(1),
+});
+
+const ProviderCredentialSchema = z.object({
+  providerId: z.string().min(1),
+  apiKey: z.string(),
+});
+
+const ProviderIdSchema = z.object({
+  providerId: z.string().min(1),
+});
+
+const IdSchema = z.object({
+  id: z.string().min(1),
+});
+
+const SessionIdSchema = z.object({
+  sessionId: z.string().min(1),
+});
+
+const OverlayClickThroughSchema = z.object({
+  clickThrough: z.boolean(),
+});
+
+const DisplayIdSchema = z
+  .object({
+    displayId: z.number().optional(),
+  })
+  .optional();
+
+const VideoProbeSchema = z.string().min(1);
+
+const VideoExtractAudioSchema = z.object({
+  videoPath: z.string().min(1),
+  sourceLang: z.string().optional(),
+  targetLang: z.string().optional(),
+});
+
+const VideoCancelExportSchema = z.string().min(1);
 import {
   getAppService,
   getCredentialsService,
@@ -64,8 +118,9 @@ export function registerIpcHandlers(): void {
     appService.minimizeToTray(event.sender);
   });
 
-  ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, payload: { deltaX: number; deltaY: number }) => {
-    appService.moveWindow(event.sender, payload?.deltaX, payload?.deltaY);
+  ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, payload) => {
+    const { deltaX, deltaY } = MoveWindowSchema.parse(payload);
+    appService.moveWindow(event.sender, deltaX, deltaY);
   });
 
   // ================= Audio =================
@@ -93,8 +148,9 @@ export function registerIpcHandlers(): void {
     return { ok: true };
   });
 
-  ipcMain.handle(IPC_CHANNELS.AUDIO_PROCESS_CHUNK, async (_, payload: { samples: number[] }) => {
-    sessionService.feedAudioChunk(payload?.samples);
+  ipcMain.handle(IPC_CHANNELS.AUDIO_PROCESS_CHUNK, async (_, payload) => {
+    const { samples } = AudioProcessChunkSchema.parse(payload);
+    sessionService.feedAudioChunk(samples);
   });
 
   // ================= Speech Models =================
@@ -102,7 +158,8 @@ export function registerIpcHandlers(): void {
     return speechService.getModelStatus();
   });
 
-  ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (event, { modelId }: { modelId: string }) => {
+  ipcMain.handle(IPC_CHANNELS.MODELS_DOWNLOAD, async (event, payload) => {
+    const { modelId } = ModelDownloadSchema.parse(payload);
     return speechService.downloadModelWithProgress(modelId, (status) => {
       try {
         if (!event.sender.isDestroyed()) {
@@ -124,16 +181,19 @@ export function registerIpcHandlers(): void {
     return translationService.translate(parsed);
   });
 
-  ipcMain.handle(IPC_CHANNELS.TRANSLATION_SET_CREDENTIAL, async (_, { providerId, apiKey }) => {
+  ipcMain.handle(IPC_CHANNELS.TRANSLATION_SET_CREDENTIAL, async (_, payload) => {
+    const { providerId, apiKey } = ProviderCredentialSchema.parse(payload);
     credentialsService.setCredential(providerId, apiKey);
     return { ok: true };
   });
 
-  ipcMain.handle(IPC_CHANNELS.TRANSLATION_HAS_CREDENTIAL, async (_, { providerId }) => {
+  ipcMain.handle(IPC_CHANNELS.TRANSLATION_HAS_CREDENTIAL, async (_, payload) => {
+    const { providerId } = ProviderIdSchema.parse(payload);
     return credentialsService.hasCredential(providerId);
   });
 
-  ipcMain.handle(IPC_CHANNELS.TRANSLATION_DELETE_CREDENTIAL, async (_, { providerId }) => {
+  ipcMain.handle(IPC_CHANNELS.TRANSLATION_DELETE_CREDENTIAL, async (_, payload) => {
+    const { providerId } = ProviderIdSchema.parse(payload);
     credentialsService.removeCredential(providerId);
     return { ok: true };
   });
@@ -144,7 +204,8 @@ export function registerIpcHandlers(): void {
     return sessionService.createSession(parsed);
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_GET, async (_, { id }) => {
+  ipcMain.handle(IPC_CHANNELS.SESSION_GET, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     return sessionService.getSession(id);
   });
 
@@ -152,29 +213,35 @@ export function registerIpcHandlers(): void {
     return sessionService.listSessions();
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE, async (_, { id, updates }) => {
-    sessionService.updateSession(id, updates);
+  ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE, async (_, payload: { id: string; updates: any }) => {
+    const { id } = IdSchema.parse(payload);
+    sessionService.updateSession(id, payload.updates);
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_DELETE, async (_, { id }) => {
+  ipcMain.handle(IPC_CHANNELS.SESSION_DELETE, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     sessionService.deleteSession(id);
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_GET_SEGMENTS, async (_, { sessionId }) => {
+  ipcMain.handle(IPC_CHANNELS.SESSION_GET_SEGMENTS, async (_, payload) => {
+    const { sessionId } = SessionIdSchema.parse(payload);
     return sessionService.getSegments(sessionId);
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE_SEGMENT, async (_, { id, updates }) => {
-    sessionService.updateSegment(id, updates);
+  ipcMain.handle(IPC_CHANNELS.SESSION_UPDATE_SEGMENT, async (_, payload: { id: string; updates: any }) => {
+    const { id } = IdSchema.parse(payload);
+    sessionService.updateSegment(id, payload.updates);
   });
 
-  ipcMain.handle(IPC_CHANNELS.SESSION_DELETE_SEGMENT, async (_, { id }) => {
+  ipcMain.handle(IPC_CHANNELS.SESSION_DELETE_SEGMENT, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     sessionService.deleteSegment(id);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_EXPORT, async (_, { sessionId, options }) => {
+    const validSession = SessionIdSchema.parse({ sessionId });
     const validOptions = SubtitleExportOptionsSchema.parse(options);
-    return sessionService.exportSession(sessionId, validOptions);
+    return sessionService.exportSession(validSession.sessionId, validOptions);
   });
 
   ipcMain.handle(IPC_CHANNELS.SESSION_SAVE_EXPORT_FILE, async (event, payload) => {
@@ -230,7 +297,8 @@ export function registerIpcHandlers(): void {
     translationService.addGlossaryEntry(parsed);
   });
 
-  ipcMain.handle(IPC_CHANNELS.GLOSSARY_DELETE, async (_, { id }) => {
+  ipcMain.handle(IPC_CHANNELS.GLOSSARY_DELETE, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     translationService.deleteGlossaryEntry(id);
   });
 
@@ -240,7 +308,8 @@ export function registerIpcHandlers(): void {
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_UPDATE, async (_, updates) => {
-    return settingsService.updateSettings(updates);
+    const validUpdates = AppSettingsSchema.partial().parse(updates);
+    return settingsService.updateSettings(validUpdates);
   });
 
   ipcMain.handle(IPC_CHANNELS.SETTINGS_RESET, async () => {
@@ -252,7 +321,8 @@ export function registerIpcHandlers(): void {
     return appService.toggleOverlay();
   });
 
-  ipcMain.handle(IPC_CHANNELS.OVERLAY_SET_CLICK_THROUGH, async (_, { clickThrough }) => {
+  ipcMain.handle(IPC_CHANNELS.OVERLAY_SET_CLICK_THROUGH, async (_, payload) => {
+    const { clickThrough } = OverlayClickThroughSchema.parse(payload);
     appService.setOverlayClickThrough(Boolean(clickThrough));
   });
 
@@ -261,12 +331,12 @@ export function registerIpcHandlers(): void {
   });
 
   // ================= Screen & Capture =================
-  ipcMain.on('screen:selection-complete', (_, region) => {
+  ipcMain.on(IPC_CHANNELS.SCREEN_SELECTION_COMPLETE, (_, region) => {
     const parsed = region ? ScreenCaptureRegionSchema.parse(region) : null;
     screenTranslationService.completeSelection(parsed);
   });
 
-  ipcMain.on('screen:selection-cancel', () => {
+  ipcMain.on(IPC_CHANNELS.SCREEN_SELECTION_CANCEL, () => {
     screenTranslationService.cancelSelection();
   });
 
@@ -274,8 +344,9 @@ export function registerIpcHandlers(): void {
     return screenTranslationService.getDisplays();
   });
 
-  ipcMain.handle(IPC_CHANNELS.SCREEN_SELECT_REGION, async (_, payload?: { displayId?: number }) => {
-    return screenTranslationService.selectRegion(payload?.displayId);
+  ipcMain.handle(IPC_CHANNELS.SCREEN_SELECT_REGION, async (_, payload) => {
+    const parsed = DisplayIdSchema.parse(payload);
+    return screenTranslationService.selectRegion(parsed?.displayId);
   });
 
   ipcMain.handle(IPC_CHANNELS.SCREEN_CANCEL_CAPTURE, async () => {
@@ -343,11 +414,13 @@ export function registerIpcHandlers(): void {
     return screenTranslationService.getHistory(parsed);
   });
 
-  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_GET, async (_, { id }: { id: string }) => {
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_GET, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     return screenTranslationService.getHistoryItem(id);
   });
 
-  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_DELETE, async (_, { id }: { id: string }) => {
+  ipcMain.handle(IPC_CHANNELS.OCR_HISTORY_DELETE, async (_, payload) => {
+    const { id } = IdSchema.parse(payload);
     screenTranslationService.deleteHistoryItem(id);
     return { ok: true };
   });
@@ -368,7 +441,8 @@ export function registerIpcHandlers(): void {
 
   // ================= Global Search =================
   ipcMain.handle(IPC_CHANNELS.SEARCH_DATABASE, async (_, req) => {
-    return searchService.searchDatabase(req);
+    const parsed = SearchDatabaseRequestSchema.parse(req);
+    return searchService.searchDatabase(parsed);
   });
 
   // ================= Video Subtitling & Processing =================
@@ -390,19 +464,21 @@ export function registerIpcHandlers(): void {
     return videoService.saveVideoFileDialog(win, defaultName);
   });
 
-  ipcMain.handle(IPC_CHANNELS.VIDEO_PROBE_METADATA, async (_, filePath: string) => {
-    return videoService.probeMetadata(filePath);
+  ipcMain.handle(IPC_CHANNELS.VIDEO_PROBE_METADATA, async (_, filePath) => {
+    const validPath = VideoProbeSchema.parse(filePath);
+    return videoService.probeMetadata(validPath);
   });
 
   ipcMain.handle(
     IPC_CHANNELS.VIDEO_EXTRACT_AUDIO,
-    async (event, payload: { videoPath: string; sourceLang?: string; targetLang?: string }) => {
+    async (event, payload) => {
+      const { videoPath, sourceLang, targetLang } = VideoExtractAudioSchema.parse(payload);
       const win = BrowserWindow.fromWebContents(event.sender);
       return videoService.transcribeVideo(
-        payload.videoPath,
+        videoPath,
         {
-          sourceLang: payload.sourceLang,
-          targetLang: payload.targetLang,
+          sourceLang,
+          targetLang,
         },
         (progress) => {
           if (win && !win.isDestroyed()) {
@@ -424,8 +500,9 @@ export function registerIpcHandlers(): void {
     });
   });
 
-  ipcMain.handle(IPC_CHANNELS.VIDEO_CANCEL_EXPORT, async (_, jobId: string) => {
-    return videoService.cancelExport(jobId);
+  ipcMain.handle(IPC_CHANNELS.VIDEO_CANCEL_EXPORT, async (_, jobId) => {
+    const parsedJobId = VideoCancelExportSchema.parse(jobId);
+    return videoService.cancelExport(parsedJobId);
   });
 
   // ================= Radial / Global Context Menu =================

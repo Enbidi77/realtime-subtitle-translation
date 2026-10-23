@@ -94,6 +94,7 @@ export const IPC_CHANNELS = {
   SESSION_EXPORT: 'session:export',
   SESSION_SAVE_EXPORT_FILE: 'session:save-export-file',
   SESSION_IMPORT: 'session:import',
+  SESSION_QUICK_START: 'session:quick-start',
 
   // Glossary
   GLOSSARY_LIST: 'glossary:list',
@@ -120,6 +121,8 @@ export const IPC_CHANNELS = {
   SCREEN_SELECT_REGION: 'screen:select-region',
   SCREEN_CAPTURE_REGION: 'screen:capture-region',
   SCREEN_CANCEL_CAPTURE: 'screen:cancel-capture',
+  SCREEN_SELECTION_COMPLETE: 'screen:selection-complete',
+  SCREEN_SELECTION_CANCEL: 'screen:selection-cancel',
 
   // OCR
   OCR_GET_PROVIDERS: 'ocr:get-providers',
@@ -150,6 +153,7 @@ export const IPC_CHANNELS = {
 
   // Global Search
   SEARCH_DATABASE: 'search:database',
+  SEARCH_TOGGLE: 'search:toggle',
 
   // Video Subtitling & Processing
   VIDEO_OPEN_FILE_DIALOG: 'video:open-file-dialog',
@@ -170,6 +174,7 @@ export const IPC_CHANNELS = {
   RADIAL_MENU_EXECUTE_ACTION: 'radial-menu:execute-action',
   RADIAL_MENU_GET_STATE: 'radial-menu:get-state',
   RADIAL_MENU_STATE_STREAM: 'radial-menu:state-stream',
+  RADIAL_MENU_OPENED: 'radial-menu:opened',
 } as const;
 
 export type IpcChannel = (typeof IPC_CHANNELS)[keyof typeof IPC_CHANNELS];

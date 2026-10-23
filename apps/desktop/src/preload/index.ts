@@ -155,8 +155,8 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SESSION_IMPORT, { content, fileName, sourceLanguage: sourceLang, targetLanguage: targetLang }),
     onQuickStart: (callback: () => void) => {
       const handler = () => callback();
-      ipcRenderer.on('session:quick-start', handler);
-      return () => ipcRenderer.removeListener('session:quick-start', handler);
+      ipcRenderer.on(IPC_CHANNELS.SESSION_QUICK_START, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SESSION_QUICK_START, handler);
     },
   },
 
@@ -243,10 +243,10 @@ const api = {
       return () => ipcRenderer.removeListener(IPC_CHANNELS.SCREEN_FLOATING_PANEL_STREAM, handler);
     },
     completeSelection: (region: ScreenCaptureRegion | null) => {
-      ipcRenderer.send('screen:selection-complete', region);
+      ipcRenderer.send(IPC_CHANNELS.SCREEN_SELECTION_COMPLETE, region);
     },
     cancelSelectionWindow: () => {
-      ipcRenderer.send('screen:selection-cancel');
+      ipcRenderer.send(IPC_CHANNELS.SCREEN_SELECTION_CANCEL);
     },
     getHistory: (query?: OcrHistoryQuery): Promise<OcrHistoryItem[]> =>
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_LIST, query),
@@ -271,8 +271,8 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.SEARCH_DATABASE, req),
     onToggleSearch: (callback: (data?: { initialCategory?: string }) => void) => {
       const handler = (_: unknown, data?: { initialCategory?: string }) => callback(data);
-      ipcRenderer.on('search:toggle', handler);
-      return () => ipcRenderer.removeListener('search:toggle', handler);
+      ipcRenderer.on(IPC_CHANNELS.SEARCH_TOGGLE, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.SEARCH_TOGGLE, handler);
     },
   },
 
@@ -320,8 +320,8 @@ const api = {
     },
     onOpened: (callback: () => void) => {
       const handler = () => callback();
-      ipcRenderer.on('radial-menu:opened', handler);
-      return () => ipcRenderer.removeListener('radial-menu:opened', handler);
+      ipcRenderer.on(IPC_CHANNELS.RADIAL_MENU_OPENED, handler);
+      return () => ipcRenderer.removeListener(IPC_CHANNELS.RADIAL_MENU_OPENED, handler);
     },
   },
 };
