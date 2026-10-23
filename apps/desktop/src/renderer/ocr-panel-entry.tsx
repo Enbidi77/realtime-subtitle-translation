@@ -113,7 +113,7 @@ const FloatingResultPanel: React.FC = () => {
 
   if (!data) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4 rounded-2xl glass-panel-elevated shadow-glass-elevated border border-glass-border-elevated text-xs text-muted-foreground gap-2.5 backdrop-blur-2xl">
+      <div className="w-full h-full flex flex-col items-center justify-center p-4 rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-xs text-muted-foreground gap-2.5">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
           <span className="font-semibold text-foreground">EchoLingo OCR</span>
@@ -128,7 +128,7 @@ const FloatingResultPanel: React.FC = () => {
   }
 
   return (
-    <div className="w-full h-full flex flex-col rounded-2xl glass-panel-elevated shadow-glass-elevated border border-glass-border-elevated overflow-hidden text-foreground select-none relative backdrop-blur-2xl">
+    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-foreground select-none relative">
       {/* Decorative ambient specular highlight in corner */}
       <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-primary/20 via-indigo-500/10 to-transparent rounded-full blur-xl pointer-events-none" />
 

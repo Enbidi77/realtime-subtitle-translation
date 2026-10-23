@@ -34,7 +34,7 @@ export function createOcrPanelWindow(): BrowserWindow {
     alwaysOnTop: true,
     skipTaskbar: false,
     resizable: true,
-    hasShadow: true,
+    hasShadow: false,
     webPreferences: {
       preload: path.join(__dirname, "../preload/index.js"),
       sandbox: false,

@@ -147,14 +147,14 @@ export class ScreenTranslationService {
     }
   }
 
-  public restoreHiddenOverlays(options?: { skipOcrPanel?: boolean }): void {
+  public restoreHiddenOverlays(options?: { skipOcrPanel?: boolean; skipMainWindow?: boolean }): void {
     this.clearAutoRestoreFallback();
     if (!this.hiddenOverlaysState) return;
 
     const { wasOcrPanelVisible, wasOverlayVisible, wasMainWindowVisible } = this.hiddenOverlaysState;
     this.hiddenOverlaysState = null;
 
-    if (wasMainWindowVisible) {
+    if (wasMainWindowVisible && !options?.skipMainWindow) {
       showMainWindow();
     }
     if (wasOverlayVisible) {
@@ -165,10 +165,10 @@ export class ScreenTranslationService {
     }
   }
 
-  private scheduleAutoRestoreFallback(): void {
+  private scheduleAutoRestoreFallback(skipMainWindow = false): void {
     this.clearAutoRestoreFallback();
     this.autoRestoreTimer = setTimeout(() => {
-      this.restoreHiddenOverlays({ skipOcrPanel: false });
+      this.restoreHiddenOverlays({ skipOcrPanel: false, skipMainWindow });
     }, 400);
   }
 
@@ -190,6 +190,9 @@ export class ScreenTranslationService {
     const shouldHide =
       settings?.overlaySettings?.hideOnCapture !== false &&
       settings?.screenTranslation?.hideOverlayOnCapture !== false;
+    const shouldKeepMainWindowHidden = Boolean(
+      settings?.screenTranslation?.keepMainWindowHiddenAfterCapture
+    );
 
     if (shouldHide) {
       this.hideOverlaysForCapture();
@@ -202,19 +205,19 @@ export class ScreenTranslationService {
 
       if (!region) {
         if (shouldHide) {
-          this.restoreHiddenOverlays({ skipOcrPanel: false });
+          this.restoreHiddenOverlays({ skipOcrPanel: false, skipMainWindow: false });
         }
         return null;
       }
 
       if (shouldHide) {
-        this.scheduleAutoRestoreFallback();
+        this.scheduleAutoRestoreFallback(shouldKeepMainWindowHidden);
       }
 
       return region;
     } catch (err) {
       if (shouldHide) {
-        this.restoreHiddenOverlays({ skipOcrPanel: false });
+        this.restoreHiddenOverlays({ skipOcrPanel: false, skipMainWindow: false });
       }
       throw err;
     }
@@ -222,7 +225,7 @@ export class ScreenTranslationService {
 
   public cancelSelection(): void {
     closeSelectionOverlay(null);
-    this.restoreHiddenOverlays({ skipOcrPanel: false });
+    this.restoreHiddenOverlays({ skipOcrPanel: false, skipMainWindow: false });
   }
 
   /**
@@ -279,10 +282,16 @@ export class ScreenTranslationService {
         profile: req.profile,
       });
 
+      const settings = db.getSetting('app_settings', {} as any);
+      const shouldKeepHidden =
+        req.keepMainWindowHidden ??
+        Boolean(settings?.screenTranslation?.keepMainWindowHiddenAfterCapture);
+
       // Crucial: The screenshot is now captured into memory!
-      // Restore MainWindow and OverlayWindow (if they were hidden for capture).
+      // Restore MainWindow and OverlayWindow (if they were hidden for capture),
+      // respecting keepMainWindowHiddenAfterCapture.
       // Skip OCR panel because we will update it with new translation results below.
-      this.restoreHiddenOverlays({ skipOcrPanel: true });
+      this.restoreHiddenOverlays({ skipOcrPanel: true, skipMainWindow: shouldKeepHidden });
 
       const recognizedText = ocrResponse.text.trim();
       if (!recognizedText) {
@@ -304,7 +313,6 @@ export class ScreenTranslationService {
       const totalDuration = Date.now() - startMs;
 
       // 3. Persist to database history (respecting privacy: screenshots only saved if explicitly opted in)
-      const settings = db.getSetting('app_settings', {} as any);
       const shouldPersistScreenshot = Boolean(settings?.screenTranslation?.persistScreenshots);
 
       const historyItem: OcrHistoryItem = {
@@ -346,8 +354,12 @@ export class ScreenTranslationService {
         historyItem,
       };
     } catch (err) {
+      const settings = db.getSetting('app_settings', {} as any);
+      const shouldKeepHidden =
+        req.keepMainWindowHidden ??
+        Boolean(settings?.screenTranslation?.keepMainWindowHiddenAfterCapture);
       // In case of error, restore any remaining hidden windows (including previous OCR floating panel)
-      this.restoreHiddenOverlays({ skipOcrPanel: false });
+      this.restoreHiddenOverlays({ skipOcrPanel: false, skipMainWindow: shouldKeepHidden });
       throw err;
     }
   }

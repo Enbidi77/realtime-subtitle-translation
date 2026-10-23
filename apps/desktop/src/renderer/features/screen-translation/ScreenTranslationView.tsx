@@ -74,6 +74,19 @@ export const ScreenTranslationView: React.FC = () => {
   const [skipPreview, setSkipPreview] = useState<boolean>(
     settings.screenTranslation?.skipPreview || false,
   );
+  const [keepMainWindowHidden, setKeepMainWindowHidden] = useState<boolean>(
+    settings.screenTranslation?.keepMainWindowHiddenAfterCapture || false,
+  );
+
+  useEffect(() => {
+    if (
+      settings.screenTranslation?.keepMainWindowHiddenAfterCapture !== undefined
+    ) {
+      setKeepMainWindowHidden(
+        settings.screenTranslation.keepMainWindowHiddenAfterCapture,
+      );
+    }
+  }, [settings.screenTranslation?.keepMainWindowHiddenAfterCapture]);
 
   // Results State
   const [isCapturing, setIsCapturing] = useState(false);
@@ -204,6 +217,7 @@ export const ScreenTranslationView: React.FC = () => {
         translationProviderId: settings.translationProvider || "google-web",
         profile,
         skipPreview,
+        keepMainWindowHidden,
       });
 
       setRecognizedText(res.ocrResult.text);
@@ -614,8 +628,8 @@ export const ScreenTranslationView: React.FC = () => {
                   </GlassSelect>
                 </div>
 
-                <div className="flex flex-col justify-end">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none pb-2">
+                <div className="flex flex-col justify-end gap-1.5 pb-1">
+                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
                     <input
                       type="checkbox"
                       checked={skipPreview}
@@ -626,6 +640,30 @@ export const ScreenTranslationView: React.FC = () => {
                       {t(
                         "ocr.skipPreview",
                         "Skip preview & translate instantly",
+                      )}
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
+                    <input
+                      type="checkbox"
+                      checked={keepMainWindowHidden}
+                      onChange={(e) => {
+                        const val = e.target.checked;
+                        setKeepMainWindowHidden(val);
+                        updateSettings({
+                          screenTranslation: {
+                            ...settings.screenTranslation,
+                            keepMainWindowHiddenAfterCapture: val,
+                          },
+                        });
+                      }}
+                      className="rounded accent-primary w-4 h-4 cursor-pointer"
+                    />
+                    <span className="text-foreground">
+                      {t(
+                        "ocr.keepMainWindowHidden",
+                        "Keep main window hidden after capture",
                       )}
                     </span>
                   </label>

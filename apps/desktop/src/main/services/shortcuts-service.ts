@@ -112,6 +112,7 @@ export class ShortcutsService {
           translationProviderId: settings.translationProvider || 'google-web',
           profile: stSettings.profile || 'general',
           skipPreview: true,
+          keepMainWindowHidden: stSettings.keepMainWindowHiddenAfterCapture,
         });
       }
     } catch (err) {

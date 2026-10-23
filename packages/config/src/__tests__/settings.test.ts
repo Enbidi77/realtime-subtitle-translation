@@ -17,6 +17,7 @@ describe('App Settings & Close Behavior Contracts', () => {
     expect(DEFAULT_APP_SETTINGS.hasCompletedOnboarding).toBe(false);
     expect(DEFAULT_APP_SETTINGS.overlaySettings.hideOnCapture).toBe(true);
     expect(DEFAULT_APP_SETTINGS.screenTranslation.hideOverlayOnCapture).toBe(true);
+    expect(DEFAULT_APP_SETTINGS.screenTranslation.keepMainWindowHiddenAfterCapture).toBe(false);
     const parsed = AppSettingsSchema.parse(DEFAULT_APP_SETTINGS);
     expect(parsed.closeBehavior).toBe('ask');
     expect(parsed.enableSplashScreen).toBe(true);
@@ -24,6 +25,7 @@ describe('App Settings & Close Behavior Contracts', () => {
     expect(parsed.hasCompletedOnboarding).toBe(false);
     expect(parsed.overlaySettings.hideOnCapture).toBe(true);
     expect(parsed.screenTranslation.hideOverlayOnCapture).toBe(true);
+    expect(parsed.screenTranslation.keepMainWindowHiddenAfterCapture).toBe(false);
   });
 
   it('correctly classifies paid and free speech and translation providers', () => {

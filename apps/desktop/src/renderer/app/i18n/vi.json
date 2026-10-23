@@ -138,6 +138,7 @@
     "ocrLangHint": "Gợi ý ngôn ngữ OCR",
     "translateInto": "Dịch sang",
     "skipPreview": "Bỏ qua xem trước & dịch ngay lập tức",
+    "keepMainWindowHidden": "Giữ ẩn cửa sổ chính sau khi chụp",
     "editor": {
       "recognizedTitle": "Văn bản nhận dạng (Có thể chỉnh sửa)",
       "conf": "Độ tin cậy",
@@ -307,6 +308,8 @@
     "clickThrough": "Chế độ Xuyên thấu (Click-Through)",
     "hideOnCapture": "Tự động ẩn khi chụp màn hình",
     "hideOnCaptureDesc": "Tự động ẩn cửa sổ phụ đề nổi và bảng kết quả khi bắt đầu chọn vùng chụp màn hình và hiện lại sau khi kết thúc",
+    "keepMainWindowHiddenAfterCapture": "Giữ ẩn cửa sổ chính sau khi chụp màn hình",
+    "keepMainWindowHiddenAfterCaptureDesc": "Giữ cửa sổ chính ẩn khi quá trình chụp màn hình hoàn tất, chỉ hiển thị bảng kết quả dịch nổi",
     "privacy": "Quyền riêng tư & Lưu trữ",
     "diagnostics": "Chẩn đoán & Nhật ký",
     "openLogs": "Mở Thư mục Nhật ký",

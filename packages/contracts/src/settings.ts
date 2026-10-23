@@ -49,6 +49,7 @@ export const ScreenTranslationSettingsSchema = z.object({
   floatingPanelAutoHideTimeoutMs: z.number().min(1000).max(30000).default(6000),
   floatingPanelAlwaysOnTop: z.boolean().default(true),
   hideOverlayOnCapture: z.boolean().default(true),
+  keepMainWindowHiddenAfterCapture: z.boolean().default(false),
   saveHistory: z.boolean().default(true),
   persistScreenshots: z.boolean().default(false),
 });

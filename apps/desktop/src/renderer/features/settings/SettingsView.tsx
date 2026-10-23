@@ -532,6 +532,33 @@ export const SettingsView: React.FC = () => {
             />
           </label>
 
+          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
+            <div>
+              <div className="font-medium text-foreground">
+                {t("settings.keepMainWindowHiddenAfterCapture")}
+              </div>
+              <div className="text-[11px] text-muted-foreground">
+                {t("settings.keepMainWindowHiddenAfterCaptureDesc")}
+              </div>
+            </div>
+            <input
+              type="checkbox"
+              checked={
+                settings.screenTranslation?.keepMainWindowHiddenAfterCapture ?? false
+              }
+              onChange={(e) => {
+                updateSettings({
+                  screenTranslation: {
+                    ...settings.screenTranslation,
+                    keepMainWindowHiddenAfterCapture: e.target.checked,
+                  },
+                });
+                showSaved();
+              }}
+              className="rounded accent-primary w-4 h-4"
+            />
+          </label>
+
           <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">

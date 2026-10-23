@@ -237,6 +237,7 @@ export const ScreenTranslateRequestSchema = z.object({
   translationProviderId: TranslationProviderIdSchema.optional(),
   profile: OcrProfileSchema.optional(),
   skipPreview: z.boolean().optional(),
+  keepMainWindowHidden: z.boolean().optional(),
 });
 export type ScreenTranslateRequest = z.infer<typeof ScreenTranslateRequestSchema>;
 
