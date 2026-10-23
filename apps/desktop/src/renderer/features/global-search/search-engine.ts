@@ -5,14 +5,14 @@ import {
   SearchMetrics,
   ProviderExecutionMetric,
   SearchEngineOptions,
-} from './types.js';
-import { deduplicateResults, sortSearchResults } from './scoring.js';
-import { NavigationProvider } from './providers/navigation-provider.js';
-import { CommandsProvider } from './providers/commands-provider.js';
-import { SettingsProvider } from './providers/settings-provider.js';
-import { DatabaseProvider } from './providers/database-provider.js';
-import { HelpProvider } from './providers/help-provider.js';
-import { getRecentHistoryManager } from './providers/recent-provider.js';
+} from "./types.js";
+import { deduplicateResults, sortSearchResults } from "./scoring.js";
+import { NavigationProvider } from "./providers/navigation-provider.js";
+import { CommandsProvider } from "./providers/commands-provider.js";
+import { SettingsProvider } from "./providers/settings-provider.js";
+import { DatabaseProvider } from "./providers/database-provider.js";
+import { HelpProvider } from "./providers/help-provider.js";
+import { getRecentHistoryManager } from "./recent-manager.js";
 
 export class SearchEngine {
   private static instance: SearchEngine | null = null;
@@ -60,13 +60,15 @@ export class SearchEngine {
   /**
    * Returns initial suggested items when query is empty (recent items + quick actions)
    */
-  public async getInitialSuggestions(category: SearchCategoryFilter = 'all'): Promise<SearchResultItem[]> {
+  public async getInitialSuggestions(
+    category: SearchCategoryFilter = "all",
+  ): Promise<SearchResultItem[]> {
     const recentManager = getRecentHistoryManager();
     const recentItems = recentManager.getRecentItems();
 
     const providerItems: SearchResultItem[] = [];
     for (const p of this.providers) {
-      if (category !== 'all' && p.category !== category) continue;
+      if (category !== "all" && p.category !== category) continue;
       if (p.getInitialItems) {
         try {
           const items = await p.getInitialItems();
@@ -77,9 +79,10 @@ export class SearchEngine {
       }
     }
 
-    const filteredRecent = category === 'all'
-      ? recentItems
-      : recentItems.filter((i) => i.category === category);
+    const filteredRecent =
+      category === "all"
+        ? recentItems
+        : recentItems.filter((i) => i.category === category);
 
     const combined = [...filteredRecent, ...providerItems];
     return deduplicateResults(combined).slice(0, 15);
@@ -90,8 +93,12 @@ export class SearchEngine {
    */
   public async search(
     rawQuery: string,
-    category: SearchCategoryFilter = 'all'
-  ): Promise<{ results: SearchResultItem[]; metrics: SearchMetrics; sequence: number }> {
+    category: SearchCategoryFilter = "all",
+  ): Promise<{
+    results: SearchResultItem[];
+    metrics: SearchMetrics;
+    sequence: number;
+  }> {
     const query = rawQuery.trim();
 
     // Abort previous in-flight search
@@ -118,55 +125,73 @@ export class SearchEngine {
 
     // Filter relevant providers
     const activeProviders = this.providers.filter((p) => {
-      if (category === 'all') return true;
-      if (category === 'session' && (p.category === 'session' || p.category === 'ocr' || p.category === 'glossary')) return true;
+      if (category === "all") return true;
+      if (
+        category === "session" &&
+        (p.category === "session" ||
+          p.category === "ocr" ||
+          p.category === "glossary")
+      )
+        return true;
       return p.category === category;
     });
 
-    const providerPromises = activeProviders.map(async (provider): Promise<{
-      items: SearchResultItem[];
-      metric: ProviderExecutionMetric;
-    }> => {
-      const pStart = performance.now();
+    const providerPromises = activeProviders.map(
+      async (
+        provider,
+      ): Promise<{
+        items: SearchResultItem[];
+        metric: ProviderExecutionMetric;
+      }> => {
+        const pStart = performance.now();
 
-      // Enforce timeout on provider
-      const timeoutPromise = new Promise<SearchResultItem[]>((_, reject) => {
-        const timer = setTimeout(() => {
-          reject(new Error(`Timeout exceeding ${this.options.providerTimeoutMs}ms`));
-        }, this.options.providerTimeoutMs);
+        // Enforce timeout on provider
+        const timeoutPromise = new Promise<SearchResultItem[]>((_, reject) => {
+          const timer = setTimeout(() => {
+            reject(
+              new Error(
+                `Timeout exceeding ${this.options.providerTimeoutMs}ms`,
+              ),
+            );
+          }, this.options.providerTimeoutMs);
 
-        signal.addEventListener('abort', () => clearTimeout(timer), { once: true });
-      });
+          signal.addEventListener("abort", () => clearTimeout(timer), {
+            once: true,
+          });
+        });
 
-      try {
-        const fetchPromise = Promise.resolve(provider.getResults(query, signal));
-        const items = await Promise.race([fetchPromise, timeoutPromise]);
-        const pDuration = Math.round(performance.now() - pStart);
+        try {
+          const fetchPromise = Promise.resolve(
+            provider.getResults(query, signal),
+          );
+          const items = await Promise.race([fetchPromise, timeoutPromise]);
+          const pDuration = Math.round(performance.now() - pStart);
 
-        return {
-          items: Array.isArray(items) ? items : [],
-          metric: {
-            providerId: provider.id,
-            durationMs: pDuration,
-            itemCount: items.length,
-            status: 'fulfilled',
-          },
-        };
-      } catch (err: any) {
-        const pDuration = Math.round(performance.now() - pStart);
-        const isTimeout = err?.message?.includes('Timeout');
+          return {
+            items: Array.isArray(items) ? items : [],
+            metric: {
+              providerId: provider.id,
+              durationMs: pDuration,
+              itemCount: items.length,
+              status: "fulfilled",
+            },
+          };
+        } catch (err: any) {
+          const pDuration = Math.round(performance.now() - pStart);
+          const isTimeout = err?.message?.includes("Timeout");
 
-        return {
-          items: [],
-          metric: {
-            providerId: provider.id,
-            durationMs: pDuration,
-            itemCount: 0,
-            status: isTimeout ? 'timed-out' : 'rejected',
-          },
-        };
-      }
-    });
+          return {
+            items: [],
+            metric: {
+              providerId: provider.id,
+              durationMs: pDuration,
+              itemCount: 0,
+              status: isTimeout ? "timed-out" : "rejected",
+            },
+          };
+        }
+      },
+    );
 
     const results = await Promise.allSettled(providerPromises);
 
@@ -183,24 +208,32 @@ export class SearchEngine {
     const providerMetrics: ProviderExecutionMetric[] = [];
 
     for (const res of results) {
-      if (res.status === 'fulfilled') {
+      if (res.status === "fulfilled") {
         allItems.push(...res.value.items);
         providerMetrics.push(res.value.metric);
       }
     }
 
     // Filter by category if strictly required
-    const categoryFiltered = category === 'all'
-      ? allItems
-      : allItems.filter((item) => {
-          if (category === 'session') {
-            return item.category === 'session' || item.category === 'ocr' || item.category === 'glossary';
-          }
-          return item.category === category;
-        });
+    const categoryFiltered =
+      category === "all"
+        ? allItems
+        : allItems.filter((item) => {
+            if (category === "session") {
+              return (
+                item.category === "session" ||
+                item.category === "ocr" ||
+                item.category === "glossary"
+              );
+            }
+            return item.category === category;
+          });
 
     const deduplicated = deduplicateResults(categoryFiltered);
-    const sorted = sortSearchResults(deduplicated).slice(0, this.options.maxTotalResults);
+    const sorted = sortSearchResults(deduplicated).slice(
+      0,
+      this.options.maxTotalResults,
+    );
 
     const totalDurationMs = Math.round(performance.now() - startTime);
 
@@ -218,4 +251,3 @@ export class SearchEngine {
 export function getSearchEngine(): SearchEngine {
   return SearchEngine.getInstance();
 }
-

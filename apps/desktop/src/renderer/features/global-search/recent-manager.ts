@@ -1,8 +1,8 @@
-import { SearchResultItem } from '../types.js';
+import { SearchResultItem } from "./types.js";
 
-const RECENT_QUERIES_KEY = 'echolingo:recent_search_queries';
-const RECENT_ITEMS_KEY = 'echolingo:recent_search_items';
-const SEARCH_HISTORY_ENABLED_KEY = 'echolingo:search_history_enabled';
+const RECENT_QUERIES_KEY = "echolingo:recent_search_queries";
+const RECENT_ITEMS_KEY = "echolingo:recent_search_items";
+const SEARCH_HISTORY_ENABLED_KEY = "echolingo:search_history_enabled";
 
 const MAX_RECENT_QUERIES = 8;
 const MAX_RECENT_ITEMS = 10;
@@ -20,7 +20,7 @@ export class RecentHistoryManager {
   public isEnabled(): boolean {
     try {
       const val = localStorage.getItem(SEARCH_HISTORY_ENABLED_KEY);
-      return val !== 'false';
+      return val !== "false";
     } catch {
       return true;
     }
@@ -28,7 +28,10 @@ export class RecentHistoryManager {
 
   public setEnabled(enabled: boolean): void {
     try {
-      localStorage.setItem(SEARCH_HISTORY_ENABLED_KEY, enabled ? 'true' : 'false');
+      localStorage.setItem(
+        SEARCH_HISTORY_ENABLED_KEY,
+        enabled ? "true" : "false",
+      );
       if (!enabled) {
         this.clearAll();
       }
@@ -53,9 +56,14 @@ export class RecentHistoryManager {
     if (!trimmed || trimmed.length < 2) return;
 
     try {
-      const queries = this.getRecentQueries().filter((q) => q.toLowerCase() !== trimmed.toLowerCase());
+      const queries = this.getRecentQueries().filter(
+        (q) => q.toLowerCase() !== trimmed.toLowerCase(),
+      );
       queries.unshift(trimmed);
-      localStorage.setItem(RECENT_QUERIES_KEY, JSON.stringify(queries.slice(0, MAX_RECENT_QUERIES)));
+      localStorage.setItem(
+        RECENT_QUERIES_KEY,
+        JSON.stringify(queries.slice(0, MAX_RECENT_QUERIES)),
+      );
     } catch {
       // Ignored
     }
@@ -82,12 +90,15 @@ export class RecentHistoryManager {
         description: item.description,
         icon: item.icon,
         path: item.path,
-        badge: 'Recent',
+        badge: "Recent",
         action: item.action,
         score: 950,
       };
       items.unshift(cleanItem);
-      localStorage.setItem(RECENT_ITEMS_KEY, JSON.stringify(items.slice(0, MAX_RECENT_ITEMS)));
+      localStorage.setItem(
+        RECENT_ITEMS_KEY,
+        JSON.stringify(items.slice(0, MAX_RECENT_ITEMS)),
+      );
     } catch {
       // Ignored
     }
@@ -115,4 +126,3 @@ export class RecentHistoryManager {
 export function getRecentHistoryManager(): RecentHistoryManager {
   return RecentHistoryManager.getInstance();
 }
-

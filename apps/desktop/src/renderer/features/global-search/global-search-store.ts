@@ -1,12 +1,12 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 import {
   SearchResultItem,
   SearchCategoryFilter,
   SearchMetrics,
-} from './types.js';
-import { getSearchEngine } from './search-engine.js';
-import { getCommandRegistry } from './command-registry.js';
-import { getRecentHistoryManager } from './providers/recent-provider.js';
+} from "./types.js";
+import { getSearchEngine } from "./search-engine.js";
+import { getCommandRegistry } from "./command-registry.js";
+import { getRecentHistoryManager } from "./recent-manager.js";
 
 interface GlobalSearchState {
   isOpen: boolean;
@@ -38,8 +38,8 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
 export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
   isOpen: false,
-  query: '',
-  activeCategory: 'all',
+  query: "",
+  activeCategory: "all",
   selectedIndex: 0,
   results: [],
   isLoading: false,
@@ -47,7 +47,7 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
   recentQueries: getRecentHistoryManager().getRecentQueries(),
   historyEnabled: getRecentHistoryManager().isEnabled(),
 
-  open: (initialQuery = '', initialCategory = 'all') => {
+  open: (initialQuery = "", initialCategory = "all") => {
     const recentManager = getRecentHistoryManager();
     set({
       isOpen: true,
@@ -61,14 +61,16 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
 
     // Run initial search / load suggestions
     const engine = getSearchEngine();
-    engine.search(initialQuery, initialCategory).then(({ results, metrics }) => {
-      set({
-        results,
-        metrics,
-        isLoading: false,
-        selectedIndex: 0,
+    engine
+      .search(initialQuery, initialCategory)
+      .then(({ results, metrics }) => {
+        set({
+          results,
+          metrics,
+          isLoading: false,
+          selectedIndex: 0,
+        });
       });
-    });
   },
 
   close: () => {
@@ -78,7 +80,7 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
     }
     set({
       isOpen: false,
-      query: '',
+      query: "",
       selectedIndex: 0,
       isLoading: false,
     });
@@ -89,7 +91,7 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
     if (isOpen) {
       close();
     } else {
-      open('', initialCategory || 'all');
+      open("", initialCategory || "all");
     }
   },
 
@@ -160,7 +162,11 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
 
   executeSelected: async () => {
     const { results, selectedIndex, executeItem } = get();
-    if (results.length > 0 && selectedIndex >= 0 && selectedIndex < results.length) {
+    if (
+      results.length > 0 &&
+      selectedIndex >= 0 &&
+      selectedIndex < results.length
+    ) {
       await executeItem(results[selectedIndex]);
     }
   },
@@ -193,7 +199,7 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
 
     // Reload suggestions without recent items
     const engine = getSearchEngine();
-    engine.search('', get().activeCategory).then(({ results, metrics }) => {
+    engine.search("", get().activeCategory).then(({ results, metrics }) => {
       set({ results, metrics, selectedIndex: 0 });
     });
   },
@@ -205,4 +211,3 @@ export const useGlobalSearchStore = create<GlobalSearchState>((set, get) => ({
     set({ results: updatedResults });
   },
 }));
-
