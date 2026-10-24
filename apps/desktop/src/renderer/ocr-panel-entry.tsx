@@ -13,7 +13,6 @@ import {
   Check,
   Crop,
   Clock,
-  Sparkles,
 } from "lucide-react";
 
 const log = createRendererLogger("OcrPanel");
@@ -22,6 +21,7 @@ const FloatingResultPanel: React.FC = () => {
   const [data, setData] = useState<FloatingPanelPayload | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [locale, setLocale] = useState<string>("en");
+  const [isResizing, setIsResizing] = useState(false);
 
   useEffect(() => {
     // Sync theme, glass intensity, and locale from settings
@@ -111,24 +111,126 @@ const FloatingResultPanel: React.FC = () => {
     window.addEventListener("mouseup", onMouseUp);
   };
 
+  const handleStartResize = (
+    e: React.MouseEvent,
+    direction: "n" | "s" | "e" | "w" | "ne" | "nw" | "se" | "sw",
+  ) => {
+    if (e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+
+    setIsResizing(true);
+
+    const onMouseMove = (moveEvt: MouseEvent) => {
+      if (moveEvt.movementX !== 0 || moveEvt.movementY !== 0) {
+        window.electronAPI?.app.resizeWindow({
+          deltaX: moveEvt.movementX,
+          deltaY: moveEvt.movementY,
+          direction,
+        });
+      }
+    };
+
+    const onMouseUp = () => {
+      setIsResizing(false);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  };
+
+  const renderResizeHandles = () => (
+    <>
+      {/* 4 Edge Resize Hitboxes */}
+      <div
+        onMouseDown={(e) => handleStartResize(e, "n")}
+        className="absolute top-0 left-3 right-3 h-2 cursor-n-resize z-40 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "s")}
+        className="absolute bottom-0 left-3 right-3 h-2 cursor-s-resize z-40 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "w")}
+        className="absolute left-0 top-3 bottom-3 w-2 cursor-w-resize z-40 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "e")}
+        className="absolute right-0 top-3 bottom-3 w-2 cursor-e-resize z-40 select-none"
+      />
+
+      {/* 4 Corner Resize Hitboxes */}
+      <div
+        onMouseDown={(e) => handleStartResize(e, "nw")}
+        className="absolute top-0 left-0 w-3.5 h-3.5 cursor-nw-resize z-50 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "ne")}
+        className="absolute top-0 right-0 w-3.5 h-3.5 cursor-ne-resize z-50 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "sw")}
+        className="absolute bottom-0 left-0 w-3.5 h-3.5 cursor-sw-resize z-50 select-none"
+      />
+      <div
+        onMouseDown={(e) => handleStartResize(e, "se")}
+        className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50 select-none"
+      />
+    </>
+  );
+
+  const renderResizeGrip = () => (
+    <div
+      onMouseDown={(e) => handleStartResize(e, "se")}
+      className="absolute bottom-1 right-1 w-3.5 h-3.5 flex items-end justify-end cursor-se-resize text-muted-foreground/40 hover:text-foreground transition-colors p-0.5 z-40 select-none"
+      title={locale === "vi" ? "Kéo để đổi kích thước" : "Drag to resize"}
+    >
+      <svg
+        viewBox="0 0 10 10"
+        className="w-2.5 h-2.5 stroke-current stroke-[1.4] stroke-linecap-round fill-none"
+      >
+        <line x1="8" y1="2" x2="2" y2="8" />
+        <line x1="8" y1="5" x2="5" y2="8" />
+        <line x1="8" y1="8" x2="8" y2="8" />
+      </svg>
+    </div>
+  );
+
   if (!data) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center p-4 rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-xs text-muted-foreground gap-2.5">
-        <div className="flex items-center gap-2">
+      <div
+        className={`w-full h-full flex flex-col items-center justify-center p-4 rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-xs text-muted-foreground gap-2.5 relative select-none ${
+          isResizing ? "pointer-events-none select-none" : ""
+        }`}
+      >
+        <div
+          onMouseDown={handleStartDrag}
+          className="absolute inset-0 cursor-move"
+        />
+        <div className="flex items-center gap-2 pointer-events-none z-10">
           <span className="w-2 h-2 rounded-full bg-primary animate-ping" />
           <span className="font-semibold text-foreground">EchoLingo OCR</span>
         </div>
-        <span className="text-[11px] text-muted-foreground">
+        <span className="text-[11px] text-muted-foreground pointer-events-none z-10">
           {locale === "vi"
             ? "Đang chờ kết quả dịch thuật..."
             : "Waiting for translation result..."}
         </span>
+
+        {renderResizeHandles()}
+        {renderResizeGrip()}
       </div>
     );
   }
 
   return (
-    <div className="w-full h-full flex flex-col rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-foreground select-none relative">
+    <div
+      className={`w-full h-full flex flex-col rounded-2xl overflow-hidden border border-glass-border-elevated bg-[var(--glass-surface-elevated)] shadow-[inset_0_1px_1.5px_0_var(--glass-highlight)] text-foreground select-none relative ${
+        isResizing ? "pointer-events-none select-none" : ""
+      }`}
+    >
       {/* Decorative ambient specular highlight in corner */}
       <div className="absolute top-0 right-0 w-28 h-28 bg-gradient-to-bl from-primary/20 via-indigo-500/10 to-transparent rounded-full blur-xl pointer-events-none" />
 
@@ -178,7 +280,7 @@ const FloatingResultPanel: React.FC = () => {
       <div className="flex-1 p-3.5 overflow-y-auto space-y-2.5 select-text app-no-drag z-10">
         {/* Original Recognized Text */}
         {data.originalText && (
-          <div className="text-[11px] font-mono text-muted-foreground/90 bg-glass-subtle p-2.5 rounded-xl border border-glass-border/50 whitespace-pre-wrap leading-relaxed max-h-20 overflow-y-auto backdrop-blur-sm">
+          <div className="text-[11px] font-mono text-muted-foreground/90 bg-glass-subtle p-2.5 rounded-xl border border-glass-border/50 whitespace-pre-wrap leading-relaxed max-h-[35%] overflow-y-auto backdrop-blur-sm">
             {data.originalText}
           </div>
         )}
@@ -190,7 +292,7 @@ const FloatingResultPanel: React.FC = () => {
       </div>
 
       {/* Bottom Action Footer */}
-      <div className="app-no-drag px-3 py-2 border-t border-glass-border bg-glass-surface-toolbar/80 backdrop-blur-md flex items-center justify-between text-xs shrink-0 z-10">
+      <div className="app-no-drag px-3 py-2 border-t border-glass-border bg-glass-surface-toolbar/80 backdrop-blur-md flex items-center justify-between text-xs shrink-0 z-10 pr-6">
         <div className="flex items-center gap-1.5">
           <GlassButton
             size="xs"
@@ -246,6 +348,10 @@ const FloatingResultPanel: React.FC = () => {
           <span>{locale === "vi" ? "Chụp tiếp" : "Capture Next"}</span>
         </GlassButton>
       </div>
+
+      {/* Resize hitboxes and visual corner grip */}
+      {renderResizeHandles()}
+      {renderResizeGrip()}
     </div>
   );
 };

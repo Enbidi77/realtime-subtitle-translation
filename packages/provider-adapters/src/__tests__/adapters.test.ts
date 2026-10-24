@@ -145,6 +145,122 @@ describe('Provider Adapters', () => {
       expect(cap.supportedLanguages.length).toBeGreaterThan(0);
     });
 
+    it('handles empty imageBuffer in WindowsNativeOcrProvider', async () => {
+      const winOcr = new WindowsNativeOcrProvider();
+      const res = await winOcr.recognize({
+        imageBuffer: '',
+        language: 'en-US',
+      });
+      expect(res.text).toBe('');
+      expect(res.blocks).toHaveLength(0);
+      expect(res.lines).toHaveLength(0);
+      expect(res.confidence).toBe(0);
+    });
+
+    it('refreshes supported languages using DotnetBridge or fallback', async () => {
+      const mockBridge = {
+        isAvailable: () => true,
+        ocr: {
+          getAvailableLanguages: async () => [
+            { languageTag: 'en-US', displayName: 'English (United States)' },
+            { languageTag: 'vi-VN', displayName: 'Vietnamese (Vietnam)' },
+          ],
+          recognize: async () => ({ text: '', lines: [] }),
+        },
+      } as any;
+
+      const winOcr = new WindowsNativeOcrProvider({ bridge: mockBridge });
+      if (process.platform === 'win32') {
+        const langs = await winOcr.refreshSupportedLanguages();
+        expect(langs.some((l) => l.code === 'en-US')).toBe(true);
+        expect(langs.some((l) => l.code === 'vi-VN')).toBe(true);
+        expect(langs[0].code).toBe('auto');
+      } else {
+        const langs = await winOcr.refreshSupportedLanguages();
+        expect(langs.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('recognizes image and maps bounding boxes via DotnetBridge', async () => {
+      const mockBridge = {
+        isAvailable: () => true,
+        ocr: {
+          getAvailableLanguages: async () => [],
+          recognize: async (_imagePath: string, _lang?: string) => ({
+            text: 'Hello World',
+            lines: [
+              {
+                text: 'Hello World',
+                confidence: 0.98,
+                words: [
+                  {
+                    text: 'Hello',
+                    confidence: 0.99,
+                    boundingBox: { x: 10, y: 10, width: 40, height: 20 },
+                  },
+                  {
+                    text: 'World',
+                    confidence: 0.97,
+                    boundingBox: { x: 55, y: 10, width: 45, height: 20 },
+                  },
+                ],
+              },
+            ],
+            detectedLanguage: 'en-US',
+          }),
+        },
+      } as any;
+
+      const winOcr = new WindowsNativeOcrProvider({ bridge: mockBridge });
+      if (process.platform === 'win32') {
+        const res = await winOcr.recognize({
+          imageBuffer: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+          language: 'en-US',
+        });
+
+        expect(res.text).toBe('Hello World');
+        expect(res.lines).toHaveLength(1);
+        expect(res.lines[0].words).toHaveLength(2);
+        expect(res.lines[0].boundingBox).toEqual({
+          x: 10,
+          y: 10,
+          width: 90,
+          height: 20,
+        });
+        expect(res.blocks).toHaveLength(1);
+        expect(res.blocks[0].boundingBox).toEqual({
+          x: 10,
+          y: 10,
+          width: 90,
+          height: 20,
+        });
+      }
+    });
+
+    it('throws error when DotnetBridge returns error in recognize', async () => {
+      const mockBridge = {
+        isAvailable: () => true,
+        ocr: {
+          getAvailableLanguages: async () => [],
+          recognize: async () => ({
+            text: '',
+            lines: [],
+            error: 'Decoder failed to process image',
+          }),
+        },
+      } as any;
+
+      const winOcr = new WindowsNativeOcrProvider({ bridge: mockBridge });
+      if (process.platform === 'win32') {
+        await expect(
+          winOcr.recognize({
+            imageBuffer: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+            language: 'en-US',
+          })
+        ).rejects.toThrow('Windows OCR failed: Decoder failed to process image');
+      }
+    });
+
     it('integrates OCR providers into OcrRegistry', async () => {
       const registry = new OcrRegistry();
       const mock = new MockOcrProvider();

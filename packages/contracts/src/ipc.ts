@@ -53,6 +53,7 @@ export const IPC_CHANNELS = {
   APP_QUIT: 'app:quit',
   APP_MINIMIZE_TO_TRAY: 'app:minimize-to-tray',
   APP_MOVE_WINDOW: 'app:move-window',
+  APP_RESIZE_WINDOW: 'app:resize-window',
   APP_NAVIGATE_TO: 'app:navigate-to',
   APP_REQUEST_CLOSE_CONFIRM: 'app:request-close-confirm',
   APP_OPEN_LOGS: 'app:open-logs',
@@ -297,6 +298,34 @@ export const RadialMenuExecuteRequestSchema = z.object({
   actionId: RadialMenuActionIdSchema,
 });
 export type RadialMenuExecuteRequest = z.infer<typeof RadialMenuExecuteRequestSchema>;
+
+export const MoveWindowSchema = z.object({
+  deltaX: z.number(),
+  deltaY: z.number(),
+});
+export type MoveWindowRequest = z.infer<typeof MoveWindowSchema>;
+
+export const ResizeWindowDirectionSchema = z.enum([
+  'n',
+  's',
+  'e',
+  'w',
+  'ne',
+  'nw',
+  'se',
+  'sw',
+]);
+export type ResizeWindowDirection = z.infer<typeof ResizeWindowDirectionSchema>;
+
+export const ResizeWindowSchema = z.object({
+  deltaX: z.number().default(0),
+  deltaY: z.number().default(0),
+  direction: ResizeWindowDirectionSchema.optional(),
+  deltaWidth: z.number().optional(),
+  deltaHeight: z.number().optional(),
+});
+export type ResizeWindowRequest = z.infer<typeof ResizeWindowSchema>;
+
 
 
 

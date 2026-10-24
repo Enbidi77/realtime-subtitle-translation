@@ -18,12 +18,9 @@ import {
   VideoExportOptionsSchema,
   RadialMenuExecuteRequestSchema,
   SearchDatabaseRequestSchema,
+  MoveWindowSchema,
+  ResizeWindowSchema,
 } from '@echo-lingo/contracts';
-
-const MoveWindowSchema = z.object({
-  deltaX: z.number(),
-  deltaY: z.number(),
-});
 
 const AudioProcessChunkSchema = z.object({
   samples: z.array(z.number()),
@@ -121,6 +118,11 @@ export function registerIpcHandlers(): void {
   ipcMain.on(IPC_CHANNELS.APP_MOVE_WINDOW, (event, payload) => {
     const { deltaX, deltaY } = MoveWindowSchema.parse(payload);
     appService.moveWindow(event.sender, deltaX, deltaY);
+  });
+
+  ipcMain.on(IPC_CHANNELS.APP_RESIZE_WINDOW, (event, payload) => {
+    const req = ResizeWindowSchema.parse(payload);
+    appService.resizeWindow(event.sender, req);
   });
 
   // ================= Audio =================

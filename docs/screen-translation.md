@@ -91,7 +91,7 @@ When selecting screen regions on modern multi-monitor systems, coordinate spaces
 - Native to Windows 10 and Windows 11 (`Windows.Media.Ocr.OcrEngine`).
 - Zero external binary downloads; runs with hardware acceleration on Windows.
 - Automatically uses installed Windows language packs (e.g. English, Traditional Chinese, Japanese, etc.).
-- Invoked via PowerShell WinRT script with JSON output stream.
+- Invoked via high-performance .NET 8 WinRT IPC server (Named Pipe via `@echo-lingo/dotnet-bridge`).
 
 ### Local Tesseract.js OCR (`tesseract`)
 - Fully offline, cross-platform WebAssembly OCR engine.

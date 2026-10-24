@@ -10,6 +10,8 @@ const log = createLogger("OcrPanelWindow");
 
 let panelWindow: BrowserWindow | null = null;
 let currentPayload: FloatingPanelPayload | null = null;
+let lastWidth = 440;
+let lastHeight = 260;
 
 export function createOcrPanelWindow(): BrowserWindow {
   if (panelWindow && !panelWindow.isDestroyed()) {
@@ -17,15 +19,13 @@ export function createOcrPanelWindow(): BrowserWindow {
   }
 
   const primary = screen.getPrimaryDisplay();
-  const defaultW = 440;
-  const defaultH = 260;
 
   panelWindow = new BrowserWindow({
     title: "EchoLingo Floating Result",
-    width: defaultW,
-    height: defaultH,
-    minWidth: 320,
-    minHeight: 180,
+    width: lastWidth,
+    height: lastHeight,
+    minWidth: 300,
+    minHeight: 160,
     icon: getAppIconService().getAppIcon(),
     show: false,
     frame: false,
@@ -79,6 +79,14 @@ export function createOcrPanelWindow(): BrowserWindow {
         IPC_CHANNELS.SCREEN_FLOATING_PANEL_STREAM,
         currentPayload,
       );
+    }
+  });
+
+  panelWindow.on("resize", () => {
+    if (panelWindow && !panelWindow.isDestroyed()) {
+      const [w, h] = panelWindow.getSize();
+      lastWidth = w;
+      lastHeight = h;
     }
   });
 

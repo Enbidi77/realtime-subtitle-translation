@@ -40,6 +40,7 @@ import {
   toMediaProtocolUrl,
   RadialMenuActionId,
   RadialMenuState,
+  ResizeWindowRequest,
 } from '@echo-lingo/contracts';
 
 const api = {
@@ -52,6 +53,8 @@ const api = {
     minimizeToTray: () => ipcRenderer.send(IPC_CHANNELS.APP_MINIMIZE_TO_TRAY),
     moveWindow: (deltaX: number, deltaY: number) =>
       ipcRenderer.send(IPC_CHANNELS.APP_MOVE_WINDOW, { deltaX, deltaY }),
+    resizeWindow: (payload: ResizeWindowRequest) =>
+      ipcRenderer.send(IPC_CHANNELS.APP_RESIZE_WINDOW, payload),
     onNavigate: (callback: (page: string) => void) => {
       const handler = (_: unknown, page: string) => callback(page);
       ipcRenderer.on(IPC_CHANNELS.APP_NAVIGATE_TO, handler);
