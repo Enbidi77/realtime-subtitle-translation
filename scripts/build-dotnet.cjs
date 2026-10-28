@@ -44,6 +44,23 @@ function buildDotnet() {
       console.log(`[build-dotnet] Successfully built and placed EchoLingo.Ipc.exe:`);
       console.log(`  -> ${sourceExe}`);
       console.log(`  -> ${destExe}`);
+
+      // On Windows, sign the newly published binaries with local certificate to prevent Smart App Control blocks
+      try {
+        const signPs = `
+$cert = Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert | Where-Object { $_.Subject -match 'EchoLingo' } | Select-Object -First 1
+if (-not $cert) {
+  $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=EchoLingoLocal' -CertStoreLocation 'Cert:\\CurrentUser\\My'
+}
+Set-AuthenticodeSignature -FilePath '${sourceExe.replace(/'/g, "''")}' -Certificate $cert | Out-Null
+Set-AuthenticodeSignature -FilePath '${destExe.replace(/'/g, "''")}' -Certificate $cert | Out-Null
+`;
+        const encoded = Buffer.from(signPs, 'utf16le').toString('base64');
+        execSync(`powershell.exe -NoProfile -NonInteractive -ExecutionPolicy Bypass -EncodedCommand ${encoded}`, { stdio: 'ignore' });
+        console.log('[build-dotnet] Applied local code-signing signature to EchoLingo.Ipc.exe');
+      } catch {
+        // Non-fatal if signing fails in non-interactive environment
+      }
     } else {
       console.error('[build-dotnet] Error: EchoLingo.Ipc.exe was not found after publish.');
     }

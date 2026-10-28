@@ -104,6 +104,7 @@ describe('Provider Adapters', () => {
       const res = await local.transcribe(new Float32Array(16000), { sampleRate: 16000 });
       expect(res.text).toBe('');
       expect(res.isFinal).toBe(true);
+      expect(typeof local.ensureWindowsBinariesSigned).toBe('function');
     });
 
     it('initializes and reports properties for WindowsSpeechProvider', async () => {

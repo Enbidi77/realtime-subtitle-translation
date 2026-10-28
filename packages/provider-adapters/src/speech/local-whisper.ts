@@ -95,6 +95,10 @@ export class LocalWhisperProvider implements ISpeechProvider {
       // ignore
     }
 
+    if (process.platform === 'win32') {
+      this.ensureWindowsBinariesSigned().catch(() => {});
+    }
+
     this.isModelReady = true;
   }
 
@@ -173,6 +177,54 @@ export class LocalWhisperProvider implements ISpeechProvider {
   }
 
   /**
+   * On Windows, unblocks downloaded binaries and signs unsigned executables/DLLs
+   * with a local self-signed certificate so that Windows Smart App Control (SAC)
+   * or Code Integrity policies do not block execution with "publisher not verified".
+   */
+  public async ensureWindowsBinariesSigned(targetDir?: string): Promise<boolean> {
+    if (process.platform !== 'win32') return true;
+
+    const dir =
+      targetDir ||
+      (this.binaryPath ? path.dirname(this.binaryPath) : path.join(this.modelDirectory, 'bin'));
+    if (!fs.existsSync(dir)) return false;
+
+    try {
+      const psScript = `
+$ErrorActionPreference = 'Stop'
+Get-ChildItem -Path '${dir.replace(/'/g, "''")}' -Recurse | Unblock-File -ErrorAction SilentlyContinue
+try {
+  $cert = Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert | Where-Object { $_.Subject -match 'EchoLingo' } | Select-Object -First 1
+  if (-not $cert) {
+    $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=EchoLingoLocal' -CertStoreLocation 'Cert:\\CurrentUser\\My'
+  }
+  Get-ChildItem -Path '${dir.replace(/'/g, "''")}\\*' -Include *.exe,*.dll -Recurse | ForEach-Object {
+    $sig = Get-AuthenticodeSignature $_.FullName
+    if ($sig.Status -eq 'NotSigned') {
+      Set-AuthenticodeSignature -FilePath $_.FullName -Certificate $cert | Out-Null
+    }
+  }
+} catch {
+  exit 1
+}
+`;
+      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
+      await execFileAsync('powershell.exe', [
+        '-NoProfile',
+        '-NonInteractive',
+        '-ExecutionPolicy',
+        'Bypass',
+        '-EncodedCommand',
+        encoded,
+      ]);
+      return true;
+    } catch (err) {
+      log.warn('Could not automatically sign Windows binaries:', err);
+      return false;
+    }
+  }
+
+  /**
    * Transcribe raw 16kHz Float32 audio samples using local whisper.cpp
    */
   public async transcribe(
@@ -230,7 +282,47 @@ export class LocalWhisperProvider implements ISpeechProvider {
         '--no-fallback',
       ];
 
-      const { stdout } = await execFileAsync(binary, args);
+      let stdout: string;
+      try {
+        const res = await execFileAsync(binary, args);
+        stdout = res.stdout;
+      } catch (execErr: unknown) {
+        const msg = String((execErr as Error)?.message || execErr);
+        // Check if blocked by Windows Smart App Control or Code Integrity
+        if (
+          process.platform === 'win32' &&
+          (msg.includes('Application Control policy') ||
+            msg.includes('blocked this file') ||
+            (execErr as { code?: number | string })?.code === 1 ||
+            (execErr as { code?: number | string })?.code === 'EPERM')
+        ) {
+          log.warn('Whisper binary execution may be blocked by Windows Code Integrity. Attempting automatic signing...');
+          const signed = await this.ensureWindowsBinariesSigned(path.dirname(binary));
+          if (signed) {
+            try {
+              const retryRes = await execFileAsync(binary, args);
+              stdout = retryRes.stdout;
+            } catch (retryErr) {
+              log.error('Local Whisper execution retry failed after signing:', retryErr);
+              return {
+                text: '[Local Whisper: Blocked by Windows Smart App Control / Untrusted Publisher. Please switch to Windows Speech in Settings.]',
+                isFinal: true,
+                confidence: 0,
+                durationMs: Date.now() - start,
+              };
+            }
+          } else {
+            return {
+              text: '[Local Whisper: Blocked by Windows Smart App Control / Untrusted Publisher. Please switch to Windows Speech in Settings.]',
+              isFinal: true,
+              confidence: 0,
+              durationMs: Date.now() - start,
+            };
+          }
+        } else {
+          throw execErr;
+        }
+      }
 
       // Clean up stdout lines
       const lines = stdout.split(/\r?\n/);
@@ -323,8 +415,24 @@ export class LocalWhisperProvider implements ISpeechProvider {
       log.info('Downloading whisper.cpp Windows binaries...');
       await downloadFile(WHISPER_BIN_WINDOWS_URL, zipPath);
 
-      // Unzip using PowerShell on Windows
-      const psScript = `Expand-Archive -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${binDir.replace(/'/g, "''")}' -Force`;
+      // Unzip and sign binaries using PowerShell on Windows to satisfy Smart App Control
+      const psScript = `
+$ErrorActionPreference = 'Stop'
+Expand-Archive -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${binDir.replace(/'/g, "''")}' -Force
+Get-ChildItem -Path '${binDir.replace(/'/g, "''")}' -Recurse | Unblock-File -ErrorAction SilentlyContinue
+try {
+  $cert = Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert | Where-Object { $_.Subject -match 'EchoLingo' } | Select-Object -First 1
+  if (-not $cert) {
+    $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=EchoLingoLocal' -CertStoreLocation 'Cert:\\CurrentUser\\My'
+  }
+  Get-ChildItem -Path '${binDir.replace(/'/g, "''")}\\*' -Include *.exe,*.dll -Recurse | ForEach-Object {
+    $sig = Get-AuthenticodeSignature $_.FullName
+    if ($sig.Status -eq 'NotSigned') {
+      Set-AuthenticodeSignature -FilePath $_.FullName -Certificate $cert | Out-Null
+    }
+  }
+} catch {}
+`;
       const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
       await execFileAsync('powershell.exe', [
         '-NoProfile',

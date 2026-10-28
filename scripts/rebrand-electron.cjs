@@ -15,6 +15,13 @@ function rebrandElectron() {
     // 1. Locate electron.exe
     let electronExe;
     try {
+      const electronPkgJsonPath = require.resolve('electron/package.json', { paths: [desktopDir, rootDir] });
+      const electronDir = path.dirname(electronPkgJsonPath);
+      const pathTxt = path.join(electronDir, 'path.txt');
+      if (!fs.existsSync(pathTxt)) {
+        console.log('[rebrand-electron] Running electron install.js to download binary...');
+        cp.execFileSync(process.execPath, [path.join(electronDir, 'install.js')], { stdio: 'inherit' });
+      }
       const electronPkgPath = require.resolve('electron', { paths: [desktopDir, rootDir] });
       electronExe = require(electronPkgPath);
     } catch {
