@@ -83,6 +83,13 @@ try {
 
 // 3. Build Desktop Renderer & Main bundles, and package AppX
 console.log('\n[Step 2/3] Building Electron Vite app and MSIX / AppX package...');
+if (process.platform === 'win32') {
+  try {
+    execSync('taskkill /F /IM EchoLingo.exe /T', { stdio: 'ignore' });
+  } catch {
+    // Process wasn't running
+  }
+}
 try {
   const overrideArgs = [];
   if (identityName) {
