@@ -1,7 +1,7 @@
 {
   "name": "@echo-lingo/desktop",
   "productName": "EchoLingo",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "EchoLingo",
   "author": "EchoLingo Team",
   "main": "./out/main/index.js",
