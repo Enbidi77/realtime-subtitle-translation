@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
-import { FloatingPanelPayload } from "@echo-lingo/contracts";
+import { AppSettings, FloatingPanelPayload } from "@echo-lingo/contracts";
+import { OCR_SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from "@echo-lingo/config";
 import { applyTheme } from "@/stores/settings-store.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassBadge } from "@/components/ui/GlassBadge.js";
@@ -22,6 +23,7 @@ const FloatingResultPanel: React.FC = () => {
   const [data, setData] = useState<FloatingPanelPayload | null>(null);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [locale, setLocale] = useState<string>("en");
+  const [appSettings, setAppSettings] = useState<AppSettings | null>(null);
   const [isResizing, setIsResizing] = useState(false);
   const dict = getDictionary(locale);
 
@@ -31,6 +33,7 @@ const FloatingResultPanel: React.FC = () => {
       window.electronAPI.settings
         .get()
         .then((loaded) => {
+          setAppSettings(loaded);
           applyTheme(loaded.theme, loaded.glassIntensity);
           if (loaded.locale) setLocale(loaded.locale);
         })
@@ -38,6 +41,7 @@ const FloatingResultPanel: React.FC = () => {
 
       const unsubSettings = window.electronAPI.settings.onUpdate?.(
         (updated) => {
+          setAppSettings(updated);
           applyTheme(updated.theme, updated.glassIntensity);
           if (updated.locale) setLocale(updated.locale);
         },
@@ -72,16 +76,97 @@ const FloatingResultPanel: React.FC = () => {
     window.electronAPI?.screenTranslation?.hideFloatingPanel();
   };
 
+  const handleSourceChange = async (newSource: string) => {
+    if (!data) return;
+    const updated = { ...data, sourceLanguage: newSource };
+    setData(updated);
+
+    if (window.electronAPI?.settings?.update) {
+      await window.electronAPI.settings.update({
+        screenTranslation: {
+          ...appSettings?.screenTranslation,
+          ocrLanguage: newSource,
+        } as any,
+      });
+    }
+
+    if (data.originalText && window.electronAPI?.translation?.translate) {
+      try {
+        const res = await window.electronAPI.translation.translate({
+          text: data.originalText,
+          sourceLanguage: newSource,
+          targetLanguage: data.targetLanguage || "vi",
+          priority: "high",
+        });
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                translatedText: res.translatedText,
+                sourceLanguage: newSource,
+                durationMs: res.durationMs,
+              }
+            : null,
+        );
+      } catch (err) {
+        log.error("Failed to re-translate on source change:", err);
+      }
+    }
+  };
+
+  const handleTargetChange = async (newTarget: string) => {
+    if (!data) return;
+    const updated = { ...data, targetLanguage: newTarget };
+    setData(updated);
+
+    if (window.electronAPI?.settings?.update) {
+      await window.electronAPI.settings.update({
+        targetLanguages: [newTarget],
+      });
+    }
+
+    if (data.originalText && window.electronAPI?.translation?.translate) {
+      try {
+        const res = await window.electronAPI.translation.translate({
+          text: data.originalText,
+          sourceLanguage: data.sourceLanguage || "auto",
+          targetLanguage: newTarget,
+          priority: "high",
+        });
+        setData((prev) =>
+          prev
+            ? {
+                ...prev,
+                translatedText: res.translatedText,
+                targetLanguage: newTarget,
+                durationMs: res.durationMs,
+              }
+            : null,
+        );
+      } catch (err) {
+        log.error("Failed to re-translate on target change:", err);
+      }
+    }
+  };
+
   const handleCaptureAnother = async () => {
     try {
       const region =
         await window.electronAPI?.screenTranslation?.selectRegion();
       if (region) {
+        const effectiveOcrLang =
+          data?.sourceLanguage && data.sourceLanguage !== "auto"
+            ? data.sourceLanguage
+            : appSettings?.screenTranslation?.ocrLanguage || "auto";
+        const effectiveTargetLang =
+          data?.targetLanguage || appSettings?.targetLanguages?.[0] || "vi";
+
         await window.electronAPI?.screenTranslation?.translateRegion({
           region,
-          ocrLanguage: "auto",
-          targetLanguages: [data?.targetLanguage || "vi"],
-          sourceLanguage: "auto",
+          ocrLanguage: effectiveOcrLang,
+          targetLanguages: [effectiveTargetLang],
+          sourceLanguage: effectiveOcrLang,
+          profile: appSettings?.screenTranslation?.profile || "general",
           skipPreview: true,
         });
       }
@@ -239,25 +324,50 @@ const FloatingResultPanel: React.FC = () => {
         onMouseDown={handleStartDrag}
         className="flex items-center justify-between px-3.5 py-2 border-b border-glass-border bg-glass-surface-toolbar backdrop-blur-md cursor-move shrink-0 z-10"
       >
-        <div className="flex items-center gap-2 pointer-events-none">
-          <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground/70" />
-          <div className="flex items-center gap-1.5">
-            <GlassBadge
-              variant="neutral"
-              className="px-1.5 py-0 text-[10px] uppercase font-mono"
-            >
-              {data.sourceLanguage}
-            </GlassBadge>
-            <span className="text-muted-foreground/50 text-[11px]">→</span>
-            <GlassBadge
-              variant="accent"
-              className="px-1.5 py-0 text-[10px] uppercase font-mono font-bold"
-            >
-              {data.targetLanguage}
-            </GlassBadge>
+        <div className="flex items-center gap-2">
+          <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground/70 pointer-events-none" />
+          <div className="flex items-center gap-1.5 app-no-drag pointer-events-auto">
+            <div className="relative inline-flex items-center">
+              <select
+                value={data.sourceLanguage || "auto"}
+                onChange={(e) => handleSourceChange(e.target.value)}
+                className="appearance-none bg-glass hover:bg-glass-elevated text-[10px] uppercase font-mono font-semibold px-2 py-0.5 pr-4 rounded-md border border-glass-border/70 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                title="Source Language"
+              >
+                <option value="auto" className="bg-background text-foreground">AUTO</option>
+                {OCR_SUPPORTED_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code} className="bg-background text-foreground">
+                    {lang.code.toUpperCase()} ({lang.name})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-1 flex items-center text-[7px] text-muted-foreground">
+                ▼
+              </div>
+            </div>
+
+            <span className="text-muted-foreground/50 text-[11px] pointer-events-none">→</span>
+
+            <div className="relative inline-flex items-center">
+              <select
+                value={data.targetLanguage || "vi"}
+                onChange={(e) => handleTargetChange(e.target.value)}
+                className="appearance-none bg-primary/20 hover:bg-primary/30 text-primary text-[10px] uppercase font-mono font-bold px-2 py-0.5 pr-4 rounded-md border border-primary/40 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary transition-all"
+                title="Target Language"
+              >
+                {TARGET_LANGUAGES.map((lang) => (
+                  <option key={lang.code} value={lang.code} className="bg-background text-foreground">
+                    {lang.code.toUpperCase()} ({lang.name})
+                  </option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute right-1 flex items-center text-[7px] text-primary/70">
+                ▼
+              </div>
+            </div>
           </div>
           {(data.durationMs ?? 0) > 0 && (
-            <span className="text-[10px] text-muted-foreground/80 flex items-center gap-1 font-mono">
+            <span className="text-[10px] text-muted-foreground/80 flex items-center gap-1 font-mono pointer-events-none">
               <Clock className="w-2.5 h-2.5" />
               {data.durationMs}ms
             </span>

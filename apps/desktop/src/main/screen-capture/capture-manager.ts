@@ -131,21 +131,44 @@ export class ScreenCaptureManager {
     // 4. Optional image preprocessing (e.g. binarize, upscale, contrast stretch)
     if (preprocessOptions && preprocessOptions.profile !== 'none') {
       try {
-        const cropSize = cropped.getSize();
         const rawBitmap = cropped.toBitmap();
-        const preprocessed = preprocessImage(
-          {
-            data: new Uint8Array(rawBitmap),
-            width: cropSize.width,
-            height: cropSize.height,
-          },
-          preprocessOptions
-        );
+        const bmpWidth = physicalCrop.width;
+        const bmpHeight = physicalCrop.height;
 
-        cropped = nativeImage.createFromBitmap(Buffer.from(preprocessed.data), {
-          width: preprocessed.width,
-          height: preprocessed.height,
-        });
+        // Verify buffer length matches expected physical or DIP dimension before processing to prevent line-shearing
+        let validWidth = 0;
+        let validHeight = 0;
+
+        if (rawBitmap.length === bmpWidth * bmpHeight * 4) {
+          validWidth = bmpWidth;
+          validHeight = bmpHeight;
+        } else {
+          const dipSize = cropped.getSize();
+          if (rawBitmap.length === dipSize.width * dipSize.height * 4) {
+            validWidth = dipSize.width;
+            validHeight = dipSize.height;
+          }
+        }
+
+        if (validWidth > 0 && validHeight > 0) {
+          const preprocessed = preprocessImage(
+            {
+              data: new Uint8Array(rawBitmap),
+              width: validWidth,
+              height: validHeight,
+            },
+            preprocessOptions
+          );
+
+          cropped = nativeImage.createFromBitmap(Buffer.from(preprocessed.data), {
+            width: preprocessed.width,
+            height: preprocessed.height,
+          });
+        } else {
+          log.warn(
+            `Skipping preprocessing: bitmap buffer size (${rawBitmap.length}) does not match physical (${bmpWidth}x${bmpHeight}) or DIP dimensions.`
+          );
+        }
       } catch (err) {
         log.warn('Preprocessing failed, using original crop:', err);
       }

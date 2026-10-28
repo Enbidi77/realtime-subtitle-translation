@@ -71,8 +71,8 @@ export const OCR_SUPPORTED_LANGUAGES: Array<OcrLanguageInfo & { tesseractCode: s
 export const OCR_PROFILE_PRESETS: Record<string, OcrPreprocessOptions> = {
   general: {
     profile: 'general',
-    grayscale: true,
-    contrastStretch: true,
+    grayscale: false,
+    contrastStretch: false,
     binarize: false,
     invert: false,
     scale: 1,

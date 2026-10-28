@@ -20,6 +20,7 @@ import {
   ContinuousOcrScheduler,
   OcrRegistry,
 } from '@echo-lingo/ocr-core';
+import { OCR_PROFILE_PRESETS } from '@echo-lingo/config';
 import {
   WindowsNativeOcrProvider,
   TesseractOcrProvider,
@@ -253,14 +254,9 @@ export class ScreenTranslationService {
     }
   ): Promise<{ ocrResponse: OcrResponse; imageDataUrl: string }> {
     const captureMgr = getScreenCaptureManager();
-    const { buffer, dataUrl } = await captureMgr.captureRegion(region, {
-      profile: options?.profile || 'general',
-      grayscale: true,
-      contrastStretch: true,
-      binarize: false,
-      invert: false,
-      scale: 1,
-    });
+    const profileKey = options?.profile || 'general';
+    const preprocessOpts = OCR_PROFILE_PRESETS[profileKey] || OCR_PROFILE_PRESETS.general;
+    const { buffer, dataUrl } = await captureMgr.captureRegion(region, preprocessOpts);
 
     const ocrResponse = await this.recognize({
       imageBuffer: new Uint8Array(buffer),
@@ -310,15 +306,24 @@ export class ScreenTranslationService {
       }
 
       // 2. Translate using existing translation service
-      const targetLang = (req.targetLanguages && req.targetLanguages[0]) || 'vi';
+      const targetLang = (req.targetLanguages && req.targetLanguages[0]) || settings?.targetLanguages?.[0] || 'vi';
+      const effectiveSourceLang =
+        (req.sourceLanguage && req.sourceLanguage !== 'auto')
+          ? req.sourceLanguage
+          : (req.ocrLanguage && req.ocrLanguage !== 'auto')
+            ? req.ocrLanguage
+            : (settings?.screenTranslation?.ocrLanguage && settings.screenTranslation.ocrLanguage !== 'auto')
+              ? settings.screenTranslation.ocrLanguage
+              : 'auto';
+
       const translationResult = await translationService.translate(
         {
           text: recognizedText,
-          sourceLanguage: req.sourceLanguage || 'auto',
+          sourceLanguage: effectiveSourceLang,
           targetLanguage: targetLang,
           priority: 'high',
         },
-        req.translationProviderId
+        req.translationProviderId || settings?.translationProvider
       );
 
       const totalDuration = Date.now() - startMs;
@@ -326,12 +331,21 @@ export class ScreenTranslationService {
       // 3. Persist to database history (respecting privacy: screenshots only saved if explicitly opted in)
       const shouldPersistScreenshot = Boolean(settings?.screenTranslation?.persistScreenshots);
 
+      const finalSourceLang =
+        (effectiveSourceLang && effectiveSourceLang !== 'auto')
+          ? effectiveSourceLang
+          : (translationResult.detectedSourceLanguage && translationResult.detectedSourceLanguage !== 'auto')
+            ? translationResult.detectedSourceLanguage
+            : (req.ocrLanguage && req.ocrLanguage !== 'auto')
+              ? req.ocrLanguage
+              : 'auto';
+
       const historyItem: OcrHistoryItem = {
         id: 'ocr_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7),
         createdAt: Date.now(),
         ocrProvider: ocrResponse.providerId,
-        ocrLanguage: req.ocrLanguage || 'auto',
-        sourceLanguage: translationResult.detectedSourceLanguage || req.sourceLanguage || 'auto',
+        ocrLanguage: req.ocrLanguage || effectiveSourceLang || 'auto',
+        sourceLanguage: finalSourceLang,
         targetLanguage: targetLang,
         originalText: recognizedText,
         translatedText: translationResult.translatedText,
@@ -349,7 +363,7 @@ export class ScreenTranslationService {
       const panelPayload: FloatingPanelPayload = {
         originalText: recognizedText,
         translatedText: translationResult.translatedText,
-        sourceLanguage: historyItem.sourceLanguage,
+        sourceLanguage: finalSourceLang,
         targetLanguage: targetLang,
         confidence: ocrResponse.confidence,
         durationMs: totalDuration,
@@ -406,10 +420,16 @@ export class ScreenTranslationService {
         });
       },
       onTranslate: async (text: string, targetLanguage: string) => {
+        const effectiveSource =
+          (config.sourceLanguage && config.sourceLanguage !== 'auto')
+            ? config.sourceLanguage
+            : (config.ocrLanguage && config.ocrLanguage !== 'auto')
+              ? config.ocrLanguage
+              : 'auto';
         return translationService.translate(
           {
             text,
-            sourceLanguage: config.sourceLanguage,
+            sourceLanguage: effectiveSource,
             targetLanguage,
             priority: 'high',
           },
@@ -417,14 +437,22 @@ export class ScreenTranslationService {
         );
       },
       onResult: (result) => {
+        const effectiveSource =
+          (config.sourceLanguage && config.sourceLanguage !== 'auto')
+            ? config.sourceLanguage
+            : (config.ocrLanguage && config.ocrLanguage !== 'auto')
+              ? config.ocrLanguage
+              : (result as any).detectedSourceLanguage || 'auto';
+        const targetLang = config.targetLanguages[0] || 'vi';
+
         // Save to database
         const historyItem: OcrHistoryItem = {
           id: 'cont_' + Date.now(),
           createdAt: Date.now(),
           ocrProvider: config.ocrProviderId,
           ocrLanguage: config.ocrLanguage,
-          sourceLanguage: config.sourceLanguage,
-          targetLanguage: config.targetLanguages[0] || 'vi',
+          sourceLanguage: effectiveSource,
+          targetLanguage: targetLang,
           originalText: result.recognizedText,
           translatedText: result.translatedText,
           confidence: result.confidence,
@@ -438,8 +466,8 @@ export class ScreenTranslationService {
         showOcrFloatingPanel({
           originalText: result.recognizedText,
           translatedText: result.translatedText,
-          sourceLanguage: config.sourceLanguage,
-          targetLanguage: config.targetLanguages[0] || 'vi',
+          sourceLanguage: effectiveSource,
+          targetLanguage: targetLang,
           confidence: result.confidence,
           durationMs: result.durationMs,
           region: config.region,

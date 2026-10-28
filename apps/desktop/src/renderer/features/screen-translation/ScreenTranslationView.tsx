@@ -78,6 +78,61 @@ export const ScreenTranslationView: React.FC = () => {
     settings.screenTranslation?.keepMainWindowHiddenAfterCapture || false,
   );
 
+  // Sync state if settings update from external sources (e.g. Floating Panel or Settings View)
+  useEffect(() => {
+    if (
+      settings.screenTranslation?.ocrLanguage &&
+      settings.screenTranslation.ocrLanguage !== ocrLanguage
+    ) {
+      setOcrLanguage(settings.screenTranslation.ocrLanguage);
+    }
+  }, [settings.screenTranslation?.ocrLanguage]);
+
+  useEffect(() => {
+    if (
+      settings.targetLanguages?.[0] &&
+      settings.targetLanguages[0] !== targetLanguage
+    ) {
+      setTargetLanguage(settings.targetLanguages[0]);
+    }
+  }, [settings.targetLanguages]);
+
+  useEffect(() => {
+    if (
+      settings.screenTranslation?.profile &&
+      settings.screenTranslation.profile !== profile
+    ) {
+      setProfile(settings.screenTranslation.profile);
+    }
+  }, [settings.screenTranslation?.profile]);
+
+  const handleOcrLanguageChange = (newLang: string) => {
+    setOcrLanguage(newLang);
+    updateSettings({
+      screenTranslation: {
+        ...settings.screenTranslation,
+        ocrLanguage: newLang,
+      },
+    });
+  };
+
+  const handleTargetLanguageChange = (newTarget: string) => {
+    setTargetLanguage(newTarget);
+    updateSettings({
+      targetLanguages: [newTarget],
+    });
+  };
+
+  const handleProfileChange = (newProfile: OcrProfile) => {
+    setProfile(newProfile);
+    updateSettings({
+      screenTranslation: {
+        ...settings.screenTranslation,
+        profile: newProfile,
+      },
+    });
+  };
+
   useEffect(() => {
     if (
       settings.screenTranslation?.keepMainWindowHiddenAfterCapture !== undefined
@@ -208,11 +263,13 @@ export const ScreenTranslationView: React.FC = () => {
 
       // Step 2: Capture, OCR and translate
       setIsTranslating(true);
+      const effectiveSource =
+        ocrLanguage && ocrLanguage !== "auto" ? ocrLanguage : "auto";
       const res = await window.electronAPI.screenTranslation.translateRegion({
         region,
         ocrLanguage,
         targetLanguages: [targetLanguage],
-        sourceLanguage: "auto",
+        sourceLanguage: effectiveSource,
         ocrProviderId: selectedProvider,
         translationProviderId: settings.translationProvider || "google-web",
         profile,
@@ -249,9 +306,11 @@ export const ScreenTranslationView: React.FC = () => {
     setErrorMessage(null);
 
     try {
+      const effectiveSource =
+        ocrLanguage && ocrLanguage !== "auto" ? ocrLanguage : "auto";
       const res = await window.electronAPI.translation.translate({
         text: editedText.trim(),
-        sourceLanguage: "auto",
+        sourceLanguage: effectiveSource,
         targetLanguage,
         priority: "high",
       });
@@ -305,6 +364,8 @@ export const ScreenTranslationView: React.FC = () => {
       await window.electronAPI?.screenTranslation.stopContinuous();
     } else {
       setErrorMessage(null);
+      const effectiveSource =
+        ocrLanguage && ocrLanguage !== "auto" ? ocrLanguage : "auto";
       await window.electronAPI?.screenTranslation.startContinuous({
         region: continuousRegion,
         intervalMs,
@@ -314,7 +375,7 @@ export const ScreenTranslationView: React.FC = () => {
         ocrProviderId: selectedProvider,
         ocrLanguage,
         translationProviderId: settings.translationProvider || "google-web",
-        sourceLanguage: "auto",
+        sourceLanguage: effectiveSource,
         targetLanguages: [targetLanguage],
         profile,
       });
@@ -496,7 +557,7 @@ export const ScreenTranslationView: React.FC = () => {
               containerClassName="w-auto"
               className="min-w-[135px]"
               value={ocrLanguage}
-              onChange={(e) => setOcrLanguage(e.target.value)}
+              onChange={(e) => handleOcrLanguageChange(e.target.value)}
             >
               {OCR_SUPPORTED_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
@@ -518,7 +579,7 @@ export const ScreenTranslationView: React.FC = () => {
               containerClassName="w-auto"
               className="min-w-[110px]"
               value={targetLanguage}
-              onChange={(e) => setTargetLanguage(e.target.value)}
+              onChange={(e) => handleTargetLanguageChange(e.target.value)}
             >
               {TARGET_LANGUAGES.map((l) => (
                 <option key={l.code} value={l.code}>
@@ -561,7 +622,9 @@ export const ScreenTranslationView: React.FC = () => {
                   </label>
                   <GlassSelect
                     value={profile}
-                    onChange={(e) => setProfile(e.target.value as OcrProfile)}
+                    onChange={(e) =>
+                      handleProfileChange(e.target.value as OcrProfile)
+                    }
                   >
                     <option value="general">
                       {t(
@@ -599,7 +662,7 @@ export const ScreenTranslationView: React.FC = () => {
                   </label>
                   <GlassSelect
                     value={ocrLanguage}
-                    onChange={(e) => setOcrLanguage(e.target.value)}
+                    onChange={(e) => handleOcrLanguageChange(e.target.value)}
                   >
                     {OCR_SUPPORTED_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
@@ -618,7 +681,7 @@ export const ScreenTranslationView: React.FC = () => {
                   </label>
                   <GlassSelect
                     value={targetLanguage}
-                    onChange={(e) => setTargetLanguage(e.target.value)}
+                    onChange={(e) => handleTargetLanguageChange(e.target.value)}
                   >
                     {TARGET_LANGUAGES.map((l) => (
                       <option key={l.code} value={l.code}>
@@ -834,11 +897,15 @@ export const ScreenTranslationView: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => {
+                        const effectiveSource =
+                          ocrLanguage && ocrLanguage !== "auto"
+                            ? ocrLanguage
+                            : "auto";
                         window.electronAPI?.screenTranslation.showFloatingPanel(
                           {
                             originalText: editedText,
                             translatedText,
-                            sourceLanguage: "auto",
+                            sourceLanguage: effectiveSource,
                             targetLanguage,
                             confidence,
                             durationMs,

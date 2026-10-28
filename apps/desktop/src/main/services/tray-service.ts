@@ -259,7 +259,7 @@ export class TrayService {
                   region,
                   ocrProviderId: settings.screenTranslation.ocrProvider,
                   ocrLanguage: settings.screenTranslation.ocrLanguage,
-                  sourceLanguage: settings.sourceLanguage,
+                  sourceLanguage: (settings.screenTranslation.ocrLanguage && settings.screenTranslation.ocrLanguage !== 'auto') ? settings.screenTranslation.ocrLanguage : (settings.sourceLanguage || 'auto'),
                   targetLanguages: settings.targetLanguages,
                   translationProviderId: settings.translationProvider,
                   profile: settings.screenTranslation.profile,

@@ -103,11 +103,16 @@ export class ShortcutsService {
         const settings = db.getSetting('app_settings', DEFAULT_APP_SETTINGS);
         const stSettings = settings.screenTranslation || DEFAULT_APP_SETTINGS.screenTranslation;
 
+        const effectiveSource =
+          stSettings.ocrLanguage && stSettings.ocrLanguage !== 'auto'
+            ? stSettings.ocrLanguage
+            : settings.sourceLanguage || 'auto';
+
         await screenService.captureAndTranslate({
           region,
           ocrLanguage: stSettings.ocrLanguage || 'auto',
           targetLanguages: settings.targetLanguages || ['vi'],
-          sourceLanguage: settings.sourceLanguage || 'auto',
+          sourceLanguage: effectiveSource,
           ocrProviderId: stSettings.ocrProvider || 'windows-native',
           translationProviderId: settings.translationProvider || 'google-web',
           profile: stSettings.profile || 'general',
@@ -143,7 +148,7 @@ export class ShortcutsService {
             ocrProviderId: stSettings.ocrProvider || 'windows-native',
             ocrLanguage: stSettings.ocrLanguage || 'auto',
             translationProviderId: settings.translationProvider || 'google-web',
-            sourceLanguage: settings.sourceLanguage || 'auto',
+            sourceLanguage: (stSettings.ocrLanguage && stSettings.ocrLanguage !== 'auto') ? stSettings.ocrLanguage : (settings.sourceLanguage || 'auto'),
             targetLanguages: settings.targetLanguages || ['vi'],
             profile: stSettings.profile || 'general',
           });
