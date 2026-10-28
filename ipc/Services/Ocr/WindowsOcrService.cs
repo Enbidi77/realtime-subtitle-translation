@@ -101,6 +101,142 @@ public class WindowsOcrService : IOcrService
         {
             list.AddRange(new[] { "it-IT", "it" });
         }
+        else if (lower.StartsWith("id") || lower == "ind")
+        {
+            list.AddRange(new[] { "id-ID", "id" });
+        }
+        else if (lower.StartsWith("ms") || lower == "msa" || lower == "may")
+        {
+            list.AddRange(new[] { "ms-MY", "ms-BN", "ms" });
+        }
+        else if (lower.StartsWith("th") || lower == "tha")
+        {
+            list.AddRange(new[] { "th-TH", "th" });
+        }
+        else if (lower.StartsWith("fil") || lower.StartsWith("tl") || lower == "tgl")
+        {
+            list.AddRange(new[] { "fil-PH", "tl-PH", "fil", "tl" });
+        }
+        else if (lower.StartsWith("hi") || lower == "hin")
+        {
+            list.AddRange(new[] { "hi-IN", "hi" });
+        }
+        else if (lower.StartsWith("ar") || lower == "ara")
+        {
+            list.AddRange(new[] { "ar-SA", "ar-EG", "ar-AE", "ar" });
+        }
+        else if (lower.StartsWith("nl") || lower == "nld" || lower == "dut")
+        {
+            list.AddRange(new[] { "nl-NL", "nl-BE", "nl" });
+        }
+        else if (lower.StartsWith("pl") || lower == "pol")
+        {
+            list.AddRange(new[] { "pl-PL", "pl" });
+        }
+        else if (lower.StartsWith("tr") || lower == "tur")
+        {
+            list.AddRange(new[] { "tr-TR", "tr" });
+        }
+        else if (lower.StartsWith("uk") || lower == "ukr")
+        {
+            list.AddRange(new[] { "uk-UA", "uk" });
+        }
+        else if (lower.StartsWith("sv") || lower == "swe")
+        {
+            list.AddRange(new[] { "sv-SE", "sv-FI", "sv" });
+        }
+        else if (lower.StartsWith("cs") || lower == "ces" || lower == "cze")
+        {
+            list.AddRange(new[] { "cs-CZ", "cs" });
+        }
+        else if (lower.StartsWith("da") || lower == "dan")
+        {
+            list.AddRange(new[] { "da-DK", "da" });
+        }
+        else if (lower.StartsWith("fi") || lower == "fin")
+        {
+            list.AddRange(new[] { "fi-FI", "fi" });
+        }
+        else if (lower.StartsWith("el") || lower == "ell" || lower == "gre")
+        {
+            list.AddRange(new[] { "el-GR", "el" });
+        }
+        else if (lower.StartsWith("he") || lower == "heb")
+        {
+            list.AddRange(new[] { "he-IL", "he" });
+        }
+        else if (lower.StartsWith("hu") || lower == "hun")
+        {
+            list.AddRange(new[] { "hu-HU", "hu" });
+        }
+        else if (lower.StartsWith("no") || lower.StartsWith("nb") || lower.StartsWith("nn") || lower == "nor")
+        {
+            list.AddRange(new[] { "nb-NO", "nn-NO", "no" });
+        }
+        else if (lower.StartsWith("ro") || lower == "ron" || lower == "rum")
+        {
+            list.AddRange(new[] { "ro-RO", "ro" });
+        }
+        else if (lower.StartsWith("sk") || lower == "slk" || lower == "slo")
+        {
+            list.AddRange(new[] { "sk-SK", "sk" });
+        }
+        else if (lower.StartsWith("bg") || lower == "bul")
+        {
+            list.AddRange(new[] { "bg-BG", "bg" });
+        }
+        else if (lower.StartsWith("hr") || lower == "hrv")
+        {
+            list.AddRange(new[] { "hr-HR", "hr" });
+        }
+        else if (lower.StartsWith("sr") || lower == "srp")
+        {
+            list.AddRange(new[] { "sr-Cyrl-RS", "sr-Latn-RS", "sr-RS", "sr" });
+        }
+        else if (lower.StartsWith("sl") || lower == "slv")
+        {
+            list.AddRange(new[] { "sl-SI", "sl" });
+        }
+        else if (lower.StartsWith("lt") || lower == "lit")
+        {
+            list.AddRange(new[] { "lt-LT", "lt" });
+        }
+        else if (lower.StartsWith("lv") || lower == "lav")
+        {
+            list.AddRange(new[] { "lv-LV", "lv" });
+        }
+        else if (lower.StartsWith("et") || lower == "est")
+        {
+            list.AddRange(new[] { "et-EE", "et" });
+        }
+        else if (lower.StartsWith("ca") || lower == "cat")
+        {
+            list.AddRange(new[] { "ca-ES", "ca" });
+        }
+        else if (lower.StartsWith("bn") || lower == "ben")
+        {
+            list.AddRange(new[] { "bn-IN", "bn-BD", "bn" });
+        }
+        else if (lower.StartsWith("ta") || lower == "tam")
+        {
+            list.AddRange(new[] { "ta-IN", "ta-LK", "ta" });
+        }
+        else if (lower.StartsWith("te") || lower == "tel")
+        {
+            list.AddRange(new[] { "te-IN", "te" });
+        }
+        else if (lower.StartsWith("ur") || lower == "urd")
+        {
+            list.AddRange(new[] { "ur-PK", "ur-IN", "ur" });
+        }
+        else if (lower.StartsWith("fa") || lower == "fas" || lower == "per")
+        {
+            list.AddRange(new[] { "fa-IR", "fa" });
+        }
+        else if (lower.StartsWith("sw") || lower == "swa")
+        {
+            list.AddRange(new[] { "sw-KE", "sw-TZ", "sw" });
+        }
 
         return list;
     }

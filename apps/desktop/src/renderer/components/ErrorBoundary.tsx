@@ -2,8 +2,7 @@ import React, { Component, ErrorInfo, ReactNode } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 import { createRendererLogger } from "@echo-lingo/logger";
 import { useSettingsStore } from "@/stores/settings-store.js";
-import en from "@/app/i18n/en.json";
-import vi from "@/app/i18n/vi.json";
+import { getDictionary } from "@/app/i18n/index.js";
 
 const log = createRendererLogger("ErrorBoundary");
 
@@ -38,7 +37,7 @@ export class ErrorBoundary extends Component<Props, State> {
   public override render() {
     if (this.state.hasError) {
       const locale = useSettingsStore.getState()?.settings?.locale || "en";
-      const dict = locale === "vi" ? vi : en;
+      const dict = getDictionary(locale);
 
       return (
         <div className="h-screen w-screen flex flex-col items-center justify-center p-6 bg-background text-foreground select-none">

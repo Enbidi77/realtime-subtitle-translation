@@ -214,15 +214,13 @@ class CommandRegistry {
     });
 
     // 6. UI Language controls
-    this.register('locale:vi', () => {
-      useSettingsStore.getState().updateSettings({ locale: 'vi' });
-      return { success: true };
-    });
-
-    this.register('locale:en', () => {
-      useSettingsStore.getState().updateSettings({ locale: 'en' });
-      return { success: true };
-    });
+    const supportedLocales = ['en', 'vi', 'zh', 'ja', 'ko', 'es', 'fr', 'de', 'ru'] as const;
+    for (const loc of supportedLocales) {
+      this.register(`locale:${loc}`, () => {
+        useSettingsStore.getState().updateSettings({ locale: loc });
+        return { success: true };
+      });
+    }
 
     // 7. Diagnostics and Maintenance
     this.register('app:open-logs', async () => {

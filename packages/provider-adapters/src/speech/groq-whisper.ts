@@ -5,6 +5,7 @@ import {
   encodeWav,
 } from '@echo-lingo/speech-core';
 import { SpeechEngineType } from '@echo-lingo/contracts';
+import { normalizeWhisperLanguage } from './whisper-utils.js';
 import { createLogger } from '@echo-lingo/logger';
 
 const log = createLogger('GroqWhisperProvider');
@@ -51,8 +52,9 @@ export class GroqWhisperProvider implements ISpeechProvider {
     formData.append('file', blob, 'audio.wav');
     formData.append('model', this.model);
 
-    if (options.language && options.language !== 'auto') {
-      formData.append('language', options.language);
+    const whisperLang = normalizeWhisperLanguage(options.language);
+    if (whisperLang && whisperLang !== 'auto') {
+      formData.append('language', whisperLang);
     }
 
     const response = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', {

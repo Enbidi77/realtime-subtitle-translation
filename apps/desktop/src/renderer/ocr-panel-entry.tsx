@@ -6,6 +6,7 @@ import { applyTheme } from "@/stores/settings-store.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassBadge } from "@/components/ui/GlassBadge.js";
 import { createRendererLogger } from "@echo-lingo/logger";
+import { getDictionary } from "@/app/i18n/index.js";
 import {
   GripHorizontal,
   X,
@@ -22,6 +23,7 @@ const FloatingResultPanel: React.FC = () => {
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [locale, setLocale] = useState<string>("en");
   const [isResizing, setIsResizing] = useState(false);
+  const dict = getDictionary(locale);
 
   useEffect(() => {
     // Sync theme, glass intensity, and locale from settings
@@ -214,9 +216,7 @@ const FloatingResultPanel: React.FC = () => {
           <span className="font-semibold text-foreground">EchoLingo OCR</span>
         </div>
         <span className="text-[11px] text-muted-foreground pointer-events-none z-10">
-          {locale === "vi"
-            ? "Đang chờ kết quả dịch thuật..."
-            : "Waiting for translation result..."}
+          {dict.ocr?.floatingPanel?.waiting || "Waiting for translation result..."}
         </span>
 
         {renderResizeHandles()}
@@ -269,7 +269,7 @@ const FloatingResultPanel: React.FC = () => {
             type="button"
             onClick={handleClose}
             className="w-6 h-6 flex items-center justify-center rounded-lg hover:bg-glass hover:text-foreground text-muted-foreground cursor-pointer transition-colors border border-transparent hover:border-glass-border"
-            title={locale === "vi" ? "Đóng bảng điều khiển" : "Dismiss Panel"}
+            title={dict.ocr?.floatingPanel?.dismiss || "Dismiss Panel"}
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -308,12 +308,8 @@ const FloatingResultPanel: React.FC = () => {
           >
             <span>
               {copiedKey === "trans"
-                ? locale === "vi"
-                  ? "Đã sao chép"
-                  : "Copied"
-                : locale === "vi"
-                  ? "Sao chép"
-                  : "Copy"}
+                ? dict.ocr?.floatingPanel?.copied || "Copied"
+                : dict.common?.copy || "Copy"}
             </span>
           </GlassButton>
 
@@ -329,12 +325,8 @@ const FloatingResultPanel: React.FC = () => {
           >
             <span>
               {copiedKey === "both"
-                ? locale === "vi"
-                  ? "Đã sao chép cả hai"
-                  : "Copied Both"
-                : locale === "vi"
-                  ? "Sao chép cả hai"
-                  : "Copy Both"}
+                ? dict.ocr?.floatingPanel?.copiedBoth || "Copied Both"
+                : dict.ocr?.result?.copyBoth || "Copy Both"}
             </span>
           </GlassButton>
         </div>
@@ -345,7 +337,7 @@ const FloatingResultPanel: React.FC = () => {
           onClick={handleCaptureAnother}
           icon={<Crop className="w-3 h-3" />}
         >
-          <span>{locale === "vi" ? "Chụp tiếp" : "Capture Next"}</span>
+          <span>{dict.ocr?.floatingPanel?.captureNext || "Capture Next"}</span>
         </GlassButton>
       </div>
 

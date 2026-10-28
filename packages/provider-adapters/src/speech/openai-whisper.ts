@@ -5,6 +5,7 @@ import {
   encodeWav,
 } from '@echo-lingo/speech-core';
 import { SpeechEngineType } from '@echo-lingo/contracts';
+import { normalizeWhisperLanguage } from './whisper-utils.js';
 
 export class OpenAIWhisperProvider implements ISpeechProvider {
   public readonly id: SpeechEngineType = 'openai-whisper';
@@ -48,8 +49,9 @@ export class OpenAIWhisperProvider implements ISpeechProvider {
     formData.append('file', blob, 'audio.wav');
     formData.append('model', this.model);
 
-    if (options.language && options.language !== 'auto') {
-      formData.append('language', options.language);
+    const whisperLang = normalizeWhisperLanguage(options.language);
+    if (whisperLang && whisperLang !== 'auto') {
+      formData.append('language', whisperLang);
     }
     if (options.prompt) {
       formData.append('prompt', options.prompt);

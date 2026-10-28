@@ -1,15 +1,33 @@
 import { describe, it, expect } from 'vitest';
-import { AppSettingsSchema, CloseBehaviorSchema, SplashStatusEventSchema } from '@echo-lingo/contracts';
+import {
+  AppSettingsSchema,
+  CloseBehaviorSchema,
+  SplashStatusEventSchema,
+  SupportedLocaleSchema,
+} from '@echo-lingo/contracts';
 import {
   DEFAULT_APP_SETTINGS,
   isPaidSpeechEngine,
   isPaidTranslationProvider,
   PAID_SPEECH_ENGINES,
   PAID_TRANSLATION_PROVIDERS,
+  getLanguageName,
 } from '@echo-lingo/config';
 import { zlibSyncCheck } from './png-helper.js';
 
 describe('App Settings & Close Behavior Contracts', () => {
+  it('validates supported UI locales in AppSettingsSchema and SupportedLocaleSchema', () => {
+    const validLocales = ['en', 'vi', 'zh', 'ja', 'ko', 'es', 'fr', 'de', 'ru'] as const;
+    for (const loc of validLocales) {
+      expect(SupportedLocaleSchema.parse(loc)).toBe(loc);
+      const settings = AppSettingsSchema.parse({ ...DEFAULT_APP_SETTINGS, locale: loc });
+      expect(settings.locale).toBe(loc);
+    }
+    expect(() => SupportedLocaleSchema.parse('invalid-locale')).toThrow();
+    expect(getLanguageName('zh', 'zh')).toBe('简体中文');
+    expect(getLanguageName('ja', 'ja')).toBe('日本語');
+    expect(getLanguageName('en', 'en')).toBe('English');
+  });
   it('validates default closeBehavior, splash screen, and showPaidProviders settings', () => {
     expect(DEFAULT_APP_SETTINGS.closeBehavior).toBe('ask');
     expect(DEFAULT_APP_SETTINGS.enableSplashScreen).toBe(true);

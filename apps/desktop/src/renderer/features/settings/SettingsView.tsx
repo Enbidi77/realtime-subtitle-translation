@@ -6,6 +6,9 @@ import { useI18n } from "@/app/i18n/index.js";
 import {
   isPaidSpeechEngine,
   isPaidTranslationProvider,
+  SUPPORTED_LANGUAGES,
+  TARGET_LANGUAGES,
+  OCR_SUPPORTED_LANGUAGES,
 } from "@echo-lingo/config";
 import { AppSettings } from "@echo-lingo/contracts";
 import { createRendererLogger } from "@echo-lingo/logger";
@@ -226,7 +229,7 @@ export const SettingsView: React.FC = () => {
           <span>{t("settings.appearance")}</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           {/* Theme */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium">
@@ -269,11 +272,30 @@ export const SettingsView: React.FC = () => {
               </option>
             </GlassSelect>
           </div>
+        </div>
+      </GlassCard>
 
-          {/* UI Language */}
+      {/* 2. Languages & Recognition Defaults */}
+      <GlassCard variant="default" className="p-6 space-y-5">
+        <div className="space-y-1">
+          <h2 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Globe className="w-4 h-4 text-primary" />
+            <span>{t("settings.languageDefaults", "Languages & Recognition Defaults")}</span>
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {t(
+              "settings.languageDefaultsDesc",
+              "Configure default languages for the user interface, real-time speech recognition, translation, and on-screen OCR."
+            )}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+          {/* UI Display Language */}
           <div className="space-y-1.5">
-            <label className="text-muted-foreground font-medium">
-              {t("settings.language")}
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+              <Globe className="w-3 h-3 text-primary" />
+              <span>{t("settings.language", "UI Display Language")}</span>
             </label>
             <GlassSelect
               value={settings.locale}
@@ -282,9 +304,108 @@ export const SettingsView: React.FC = () => {
                 showSaved();
               }}
             >
-              <option value="en">English</option>
+              <option value="en">English (US)</option>
               <option value="vi">Tiếng Việt (Vietnamese)</option>
+              <option value="zh">简体中文 (Chinese Simplified)</option>
+              <option value="ja">日本語 (Japanese)</option>
+              <option value="ko">한국어 (Korean)</option>
+              <option value="es">Español (Spanish)</option>
+              <option value="fr">Français (French)</option>
+              <option value="de">Deutsch (German)</option>
+              <option value="ru">Русский (Russian)</option>
             </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "settings.uiLanguageHint",
+                "Language used throughout the EchoLingo desktop interface."
+              )}
+            </p>
+          </div>
+
+          {/* Audio Recognition (Spoken Language) */}
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+              <Mic className="w-3 h-3 text-primary" />
+              <span>{t("settings.audioLanguage", "Audio Recognition (Spoken Language)")}</span>
+            </label>
+            <GlassSelect
+              value={settings.sourceLanguage || "auto"}
+              onChange={(e) => {
+                updateSettings({ sourceLanguage: e.target.value });
+                showSaved();
+              }}
+            >
+              {SUPPORTED_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} {lang.nativeName && lang.nativeName !== lang.name ? `(${lang.nativeName})` : ""}
+                </option>
+              ))}
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "settings.audioLanguageHint",
+                "Default spoken language for microphone and system audio transcription."
+              )}
+            </p>
+          </div>
+
+          {/* Default Translation Target */}
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+              <Globe className="w-3 h-3 text-primary" />
+              <span>{t("settings.targetLanguage", "Default Translation Target")}</span>
+            </label>
+            <GlassSelect
+              value={settings.targetLanguages?.[0] || "vi"}
+              onChange={(e) => {
+                updateSettings({ targetLanguages: [e.target.value] });
+                showSaved();
+              }}
+            >
+              {TARGET_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} {lang.nativeName && lang.nativeName !== lang.name ? `(${lang.nativeName})` : ""}
+                </option>
+              ))}
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "settings.targetLanguageHint",
+                "Primary target language for live subtitles and translation output."
+              )}
+            </p>
+          </div>
+
+          {/* Default OCR Recognition Language */}
+          <div className="space-y-1.5">
+            <label className="text-muted-foreground font-medium flex items-center gap-1.5">
+              <ScanText className="w-3 h-3 text-primary" />
+              <span>{t("settings.ocrLanguage", "Default OCR Language")}</span>
+            </label>
+            <GlassSelect
+              value={settings.screenTranslation?.ocrLanguage || "auto"}
+              onChange={(e) => {
+                updateSettings({
+                  screenTranslation: {
+                    ...settings.screenTranslation,
+                    ocrLanguage: e.target.value,
+                  },
+                });
+                showSaved();
+              }}
+            >
+              {OCR_SUPPORTED_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} {lang.nativeName && lang.nativeName !== lang.name ? `(${lang.nativeName})` : ""}
+                </option>
+              ))}
+            </GlassSelect>
+            <p className="text-[10px] text-muted-foreground/80">
+              {t(
+                "settings.ocrLanguageHint",
+                "Default language hint used for on-screen text capture and OCR recognition."
+              )}
+            </p>
           </div>
         </div>
       </GlassCard>

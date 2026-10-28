@@ -3,8 +3,7 @@ import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
 import { SplashStatusEvent } from "@echo-lingo/contracts";
 import { Loader2, ShieldCheck, Sparkles } from "lucide-react";
-import en from "@/app/i18n/en.json";
-import vi from "@/app/i18n/vi.json";
+import { getDictionary } from "@/app/i18n/index.js";
 
 export const SplashScreen: React.FC = () => {
   const [locale, setLocale] = useState<string>("en");
@@ -70,7 +69,7 @@ export const SplashScreen: React.FC = () => {
   }, []);
 
   const progressPercent = Math.min(100, Math.max(5, status.progress ?? 20));
-  const dict = locale === "vi" ? vi : en;
+  const dict = getDictionary(locale);
 
   return (
     <div className="w-screen h-screen flex items-center justify-center p-3 bg-transparent select-none">

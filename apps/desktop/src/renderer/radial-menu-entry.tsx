@@ -9,8 +9,7 @@ import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
 import { RadialMenuActionId, RadialMenuState } from "@echo-lingo/contracts";
 import { createRendererLogger } from "@echo-lingo/logger";
-import en from "@/app/i18n/en.json";
-import vi from "@/app/i18n/vi.json";
+import { getDictionary } from "@/app/i18n/index.js";
 import {
   Settings,
   EyeOff,
@@ -49,7 +48,7 @@ interface MenuItemConfig {
 }
 
 function getLocalizedItem(id: RadialMenuActionId, locale: string) {
-  const dict = locale === "vi" ? vi : en;
+  const dict = getDictionary(locale);
   switch (id) {
     case "open-settings":
       return { label: dict.radialMenu.settings, desc: dict.radialMenu.settingsDesc };
@@ -1026,10 +1025,10 @@ export const RadialMenuApp: React.FC = () => {
             {/* Idle Default: Pink smiley and "Expressions" (exact homage to user's image) */}
             <Smile className="w-8 h-8 text-[#EC4899] mb-1" />
             <div className="font-bold text-[13px] tracking-tight text-[#0284c7] leading-tight">
-              {locale === "vi" ? vi.radialMenu.expressions : "Expressions"}
+              {getDictionary(locale).radialMenu.expressions}
             </div>
             <div className="text-[10px] text-slate-500 font-mono mt-0.5">
-              {locale === "vi" ? vi.radialMenu.title : "Quick Actions"}
+              {getDictionary(locale).radialMenu.title}
             </div>
           </>
         )}

@@ -90,12 +90,11 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
   public getSupportedLanguages(): OcrLanguageInfo[] {
     if (this.cachedLanguages) return this.cachedLanguages;
 
-    return [
-      { code: 'auto', name: 'Auto Detect / System Default', nativeName: 'Tự động phát hiện' },
-      { code: 'en-US', name: 'English (United States)', nativeName: 'English' },
-      { code: 'zh-Hant-TW', name: 'Chinese (Traditional, Taiwan)', nativeName: '繁體中文' },
-      { code: 'ja-JP', name: 'Japanese', nativeName: '日本語' },
-    ];
+    return OCR_SUPPORTED_LANGUAGES.map((l) => ({
+      code: l.code,
+      name: l.name,
+      nativeName: l.nativeName,
+    }));
   }
 
   public async refreshSupportedLanguages(): Promise<OcrLanguageInfo[]> {

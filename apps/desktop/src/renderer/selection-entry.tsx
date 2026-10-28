@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "@/styles/globals.css";
 import { ScreenCaptureRegion } from "@echo-lingo/contracts";
 import { createRendererLogger } from "@echo-lingo/logger";
+import { getDictionary } from "@/app/i18n/index.js";
 import { Crop } from "lucide-react";
 
 const log = createRendererLogger("SelectionOverlay");
@@ -113,18 +114,14 @@ const SelectionOverlay: React.FC = () => {
         <div className="flex items-center gap-1.5 text-primary-foreground font-semibold">
           <Crop className="w-3.5 h-3.5 text-primary" />
           <span>
-            {locale === "vi"
-              ? "Nhấp & kéo để chọn vùng"
-              : "Click & drag to select region"}
+            {getDictionary(locale).ocr?.overlay?.selectInstruction ||
+              "Click & drag to select region"}
           </span>
         </div>
         <span className="text-white/40">•</span>
         <span className="text-white/80 text-[11px]">
-          {locale === "vi" ? "Nhấn " : "Press "}
-          <kbd className="px-1.5 py-0.5 bg-white/15 rounded font-mono text-[10px] border border-white/25">
-            Esc
-          </kbd>
-          {locale === "vi" ? " để hủy" : " to cancel"}
+          {getDictionary(locale).ocr?.overlay?.cancelInstruction ||
+            "Press Esc to cancel"}
         </span>
       </div>
 

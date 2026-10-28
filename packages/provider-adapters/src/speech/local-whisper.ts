@@ -13,6 +13,7 @@ import * as path from 'node:path';
 import * as os from 'node:os';
 import { createLogger } from '@echo-lingo/logger';
 import { downloadFile } from '@echo-lingo/shared';
+import { normalizeWhisperLanguage } from './whisper-utils.js';
 
 const log = createLogger('LocalWhisperProvider');
 const execFileAsync = promisify(execFile);
@@ -218,7 +219,7 @@ export class LocalWhisperProvider implements ISpeechProvider {
     try {
       await fsp.writeFile(tempWav, Buffer.from(wavBytes.buffer, wavBytes.byteOffset, wavBytes.byteLength));
 
-      const lang = options.language && options.language !== 'auto' ? options.language : 'auto';
+      const lang = normalizeWhisperLanguage(options.language);
 
       const args = [
         '-m', model,

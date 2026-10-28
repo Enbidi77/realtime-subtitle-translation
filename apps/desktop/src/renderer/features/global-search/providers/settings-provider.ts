@@ -35,10 +35,10 @@ export class SettingsProvider implements ISearchProvider {
         id: 'set:locale',
         category: 'settings',
         title: 'Interface Display Language',
-        description: `Current: ${settings.locale === 'vi' ? 'Tiếng Việt' : 'English'}. Choose application UI language.`,
+        description: `Current: ${{ en: 'English', vi: 'Tiếng Việt', zh: '简体中文', ja: '日本語', ko: '한국어', es: 'Español', fr: 'Français', de: 'Deutsch', ru: 'Русский' }[settings.locale] || 'English'}. Choose application UI language.`,
         icon: 'Languages',
         path: 'Settings > Appearance',
-        keywords: ['language', 'locale', 'vietnamese', 'english', 'ngon ngu'],
+        keywords: ['language', 'locale', 'vietnamese', 'english', 'chinese', 'japanese', 'korean', 'spanish', 'french', 'german', 'russian', 'ngon ngu'],
         action: { type: 'setting', payload: { settingKey: 'locale' } },
       },
       {

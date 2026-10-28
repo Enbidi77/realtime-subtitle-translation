@@ -57,6 +57,17 @@ describe('Provider Adapters', () => {
   });
 
   describe('Speech Providers', () => {
+    it('normalizes speech language codes for Whisper', async () => {
+      const { normalizeWhisperLanguage } = await import('../speech/whisper-utils.js');
+      expect(normalizeWhisperLanguage('auto')).toBe('auto');
+      expect(normalizeWhisperLanguage('en-US')).toBe('en');
+      expect(normalizeWhisperLanguage('zh-Hans-CN')).toBe('zh');
+      expect(normalizeWhisperLanguage('zh-TW')).toBe('zh');
+      expect(normalizeWhisperLanguage('fil-PH')).toBe('tl');
+      expect(normalizeWhisperLanguage('nb-NO')).toBe('no');
+      expect(normalizeWhisperLanguage('vi-VN')).toBe('vi');
+    });
+
     it('initializes and transcribes audio with MockSpeechProvider', async () => {
       const mock = new MockSpeechProvider();
       expect(mock.isReady()).toBe(true);
