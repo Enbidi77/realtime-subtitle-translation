@@ -48,7 +48,7 @@ describe('App Settings & Close Behavior Contracts', () => {
 
   it('correctly classifies paid and free speech and translation providers', () => {
     expect(isPaidSpeechEngine('openai-whisper')).toBe(true);
-    expect(isPaidSpeechEngine('groq-whisper')).toBe(false);
+    expect(isPaidSpeechEngine('groq-whisper')).toBe(true);
     expect(isPaidSpeechEngine('whisper-local')).toBe(false);
     expect(isPaidSpeechEngine('windows-speech')).toBe(false);
     expect(isPaidSpeechEngine('mock')).toBe(false);
@@ -61,6 +61,7 @@ describe('App Settings & Close Behavior Contracts', () => {
     expect(isPaidTranslationProvider('mock')).toBe(false);
 
     expect(PAID_SPEECH_ENGINES).toContain('openai-whisper');
+    expect(PAID_SPEECH_ENGINES).toContain('groq-whisper');
     expect(PAID_TRANSLATION_PROVIDERS).toContain('google-cloud');
     expect(PAID_TRANSLATION_PROVIDERS).toContain('deepl');
   });

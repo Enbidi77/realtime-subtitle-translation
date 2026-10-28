@@ -60,7 +60,7 @@
     "keys": "密钥配置",
     "engineDescriptions": {
       "windowsSpeech": "💻 原生 Windows SAPI。100% 离线，即开即用。",
-      "groqWhisper": "⚡ 超高速 Groq 云端 Whisper Large，免费 API 密钥。",
+      "groqWhisper": "⚡ 超高速 Groq 云端 Whisper Large，需要 API 密钥。",
       "mock": "🧪 基于声音波形模拟字幕生成。",
       "openaiWhisper": "OpenAI 官方 whisper-1 云端模型。",
       "whisperLocal": "完全离线的 Whisper 本地神经网络推理。"
@@ -87,7 +87,7 @@
     "segmentsCount": "条片段",
     "speechOptions": {
       "windowsSpeech": "Windows 系统语音 (内置 SAPI)",
-      "groqWhisper": "Groq Whisper (快速且免费)",
+      "groqWhisper": "Groq Whisper (云端)",
       "openaiWhisper": "OpenAI Whisper (云端)",
       "mock": "模拟引擎 (快速演示)",
       "whisperLocal": "本地 Whisper (离线神经网络)"
@@ -290,7 +290,7 @@
     "appearance": "外观风格",
     "providersTitle": "AI 与翻译服务商",
     "showPaidProviders": "显示商业付费翻译与字幕服务",
-    "showPaidProvidersDesc": "显示需要购买 API 密钥的商业云服务商 (如 OpenAI Whisper、Google Cloud Translation 及 DeepL)。关闭后将仅展示免费及本地离线服务。",
+    "showPaidProvidersDesc": "显示需要购买 API 密钥的商业云服务商 (如 OpenAI Whisper、Groq Whisper、Google Cloud Translation 及 DeepL)。关闭后将仅展示免费及本地离线服务。",
     "theme": "界面主题",
     "themeDark": "暗黑极光 (Dark Charcoal)",
     "themeLight": "极简纯白 (Clean Light)",

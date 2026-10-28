@@ -5,6 +5,7 @@ import { SpeechEngineType, TranslationProviderId } from '@echo-lingo/contracts';
  */
 export const PAID_SPEECH_ENGINES: readonly SpeechEngineType[] = [
   'openai-whisper',
+  'groq-whisper',
 ] as const;
 
 /**

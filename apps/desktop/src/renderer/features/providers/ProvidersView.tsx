@@ -63,32 +63,10 @@ export const ProvidersView: React.FC = () => {
   // Speech engine providers with credential states
   const [speechEngines, setSpeechEngines] = useState<ConfigurableProvider[]>([
     {
-      id: "groq-whisper",
-      name: "Groq Cloud Whisper (Ultra-Fast & Free)",
+      id: "whisper-local",
+      name: "Local Whisper Engine",
       description:
-        "Ultra-fast (<300ms) transcription powered by whisper-large-v3-turbo. Free tier includes 14,400 audio seconds per day.",
-      requiresApiKey: true,
-      isConfigured: false,
-      isLocal: false,
-      isPaid: false,
-      signupUrl: "https://console.groq.com/keys",
-    },
-    {
-      id: "openai-whisper",
-      name: "OpenAI Whisper Cloud",
-      description:
-        "Official OpenAI whisper-1 cloud transcription with high punctuation and multi-lingual grammar accuracy.",
-      requiresApiKey: true,
-      isConfigured: false,
-      isLocal: false,
-      isPaid: true,
-      signupUrl: "https://platform.openai.com/api-keys",
-    },
-    {
-      id: "mock",
-      name: "Mock Speech Engine (Instant Test & Demo)",
-      description:
-        "Simulates live speech subtitles on audio energy detection. Zero API key needed, ideal for testing the pipeline over YouTube.",
+        "Offline speech inference using managed local worker or whisper.cpp.",
       requiresApiKey: false,
       isConfigured: true,
       isLocal: true,
@@ -105,14 +83,26 @@ export const ProvidersView: React.FC = () => {
       isPaid: false,
     },
     {
-      id: "whisper-local",
-      name: "Local Whisper Engine",
+      id: "groq-whisper",
+      name: "Groq Cloud Whisper",
       description:
-        "Offline speech inference using managed local worker or whisper.cpp.",
-      requiresApiKey: false,
-      isConfigured: true,
-      isLocal: true,
-      isPaid: false,
+        "Ultra-fast (<300ms) cloud transcription powered by whisper-large-v3-turbo API. Commercial provider.",
+      requiresApiKey: true,
+      isConfigured: false,
+      isLocal: false,
+      isPaid: true,
+      signupUrl: "https://console.groq.com/keys",
+    },
+    {
+      id: "openai-whisper",
+      name: "OpenAI Whisper Cloud",
+      description:
+        "Official OpenAI whisper-1 cloud transcription with high punctuation and multi-lingual grammar accuracy.",
+      requiresApiKey: true,
+      isConfigured: false,
+      isLocal: false,
+      isPaid: true,
+      signupUrl: "https://platform.openai.com/api-keys",
     },
   ]);
 
@@ -497,6 +487,7 @@ export const ProvidersView: React.FC = () => {
 
         <div className="space-y-2.5">
           {providers
+            .filter((p) => p.id !== "mock")
             .filter(
               (p) =>
                 showPaidProviders ||

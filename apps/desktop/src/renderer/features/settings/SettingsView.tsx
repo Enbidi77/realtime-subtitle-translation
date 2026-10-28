@@ -787,7 +787,7 @@ export const SettingsView: React.FC = () => {
               <p className="text-[11px] text-muted-foreground leading-relaxed">
                 {t(
                   "settings.showPaidProvidersDesc",
-                  "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
+                  "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Groq Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
                 )}
               </p>
             </div>

@@ -60,7 +60,7 @@
     "keys": "Keys",
     "engineDescriptions": {
       "windowsSpeech": "💻 Native Windows SAPI. 100% offline, zero setup.",
-      "groqWhisper": "⚡ Ultra-fast Whisper Large cloud. Free key.",
+      "groqWhisper": "⚡ Ultra-fast Whisper Large cloud. API key required.",
       "mock": "🧪 Simulates subtitles on sound energy.",
       "openaiWhisper": "OpenAI whisper-1 model.",
       "whisperLocal": "Offline Whisper inference."
@@ -87,7 +87,7 @@
     "segmentsCount": "segments",
     "speechOptions": {
       "windowsSpeech": "Windows System Speech (Built-in SAPI)",
-      "groqWhisper": "Groq Whisper (Free & Fast)",
+      "groqWhisper": "Groq Whisper (Cloud)",
       "openaiWhisper": "OpenAI Whisper (Cloud)",
       "mock": "Mock Engine (Instant Demo)",
       "whisperLocal": "Whisper Local (Offline)"
@@ -290,7 +290,7 @@
     "appearance": "Appearance",
     "providersTitle": "AI & Translation Providers",
     "showPaidProviders": "Show Paid Translation & Subtitle Providers",
-    "showPaidProvidersDesc": "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
+    "showPaidProvidersDesc": "Display commercial cloud providers requiring paid API keys (such as OpenAI Whisper, Groq Whisper, Google Cloud Translation, and DeepL). When disabled, only free and local offline providers are shown.",
     "theme": "Theme",
     "themeDark": "Google Dark Charcoal",
     "themeLight": "Google Clean Light",

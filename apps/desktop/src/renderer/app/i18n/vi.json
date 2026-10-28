@@ -60,7 +60,7 @@
     "keys": "Khóa API",
     "engineDescriptions": {
       "windowsSpeech": "💻 Windows SAPI tích hợp. Ngoại tuyến 100%, không cần cài đặt.",
-      "groqWhisper": "⚡ Whisper Large đám mây siêu nhanh. Miễn phí khóa API.",
+      "groqWhisper": "⚡ Whisper Large đám mây siêu nhanh. Cần khóa API.",
       "mock": "🧪 Mô phỏng phụ đề theo mức âm lượng.",
       "openaiWhisper": "Mô hình OpenAI whisper-1.",
       "whisperLocal": "Nhận dạng Whisper cục bộ ngoại tuyến."
@@ -87,7 +87,7 @@
     "segmentsCount": "đoạn",
     "speechOptions": {
       "windowsSpeech": "Giọng nói Windows SAPI (Tích hợp sẵn)",
-      "groqWhisper": "Groq Whisper (Nhanh & Miễn phí)",
+      "groqWhisper": "Groq Whisper (Đám mây)",
       "openaiWhisper": "OpenAI Whisper (Đám mây)",
       "mock": "Mô phỏng Thử nghiệm (Mẫu Demo)",
       "whisperLocal": "Whisper Cục bộ (Ngoại tuyến)"
@@ -290,7 +290,7 @@
     "appearance": "Giao diện",
     "providersTitle": "Nhà cung cấp AI & Dịch thuật",
     "showPaidProviders": "Hiển thị nhà cung cấp phụ đề & dịch thuật trả phí",
-    "showPaidProvidersDesc": "Hiển thị các dịch vụ đám mây thương mại yêu cầu khóa API trả phí (như OpenAI Whisper, Google Cloud Translation và DeepL). Khi tắt, chỉ các nhà cung cấp miễn phí và cục bộ ngoại tuyến được hiển thị.",
+    "showPaidProvidersDesc": "Hiển thị các dịch vụ đám mây thương mại yêu cầu khóa API trả phí (như OpenAI Whisper, Groq Whisper, Google Cloud Translation và DeepL). Khi tắt, chỉ các nhà cung cấp miễn phí và cục bộ ngoại tuyến được hiển thị.",
     "theme": "Chủ đề màu",
     "themeDark": "Tối than Google (Dark Charcoal)",
     "themeLight": "Sáng tinh tế (Clean Light)",

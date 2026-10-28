@@ -3,7 +3,7 @@ import { useSessionStore } from "@/stores/session-store.js";
 import { useSettingsStore } from "@/stores/settings-store.js";
 import { useNavigationStore } from "@/stores/navigation-store.js";
 import { useI18n } from "@/app/i18n/index.js";
-import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from "@echo-lingo/config";
+import { SUPPORTED_LANGUAGES, TARGET_LANGUAGES, isPaidSpeechEngine } from "@echo-lingo/config";
 import { SessionMetadata } from "@echo-lingo/contracts";
 import { GlassCard } from "@/components/ui/GlassCard.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
@@ -56,6 +56,15 @@ export const DashboardView: React.FC = () => {
     }
     loadRecent();
   }, [isListening]);
+
+  useEffect(() => {
+    if (
+      settings.speechEngine === "mock" ||
+      (!settings.showPaidProviders && isPaidSpeechEngine(settings.speechEngine))
+    ) {
+      updateSettings({ speechEngine: "whisper-local" });
+    }
+  }, [settings.speechEngine, settings.showPaidProviders]);
 
   const handleToggleListening = async () => {
     if (isListening) {
@@ -238,30 +247,34 @@ export const DashboardView: React.FC = () => {
               </button>
             </label>
             <GlassSelect
-              value={settings.speechEngine}
+              value={
+                settings.speechEngine === "mock" ||
+                (!settings.showPaidProviders &&
+                  isPaidSpeechEngine(settings.speechEngine))
+                  ? "whisper-local"
+                  : settings.speechEngine
+              }
               onChange={(e) =>
                 updateSettings({ speechEngine: e.target.value as any })
               }
               disabled={isListening}
             >
+              <option value="whisper-local">
+                {t("dashboard.speechOptions.whisperLocal", "Whisper Local (Offline)")}
+              </option>
               <option value="windows-speech">
                 {t("dashboard.speechOptions.windowsSpeech", "Windows System Speech (Built-in SAPI)")}
               </option>
-              <option value="groq-whisper">
-                {t("dashboard.speechOptions.groqWhisper", "Groq Whisper (Free & Fast)")}
-              </option>
-              {(settings.showPaidProviders ||
-                settings.speechEngine === "openai-whisper") && (
+              {settings.showPaidProviders && (
+                <option value="groq-whisper">
+                  {t("dashboard.speechOptions.groqWhisper", "Groq Whisper (Cloud)")}
+                </option>
+              )}
+              {settings.showPaidProviders && (
                 <option value="openai-whisper">
                   {t("dashboard.speechOptions.openaiWhisper", "OpenAI Whisper (Cloud)")}
                 </option>
               )}
-              <option value="mock">
-                {t("dashboard.speechOptions.mock", "Mock Engine (Instant Demo)")}
-              </option>
-              <option value="whisper-local">
-                {t("dashboard.speechOptions.whisperLocal", "Whisper Local (Offline)")}
-              </option>
             </GlassSelect>
             <p className="text-[10px] text-muted-foreground/80 leading-tight">
               {settings.speechEngine === "windows-speech"
@@ -272,22 +285,17 @@ export const DashboardView: React.FC = () => {
                 : settings.speechEngine === "groq-whisper"
                   ? t(
                       "dashboard.engineDescriptions.groqWhisper",
-                      "⚡ Ultra-fast Whisper Large cloud. Free key.",
+                      "⚡ Ultra-fast Whisper Large cloud. API key required.",
                     )
-                  : settings.speechEngine === "mock"
+                  : settings.speechEngine === "openai-whisper"
                     ? t(
-                        "dashboard.engineDescriptions.mock",
-                        "🧪 Simulates subtitles on sound energy.",
+                        "dashboard.engineDescriptions.openaiWhisper",
+                        "OpenAI whisper-1 model.",
                       )
-                    : settings.speechEngine === "openai-whisper"
-                      ? t(
-                          "dashboard.engineDescriptions.openaiWhisper",
-                          "OpenAI whisper-1 model.",
-                        )
-                      : t(
-                          "dashboard.engineDescriptions.whisperLocal",
-                          "Offline Whisper inference.",
-                        )}
+                    : t(
+                        "dashboard.engineDescriptions.whisperLocal",
+                        "Offline Whisper inference.",
+                      )}
             </p>
           </div>
 

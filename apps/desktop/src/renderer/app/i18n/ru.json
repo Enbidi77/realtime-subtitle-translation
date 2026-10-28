@@ -87,7 +87,7 @@
     "segmentsCount": "фрагментов",
     "speechOptions": {
       "windowsSpeech": "Системная Речь Windows (Встроенный SAPI)",
-      "groqWhisper": "Groq Whisper (Быстро и Бесплатно)",
+      "groqWhisper": "Groq Whisper (Облако)",
       "openaiWhisper": "OpenAI Whisper (Облако)",
       "mock": "Тестовый Движок (Демо)",
       "whisperLocal": "Локальный Whisper (Оффлайн)"
@@ -290,7 +290,7 @@
     "appearance": "Внешний Вид",
     "providersTitle": "Провайдеры ИИ и Перевода",
     "showPaidProviders": "Показывать Платные Провайдеры",
-    "showPaidProvidersDesc": "Отображать коммерческие облачные сервисы, требующие платных API-ключей (такие как OpenAI Whisper, Google Cloud Translation и DeepL). При отключении видны только бесплатные и локальные автономные модели.",
+    "showPaidProvidersDesc": "Отображать коммерческие облачные сервисы, требующие платных API-ключей (такие как OpenAI Whisper, Groq Whisper, Google Cloud Translation и DeepL). При отключении видны только бесплатные и локальные автономные модели.",
     "theme": "Тема Оформления",
     "themeDark": "Тёмный Графит (Dark Charcoal)",
     "themeLight": "Чистый Светлый (Clean Light)",

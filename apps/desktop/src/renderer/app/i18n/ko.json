@@ -87,7 +87,7 @@
     "segmentsCount": "개 세그먼트",
     "speechOptions": {
       "windowsSpeech": "Windows 시스템 음성 (내장 SAPI)",
-      "groqWhisper": "Groq Whisper (초고속 & 무료)",
+      "groqWhisper": "Groq Whisper (클라우드)",
       "openaiWhisper": "OpenAI Whisper (클라우드)",
       "mock": "모의 엔진 (빠른 데모)",
       "whisperLocal": "Whisper 로컬 (오프라인)"
@@ -290,7 +290,7 @@
     "appearance": "화면 스타일",
     "providersTitle": "AI 및 번역 공급자",
     "showPaidProviders": "유료 번역 및 자막 공급자 표시",
-    "showPaidProvidersDesc": "유료 API 키가 필요한 상용 클라우드 공급자 (OpenAI Whisper, Google Cloud Translation, DeepL 등)를 목록에 표시합니다. 비활성화 시 무료 및 로컬 오프라인 모델만 표시됩니다.",
+    "showPaidProvidersDesc": "유료 API 키가 필요한 상용 클라우드 공급자 (OpenAI Whisper, Groq Whisper, Google Cloud Translation, DeepL 등)를 목록에 표시합니다. 비활성화 시 무료 및 로컬 오프라인 모델만 표시됩니다.",
     "theme": "테마",
     "themeDark": "다크 차콜 (Dark Charcoal)",
     "themeLight": "클린 화이트 (Clean Light)",

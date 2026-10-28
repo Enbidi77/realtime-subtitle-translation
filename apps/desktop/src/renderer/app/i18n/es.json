@@ -87,7 +87,7 @@
     "segmentsCount": "segmentos",
     "speechOptions": {
       "windowsSpeech": "Voz del Sistema Windows (SAPI Integrado)",
-      "groqWhisper": "Groq Whisper (Rápido y Gratuito)",
+      "groqWhisper": "Groq Whisper (Nube)",
       "openaiWhisper": "OpenAI Whisper (Nube)",
       "mock": "Motor de Prueba (Demostración)",
       "whisperLocal": "Whisper Local (Offline)"
@@ -290,7 +290,7 @@
     "appearance": "Apariencia",
     "providersTitle": "Proveedores de IA y Traducción",
     "showPaidProviders": "Mostrar Proveedores de Pago",
-    "showPaidProvidersDesc": "Muestra proveedores comerciales en la nube que requieren claves de API de pago (como OpenAI Whisper, Google Cloud Translation y DeepL). Si se desactiva, solo se mostrarán opciones gratuitas y locales offline.",
+    "showPaidProvidersDesc": "Muestra proveedores comerciales en la nube que requieren claves de API de pago (como OpenAI Whisper, Groq Whisper, Google Cloud Translation y DeepL). Si se desactiva, solo se mostrarán opciones gratuitas y locales offline.",
     "theme": "Tema",
     "themeDark": "Gris Oscuro Carbón (Dark Charcoal)",
     "themeLight": "Blanco Puro (Clean Light)",

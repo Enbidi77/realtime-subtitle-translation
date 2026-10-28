@@ -87,7 +87,7 @@
     "segmentsCount": "件のセグメント",
     "speechOptions": {
       "windowsSpeech": "Windows システム音声 (内蔵 SAPI)",
-      "groqWhisper": "Groq Whisper (高速 & 無料)",
+      "groqWhisper": "Groq Whisper (クラウド)",
       "openaiWhisper": "OpenAI Whisper (クラウド)",
       "mock": "モックエンジン (クイックデモ)",
       "whisperLocal": "Whisper ローカル (オフライン)"
@@ -290,7 +290,7 @@
     "appearance": "外観スタイル",
     "providersTitle": "AI & 翻訳プロバイダー",
     "showPaidProviders": "有料の翻訳・字幕プロバイダーを表示",
-    "showPaidProvidersDesc": "有料APIキーを必要とする商用クラウドプロバイダー (OpenAI Whisper、Google Cloud Translation、DeepLなど) を表示します。無効にすると無料およびローカルオフラインプロバイダーのみが表示されます。",
+    "showPaidProvidersDesc": "有料APIキーを必要とする商用クラウドプロバイダー (OpenAI Whisper、Groq Whisper、Google Cloud Translation、DeepLなど) を表示します。無効にすると無料およびローカルオフラインプロバイダーのみが表示されます。",
     "theme": "テーマ",
     "themeDark": "ダークチャコール (Dark Charcoal)",
     "themeLight": "クリーンライト (Clean Light)",
