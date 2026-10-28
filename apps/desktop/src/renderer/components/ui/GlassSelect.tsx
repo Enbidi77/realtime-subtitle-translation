@@ -110,6 +110,7 @@ export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>
       left: number;
       minWidth: number;
       maxWidth: number;
+      maxHeight?: number;
     }>({
       left: 0,
       minWidth: 180,
@@ -159,12 +160,16 @@ export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>
         left = Math.max(12, window.innerWidth - minWidth - 12);
       }
 
+      const availableSpace = (showAbove ? spaceAbove : spaceBelow) - 16;
+      const maxDropdownHeight = Math.max(120, Math.min(260, availableSpace));
+
       setDropdownPosition({
         top: showAbove ? undefined : rect.bottom + 6,
         bottom: showAbove ? window.innerHeight - rect.top + 6 : undefined,
         left,
         minWidth,
         maxWidth: Math.max(minWidth, maxWidth),
+        maxHeight: maxDropdownHeight,
       });
     }, []);
 
@@ -505,11 +510,14 @@ export const GlassSelect = React.forwardRef<HTMLSelectElement, GlassSelectProps>
                 zIndex: 9999,
               }}
               className={clsx(
-                'glass-liquid-menu p-1.5 animate-scale-in origin-top select-none',
+                'glass-liquid-menu p-1.5 animate-scale-in origin-top select-none app-no-drag',
                 dropdownClassName
               )}
             >
-              <div className="max-h-64 overflow-y-auto space-y-0.5 overscroll-contain pr-0.5">
+              <div
+                style={dropdownPosition.maxHeight ? { maxHeight: `${dropdownPosition.maxHeight}px` } : undefined}
+                className="max-h-64 overflow-y-auto space-y-0.5 overscroll-contain pr-0.5"
+              >
                 {parsedOptions.length === 0 ? (
                   <div className="p-3 text-center text-xs text-muted-foreground">
                     No options available

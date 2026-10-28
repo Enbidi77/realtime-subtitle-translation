@@ -5,7 +5,7 @@ import { AppSettings, FloatingPanelPayload } from "@echo-lingo/contracts";
 import { OCR_SUPPORTED_LANGUAGES, TARGET_LANGUAGES } from "@echo-lingo/config";
 import { applyTheme } from "@/stores/settings-store.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
-import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { GlassSelect } from "@/components/ui/GlassSelect.js";
 import { createRendererLogger } from "@echo-lingo/logger";
 import { getDictionary } from "@/app/i18n/index.js";
 import {
@@ -327,44 +327,41 @@ const FloatingResultPanel: React.FC = () => {
         <div className="flex items-center gap-2">
           <GripHorizontal className="w-3.5 h-3.5 text-muted-foreground/70 pointer-events-none" />
           <div className="flex items-center gap-1.5 app-no-drag pointer-events-auto">
-            <div className="relative inline-flex items-center">
-              <select
-                value={data.sourceLanguage || "auto"}
-                onChange={(e) => handleSourceChange(e.target.value)}
-                className="appearance-none bg-glass hover:bg-glass-elevated text-[10px] uppercase font-mono font-semibold px-2 py-0.5 pr-4 rounded-md border border-glass-border/70 text-foreground cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                title="Source Language"
-              >
-                <option value="auto" className="bg-background text-foreground">AUTO</option>
-                {OCR_SUPPORTED_LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code} className="bg-background text-foreground">
-                    {lang.code.toUpperCase()} ({lang.name})
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-1 flex items-center text-[7px] text-muted-foreground">
-                ▼
-              </div>
-            </div>
+            <GlassSelect
+              size="xs"
+              containerClassName="w-auto"
+              className="min-w-[130px] max-w-[160px]"
+              value={data.sourceLanguage || "auto"}
+              onChange={(e) => handleSourceChange(e.target.value)}
+            >
+              {OCR_SUPPORTED_LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}{" "}
+                  {l.nativeName && l.nativeName !== l.name
+                    ? `(${l.nativeName})`
+                    : ""}
+                </option>
+              ))}
+            </GlassSelect>
 
             <span className="text-muted-foreground/50 text-[11px] pointer-events-none">→</span>
 
-            <div className="relative inline-flex items-center">
-              <select
-                value={data.targetLanguage || "vi"}
-                onChange={(e) => handleTargetChange(e.target.value)}
-                className="appearance-none bg-primary/20 hover:bg-primary/30 text-primary text-[10px] uppercase font-mono font-bold px-2 py-0.5 pr-4 rounded-md border border-primary/40 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary transition-all"
-                title="Target Language"
-              >
-                {TARGET_LANGUAGES.map((lang) => (
-                  <option key={lang.code} value={lang.code} className="bg-background text-foreground">
-                    {lang.code.toUpperCase()} ({lang.name})
-                  </option>
-                ))}
-              </select>
-              <div className="pointer-events-none absolute right-1 flex items-center text-[7px] text-primary/70">
-                ▼
-              </div>
-            </div>
+            <GlassSelect
+              size="xs"
+              containerClassName="w-auto"
+              className="min-w-[110px] max-w-[145px]"
+              value={data.targetLanguage || "vi"}
+              onChange={(e) => handleTargetChange(e.target.value)}
+            >
+              {TARGET_LANGUAGES.map((l) => (
+                <option key={l.code} value={l.code}>
+                  {l.name}{" "}
+                  {l.nativeName && l.nativeName !== l.name
+                    ? `(${l.nativeName})`
+                    : ""}
+                </option>
+              ))}
+            </GlassSelect>
           </div>
           {(data.durationMs ?? 0) > 0 && (
             <span className="text-[10px] text-muted-foreground/80 flex items-center gap-1 font-mono pointer-events-none">
