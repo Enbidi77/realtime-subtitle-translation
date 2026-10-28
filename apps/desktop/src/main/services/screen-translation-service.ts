@@ -99,7 +99,20 @@ export class ScreenTranslationService {
   }
 
   public async recognize(req: OcrRecognizeRequest): Promise<OcrResponse> {
-    return this.ocrRegistry.recognize(req, req.providerId);
+    try {
+      return await this.ocrRegistry.recognize(req, req.providerId);
+    } catch (err: any) {
+      const requestedId = req.providerId || this.ocrRegistry.getActiveProvider().id;
+      if (requestedId === 'windows-native' && this.ocrRegistry.getProvider('tesseract')) {
+        this.log.warn(`Windows Native OCR failed (${err?.message}), attempting fallback to Tesseract OCR.`);
+        try {
+          return await this.ocrRegistry.recognize(req, 'tesseract');
+        } catch {
+          throw err;
+        }
+      }
+      throw err;
+    }
   }
 
   public getDisplays(): DisplayInfo[] {
@@ -249,13 +262,11 @@ export class ScreenTranslationService {
       scale: 1,
     });
 
-    const ocrResponse = await this.ocrRegistry.recognize(
-      {
-        imageBuffer: new Uint8Array(buffer),
-        language: options?.ocrLanguage || 'auto',
-      },
-      options?.ocrProviderId
-    );
+    const ocrResponse = await this.recognize({
+      imageBuffer: new Uint8Array(buffer),
+      language: options?.ocrLanguage || 'auto',
+      providerId: options?.ocrProviderId,
+    });
 
     return { ocrResponse, imageDataUrl: dataUrl };
   }
@@ -388,13 +399,11 @@ export class ScreenTranslationService {
         }
       },
       onOcr: async (imageData: string) => {
-        return this.ocrRegistry.recognize(
-          {
-            imageBuffer: imageData,
-            language: config.ocrLanguage,
-          },
-          config.ocrProviderId
-        );
+        return this.recognize({
+          imageBuffer: imageData,
+          language: config.ocrLanguage,
+          providerId: config.ocrProviderId,
+        });
       },
       onTranslate: async (text: string, targetLanguage: string) => {
         return translationService.translate(

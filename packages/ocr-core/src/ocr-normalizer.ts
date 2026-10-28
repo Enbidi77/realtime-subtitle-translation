@@ -6,6 +6,25 @@ export interface NormalizerOptions {
   collapseWhitespace?: boolean;
 }
 
+const CJK_IDEOGRAPH_RANGE =
+  '\\u4e00-\\u9fff\\u3400-\\u4dbf\\uf900-\\ufaff\\u3040-\\u309f\\u30a0-\\u30ff\\u3100-\\u312f';
+const CJK_FULLWIDTH_PUNCT = '，。！？：；、“”‘’（）《》';
+const CJK_SPACE_CJK = new RegExp(`([${CJK_IDEOGRAPH_RANGE}])\\s+(?=[${CJK_IDEOGRAPH_RANGE}])`, 'g');
+const CJK_SPACE_PUNCT = new RegExp(`([${CJK_IDEOGRAPH_RANGE}])\\s+([${CJK_FULLWIDTH_PUNCT}.,:;!?])`, 'g');
+const FULLWIDTH_PUNCT_SPACE_CJK = new RegExp(`([${CJK_FULLWIDTH_PUNCT}])\\s+(?=[${CJK_IDEOGRAPH_RANGE}])`, 'g');
+
+/**
+ * Collapses unnatural whitespace between CJK characters and adjacent punctuation
+ * produced by OCR engines (e.g. Windows Media OCR outputting character-by-character tokens).
+ */
+export function collapseCjkWhitespace(text: string): string {
+  if (!text) return '';
+  return text
+    .replace(CJK_SPACE_CJK, '$1')
+    .replace(CJK_SPACE_PUNCT, '$1$2')
+    .replace(FULLWIDTH_PUNCT_SPACE_CJK, '$1');
+}
+
 /**
  * Normalizes recognized OCR text according to language and formatting conventions.
  */
@@ -31,8 +50,10 @@ export function normalizeOcrText(
   const lines = text.split('\n').map((line) => {
     let l = line;
     if (collapseWhitespace) {
-      // Replace multiple spaces/tabs with single space, but preserve CJK spacing
+      // Replace multiple spaces/tabs with single space
       l = l.replace(/[ \t]+/g, ' ').trim();
+      // Collapse spaces between CJK characters and punctuation
+      l = collapseCjkWhitespace(l);
     }
     return l;
   });

@@ -9,6 +9,7 @@ import {
   OcrWord,
 } from '@echo-lingo/contracts';
 import { IOcrProvider, normalizeOcrResponse } from '@echo-lingo/ocr-core';
+import { OCR_SUPPORTED_LANGUAGES } from '@echo-lingo/config';
 import {
   dotnetBridge,
   DotnetBridge,
@@ -25,6 +26,16 @@ const log = createLogger('WindowsNativeOcrProvider');
 export interface WindowsNativeOcrConfig {
   /** Custom DotnetBridge instance; defaults to the shared singleton dotnetBridge */
   bridge?: DotnetBridge;
+}
+
+function mapToBcp47(langCode?: string): string {
+  if (!langCode || langCode === 'auto') return 'auto';
+  const match = OCR_SUPPORTED_LANGUAGES.find(
+    (l) =>
+      l.code.toLowerCase() === langCode.toLowerCase() ||
+      l.bcp47.toLowerCase() === langCode.toLowerCase()
+  );
+  return match ? match.bcp47 : langCode;
 }
 
 function computeBoundingBox(boxes: Array<{ x: number; y: number; width: number; height: number }>): {
@@ -159,7 +170,7 @@ export class WindowsNativeOcrProvider implements IOcrProvider {
 
       await fs.writeFile(tempImagePath, buffer);
 
-      const langTag = request.language || 'auto';
+      const langTag = mapToBcp47(request.language);
       const parsed: OcrRecognizeResult = await this.bridge.ocr.recognize(tempImagePath, langTag);
 
       if (!parsed) {

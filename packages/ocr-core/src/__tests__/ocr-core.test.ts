@@ -175,6 +175,16 @@ describe('OCR Core: Text Normalizer', () => {
     expect(normalized).toBe('Hello world! This is a test.\nNext line.');
   });
 
+  it('collapses spaces between CJK characters and punctuation while keeping Latin spacing', () => {
+    const chineseSpaced = '星 期 二 下 午 , 在 学 校 里 薛 年 丰 非 常 高 兴 。';
+    const normalized = normalizeOcrText(chineseSpaced);
+    expect(normalized).toBe('星期二下午, 在学校里薛年丰非常高兴。');
+
+    const mixed = 'iPhone 16 是 一 款 新 手 机';
+    const normalizedMixed = normalizeOcrText(mixed);
+    expect(normalizedMixed).toBe('iPhone 16 是一款新手机');
+  });
+
   it('removes adjacent duplicate lines from rolling screen text', () => {
     const input = 'Subtitles Line 1\nSubtitles Line 1\nSubtitles Line 2\nSubtitles Line 2\nSubtitles Line 3';
     const normalized = normalizeOcrText(input, { removeAdjacentDuplicates: true });
