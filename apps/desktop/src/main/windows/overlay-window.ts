@@ -51,11 +51,11 @@ export function createOverlayWindow(): BrowserWindow {
   const primaryDisplay = screen.getPrimaryDisplay();
   const workArea = primaryDisplay.workArea;
 
-  const defaultWidth = 840;
-  const defaultHeight = 150;
+  const defaultWidth = 860;
+  const defaultHeight = 180;
   // Position by default at the bottom center of the screen within active work area
   const defaultX = Math.round(workArea.x + (workArea.width - defaultWidth) / 2);
-  const defaultY = Math.round(workArea.y + workArea.height - defaultHeight - 50);
+  const defaultY = Math.round(workArea.y + workArea.height - defaultHeight - 40);
 
   overlayWindow = new BrowserWindow({
     title: 'EchoLingo Overlay',
@@ -64,7 +64,7 @@ export function createOverlayWindow(): BrowserWindow {
     x: defaultX,
     y: defaultY,
     minWidth: 400,
-    minHeight: 80,
+    minHeight: 110,
     icon: getAppIconService().getAppIcon(),
     show: false,
     frame: false,

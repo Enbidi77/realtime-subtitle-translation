@@ -262,12 +262,12 @@ export const OverlayView: React.FC = () => {
     <div
       onMouseEnter={resetControlsTimer}
       onMouseMove={resetControlsTimer}
-      className="w-full h-full flex flex-col justify-end items-center p-3 select-none relative group"
+      onMouseDown={handleStartDrag}
+      className="w-full h-full flex flex-col justify-between items-center p-2.5 select-none relative group"
     >
       {/* 1. Overlay Floating Glass Drag & Action Controls */}
       <div
-        onMouseDown={handleStartDrag}
-        className={`absolute top-1 left-2 right-2 h-8 flex items-center justify-between px-3 rounded-xl glass-toolbar border border-glass-border/70 shadow-glass backdrop-blur-xl transition-opacity duration-200 z-50 cursor-move ${
+        className={`w-full max-w-[96%] h-8 flex items-center justify-between px-3 rounded-xl glass-toolbar border border-glass-border/70 shadow-glass backdrop-blur-xl transition-opacity duration-200 z-50 cursor-move shrink-0 mb-2 ${
           showControls
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none"
@@ -357,134 +357,136 @@ export const OverlayView: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Subtitles Container: YouTube Style */}
-      {isYouTubeMode ? (
-        /* ================= YouTube Subtitle Mode ================= */
-        <div
-          className={`transition-all duration-300 ease-out max-w-[94%] ${
-            isSubtitleVisible && activeSegment
-              ? "opacity-100 scale-100"
-              : !activeSegment
+      {/* 2. Subtitles Container Area (never overlaps top toolbar) */}
+      <div className="w-full flex-1 flex flex-col justify-end items-center min-h-0 pb-1">
+        {isYouTubeMode ? (
+          /* ================= YouTube Subtitle Mode ================= */
+          <div
+            className={`transition-all duration-300 ease-out max-w-[96%] flex flex-col items-center justify-end ${
+              isSubtitleVisible && activeSegment
                 ? "opacity-100 scale-100"
-                : showControls
-                  ? "opacity-70 scale-95"
-                  : "opacity-0 scale-95 pointer-events-none"
-          }`}
-        >
-          {activeSegment ? (
-            <div
-              className="inline-block px-6 py-3.5 rounded-2xl glass-panel-elevated shadow-glass-elevated backdrop-blur-2xl transition-all text-center leading-relaxed border border-glass-border-elevated"
-              style={{
-                backgroundColor: cardBgColor,
-                boxShadow:
-                  "var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)",
-              }}
-            >
-              {/* Original Speech Line */}
-              {subtitleAppearance.displayMode !== "translation-only" && (
-                <div
-                  style={{
-                    fontSize: `${subtitleAppearance.fontSize * 0.75}px`,
-                    color: originalTextColor,
-                  }}
-                  className="font-medium drop-shadow-sm tracking-normal"
-                >
-                  {activeSegment.originalText}
-                </div>
-              )}
-
-              {/* Translated Speech Line */}
-              {subtitleAppearance.displayMode !== "original-only" &&
-                Boolean(
-                  activeSegment.translations &&
-                  Object.values(activeSegment.translations)[0],
-                ) && (
+                : !activeSegment
+                  ? "opacity-100 scale-100"
+                  : showControls
+                    ? "opacity-70 scale-95"
+                    : "opacity-0 scale-95 pointer-events-none"
+            }`}
+          >
+            {activeSegment ? (
+              <div
+                className="inline-block max-w-full px-6 py-3 rounded-2xl glass-panel-elevated shadow-glass-elevated backdrop-blur-2xl transition-all text-center border border-glass-border-elevated"
+                style={{
+                  backgroundColor: cardBgColor,
+                  boxShadow:
+                    "var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)",
+                }}
+              >
+                {/* Original Speech Line */}
+                {subtitleAppearance.displayMode !== "translation-only" && (
                   <div
                     style={{
-                      fontSize: `${subtitleAppearance.fontSize * 0.85}px`,
-                      color: translatedTextColor,
+                      fontSize: `${subtitleAppearance.fontSize * 0.75}px`,
+                      color: originalTextColor,
                     }}
-                    className="font-semibold drop-shadow-sm mt-0.5 tracking-normal"
+                    className="font-medium drop-shadow-sm tracking-normal leading-normal"
                   >
-                    {activeSegment.translations
-                      ? Object.values(activeSegment.translations)[0]
-                      : ""}
+                    {activeSegment.originalText}
                   </div>
                 )}
-            </div>
-          ) : (
-            <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-pill text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold text-foreground">
-                {t("overlay.title", "EchoLingo Subtitle Overlay")}
-              </span>
-              <span className="text-muted-foreground text-[11px]">
-                • {t("overlay.readyForSpeech", "Ready for speech")}
-              </span>
-            </div>
-          )}
-        </div>
-      ) : (
-        /* ================= Multi-Line History Mode ================= */
-        <div
-          className={`w-full max-w-[94%] rounded-2xl p-4 glass-panel-elevated shadow-glass-elevated transition-all duration-150 backdrop-blur-2xl space-y-1.5 border border-glass-border-elevated ${
-            recentSegments.length > 0 || showControls
-              ? "opacity-100"
-              : "opacity-0"
-          }`}
-          style={{
-            backgroundColor: cardBgColor,
-            textAlign: subtitleAppearance.textAlignment,
-            boxShadow:
-              "var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)",
-          }}
-        >
-          {recentSegments.length === 0 ? (
-            <div className="flex items-center justify-center gap-2 py-1 text-muted-foreground text-xs">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="font-semibold text-foreground">
-                {t("overlay.historyTitle", "EchoLingo History Mode")}
-              </span>
-              <span className="text-muted-foreground text-[11px]">
-                • {t("overlay.waitingForSpeech", "Waiting for speech...")}
-              </span>
-            </div>
-          ) : (
-            recentSegments.map((seg) => {
-              const trans = seg.translations
-                ? Object.values(seg.translations)[0] || ""
-                : "";
-              return (
-                <div key={seg.id} className="space-y-0.5 leading-snug">
-                  {subtitleAppearance.displayMode !== "translation-only" && (
+
+                {/* Translated Speech Line */}
+                {subtitleAppearance.displayMode !== "original-only" &&
+                  Boolean(
+                    activeSegment.translations &&
+                    Object.values(activeSegment.translations)[0],
+                  ) && (
                     <div
                       style={{
-                        fontSize: `${subtitleAppearance.fontSize * 0.7}px`,
-                        color: originalTextColor,
+                        fontSize: `${subtitleAppearance.fontSize * 0.85}px`,
+                        color: translatedTextColor,
                       }}
-                      className="font-medium drop-shadow-sm"
+                      className="font-semibold drop-shadow-sm mt-1.5 tracking-normal leading-relaxed"
                     >
-                      {seg.originalText}
+                      {activeSegment.translations
+                        ? Object.values(activeSegment.translations)[0]
+                        : ""}
                     </div>
                   )}
-                  {subtitleAppearance.displayMode !== "original-only" &&
-                    trans && (
+              </div>
+            ) : (
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full glass-pill text-foreground shadow-glass-elevated backdrop-blur-xl text-xs select-none">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold text-foreground">
+                  {t("overlay.title", "EchoLingo Subtitle Overlay")}
+                </span>
+                <span className="text-muted-foreground text-[11px]">
+                  • {t("overlay.readyForSpeech", "Ready for speech")}
+                </span>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* ================= Multi-Line History Mode ================= */
+          <div
+            className={`w-full max-w-[96%] rounded-2xl p-4 glass-panel-elevated shadow-glass-elevated transition-all duration-150 backdrop-blur-2xl space-y-2 border border-glass-border-elevated max-h-full overflow-y-auto ${
+              recentSegments.length > 0 || showControls
+                ? "opacity-100"
+                : "opacity-0"
+            }`}
+            style={{
+              backgroundColor: cardBgColor,
+              textAlign: subtitleAppearance.textAlignment,
+              boxShadow:
+                "var(--glass-shadow-elevated), inset 0 1px 1.5px 0 var(--glass-highlight)",
+            }}
+          >
+            {recentSegments.length === 0 ? (
+              <div className="flex items-center justify-center gap-2 py-1 text-muted-foreground text-xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="font-semibold text-foreground">
+                  {t("overlay.historyTitle", "EchoLingo History Mode")}
+                </span>
+                <span className="text-muted-foreground text-[11px]">
+                  • {t("overlay.waitingForSpeech", "Waiting for speech...")}
+                </span>
+              </div>
+            ) : (
+              recentSegments.map((seg) => {
+                const trans = seg.translations
+                  ? Object.values(seg.translations)[0] || ""
+                  : "";
+                return (
+                  <div key={seg.id} className="space-y-1 leading-snug">
+                    {subtitleAppearance.displayMode !== "translation-only" && (
                       <div
                         style={{
-                          fontSize: `${subtitleAppearance.fontSize * 0.8}px`,
-                          color: translatedTextColor,
+                          fontSize: `${subtitleAppearance.fontSize * 0.7}px`,
+                          color: originalTextColor,
                         }}
-                        className="font-semibold drop-shadow-sm"
+                        className="font-medium drop-shadow-sm leading-normal"
                       >
-                        {trans}
+                        {seg.originalText}
                       </div>
                     )}
-                </div>
-              );
-            })
-          )}
-        </div>
-      )}
+                    {subtitleAppearance.displayMode !== "original-only" &&
+                      trans && (
+                        <div
+                          style={{
+                            fontSize: `${subtitleAppearance.fontSize * 0.8}px`,
+                            color: translatedTextColor,
+                          }}
+                          className="font-semibold drop-shadow-sm leading-relaxed"
+                        >
+                          {trans}
+                        </div>
+                      )}
+                  </div>
+                );
+              })
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
