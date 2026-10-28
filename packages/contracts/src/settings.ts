@@ -40,7 +40,7 @@ export const ScreenTranslationSettingsSchema = z.object({
   ocrProvider: OcrProviderIdSchema.default('windows-native'),
   ocrLanguage: z.string().default('auto'),
   skipPreview: z.boolean().default(false),
-  profile: OcrProfileSchema.default('general'),
+  profile: OcrProfileSchema.default('none'),
   continuousIntervalMs: z.number().min(500).max(10000).default(2000),
   changeThreshold: z.number().min(0).max(1).default(0.15),
   ignoreUnchanged: z.boolean().default(true),

@@ -128,12 +128,12 @@
     "target": "Cible :",
     "presets": {
       "label": "Préréglage de Prétraitement",
-      "general": "Texte de Bureau Standard (Défaut)",
+      "general": "Texte de Bureau Standard",
       "gameSubtitles": "Sous-titres de Jeu (Contraste Élevé)",
       "smallUi": "Petite Police d'Interface (Agrandissement 2x)",
       "highContrast": "Binarisation Haut Contraste (Otsu)",
       "cjk": "Caractères Japonais et Chinois (Sans Espaces)",
-      "none": "Aucun Prétraitement"
+      "none": "Aucun Prétraitement (Défaut)"
     },
     "ocrLangHint": "Indice de Langue OCR",
     "translateInto": "Traduire en",

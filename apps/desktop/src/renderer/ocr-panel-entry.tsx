@@ -166,7 +166,7 @@ const FloatingResultPanel: React.FC = () => {
           ocrLanguage: effectiveOcrLang,
           targetLanguages: [effectiveTargetLang],
           sourceLanguage: effectiveOcrLang,
-          profile: appSettings?.screenTranslation?.profile || "general",
+          profile: appSettings?.screenTranslation?.profile || "none",
           skipPreview: true,
         });
       }

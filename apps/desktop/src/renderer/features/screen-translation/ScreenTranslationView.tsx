@@ -69,7 +69,7 @@ export const ScreenTranslationView: React.FC = () => {
     settings.targetLanguages?.[0] || "vi",
   );
   const [profile, setProfile] = useState<OcrProfile>(
-    settings.screenTranslation?.profile || "general",
+    settings.screenTranslation?.profile || "none",
   );
   const [skipPreview, setSkipPreview] = useState<boolean>(
     settings.screenTranslation?.skipPreview || false,
@@ -626,10 +626,13 @@ export const ScreenTranslationView: React.FC = () => {
                       handleProfileChange(e.target.value as OcrProfile)
                     }
                   >
+                    <option value="none">
+                      {t("ocr.presets.none", "No Preprocessing (Default)")}
+                    </option>
                     <option value="general">
                       {t(
                         "ocr.presets.general",
-                        "General Desktop Text (Default)",
+                        "General Desktop Text",
                       )}
                     </option>
                     <option value="game-subtitles">
@@ -649,9 +652,6 @@ export const ScreenTranslationView: React.FC = () => {
                     </option>
                     <option value="cjk">
                       {t("ocr.presets.cjk", "Japanese & Chinese Characters")}
-                    </option>
-                    <option value="none">
-                      {t("ocr.presets.none", "No Preprocessing")}
                     </option>
                   </GlassSelect>
                 </div>

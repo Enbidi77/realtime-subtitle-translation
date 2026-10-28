@@ -128,12 +128,12 @@
     "target": "翻訳先:",
     "presets": {
       "label": "前処理プリセット",
-      "general": "一般的なテキスト (標準)",
+      "general": "一般的なテキスト",
       "gameSubtitles": "ゲーム字幕 (高コントラスト強調)",
       "smallUi": "小さなUIフォント (2倍拡大)",
       "highContrast": "ハイコントラスト2値化 (大津法)",
       "cjk": "日本語・中国語 (空白除去最適化)",
-      "none": "前処理なし (原画そのまま)"
+      "none": "前処理なし (標準)"
     },
     "ocrLangHint": "OCR認識言語ヒント",
     "translateInto": "翻訳先言語",

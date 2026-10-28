@@ -128,12 +128,12 @@
     "target": "Ziel:",
     "presets": {
       "label": "Vorverarbeitungs-Profil",
-      "general": "Allgemeiner Desktop-Text (Standard)",
+      "general": "Allgemeiner Desktop-Text",
       "gameSubtitles": "Spiel-Untertitel (Hoher Kontrast)",
       "smallUi": "Kleine UI-Schrift (2x Skalierung)",
       "highContrast": "Hoher Kontrast Binarisiert (Otsu)",
       "cjk": "Japanisch & Chinesisch (Leerzeichen-Optimierung)",
-      "none": "Keine Vorverarbeitung"
+      "none": "Keine Vorverarbeitung (Standard)"
     },
     "ocrLangHint": "OCR-Sprachhinweis",
     "translateInto": "Übersetzen in",

@@ -128,12 +128,12 @@
     "target": "Destino:",
     "presets": {
       "label": "Ajuste de Preprocesamiento",
-      "general": "Texto de Escritorio General (Predeterminado)",
+      "general": "Texto de Escritorio General",
       "gameSubtitles": "Subtítulos de Juegos (Alto Contraste)",
       "smallUi": "Texto Pequeño de UI (Escalado 2x)",
       "highContrast": "Alto Contraste Binarizado (Otsu)",
       "cjk": "Caracteres Japoneses y Chinos (Sin Espacios)",
-      "none": "Sin Preprocesamiento"
+      "none": "Sin Preprocesamiento (Predeterminado)"
     },
     "ocrLangHint": "Sugerencia de Idioma OCR",
     "translateInto": "Traducir a",

@@ -128,12 +128,12 @@
     "target": "目标语言:",
     "presets": {
       "label": "图像预处理方案",
-      "general": "通用桌面文字 (默认)",
+      "general": "通用桌面文字",
       "gameSubtitles": "游戏字幕 (高对比度增强)",
       "smallUi": "小号界面字体 (2倍超分辨率)",
       "highContrast": "高对比度二值化 (Otsu)",
       "cjk": "中日韩字符优化 (去除空格)",
-      "none": "无预处理 (原始画面)"
+      "none": "无预处理 (默认)"
     },
     "ocrLangHint": "OCR 语言提示",
     "translateInto": "翻译为",

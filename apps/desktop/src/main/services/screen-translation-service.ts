@@ -254,8 +254,8 @@ export class ScreenTranslationService {
     }
   ): Promise<{ ocrResponse: OcrResponse; imageDataUrl: string }> {
     const captureMgr = getScreenCaptureManager();
-    const profileKey = options?.profile || 'general';
-    const preprocessOpts = OCR_PROFILE_PRESETS[profileKey] || OCR_PROFILE_PRESETS.general;
+    const profileKey = options?.profile || 'none';
+    const preprocessOpts = OCR_PROFILE_PRESETS[profileKey] || OCR_PROFILE_PRESETS.none;
     const { buffer, dataUrl } = await captureMgr.captureRegion(region, preprocessOpts);
 
     const ocrResponse = await this.recognize({

@@ -128,12 +128,12 @@
     "target": "Đích:",
     "presets": {
       "label": "Mẫu tiền xử lý hình ảnh",
-      "general": "Văn bản màn hình chung (Mặc định)",
+      "general": "Văn bản màn hình chung",
       "gameSubtitles": "Phụ đề Game (Tương phản cao)",
       "smallUi": "Chữ giao diện nhỏ (Phóng đại 2x)",
       "highContrast": "Tương phản cao (Nhị phân hóa Otsu)",
       "cjk": "Ký tự tiếng Nhật & tiếng Trung",
-      "none": "Không tiền xử lý"
+      "none": "Không tiền xử lý (Mặc định)"
     },
     "ocrLangHint": "Gợi ý ngôn ngữ OCR",
     "translateInto": "Dịch sang",

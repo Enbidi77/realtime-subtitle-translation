@@ -128,12 +128,12 @@
     "target": "번역 언어:",
     "presets": {
       "label": "전처리 프리셋",
-      "general": "일반 데스크톱 텍스트 (기본)",
+      "general": "일반 데스크톱 텍스트",
       "gameSubtitles": "게임 자막 (고대비 강화)",
       "smallUi": "작은 UI 글꼴 (2배 확대)",
       "highContrast": "고대비 이진화 (오츠 알고리즘)",
       "cjk": "한/중/일 문자 최적화 (공백 정돈)",
-      "none": "전처리 없음 (원본 화면)"
+      "none": "전처리 없음 (기본)"
     },
     "ocrLangHint": "OCR 언어 힌트",
     "translateInto": "번역할 언어",

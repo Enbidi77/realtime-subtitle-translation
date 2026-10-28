@@ -61,8 +61,8 @@ export const OcrProfileSchema = z.enum([
 export type OcrProfile = z.infer<typeof OcrProfileSchema>;
 
 export const OcrPreprocessOptionsSchema = z.object({
-  profile: OcrProfileSchema.default('general'),
-  grayscale: z.boolean().default(true),
+  profile: OcrProfileSchema.default('none'),
+  grayscale: z.boolean().default(false),
   contrastStretch: z.boolean().default(false),
   binarize: z.boolean().default(false),
   invert: z.boolean().default(false),

@@ -64,7 +64,7 @@ export const ContinuousOcrConfigSchema = z.object({
   translationProviderId: TranslationProviderIdSchema.default('google-web'),
   sourceLanguage: z.string().default('auto'),
   targetLanguages: z.array(z.string()).default(['vi']),
-  profile: OcrProfileSchema.default('general'),
+  profile: OcrProfileSchema.default('none'),
 });
 export type ContinuousOcrConfig = z.infer<typeof ContinuousOcrConfigSchema>;
 

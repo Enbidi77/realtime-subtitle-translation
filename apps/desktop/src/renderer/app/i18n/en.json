@@ -128,12 +128,12 @@
     "target": "Target:",
     "presets": {
       "label": "Preprocessing Preset",
-      "general": "General Desktop Text (Default)",
+      "general": "General Desktop Text",
       "gameSubtitles": "Game Subtitles (High Contrast)",
       "smallUi": "Small UI Text (2x Upscale)",
       "highContrast": "High Contrast (Otsu Binarize)",
       "cjk": "Japanese & Chinese Characters",
-      "none": "No Preprocessing"
+      "none": "No Preprocessing (Default)"
     },
     "ocrLangHint": "OCR Language Hint",
     "translateInto": "Translate Into",

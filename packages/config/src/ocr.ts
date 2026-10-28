@@ -4,7 +4,7 @@ export const DEFAULT_SCREEN_TRANSLATION_SETTINGS: ScreenTranslationSettings = {
   ocrProvider: 'windows-native',
   ocrLanguage: 'auto',
   skipPreview: false,
-  profile: 'general',
+  profile: 'none',
   continuousIntervalMs: 2000,
   changeThreshold: 0.15,
   ignoreUnchanged: true,

@@ -115,7 +115,7 @@ export class ShortcutsService {
           sourceLanguage: effectiveSource,
           ocrProviderId: stSettings.ocrProvider || 'windows-native',
           translationProviderId: settings.translationProvider || 'google-web',
-          profile: stSettings.profile || 'general',
+          profile: stSettings.profile || 'none',
           skipPreview: true,
           keepMainWindowHidden: stSettings.keepMainWindowHiddenAfterCapture,
         });
@@ -150,7 +150,7 @@ export class ShortcutsService {
             translationProviderId: settings.translationProvider || 'google-web',
             sourceLanguage: (stSettings.ocrLanguage && stSettings.ocrLanguage !== 'auto') ? stSettings.ocrLanguage : (settings.sourceLanguage || 'auto'),
             targetLanguages: settings.targetLanguages || ['vi'],
-            profile: stSettings.profile || 'general',
+            profile: stSettings.profile || 'none',
           });
         }
       }

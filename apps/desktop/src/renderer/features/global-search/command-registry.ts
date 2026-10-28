@@ -156,7 +156,7 @@ class CommandRegistry {
             sourceLanguage: settings.sourceLanguage || 'auto',
             ocrProviderId: stSettings?.ocrProvider || 'windows-native',
             translationProviderId: settings.translationProvider || 'google-web',
-            profile: stSettings?.profile || 'general',
+            profile: stSettings?.profile || 'none',
           });
         }
       }
@@ -183,7 +183,7 @@ class CommandRegistry {
             translationProviderId: settings.translationProvider || 'google-web',
             sourceLanguage: settings.sourceLanguage || 'auto',
             targetLanguages: settings.targetLanguages || ['vi'],
-            profile: stSettings?.profile || 'general',
+            profile: stSettings?.profile || 'none',
           });
         }
       }
