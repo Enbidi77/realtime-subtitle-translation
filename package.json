@@ -1,7 +1,7 @@
 {
   "name": "echo-lingo",
   "productName": "EchoLingo",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "packageManager": "pnpm@10.33.4",
   "description": "Real-Time Subtitle & Translation Desktop App",
@@ -16,6 +16,8 @@
     "lint": "turbo run typecheck",
     "clean:lock": "node scripts/clean-lock.cjs",
     "build:dotnet": "node scripts/build-dotnet.cjs",
+    "download:whisper": "node scripts/download-whisper.cjs",
+    "prepare:whisper": "node scripts/download-whisper.cjs",
     "package": "turbo run package",
     "package:msi": "turbo run package:msi",
     "build:msi:version": "node scripts/build-version.cjs",

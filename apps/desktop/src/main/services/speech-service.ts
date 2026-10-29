@@ -110,6 +110,15 @@ export class SpeechService {
         if (local && settings?.localWhisperModel) {
           local.setModelName(settings.localWhisperModel);
         }
+
+        // On Windows, if no Whisper neural model weights have been downloaded yet, fall back gracefully to Windows System Speech
+        if (process.platform === 'win32' && local && !local.resolveModelPath()) {
+          const winSpeech = this.providers.get('windows-speech');
+          if (winSpeech && winSpeech.isReady()) {
+            this.log.info('[SpeechService] Local Whisper model weights not yet installed. Falling back to Windows System Speech.');
+            return winSpeech;
+          }
+        }
       } catch {
         // ignore
       }

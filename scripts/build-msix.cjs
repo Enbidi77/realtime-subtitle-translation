@@ -29,6 +29,8 @@ let targetVersion = null;
 let identityName = process.env.APPX_IDENTITY_NAME || 'Enbidi.EchoLingoApp';
 let publisher = process.env.APPX_PUBLISHER || 'CN=7D350121-9482-4DA4-B852-3D95D4F0BF11';
 let publisherDisplayName = process.env.APPX_PUBLISHER_DISPLAY_NAME || 'Enbidi';
+let withModel = false;
+let modelName = null;
 
 for (let i = 0; i < args.length; i++) {
   const arg = args[i];
@@ -38,6 +40,11 @@ for (let i = 0; i < args.length; i++) {
     publisher = args[++i];
   } else if (arg === '--publisher-display-name' && args[i + 1]) {
     publisherDisplayName = args[++i];
+  } else if (arg === '--with-model') {
+    withModel = true;
+  } else if (arg === '--model' && args[i + 1]) {
+    withModel = true;
+    modelName = args[++i];
   } else if (!arg.startsWith('-') && !targetVersion) {
     targetVersion = arg;
   }
@@ -72,7 +79,7 @@ if (desktopPkg.version !== targetVersion) {
 }
 
 // 2. Build .NET IPC binary
-console.log('\n[Step 1/3] Building .NET IPC binary...');
+console.log('\n[Step 1/4] Building .NET IPC binary...');
 try {
   execSync('node scripts/build-dotnet.cjs', { stdio: 'inherit', cwd: rootDir });
   console.log('✔ .NET IPC binary build completed.');
@@ -81,8 +88,22 @@ try {
   process.exit(1);
 }
 
-// 3. Build Desktop Renderer & Main bundles, and package AppX
-console.log('\n[Step 2/3] Building Electron Vite app and MSIX / AppX package...');
+// 3. Download & bundle Whisper Local native binaries for MS Store package
+console.log('\n[Step 2/4] Bundling Whisper Local native binaries into app resources...');
+try {
+  const whisperArgs = [];
+  if (withModel) whisperArgs.push('--with-model');
+  if (modelName) whisperArgs.push(`--model "${modelName}"`);
+  const whisperCmd = `node scripts/download-whisper.cjs ${whisperArgs.join(' ')}`.trim();
+  execSync(whisperCmd, { stdio: 'inherit', cwd: rootDir });
+  console.log('✔ Whisper Local binaries bundled into app resources.');
+} catch (err) {
+  console.error('✖ Failed bundling Whisper Local binaries:', err.message);
+  process.exit(1);
+}
+
+// 4. Build Desktop Renderer & Main bundles, and package AppX
+console.log('\n[Step 3/4] Building Electron Vite app and MSIX / AppX package...');
 if (process.platform === 'win32') {
   try {
     execSync('taskkill /F /IM EchoLingo.exe /T', { stdio: 'ignore' });
@@ -111,8 +132,8 @@ try {
   process.exit(1);
 }
 
-// 4. Verify output and create .msix alias copy
-console.log('\n[Step 3/3] Verifying output artifacts...');
+// 5. Verify output and create .msix alias copy
+console.log('\n[Step 4/4] Verifying output artifacts...');
 const releaseDir = path.join(rootDir, 'apps', 'desktop', 'release', targetVersion);
 const appxPath = path.join(releaseDir, `EchoLingo-${targetVersion}.appx`);
 const msixPath = path.join(releaseDir, `EchoLingo-${targetVersion}.msix`);

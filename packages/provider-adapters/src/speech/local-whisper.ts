@@ -111,22 +111,56 @@ export class LocalWhisperProvider implements ISpeechProvider {
   }
 
   /**
-   * Resolve path to whisper executable (main.exe or whisper-cli.exe)
+   * Resolve path to whisper executable (whisper-cli.exe or main.exe)
    */
   public resolveBinaryPath(): string | null {
     if (this.binaryPath && fs.existsSync(this.binaryPath)) {
       return this.binaryPath;
     }
 
-    const candidates = [
-      path.join(this.modelDirectory, 'bin', 'main.exe'),
+    const candidates: string[] = [];
+
+    // 1. Packaged Electron resources (Store MSIX / production bundle)
+    const resourcesPath = (process as any).resourcesPath;
+    if (resourcesPath) {
+      candidates.push(
+        path.join(resourcesPath, 'bin', 'whisper-cli.exe'),
+        path.join(resourcesPath, 'bin', 'main.exe'),
+        path.join(resourcesPath, 'resources', 'bin', 'whisper-cli.exe'),
+        path.join(resourcesPath, 'resources', 'bin', 'main.exe'),
+        path.join(resourcesPath, 'whisper-cli.exe'),
+        path.join(resourcesPath, 'main.exe')
+      );
+    }
+
+    // 2. Development / workspace paths
+    const cwd = process.cwd();
+    candidates.push(
+      path.join(cwd, 'apps', 'desktop', 'resources', 'bin', 'whisper-cli.exe'),
+      path.join(cwd, 'apps', 'desktop', 'resources', 'bin', 'main.exe'),
+      path.join(cwd, 'resources', 'bin', 'whisper-cli.exe'),
+      path.join(cwd, 'resources', 'bin', 'main.exe')
+    );
+
+    // 3. User model directory
+    candidates.push(
       path.join(this.modelDirectory, 'bin', 'whisper-cli.exe'),
-      path.join(this.modelDirectory, 'main.exe'),
+      path.join(this.modelDirectory, 'bin', 'main.exe'),
       path.join(this.modelDirectory, 'whisper-cli.exe'),
-      // Also check standard AppData location if running under electron
-      path.join(os.homedir(), 'AppData', 'Roaming', 'echolingo', 'models', 'whisper', 'bin', 'main.exe'),
-      path.join(os.tmpdir(), 'whisper-bin-test', 'main.exe'),
-    ];
+      path.join(this.modelDirectory, 'main.exe')
+    );
+
+    // 4. Standard AppData location
+    candidates.push(
+      path.join(os.homedir(), 'AppData', 'Roaming', 'echolingo', 'models', 'whisper', 'bin', 'whisper-cli.exe'),
+      path.join(os.homedir(), 'AppData', 'Roaming', 'echolingo', 'models', 'whisper', 'bin', 'main.exe')
+    );
+
+    // 5. Test temp directory
+    candidates.push(
+      path.join(os.tmpdir(), 'whisper-bin-test', 'whisper-cli.exe'),
+      path.join(os.tmpdir(), 'whisper-bin-test', 'main.exe')
+    );
 
     for (const p of candidates) {
       if (fs.existsSync(p)) {
@@ -145,6 +179,20 @@ export class LocalWhisperProvider implements ISpeechProvider {
     const target = requestedModel || this.modelName;
     const directPath = path.join(this.modelDirectory, `ggml-${target}.bin`);
     if (fs.existsSync(directPath)) return directPath;
+
+    // Check packaged electron resources (Store MSIX / production bundle)
+    const resourcesPath = (process as any).resourcesPath;
+    if (resourcesPath) {
+      const packagedBinModel = path.join(resourcesPath, 'bin', `ggml-${target}.bin`);
+      if (fs.existsSync(packagedBinModel)) return packagedBinModel;
+      const packagedModelsFolder = path.join(resourcesPath, 'models', `ggml-${target}.bin`);
+      if (fs.existsSync(packagedModelsFolder)) return packagedModelsFolder;
+    }
+
+    // Check development resources
+    const cwd = process.cwd();
+    const devBinModel = path.join(cwd, 'apps', 'desktop', 'resources', 'bin', `ggml-${target}.bin`);
+    if (fs.existsSync(devBinModel)) return devBinModel;
 
     // Check AppData fallback
     const appDataPath = path.join(
@@ -177,9 +225,8 @@ export class LocalWhisperProvider implements ISpeechProvider {
   }
 
   /**
-   * On Windows, unblocks downloaded binaries and signs unsigned executables/DLLs
-   * with a local self-signed certificate so that Windows Smart App Control (SAC)
-   * or Code Integrity policies do not block execution with "publisher not verified".
+   * On Windows, unblocks binaries by clearing NTFS Mark of the Web (Zone.Identifier)
+   * natively without spawning PowerShell or generating untrusted certificates.
    */
   public async ensureWindowsBinariesSigned(targetDir?: string): Promise<boolean> {
     if (process.platform !== 'win32') return true;
@@ -190,36 +237,13 @@ export class LocalWhisperProvider implements ISpeechProvider {
     if (!fs.existsSync(dir)) return false;
 
     try {
-      const psScript = `
-$ErrorActionPreference = 'Stop'
-Get-ChildItem -Path '${dir.replace(/'/g, "''")}' -Recurse | Unblock-File -ErrorAction SilentlyContinue
-try {
-  $cert = Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert | Where-Object { $_.Subject -match 'EchoLingo' } | Select-Object -First 1
-  if (-not $cert) {
-    $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=EchoLingoLocal' -CertStoreLocation 'Cert:\\CurrentUser\\My'
-  }
-  Get-ChildItem -Path '${dir.replace(/'/g, "''")}\\*' -Include *.exe,*.dll -Recurse | ForEach-Object {
-    $sig = Get-AuthenticodeSignature $_.FullName
-    if ($sig.Status -eq 'NotSigned') {
-      Set-AuthenticodeSignature -FilePath $_.FullName -Certificate $cert | Out-Null
-    }
-  }
-} catch {
-  exit 1
-}
-`;
-      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
-      await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-NonInteractive',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-EncodedCommand',
-        encoded,
-      ]);
+      const files = await fsp.readdir(dir);
+      for (const file of files) {
+        const fullPath = path.join(dir, file);
+        await fsp.unlink(`${fullPath}:Zone.Identifier`).catch(() => {});
+      }
       return true;
-    } catch (err) {
-      log.warn('Could not automatically sign Windows binaries:', err);
+    } catch {
       return false;
     }
   }
@@ -284,44 +308,17 @@ try {
 
       let stdout: string;
       try {
-        const res = await execFileAsync(binary, args);
+        const res = await execFileAsync(binary, args, { cwd: path.dirname(binary) });
         stdout = res.stdout;
       } catch (execErr: unknown) {
         const msg = String((execErr as Error)?.message || execErr);
-        // Check if blocked by Windows Smart App Control or Code Integrity
-        if (
-          process.platform === 'win32' &&
-          (msg.includes('Application Control policy') ||
-            msg.includes('blocked this file') ||
-            (execErr as { code?: number | string })?.code === 1 ||
-            (execErr as { code?: number | string })?.code === 'EPERM')
-        ) {
-          log.warn('Whisper binary execution may be blocked by Windows Code Integrity. Attempting automatic signing...');
-          const signed = await this.ensureWindowsBinariesSigned(path.dirname(binary));
-          if (signed) {
-            try {
-              const retryRes = await execFileAsync(binary, args);
-              stdout = retryRes.stdout;
-            } catch (retryErr) {
-              log.error('Local Whisper execution retry failed after signing:', retryErr);
-              return {
-                text: '[Local Whisper: Blocked by Windows Smart App Control / Untrusted Publisher. Please switch to Windows Speech in Settings.]',
-                isFinal: true,
-                confidence: 0,
-                durationMs: Date.now() - start,
-              };
-            }
-          } else {
-            return {
-              text: '[Local Whisper: Blocked by Windows Smart App Control / Untrusted Publisher. Please switch to Windows Speech in Settings.]',
-              isFinal: true,
-              confidence: 0,
-              durationMs: Date.now() - start,
-            };
-          }
-        } else {
-          throw execErr;
-        }
+        log.warn('Local Whisper execution error:', msg);
+        return {
+          text: '[Local Whisper: Speech recognition blocked by Windows security policy or missing dependencies. Switch to Windows Speech in Settings > Providers.]',
+          isFinal: true,
+          confidence: 0,
+          durationMs: Date.now() - start,
+        };
       }
 
       // Clean up stdout lines
@@ -406,7 +403,7 @@ try {
 
     await fsp.mkdir(this.modelDirectory, { recursive: true });
 
-    // Step 1: Ensure binary runner exists (on Windows, download if missing)
+    // Step 1: Ensure binary runner exists (on Windows, download only if missing from resources and disk)
     if (process.platform === 'win32' && !this.resolveBinaryPath()) {
       const binDir = path.join(this.modelDirectory, 'bin');
       await fsp.mkdir(binDir, { recursive: true });
@@ -415,35 +412,25 @@ try {
       log.info('Downloading whisper.cpp Windows binaries...');
       await downloadFile(WHISPER_BIN_WINDOWS_URL, zipPath);
 
-      // Unzip and sign binaries using PowerShell on Windows to satisfy Smart App Control
-      const psScript = `
-$ErrorActionPreference = 'Stop'
-Expand-Archive -Path '${zipPath.replace(/'/g, "''")}' -DestinationPath '${binDir.replace(/'/g, "''")}' -Force
-Get-ChildItem -Path '${binDir.replace(/'/g, "''")}' -Recurse | Unblock-File -ErrorAction SilentlyContinue
-try {
-  $cert = Get-ChildItem Cert:\\CurrentUser\\My -CodeSigningCert | Where-Object { $_.Subject -match 'EchoLingo' } | Select-Object -First 1
-  if (-not $cert) {
-    $cert = New-SelfSignedCertificate -Type CodeSigningCert -Subject 'CN=EchoLingoLocal' -CertStoreLocation 'Cert:\\CurrentUser\\My'
-  }
-  Get-ChildItem -Path '${binDir.replace(/'/g, "''")}\\*' -Include *.exe,*.dll -Recurse | ForEach-Object {
-    $sig = Get-AuthenticodeSignature $_.FullName
-    if ($sig.Status -eq 'NotSigned') {
-      Set-AuthenticodeSignature -FilePath $_.FullName -Certificate $cert | Out-Null
-    }
-  }
-} catch {}
-`;
-      const encoded = Buffer.from(psScript, 'utf16le').toString('base64');
-      await execFileAsync('powershell.exe', [
-        '-NoProfile',
-        '-NonInteractive',
-        '-ExecutionPolicy',
-        'Bypass',
-        '-EncodedCommand',
-        encoded,
-      ]);
+      // Extract archive cleanly using built-in tar.exe without invoking PowerShell
+      try {
+        await execFileAsync('tar.exe', ['-xf', zipPath, '-C', binDir]);
+      } catch (tarErr) {
+        log.warn('Could not extract using tar.exe:', tarErr);
+      }
 
       await fsp.unlink(zipPath).catch(() => {});
+
+      // Safely unblock extracted files
+      await this.ensureWindowsBinariesSigned(binDir);
+
+      // Create whisper-cli.exe alias if main.exe exists
+      const mainExe = path.join(binDir, 'main.exe');
+      const cliExe = path.join(binDir, 'whisper-cli.exe');
+      if (fs.existsSync(mainExe) && !fs.existsSync(cliExe)) {
+        await fsp.copyFile(mainExe, cliExe).catch(() => {});
+      }
+
       this.resolveBinaryPath();
     }
 
