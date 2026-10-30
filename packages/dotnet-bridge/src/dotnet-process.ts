@@ -291,6 +291,11 @@ export class DotnetProcess {
         const p = payload as { imagePath?: string; languageTag?: string };
         return ["ocr", "recognize", p?.imagePath || "", p?.languageTag || ""];
       }
+      case "handwriting:recognizers":
+        return ["handwriting", "recognizers"];
+      case "handwriting:recognize": {
+        return ["handwriting", "recognize", JSON.stringify(payload ?? {})];
+      }
       default:
         throw new Error(`Command '${command}' has no direct CLI mapping`);
     }

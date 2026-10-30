@@ -155,6 +155,27 @@ describe("DotnetBridge & DotnetBinaryLocator", () => {
     }
   });
 
+  it("supports CLI mode for handwriting recognizers and recognize", async () => {
+    if (process.platform !== "win32") return;
+
+    const cliBridge = new DotnetBridge({ transport: "cli" });
+    try {
+      const recognizers = await cliBridge.handwriting.getInstalledRecognizers();
+      expect(Array.isArray(recognizers)).toBe(true);
+      expect(recognizers.length).toBeGreaterThan(0);
+
+      const strokeShi = [
+        { points: [{ x: 100, y: 200 }, { x: 300, y: 200 }] },
+        { points: [{ x: 200, y: 100 }, { x: 200, y: 300 }] },
+      ];
+      const result = await cliBridge.handwriting.recognize(strokeShi, "zh");
+      expect(result).toBeDefined();
+      expect(result.text).toBe("十");
+    } finally {
+      await cliBridge.dispose();
+    }
+  });
+
   it("recognizes handwriting strokes via DotnetBridge", async () => {
     if (process.platform !== "win32") return;
 

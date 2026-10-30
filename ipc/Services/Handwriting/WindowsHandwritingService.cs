@@ -384,6 +384,21 @@ public class WindowsHandwritingService : IHandwritingService
             if (candidates != null && candidates.Count > 0)
             {
                 var topCandidate = candidates[0].Trim();
+
+                var isCjkTarget = !string.IsNullOrEmpty(langTag) &&
+                    (langTag.StartsWith("zh", StringComparison.OrdinalIgnoreCase) ||
+                     langTag.StartsWith("ja", StringComparison.OrdinalIgnoreCase) ||
+                     langTag.StartsWith("ko", StringComparison.OrdinalIgnoreCase));
+
+                if (isCjkTarget || IsSymbolOrPunctuation(topCandidate))
+                {
+                    var cjkCandidate = candidates.FirstOrDefault(c => c.Any(IsCjk));
+                    if (!string.IsNullOrEmpty(cjkCandidate))
+                    {
+                        topCandidate = cjkCandidate.Trim();
+                    }
+                }
+
                 if (!string.IsNullOrEmpty(topCandidate))
                 {
                     if (sb.Length > 0 && !IsCjk(topCandidate[0]) && !IsCjk(sb[^1]))
@@ -392,6 +407,8 @@ public class WindowsHandwritingService : IHandwritingService
                     }
                     sb.Append(topCandidate);
                 }
+
+                allCandidates.Add(topCandidate);
 
                 foreach (var cand in candidates)
                 {

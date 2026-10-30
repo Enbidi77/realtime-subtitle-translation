@@ -31,7 +31,7 @@ function buildDotnet() {
   fs.mkdirSync(targetBridgeDir, { recursive: true });
   fs.mkdirSync(targetDesktopDir, { recursive: true });
 
-  const publishCmd = `dotnet publish "${csprojPath}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o "${targetBridgeDir}"`;
+  const publishCmd = `dotnet publish "${csprojPath}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "${targetBridgeDir}"`;
   
   try {
     execSync(publishCmd, { stdio: 'inherit', cwd: rootDir });
@@ -40,7 +40,7 @@ function buildDotnet() {
     const destExe = path.join(targetDesktopDir, 'EchoLingo.Ipc.exe');
 
     if (fs.existsSync(sourceExe)) {
-      fs.copyFileSync(sourceExe, destExe);
+      fs.cpSync(targetBridgeDir, targetDesktopDir, { recursive: true, force: true });
       console.log(`[build-dotnet] Successfully built and placed EchoLingo.Ipc.exe:`);
       console.log(`  -> ${sourceExe}`);
       console.log(`  -> ${destExe}`);
