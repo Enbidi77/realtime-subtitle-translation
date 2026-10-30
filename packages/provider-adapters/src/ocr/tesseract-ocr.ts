@@ -84,6 +84,16 @@ export class TesseractOcrProvider implements IOcrProvider {
     const lang = request.language || 'eng';
     const worker = await this.getWorker(lang);
 
+    if (request.preprocessOptions?.profile === 'handwritten') {
+      try {
+        await worker.setParameters({
+          tessedit_pageseg_mode: '6' as any,
+        });
+      } catch {
+        // ignore parameter setting error if unsupported in mock or web env
+      }
+    }
+
     const result = await worker.recognize(buffer);
     const data = result.data;
 

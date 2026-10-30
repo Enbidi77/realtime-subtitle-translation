@@ -129,6 +129,7 @@ export const IPC_CHANNELS = {
   OCR_GET_PROVIDERS: 'ocr:get-providers',
   OCR_GET_LANGUAGES: 'ocr:get-languages',
   OCR_RECOGNIZE: 'ocr:recognize',
+  OCR_RECOGNIZE_HANDWRITING: 'ocr:recognize-handwriting',
 
   // Screen Translation & Continuous
   SCREEN_TRANSLATE_REGION: 'screen-translate:region',

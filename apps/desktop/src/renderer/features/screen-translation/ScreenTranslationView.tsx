@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/index.js";
 import { useSettingsStore } from "@/stores/settings-store.js";
 import { useI18n } from "@/app/i18n/index.js";
+import { HandwritingPad } from "./components/HandwritingPad.js";
 import {
   Crop,
   Copy,
@@ -44,6 +45,7 @@ import {
   ExternalLink,
   ChevronRight,
   Info,
+  PenTool,
 } from "lucide-react";
 
 const log = createRendererLogger("ScreenTranslationView");
@@ -54,7 +56,7 @@ export const ScreenTranslationView: React.FC = () => {
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
-    "capture" | "continuous" | "history"
+    "capture" | "continuous" | "handwriting" | "history"
   >("capture");
 
   // OCR & Translation State
@@ -508,6 +510,18 @@ export const ScreenTranslationView: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("handwriting")}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-all flex items-center gap-1.5 ${
+              activeTab === "handwriting"
+                ? "bg-primary/15 text-primary border border-primary/30"
+                : "text-muted-foreground hover:text-foreground hover:bg-glass-subtle border border-transparent"
+            }`}
+          >
+            <PenTool className="w-3.5 h-3.5" />
+            <span>{t("ocr.tabs.handwriting", "Handwriting Pad")}</span>
+          </button>
+          <button
+            type="button"
             onClick={() => {
               setActiveTab("history");
               loadHistory(historySearch);
@@ -633,6 +647,12 @@ export const ScreenTranslationView: React.FC = () => {
                       {t(
                         "ocr.presets.general",
                         "General Desktop Text",
+                      )}
+                    </option>
+                    <option value="handwritten">
+                      {t(
+                        "ocr.presets.handwritten",
+                        "Handwritten & Notes (Adaptive Filter)",
                       )}
                     </option>
                     <option value="game-subtitles">
@@ -1166,7 +1186,15 @@ export const ScreenTranslationView: React.FC = () => {
           </div>
         )}
 
-        {/* ================= TAB 3: HISTORY ================= */}
+        {/* ================= TAB 3: HANDWRITING RECOGNITION ================= */}
+        {activeTab === "handwriting" && (
+          <HandwritingPad
+            ocrProviders={ocrProviders}
+            onSavedToHistory={() => loadHistory(historySearch)}
+          />
+        )}
+
+        {/* ================= TAB 4: HISTORY ================= */}
         {activeTab === "history" && (
           <div className="space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">

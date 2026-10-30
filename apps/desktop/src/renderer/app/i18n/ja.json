@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "1回キャプチャ",
       "continuous": "常時監視",
+      "handwriting": "手書きパッド",
       "history": "履歴"
     },
     "engine": "OCRエンジン:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "前処理プリセット",
       "general": "一般的なテキスト",
+      "handwritten": "手書き文字・メモ (適応フィルター)",
       "gameSubtitles": "ゲーム字幕 (高コントラスト強調)",
       "smallUi": "小さなUIフォント (2倍拡大)",
       "highContrast": "ハイコントラスト2値化 (大津法)",
       "cjk": "日本語・中国語 (空白除去最適化)",
       "none": "前処理なし (標準)"
+    },
+    "handwriting": {
+      "title": "手書き文字認識・デジタルインクパッド",
+      "badge": "AI ニューラル HTR",
+      "subtitle": "スタイラスやマウスでの手書き、または手書きメモの画像をドロップして即座に認識・翻訳します。",
+      "engine": "OCR エンジン",
+      "sourceLang": "言語",
+      "targetLang": "翻訳先",
+      "preset": "画像強調",
+      "tools": {
+        "pen": "ペン",
+        "eraser": "消しゴム",
+        "undo": "元に戻す",
+        "clear": "クリア",
+        "upload": "メモをアップロード"
+      },
+      "recognizeBtn": "認識して翻訳",
+      "recognizing": "認識中...",
+      "canvasHint": "マウスやスタイラスペンでここに書くか、手書きメモの画像をドラッグ＆ドロップしてください。",
+      "canvasSubhint": "英語の筆記体、ベトナム語の声調記号、日本語・漢字、数学記号に対応。",
+      "emptyCanvas": "文字を書くか、手書き画像をアップロードしてください。",
+      "noTextDetected": "手書き文字を検出できませんでした。よりはっきりと書くか、OCRエンジンを変更してください。",
+      "recognizedLabel": "認識された手書き文字",
+      "recognizedPlaceholder": "認識された文字がここに表示されます。自由に編集・修正できます...",
+      "retranslate": "再翻訳",
+      "translationLabel": "リアルタイム翻訳",
+      "translating": "認識された手書き文字を翻訳中...",
+      "translatedPlaceholder": "翻訳結果がここに表示されます。",
+      "saveToHistory": "履歴に保存",
+      "savedToHistory": "履歴に保存済み"
     },
     "ocrLangHint": "OCR認識言語ヒント",
     "translateInto": "翻訳先言語",

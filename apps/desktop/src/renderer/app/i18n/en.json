@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "One-Time Capture",
       "continuous": "Continuous Monitoring",
+      "handwriting": "Handwriting Pad",
       "history": "History"
     },
     "engine": "Engine:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "Preprocessing Preset",
       "general": "General Desktop Text",
+      "handwritten": "Handwritten & Notes (Adaptive Filter)",
       "gameSubtitles": "Game Subtitles (High Contrast)",
       "smallUi": "Small UI Text (2x Upscale)",
       "highContrast": "High Contrast (Otsu Binarize)",
       "cjk": "Japanese & Chinese Characters",
       "none": "No Preprocessing (Default)"
+    },
+    "handwriting": {
+      "title": "Handwriting Recognition & Digital Ink Pad",
+      "badge": "AI Neural HTR",
+      "subtitle": "Draw with stylus/mouse, drop handwritten photos, or notes to recognize and translate instantly.",
+      "engine": "OCR Engine",
+      "sourceLang": "Language",
+      "targetLang": "Translate To",
+      "preset": "Enhancement",
+      "tools": {
+        "pen": "Pen",
+        "eraser": "Eraser",
+        "undo": "Undo",
+        "clear": "Clear",
+        "upload": "Upload Note"
+      },
+      "recognizeBtn": "Recognize & Translate",
+      "recognizing": "Recognizing...",
+      "canvasHint": "Write here with your mouse, stylus pen, or drag & drop a photo of handwritten notes.",
+      "canvasSubhint": "Supports cursive English, Vietnamese diacritics, CJK characters, and math symbols.",
+      "emptyCanvas": "Please write something or upload a handwritten image first.",
+      "noTextDetected": "No handwritten text could be identified. Try writing more distinctly or switching OCR engine.",
+      "recognizedLabel": "Recognized Handwriting",
+      "recognizedPlaceholder": "Recognized text will appear here. You can freely edit or correct it...",
+      "retranslate": "Re-translate",
+      "translationLabel": "Live Translation",
+      "translating": "Translating recognized handwriting...",
+      "translatedPlaceholder": "Translation will be displayed here.",
+      "saveToHistory": "Save to History",
+      "savedToHistory": "Saved to History"
     },
     "ocrLangHint": "OCR Language Hint",
     "translateInto": "Translate Into",

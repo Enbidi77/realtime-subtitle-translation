@@ -56,6 +56,7 @@ export const OcrProfileSchema = z.enum([
   'small-ui',
   'high-contrast',
   'cjk',
+  'handwritten',
   'none',
 ]);
 export type OcrProfile = z.infer<typeof OcrProfileSchema>;
@@ -67,6 +68,9 @@ export const OcrPreprocessOptionsSchema = z.object({
   binarize: z.boolean().default(false),
   invert: z.boolean().default(false),
   scale: z.number().min(1).max(4).default(1),
+  adaptiveThreshold: z.boolean().optional(),
+  morphologyClose: z.boolean().optional(),
+  denoise: z.boolean().optional(),
 });
 export type OcrPreprocessOptions = z.infer<typeof OcrPreprocessOptionsSchema>;
 
@@ -89,8 +93,30 @@ export type OcrProviderCapability = z.infer<typeof OcrProviderCapabilitySchema>;
 
 export const OcrRecognizeRequestSchema = z.object({
   imageBuffer: z.string().or(z.instanceof(Uint8Array)).optional(),
-  language: z.string().optional().default('auto'),
+  language: z.string().optional(),
   preprocessOptions: OcrPreprocessOptionsSchema.optional(),
   providerId: OcrProviderIdSchema.optional(),
 });
 export type OcrRecognizeRequest = z.infer<typeof OcrRecognizeRequestSchema>;
+
+export const HandwritingPointSchema = z.object({
+  x: z.number(),
+  y: z.number(),
+  pressure: z.number().optional(),
+  timestamp: z.number().optional(),
+});
+export type HandwritingPoint = z.infer<typeof HandwritingPointSchema>;
+
+export const HandwritingStrokeSchema = z.object({
+  points: z.array(HandwritingPointSchema),
+});
+export type HandwritingStroke = z.infer<typeof HandwritingStrokeSchema>;
+
+export const HandwritingRecognizeRequestSchema = z.object({
+  strokes: z.array(HandwritingStrokeSchema).optional(),
+  imageBuffer: z.string().or(z.instanceof(Uint8Array)).optional(),
+  language: z.string().optional(),
+  preprocessOptions: OcrPreprocessOptionsSchema.optional(),
+  providerId: OcrProviderIdSchema.optional(),
+});
+export type HandwritingRecognizeRequest = z.infer<typeof HandwritingRecognizeRequestSchema>;

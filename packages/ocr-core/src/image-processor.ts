@@ -184,6 +184,169 @@ export function scaleImage(
 }
 
 /**
+ * Applies a 3x3 median filter to eliminate salt-and-pepper noise and scanner grain.
+ */
+export function denoise(rgba: Uint8Array, width: number, height: number): Uint8Array {
+  const output = new Uint8Array(rgba.length);
+  const window = new Uint8Array(9);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let count = 0;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = Math.min(Math.max(y + dy, 0), height - 1);
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = Math.min(Math.max(x + dx, 0), width - 1);
+          window[count++] = rgba[(ny * width + nx) * 4];
+        }
+      }
+
+      // Simple insertion sort on 9 elements
+      for (let i = 1; i < 9; i++) {
+        const key = window[i];
+        let j = i - 1;
+        while (j >= 0 && window[j] > key) {
+          window[j + 1] = window[j];
+          j--;
+        }
+        window[j + 1] = key;
+      }
+      const median = window[4];
+      const idx = (y * width + x) * 4;
+      output[idx] = median;
+      output[idx + 1] = median;
+      output[idx + 2] = median;
+      output[idx + 3] = rgba[idx + 3];
+    }
+  }
+
+  return output;
+}
+
+/**
+ * Applies Bradley-Roth local adaptive thresholding using an integral image.
+ * Excels at binarizing handwriting on uneven backgrounds, shadows, and lined paper.
+ */
+export function adaptiveThreshold(
+  rgba: Uint8Array,
+  width: number,
+  height: number,
+  windowRatio = 0.125,
+  percentage = 0.15
+): Uint8Array {
+  const output = new Uint8Array(rgba.length);
+  const integral = new Float64Array((width + 1) * (height + 1));
+
+  // Compute integral image
+  for (let y = 0; y < height; y++) {
+    let rowSum = 0;
+    for (let x = 0; x < width; x++) {
+      const lum = rgba[(y * width + x) * 4];
+      rowSum += lum;
+      integral[(y + 1) * (width + 1) + (x + 1)] =
+        integral[y * (width + 1) + (x + 1)] + rowSum;
+    }
+  }
+
+  const s = Math.max(8, Math.round(width * windowRatio));
+  const s2 = Math.floor(s / 2);
+
+  for (let y = 0; y < height; y++) {
+    const y1 = Math.max(0, y - s2);
+    const y2 = Math.min(height - 1, y + s2);
+
+    for (let x = 0; x < width; x++) {
+      const x1 = Math.max(0, x - s2);
+      const x2 = Math.min(width - 1, x + s2);
+
+      const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+
+      const sum =
+        integral[(y2 + 1) * (width + 1) + (x2 + 1)] -
+        integral[y1 * (width + 1) + (x2 + 1)] -
+        integral[(y2 + 1) * (width + 1) + x1] +
+        integral[y1 * (width + 1) + x1];
+
+      const avg = sum / count;
+      const lum = rgba[(y * width + x) * 4];
+
+      const isInk = lum <= avg * (1 - percentage);
+      const val = isInk ? 0 : 255;
+
+      const idx = (y * width + x) * 4;
+      output[idx] = val;
+      output[idx + 1] = val;
+      output[idx + 2] = val;
+      output[idx + 3] = 255;
+    }
+  }
+
+  return output;
+}
+
+/**
+ * Performs morphological closing (dilation then erosion) to bridge micro-breaks in cursive/handwritten strokes.
+ * Assumes dark ink (0) on white background (255).
+ */
+export function morphologyClose(rgba: Uint8Array, width: number, height: number): Uint8Array {
+  // Step 1: Dilation on ink (min filter: if any neighbor is ink < 128, becomes ink 0)
+  const dilated = new Uint8Array(rgba.length);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let isInk = false;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy;
+        if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx;
+          if (nx < 0 || nx >= width) continue;
+          if (rgba[(ny * width + nx) * 4] < 128) {
+            isInk = true;
+            break;
+          }
+        }
+        if (isInk) break;
+      }
+      const val = isInk ? 0 : 255;
+      const idx = (y * width + x) * 4;
+      dilated[idx] = val;
+      dilated[idx + 1] = val;
+      dilated[idx + 2] = val;
+      dilated[idx + 3] = 255;
+    }
+  }
+
+  // Step 2: Erosion on ink (max filter: if any neighbor is background >= 128, becomes background 255)
+  const output = new Uint8Array(rgba.length);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      let isBackground = false;
+      for (let dy = -1; dy <= 1; dy++) {
+        const ny = y + dy;
+        if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx++) {
+          const nx = x + dx;
+          if (nx < 0 || nx >= width) continue;
+          if (dilated[(ny * width + nx) * 4] >= 128) {
+            isBackground = true;
+            break;
+          }
+        }
+        if (isBackground) break;
+      }
+      const val = isBackground ? 255 : 0;
+      const idx = (y * width + x) * 4;
+      output[idx] = val;
+      output[idx + 1] = val;
+      output[idx + 2] = val;
+      output[idx + 3] = 255;
+    }
+  }
+
+  return output;
+}
+
+/**
  * Applies a complete preprocessing profile or custom options to raw image data.
  */
 export function preprocessImage(
@@ -216,14 +379,26 @@ export function preprocessImage(
     h = scaled.height;
   }
 
-  // 4. Invert if requested
+  // 4. Denoise (median filter)
+  if (options.denoise) {
+    current = denoise(current, w, h);
+  }
+
+  // 5. Invert if requested
   if (options.invert) {
     current = invert(current);
   }
 
-  // 5. Binarize if requested
-  if (options.binarize) {
+  // 6. Adaptive threshold or global binarization
+  if (options.adaptiveThreshold) {
+    current = adaptiveThreshold(current, w, h);
+  } else if (options.binarize) {
     current = binarize(current);
+  }
+
+  // 7. Morphological closing for stroke continuity
+  if (options.morphologyClose) {
+    current = morphologyClose(current, w, h);
   }
 
   return { data: current, width: w, height: h };

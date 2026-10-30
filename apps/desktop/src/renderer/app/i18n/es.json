@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "Captura Única",
       "continuous": "Monitoreo Continuo",
+      "handwriting": "Panel de escritura",
       "history": "Historial"
     },
     "engine": "Motor:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "Ajuste de Preprocesamiento",
       "general": "Texto de Escritorio General",
+      "handwritten": "Escritura a mano y notas (Filtro adaptativo)",
       "gameSubtitles": "Subtítulos de Juegos (Alto Contraste)",
       "smallUi": "Texto Pequeño de UI (Escalado 2x)",
       "highContrast": "Alto Contraste Binarizado (Otsu)",
       "cjk": "Caracteres Japoneses y Chinos (Sin Espacios)",
       "none": "Sin Preprocesamiento (Predeterminado)"
+    },
+    "handwriting": {
+      "title": "Reconocimiento de escritura a mano y panel digital",
+      "badge": "HTR Neuronal IA",
+      "subtitle": "Escriba con lápiz óptico/ratón o arrastre fotos de notas escritas a mano para reconocer y traducir al instante.",
+      "engine": "Motor OCR",
+      "sourceLang": "Idioma",
+      "targetLang": "Traducir a",
+      "preset": "Mejora",
+      "tools": {
+        "pen": "Bolígrafo",
+        "eraser": "Borrador",
+        "undo": "Deshacer",
+        "clear": "Borrar todo",
+        "upload": "Subir nota"
+      },
+      "recognizeBtn": "Reconocer y traducir",
+      "recognizing": "Reconociendo...",
+      "canvasHint": "Escriba aquí con el ratón o lápiz óptico, o arrastre una foto de notas escritas a mano.",
+      "canvasSubhint": "Compatible con cursiva en inglés, diacríticos en vietnamita, CJK y símbolos matemáticos.",
+      "emptyCanvas": "Escriba algo o cargue una imagen con escritura a mano primero.",
+      "noTextDetected": "No se detectó texto manuscrito. Intente escribir con mayor claridad o cambie el motor OCR.",
+      "recognizedLabel": "Texto manuscrito reconocido",
+      "recognizedPlaceholder": "El texto reconocido aparecerá aquí. Puede editarlo o corregirlo libremente...",
+      "retranslate": "Volver a traducir",
+      "translationLabel": "Traducción en vivo",
+      "translating": "Traduciendo escritura manuscrita...",
+      "translatedPlaceholder": "La traducción se mostrará aquí.",
+      "saveToHistory": "Guardar en historial",
+      "savedToHistory": "Guardado en historial"
     },
     "ocrLangHint": "Sugerencia de Idioma OCR",
     "translateInto": "Traducir a",

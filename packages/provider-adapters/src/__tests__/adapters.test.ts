@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import {
   GoogleWebTranslationProvider,
   GoogleCloudTranslationProvider,
@@ -11,6 +11,7 @@ import {
   WindowsSpeechProvider,
   MockOcrProvider,
   WindowsNativeOcrProvider,
+  GoogleVisionOcrProvider,
 } from '@echo-lingo/provider-adapters';
 import { OcrRegistry } from '@echo-lingo/ocr-core';
 
@@ -293,6 +294,116 @@ describe('Provider Adapters', () => {
 
       const caps = registry.getAllCapabilities();
       expect(caps).toHaveLength(2);
+    });
+
+    it('initializes and reports capability for GoogleVisionOcrProvider', () => {
+      const gv = new GoogleVisionOcrProvider();
+      expect(gv.id).toBe('google-vision');
+      expect(gv.isLocal).toBe(false);
+      expect(gv.requiresApiKey).toBe(true);
+
+      const capBefore = gv.getCapability();
+      expect(capBefore.isAvailable).toBe(false);
+
+      gv.setApiKey('test-gv-api-key');
+      const capAfter = gv.getCapability();
+      expect(capAfter.isAvailable).toBe(true);
+    });
+
+    it('recognizes handwritten document text via GoogleVisionOcrProvider with mocked fetch', async () => {
+      const gv = new GoogleVisionOcrProvider('test-gv-api-key');
+
+      const mockApiResponse = {
+        responses: [
+          {
+            fullTextAnnotation: {
+              text: 'Handwritten Note\nSecond Line',
+              pages: [
+                {
+                  property: {
+                    detectedLanguages: [{ languageCode: 'en', confidence: 0.98 }],
+                  },
+                  blocks: [
+                    {
+                      confidence: 0.96,
+                      paragraphs: [
+                        {
+                          confidence: 0.96,
+                          words: [
+                            {
+                              symbols: [{ text: 'Handwritten' }],
+                              confidence: 0.98,
+                              boundingBox: {
+                                vertices: [
+                                  { x: 10, y: 10 },
+                                  { x: 60, y: 10 },
+                                  { x: 60, y: 25 },
+                                  { x: 10, y: 25 },
+                                ],
+                              },
+                            },
+                            {
+                              symbols: [{ text: 'Note' }],
+                              confidence: 0.95,
+                              boundingBox: {
+                                vertices: [
+                                  { x: 65, y: 10 },
+                                  { x: 90, y: 10 },
+                                  { x: 90, y: 25 },
+                                  { x: 65, y: 25 },
+                                ],
+                              },
+                            },
+                          ],
+                          boundingBox: {
+                            vertices: [
+                              { x: 10, y: 10 },
+                              { x: 90, y: 10 },
+                              { x: 90, y: 25 },
+                              { x: 10, y: 25 },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            },
+          },
+        ],
+      };
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockApiResponse,
+      }) as any;
+
+      try {
+        const result = await gv.recognize({
+          imageBuffer: Buffer.from('fake-image-bytes'),
+          language: 'en',
+        });
+
+        expect(result.text).toBe('Handwritten Note\nSecond Line');
+        expect(result.providerId).toBe('google-vision');
+        expect(result.lines).toHaveLength(1);
+        expect(result.lines[0].text).toBe('Handwritten Note');
+        expect(result.lines[0].words).toHaveLength(2);
+        expect(result.lines[0].words[0].text).toBe('Handwritten');
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it('throws error when GoogleVisionOcrProvider lacks API key', async () => {
+      const gv = new GoogleVisionOcrProvider('');
+      await expect(
+        gv.recognize({
+          imageBuffer: 'some-buffer',
+        })
+      ).rejects.toThrow('Google Cloud Vision API Key is not configured');
     });
   });
 });

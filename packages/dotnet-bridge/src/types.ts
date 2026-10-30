@@ -100,6 +100,30 @@ export interface OcrLanguageDto {
   displayName: string;
 }
 
+export interface HandwritingStrokePointDto {
+  x: number;
+  y: number;
+  pressure?: number;
+  timestamp?: number;
+}
+
+export interface HandwritingStrokeDto {
+  points: HandwritingStrokePointDto[];
+}
+
+export interface HandwritingRecognizeRequest {
+  strokes: HandwritingStrokeDto[];
+  languageTag?: string;
+}
+
+export interface HandwritingRecognizeResult {
+  text: string;
+  lines: OcrLineDto[];
+  candidates: string[];
+  confidence: number;
+  error?: string;
+}
+
 export interface PingResult {
   message: string;
   version: string;

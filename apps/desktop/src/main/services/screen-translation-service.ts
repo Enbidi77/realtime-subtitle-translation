@@ -4,6 +4,7 @@ import {
   ContinuousOcrStats,
   DisplayInfo,
   FloatingPanelPayload,
+  HandwritingRecognizeRequest,
   IPC_CHANNELS,
   OcrHistoryItem,
   OcrHistoryQuery,
@@ -19,13 +20,17 @@ import {
 import {
   ContinuousOcrScheduler,
   OcrRegistry,
+  normalizeOcrResponse,
 } from '@echo-lingo/ocr-core';
 import { OCR_PROFILE_PRESETS } from '@echo-lingo/config';
 import {
   WindowsNativeOcrProvider,
   TesseractOcrProvider,
   MockOcrProvider,
+  GoogleVisionOcrProvider,
 } from '@echo-lingo/provider-adapters';
+import { dotnetBridge } from '@echo-lingo/dotnet-bridge';
+import { CredentialsService } from '@/services/credentials-service.js';
 import { getDatabase } from '@/database/db-instance.js';
 import { getTranslationService } from '@/services/translation-service.js';
 import { getScreenCaptureManager } from '@/screen-capture/capture-manager.js';
@@ -79,6 +84,17 @@ export class ScreenTranslationService {
     this.ocrRegistry.register(new TesseractOcrProvider());
     this.ocrRegistry.register(new MockOcrProvider());
 
+    // Register Google Cloud Vision provider
+    const googleVision = new GoogleVisionOcrProvider();
+    this.ocrRegistry.register(googleVision);
+
+    const updateGoogleVisionKey = () => {
+      const key = CredentialsService.getInstance().getCredential('google-vision');
+      googleVision.setApiKey(key || '');
+    };
+    updateGoogleVisionKey();
+    CredentialsService.getInstance().onCredentialsChange(updateGoogleVisionKey);
+
     // Prefer Windows Native on Windows, otherwise Tesseract
     if (process.platform === 'win32') {
       this.ocrRegistry.setActiveProvider('windows-native');
@@ -114,6 +130,77 @@ export class ScreenTranslationService {
       }
       throw err;
     }
+  }
+
+  public async recognizeHandwriting(req: HandwritingRecognizeRequest): Promise<OcrResponse> {
+    const start = Date.now();
+
+    // 1. If stroke vectors are provided and Windows native ink is available, try stroke recognition
+    if (
+      req.strokes &&
+      req.strokes.length > 0 &&
+      process.platform === 'win32' &&
+      dotnetBridge.isAvailable()
+    ) {
+      try {
+        const result = await dotnetBridge.handwriting.recognize(req.strokes, req.language);
+        if (result && !result.error && result.text) {
+          const lines = (result.lines || []).map((l) => ({
+            text: l.text,
+            confidence: l.confidence ?? 0.95,
+            words: (l.words || []).map((w) => ({
+              text: w.text,
+              confidence: w.confidence ?? 0.95,
+              boundingBox: w.boundingBox,
+            })),
+          }));
+
+          return normalizeOcrResponse({
+            text: result.text,
+            blocks: [
+              {
+                text: result.text,
+                confidence: result.confidence ?? 0.95,
+                lines,
+              },
+            ],
+            lines,
+            confidence: result.confidence ?? 0.95,
+            language: req.language || 'auto',
+            durationMs: Date.now() - start,
+            providerId: 'windows-native',
+          });
+        }
+      } catch (err) {
+        this.log.warn('Windows native stroke handwriting recognition failed, falling back to raster OCR:', err);
+      }
+    }
+
+    // 2. Otherwise recognize from image buffer with the handwritten profile
+    if (!req.imageBuffer) {
+      return normalizeOcrResponse({
+        text: '',
+        blocks: [],
+        lines: [],
+        confidence: 0,
+        durationMs: Date.now() - start,
+        providerId: req.providerId || 'tesseract',
+      });
+    }
+
+    const profilePreset = OCR_PROFILE_PRESETS.handwritten;
+    const preprocessOptions = {
+      ...profilePreset,
+      ...req.preprocessOptions,
+      profile: 'handwritten' as const,
+    };
+
+    return this.recognize({
+      imageBuffer: req.imageBuffer,
+      language: req.language || 'auto',
+      preprocessOptions,
+      providerId: req.providerId,
+    });
   }
 
   public getDisplays(): DisplayInfo[] {

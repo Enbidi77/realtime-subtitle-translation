@@ -149,3 +149,51 @@ public class OcrLanguageDto
     public string DisplayName { get; set; } = string.Empty;
 }
 
+public class HandwritingStrokePointDto
+{
+    [JsonPropertyName("x")]
+    public double X { get; set; }
+
+    [JsonPropertyName("y")]
+    public double Y { get; set; }
+
+    [JsonPropertyName("pressure")]
+    public float? Pressure { get; set; }
+
+    [JsonPropertyName("timestamp")]
+    public long? Timestamp { get; set; }
+}
+
+public class HandwritingStrokeDto
+{
+    [JsonPropertyName("points")]
+    public List<HandwritingStrokePointDto> Points { get; set; } = new();
+}
+
+public class HandwritingRecognizeRequest
+{
+    [JsonPropertyName("strokes")]
+    public List<HandwritingStrokeDto> Strokes { get; set; } = new();
+
+    [JsonPropertyName("languageTag")]
+    public string? LanguageTag { get; set; }
+}
+
+public class HandwritingRecognizeResult
+{
+    [JsonPropertyName("text")]
+    public string Text { get; set; } = string.Empty;
+
+    [JsonPropertyName("lines")]
+    public List<OcrLineDto> Lines { get; set; } = new();
+
+    [JsonPropertyName("candidates")]
+    public List<string> Candidates { get; set; } = new();
+
+    [JsonPropertyName("confidence")]
+    public double Confidence { get; set; } = 0.95;
+
+    [JsonPropertyName("error")]
+    public string? Error { get; set; }
+}
+

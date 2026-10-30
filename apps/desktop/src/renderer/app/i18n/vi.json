@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "Chụp một lần",
       "continuous": "Giám sát liên tục",
+      "handwriting": "Bảng chữ viết tay",
       "history": "Lịch sử"
     },
     "engine": "Bộ máy:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "Mẫu tiền xử lý hình ảnh",
       "general": "Văn bản màn hình chung",
+      "handwritten": "Chữ viết tay & Ghi chú (Bộ lọc thích ứng)",
       "gameSubtitles": "Phụ đề Game (Tương phản cao)",
       "smallUi": "Chữ giao diện nhỏ (Phóng đại 2x)",
       "highContrast": "Tương phản cao (Nhị phân hóa Otsu)",
       "cjk": "Ký tự tiếng Nhật & tiếng Trung",
       "none": "Không tiền xử lý (Mặc định)"
+    },
+    "handwriting": {
+      "title": "Nhận dạng chữ viết tay & Bảng mực kỹ thuật số",
+      "badge": "HTR nơ-ron AI",
+      "subtitle": "Vẽ bằng bút cảm ứng/chuột, kéo thả ảnh chụp ghi chú để nhận dạng và dịch tức thì.",
+      "engine": "Bộ máy OCR",
+      "sourceLang": "Ngôn ngữ",
+      "targetLang": "Dịch sang",
+      "preset": "Tối ưu hóa",
+      "tools": {
+        "pen": "Bút vẽ",
+        "eraser": "Tẩy xóa",
+        "undo": "Hoàn tác",
+        "clear": "Xóa hết",
+        "upload": "Tải ảnh ghi chú"
+      },
+      "recognizeBtn": "Nhận dạng & Dịch",
+      "recognizing": "Đang nhận dạng...",
+      "canvasHint": "Viết tại đây bằng chuột, bút cảm ứng hoặc kéo thả ảnh chụp ghi chú viết tay.",
+      "canvasSubhint": "Hỗ trợ chữ viết tay tiếng Anh, dấu tiếng Việt, chữ Hán/Nhật/Hàn và ký hiệu toán.",
+      "emptyCanvas": "Vui lòng viết gì đó hoặc tải lên ảnh chữ viết tay trước.",
+      "noTextDetected": "Không nhận diện được chữ viết tay. Hãy thử viết rõ hơn hoặc đổi bộ máy OCR.",
+      "recognizedLabel": "Chữ viết tay nhận dạng",
+      "recognizedPlaceholder": "Chữ nhận dạng sẽ hiển thị ở đây. Bạn có thể tự do chỉnh sửa nếu cần...",
+      "retranslate": "Dịch lại",
+      "translationLabel": "Bản dịch trực tiếp",
+      "translating": "Đang dịch chữ viết tay nhận dạng được...",
+      "translatedPlaceholder": "Bản dịch sẽ hiển thị ở đây.",
+      "saveToHistory": "Lưu vào lịch sử",
+      "savedToHistory": "Đã lưu vào lịch sử"
     },
     "ocrLangHint": "Gợi ý ngôn ngữ OCR",
     "translateInto": "Dịch sang",
