@@ -4,6 +4,7 @@ import {
   CloseBehaviorSchema,
   SplashStatusEventSchema,
   SupportedLocaleSchema,
+  FeatureFlagsSchema,
 } from '@echo-lingo/contracts';
 import {
   DEFAULT_APP_SETTINGS,
@@ -12,6 +13,8 @@ import {
   PAID_SPEECH_ENGINES,
   PAID_TRANSLATION_PROVIDERS,
   getLanguageName,
+  isFeatureEnabled,
+  DEFAULT_FEATURE_FLAGS,
 } from '@echo-lingo/config';
 import { zlibSyncCheck } from './png-helper.js';
 
@@ -106,5 +109,46 @@ describe('App Settings & Close Behavior Contracts', () => {
     expect(png[7]).toBe(0x0a);
     expect(png.length).toBeGreaterThan(100);
   });
-});
+  it('validates FeatureFlagsSchema defaults and custom flags', () => {
+    const defaultFlags = FeatureFlagsSchema.parse({});
+    expect(defaultFlags.liveSubtitles).toBe(true);
+    expect(defaultFlags.videoSubtitles).toBe(true);
+    expect(defaultFlags.screenOcr).toBe(true);
+    expect(defaultFlags.sessions).toBe(true);
+    expect(defaultFlags.history).toBe(true);
+    expect(defaultFlags.providers).toBe(true);
+    expect(DEFAULT_APP_SETTINGS.featureFlags).toEqual(DEFAULT_FEATURE_FLAGS);
 
+    const customFlags = FeatureFlagsSchema.parse({
+      videoSubtitles: false,
+      screenOcr: false,
+      experimentalCustom: false,
+    });
+    expect(customFlags.videoSubtitles).toBe(false);
+    expect(customFlags.screenOcr).toBe(false);
+    expect(customFlags.liveSubtitles).toBe(true);
+    expect((customFlags as any).experimentalCustom).toBe(false);
+  });
+
+  it('evaluates isFeatureEnabled correctly for core, camelCase, and kebab-case pages', () => {
+    // Core pages always enabled
+    expect(isFeatureEnabled('dashboard', { videoSubtitles: false })).toBe(true);
+    expect(isFeatureEnabled('settings', { videoSubtitles: false })).toBe(true);
+
+    // Default behavior when no flags or empty flags
+    expect(isFeatureEnabled('video-subtitles', undefined)).toBe(true);
+    expect(isFeatureEnabled('video-subtitles', {})).toBe(true);
+
+    // Controlled via camelCase
+    expect(isFeatureEnabled('video-subtitles', { videoSubtitles: false })).toBe(false);
+    expect(isFeatureEnabled('ocr-translate', { screenOcr: false })).toBe(false);
+    expect(isFeatureEnabled('sessions', { sessions: false })).toBe(false);
+    expect(isFeatureEnabled('history', { history: false })).toBe(false);
+    expect(isFeatureEnabled('providers', { providers: false })).toBe(false);
+    expect(isFeatureEnabled('live-subtitles', { liveSubtitles: false })).toBe(false);
+
+    // Controlled via kebab-case directly
+    expect(isFeatureEnabled('video-subtitles', { 'video-subtitles': false })).toBe(false);
+    expect(isFeatureEnabled('ocr-translate', { 'ocr-translate': false })).toBe(false);
+  });
+});

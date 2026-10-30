@@ -31,7 +31,7 @@ function buildDotnet() {
   fs.mkdirSync(targetBridgeDir, { recursive: true });
   fs.mkdirSync(targetDesktopDir, { recursive: true });
 
-  const publishCmd = `dotnet publish "${csprojPath}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=false -o "${targetBridgeDir}"`;
+  const publishCmd = `dotnet publish "${csprojPath}" -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o "${targetBridgeDir}"`;
   
   try {
     execSync(publishCmd, { stdio: 'inherit', cwd: rootDir });

@@ -11,6 +11,7 @@ import { SettingsView } from '@/features/settings/SettingsView.js';
 import { ScreenTranslationView } from '@/features/screen-translation/index.js';
 import { VideoSubtitlesView } from '@/features/video-subtitles/index.js';
 import { useNavigationStore } from '@/stores/navigation-store.js';
+import { isFeatureEnabled } from '@echo-lingo/config';
 import { useSettingsStore } from '@/stores/settings-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useAudioCapture } from '@/hooks/useAudioCapture.js';
@@ -24,6 +25,7 @@ import { useOnboardingStore } from '@/stores/onboarding-store.js';
 export const App: React.FC = () => {
   const activePage = useNavigationStore((s) => s.activePage);
   const isExitModalOpen = useNavigationStore((s) => s.isExitModalOpen);
+  const featureFlags = useSettingsStore((s) => s.settings.featureFlags);
   const setIsExitModalOpen = useNavigationStore((s) => s.setIsExitModalOpen);
   const loadSettings = useSettingsStore((s) => s.loadSettings);
   const hasCompletedOnboarding = useSettingsStore((s) => s.settings.hasCompletedOnboarding);
@@ -64,6 +66,11 @@ export const App: React.FC = () => {
       });
 
       const unsubNavigate = window.electronAPI.app.onNavigate?.((page) => {
+        const currentFlags = useSettingsStore.getState().settings.featureFlags;
+        if (!isFeatureEnabled(page as any, currentFlags)) {
+          useNavigationStore.getState().setActivePage('dashboard');
+          return;
+        }
         if (page === 'settings') {
           useNavigationStore.getState().setActivePage('settings');
         } else if (
@@ -143,6 +150,9 @@ export const App: React.FC = () => {
   }, [loadSettings, handleTranscriptionEvent]);
 
   const renderActivePage = () => {
+    if (!isFeatureEnabled(activePage, featureFlags)) {
+      return <DashboardView />;
+    }
     switch (activePage) {
       case 'dashboard':
         return <DashboardView />;

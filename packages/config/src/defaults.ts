@@ -1,6 +1,7 @@
 import { AppSettings } from '@echo-lingo/contracts';
 import { AUDIO_CONSTANTS } from '@echo-lingo/config/audio.js';
 import { DEFAULT_SCREEN_TRANSLATION_SETTINGS } from '@echo-lingo/config/ocr.js';
+import { DEFAULT_FEATURE_FLAGS } from '@echo-lingo/config/features.js';
 
 export const DEFAULT_APP_SETTINGS: AppSettings = {
   theme: 'dark',
@@ -24,6 +25,7 @@ export const DEFAULT_APP_SETTINGS: AppSettings = {
   showPaidProviders: false,
   autoScrollLiveSubtitles: true,
   hasCompletedOnboarding: false,
+  featureFlags: DEFAULT_FEATURE_FLAGS,
   subtitleAppearance: {
     fontSize: 24,
     fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',

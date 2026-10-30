@@ -1,14 +1,7 @@
 import { create } from 'zustand';
+import { AppPage } from '@echo-lingo/contracts';
 
-export type AppPage =
-  | 'dashboard'
-  | 'live-subtitles'
-  | 'video-subtitles'
-  | 'sessions'
-  | 'history'
-  | 'providers'
-  | 'ocr-translate'
-  | 'settings';
+export type { AppPage };
 
 interface NavigationStore {
   activePage: AppPage;

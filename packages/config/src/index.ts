@@ -4,3 +4,4 @@ export * from '@echo-lingo/config/defaults.js';
 export * from '@echo-lingo/config/ocr.js';
 export * from '@echo-lingo/config/video.js';
 export * from '@echo-lingo/config/providers.js';
+export * from '@echo-lingo/config/features.js';

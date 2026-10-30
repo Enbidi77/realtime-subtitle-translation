@@ -1,6 +1,8 @@
 import { ISearchProvider, SearchResultItem } from '../types.js';
 import { scoreSearchResult } from '../scoring.js';
 import { useSessionStore } from '@/stores/session-store.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
+import { isFeatureEnabled } from '@echo-lingo/config';
 
 export class NavigationProvider implements ISearchProvider {
   public readonly id = 'navigation';
@@ -9,8 +11,9 @@ export class NavigationProvider implements ISearchProvider {
 
   private getItems(): SearchResultItem[] {
     const isListening = useSessionStore.getState().isListening;
+    const featureFlags = useSettingsStore.getState().settings.featureFlags;
 
-    return [
+    const items: SearchResultItem[] = [
       {
         id: 'nav:dashboard',
         category: 'navigation',
@@ -33,6 +36,16 @@ export class NavigationProvider implements ISearchProvider {
         badge: isListening ? 'Active' : undefined,
         keywords: ['live', 'subtitles', 'mic', 'speech', 'phu de', 'truc tiep', 'ghi am'],
         action: { type: 'navigate', payload: { page: 'live-subtitles' } },
+      },
+      {
+        id: 'nav:video-subtitles',
+        category: 'navigation',
+        title: 'Video Subtitle Studio',
+        description: 'Transcribe, translate, customize visual styles, and burn subtitles directly onto video frames',
+        icon: 'Film',
+        path: 'Navigation',
+        keywords: ['video', 'subtitles', 'burn', 'export', 'hardcode', 'video subtitles', 'phu de video'],
+        action: { type: 'navigate', payload: { page: 'video-subtitles' } },
       },
       {
         id: 'nav:ocr-translate',
@@ -85,6 +98,11 @@ export class NavigationProvider implements ISearchProvider {
         action: { type: 'navigate', payload: { page: 'settings' } },
       },
     ];
+
+    return items.filter((item) => {
+      const page = item.action?.payload?.page;
+      return page ? isFeatureEnabled(page, featureFlags) : true;
+    });
   }
 
   public getResults(query: string): SearchResultItem[] {
@@ -111,4 +129,3 @@ export class NavigationProvider implements ISearchProvider {
     return this.getItems().slice(0, 4);
   }
 }
-

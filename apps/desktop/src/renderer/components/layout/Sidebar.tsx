@@ -1,7 +1,9 @@
-import React, { useState, useRef, useCallback, useLayoutEffect, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useLayoutEffect, useEffect, useMemo } from 'react';
 import { useNavigationStore, AppPage } from '@/stores/navigation-store.js';
 import { useSessionStore } from '@/stores/session-store.js';
 import { useI18n } from '@/app/i18n/index.js';
+import { useSettingsStore } from '@/stores/settings-store.js';
+import { isFeatureEnabled } from '@echo-lingo/config';
 import {
   LayoutDashboard,
   Mic,
@@ -38,29 +40,54 @@ export const Sidebar: React.FC = () => {
   }>({ top: 0, height: 0, ready: false });
   const [isAnimated, setIsAnimated] = useState(false);
 
-  const navItems: NavItem[] = [
-    { id: 'dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
-    {
-      id: 'live-subtitles',
-      labelKey: 'nav.live',
-      icon: Mic,
-      showBadge: isListening,
-    },
-    { id: 'video-subtitles', labelKey: 'nav.videoSubtitles', icon: Film },
-    { id: 'ocr-translate', labelKey: 'nav.ocr', icon: ScanText },
-    { id: 'sessions', labelKey: 'nav.sessions', icon: FolderKanban },
-    { id: 'history', labelKey: 'nav.history', icon: History },
-    { id: 'providers', labelKey: 'nav.providers', icon: Cpu },
-    { id: 'settings', labelKey: 'nav.settings', icon: Settings },
-  ];
+  const featureFlags = useSettingsStore((s) => s.settings.featureFlags);
+
+  const allNavItems: NavItem[] = useMemo(
+    () => [
+      { id: 'dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard },
+      {
+        id: 'live-subtitles',
+        labelKey: 'nav.live',
+        icon: Mic,
+        showBadge: isListening,
+      },
+      { id: 'video-subtitles', labelKey: 'nav.videoSubtitles', icon: Film },
+      { id: 'ocr-translate', labelKey: 'nav.ocr', icon: ScanText },
+      { id: 'sessions', labelKey: 'nav.sessions', icon: FolderKanban },
+      { id: 'history', labelKey: 'nav.history', icon: History },
+      { id: 'providers', labelKey: 'nav.providers', icon: Cpu },
+      { id: 'settings', labelKey: 'nav.settings', icon: Settings },
+    ],
+    [isListening]
+  );
+
+  const navItems = useMemo(
+    () => allNavItems.filter((item) => isFeatureEnabled(item.id, featureFlags)),
+    [allNavItems, featureFlags]
+  );
+
+  // Automatically fall back to dashboard if active page is disabled by a feature flag
+  useEffect(() => {
+    if (!isFeatureEnabled(activePage, featureFlags)) {
+      setActivePage('dashboard');
+    }
+  }, [activePage, featureFlags, setActivePage]);
 
   const updateIndicator = useCallback(() => {
     const el = itemRefs.current[activePage];
     if (el) {
-      setIndicatorStyle({
-        top: el.offsetTop,
-        height: el.offsetHeight,
-        ready: true,
+      const top = el.offsetTop;
+      const height = el.offsetHeight;
+      setIndicatorStyle((prev) => {
+        if (prev.top === top && prev.height === height && prev.ready) {
+          return prev;
+        }
+        return { top, height, ready: true };
+      });
+    } else {
+      setIndicatorStyle((prev) => {
+        if (!prev.ready) return prev;
+        return { ...prev, ready: false };
       });
     }
   }, [activePage]);
