@@ -6,8 +6,8 @@
   "author": "EchoLingo Team",
   "main": "./out/main/index.js",
   "scripts": {
-    "predev": "node ../../scripts/build-dotnet.cjs && node ../../scripts/rebrand-electron.cjs",
-    "prebuild": "node ../../scripts/build-dotnet.cjs && node ../../scripts/download-whisper.cjs",
+    "predev": "node ../../scripts/build-dotnet.cjs && node ../../scripts/ensure-ffmpeg.cjs && node ../../scripts/rebrand-electron.cjs",
+    "prebuild": "node ../../scripts/build-dotnet.cjs && node ../../scripts/ensure-ffmpeg.cjs && node ../../scripts/download-whisper.cjs",
     "prepare:whisper": "node ../../scripts/download-whisper.cjs",
     "dev": "electron-vite dev --watch",
     "build": "electron-vite build",

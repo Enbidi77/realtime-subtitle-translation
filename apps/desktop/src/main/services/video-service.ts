@@ -4,8 +4,11 @@ import * as fs from "node:fs";
 import * as fsp from "node:fs/promises";
 import * as path from "node:path";
 import * as os from "node:os";
+import { createGunzip } from "node:zlib";
+import { pipeline } from "node:stream/promises";
 import { app, BrowserWindow, dialog } from "electron";
 import { createLogger, ILogger } from "@echo-lingo/logger";
+import { downloadFile } from "@echo-lingo/shared";
 import {
   VideoMetadata,
   VideoExportOptions,
@@ -86,13 +89,26 @@ export class VideoService {
       // ignore
     }
 
-    // 3. Electron resources directory
+    // 3. Electron resources directory (Packaged production installer / portable)
     if (process.resourcesPath) {
       candidates.push(path.join(process.resourcesPath, "bin", exeName));
       candidates.push(path.join(process.resourcesPath, exeName));
     }
 
-    // 4. User data / local echo-lingo bin directory
+    // 4. Local application resources / dev workspace paths
+    try {
+      if (app && typeof app.getAppPath === "function") {
+        candidates.push(path.join(app.getAppPath(), "resources", "bin", exeName));
+        candidates.push(path.join(app.getAppPath(), exeName));
+      }
+    } catch {
+      // ignore
+    }
+    candidates.push(path.join(process.cwd(), "apps", "desktop", "resources", "bin", exeName));
+    candidates.push(path.join(process.cwd(), "resources", "bin", exeName));
+    candidates.push(path.resolve(__dirname, "../../resources/bin", exeName));
+
+    // 5. User data / local echo-lingo bin directory (Downloaded/installed binaries)
     try {
       if (app && typeof app.getPath === "function") {
         candidates.push(path.join(app.getPath("userData"), "bin", exeName));
@@ -110,7 +126,7 @@ export class VideoService {
       }
     }
 
-    // 5. System PATH check
+    // 6. System PATH check
     const pathDirs = (process.env.PATH || "").split(path.delimiter);
     for (const dir of pathDirs) {
       const fullPath = path.join(dir, exeName);
@@ -142,6 +158,23 @@ export class VideoService {
       candidates.push(process.env.FFPROBE_PATH);
     }
 
+    if (process.resourcesPath) {
+      candidates.push(path.join(process.resourcesPath, "bin", exeName));
+      candidates.push(path.join(process.resourcesPath, exeName));
+    }
+
+    try {
+      if (app && typeof app.getAppPath === "function") {
+        candidates.push(path.join(app.getAppPath(), "resources", "bin", exeName));
+        candidates.push(path.join(app.getAppPath(), exeName));
+      }
+    } catch {
+      // ignore
+    }
+    candidates.push(path.join(process.cwd(), "apps", "desktop", "resources", "bin", exeName));
+    candidates.push(path.join(process.cwd(), "resources", "bin", exeName));
+    candidates.push(path.resolve(__dirname, "../../resources/bin", exeName));
+
     try {
       if (app && typeof app.getPath === "function") {
         candidates.push(path.join(app.getPath("userData"), "bin", exeName));
@@ -150,10 +183,6 @@ export class VideoService {
       // ignore
     }
     candidates.push(path.join(os.homedir(), ".echo-lingo", "bin", exeName));
-
-    if (process.resourcesPath) {
-      candidates.push(path.join(process.resourcesPath, "bin", exeName));
-    }
 
     for (const p of candidates) {
       if (fs.existsSync(p)) {
@@ -227,19 +256,172 @@ export class VideoService {
   }
 
   /**
-   * Verify and resolve FFmpeg binary provided statically via ffmpeg-static or environment
+   * Download and install FFmpeg binary into user data directory or resolve existing binary
    */
   public async downloadAndInstallFfmpeg(
     onProgress?: (progressPercent: number) => void,
   ): Promise<{ success: boolean; path: string }> {
-    const resolved = this.resolveFfmpegBinary();
-    if (resolved) {
+    // 1. If already resolved and executable exists, return immediately
+    const existing = this.resolveFfmpegBinary();
+    if (existing) {
       if (onProgress) onProgress(100);
-      return { success: true, path: resolved };
+      return { success: true, path: existing };
     }
-    throw new Error(
-      "FFmpeg binary could not be found. Please ensure ffmpeg-static is installed or set FFMPEG_PATH.",
-    );
+
+    const exeName = process.platform === "win32" ? "ffmpeg.exe" : "ffmpeg";
+    let targetDir: string;
+    try {
+      if (app && typeof app.getPath === "function") {
+        targetDir = path.join(app.getPath("userData"), "bin");
+      } else {
+        targetDir = path.join(os.homedir(), ".echo-lingo", "bin");
+      }
+    } catch {
+      targetDir = path.join(os.homedir(), ".echo-lingo", "bin");
+    }
+
+    if (!fs.existsSync(targetDir)) {
+      await fsp.mkdir(targetDir, { recursive: true });
+    }
+    const targetPath = path.join(targetDir, exeName);
+
+    // 2. Check existing local candidates before downloading over the network
+    const localCandidates: string[] = [];
+    try {
+      const staticPath = (
+        typeof ffmpegStatic === "string"
+          ? ffmpegStatic
+          : (ffmpegStatic as any)?.default
+      ) as string | null;
+      if (staticPath) {
+        localCandidates.push(staticPath);
+        localCandidates.push(staticPath.replace("app.asar", "app.asar.unpacked"));
+      }
+    } catch {
+      // ignore
+    }
+
+    try {
+      if (app && typeof app.getAppPath === "function") {
+        localCandidates.push(path.join(app.getAppPath(), "resources", "bin", exeName));
+      }
+    } catch {
+      // ignore
+    }
+    localCandidates.push(path.join(process.cwd(), "apps", "desktop", "resources", "bin", exeName));
+    localCandidates.push(path.join(process.cwd(), "resources", "bin", exeName));
+    localCandidates.push(path.resolve(__dirname, "../../resources/bin", exeName));
+
+    for (const src of localCandidates) {
+      if (src && fs.existsSync(src) && src !== targetPath) {
+        try {
+          const stats = await fsp.stat(src);
+          if (stats.size > 1024 * 1024) {
+            this.log.info(`Copying existing FFmpeg binary from ${src} to ${targetPath}...`);
+            await fsp.copyFile(src, targetPath);
+            if (process.platform !== "win32") {
+              await fsp.chmod(targetPath, 0o755);
+            }
+            this.ffmpegBinaryPath = targetPath;
+            if (onProgress) onProgress(100);
+            return { success: true, path: targetPath };
+          }
+        } catch (copyErr) {
+          this.log.warn(`Failed to copy local FFmpeg candidate ${src}:`, copyErr);
+        }
+      }
+    }
+
+    // 3. Download from official GitHub static release
+    const platform = process.platform;
+    const arch = process.arch;
+    const supported: Record<string, string[]> = {
+      darwin: ["x64", "arm64"],
+      linux: ["x64", "ia32", "arm64", "arm"],
+      win32: ["x64", "ia32"],
+    };
+
+    if (!supported[platform] || !supported[platform].includes(arch)) {
+      throw new Error(
+        `Automated FFmpeg download is not supported for ${platform}-${arch}. Please install FFmpeg manually and set FFMPEG_PATH.`,
+      );
+    }
+
+    const releaseTag = "b6.1.1";
+    const downloadUrl = `https://github.com/eugeneware/ffmpeg-static/releases/download/${releaseTag}/ffmpeg-${platform}-${arch}.gz`;
+    this.log.info(`Downloading FFmpeg from ${downloadUrl} to ${targetPath}...`);
+
+    const tmpGzPath = `${targetPath}.tmp_${Date.now()}.gz`;
+    const tmpExePath = `${targetPath}.tmp_${Date.now()}`;
+
+    try {
+      if (onProgress) onProgress(5);
+
+      // Step A: Download compressed .gz archive
+      await downloadFile(downloadUrl, tmpGzPath, {
+        onProgress: (pct) => {
+          if (onProgress) {
+            // Reserve 5% - 80% for download
+            onProgress(Math.min(80, Math.round(5 + pct * 0.75)));
+          }
+        },
+        userAgent: "EchoLingo-Desktop",
+      });
+
+      if (onProgress) onProgress(85);
+
+      // Step B: Gunzip to temporary executable
+      await new Promise<void>((resolve, reject) => {
+        const gunzip = createGunzip();
+        const readStream = fs.createReadStream(tmpGzPath);
+        const writeStream = fs.createWriteStream(tmpExePath, { mode: 0o755 });
+
+        pipeline(readStream, gunzip, writeStream)
+          .then(() => resolve())
+          .catch((err) => reject(err));
+      });
+
+      if (onProgress) onProgress(95);
+
+      // Step C: Atomically replace targetPath
+      if (fs.existsSync(targetPath)) {
+        try {
+          await fsp.unlink(targetPath);
+        } catch {
+          // ignore
+        }
+      }
+      await fsp.rename(tmpExePath, targetPath);
+
+      if (process.platform !== "win32") {
+        await fsp.chmod(targetPath, 0o755);
+      }
+
+      // Cleanup .gz
+      try {
+        if (fs.existsSync(tmpGzPath)) {
+          await fsp.unlink(tmpGzPath);
+        }
+      } catch {
+        // ignore
+      }
+
+      this.ffmpegBinaryPath = targetPath;
+      this.log.info(`FFmpeg successfully installed at ${targetPath}`);
+      if (onProgress) onProgress(100);
+
+      return { success: true, path: targetPath };
+    } catch (err: any) {
+      try {
+        if (fs.existsSync(tmpGzPath)) await fsp.unlink(tmpGzPath);
+      } catch {}
+      try {
+        if (fs.existsSync(tmpExePath)) await fsp.unlink(tmpExePath);
+      } catch {}
+
+      this.log.error("Failed to download and install FFmpeg:", err);
+      throw new Error(`Failed to download and install FFmpeg: ${err.message || String(err)}`);
+    }
   }
 
   /**

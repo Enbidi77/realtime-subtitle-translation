@@ -16,6 +16,7 @@
     "lint": "turbo run typecheck",
     "clean:lock": "node scripts/clean-lock.cjs",
     "build:dotnet": "node scripts/build-dotnet.cjs",
+    "ensure:ffmpeg": "node scripts/ensure-ffmpeg.cjs",
     "download:whisper": "node scripts/download-whisper.cjs",
     "prepare:whisper": "node scripts/download-whisper.cjs",
     "package": "turbo run package",
