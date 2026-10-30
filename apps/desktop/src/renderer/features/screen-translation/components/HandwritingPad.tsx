@@ -33,11 +33,23 @@ import {
 
 interface HandwritingPadProps {
   ocrProviders: OcrProviderCapability[];
+  ocrLanguage?: string;
+  onOcrLanguageChange?: (lang: string) => void;
+  targetLanguage?: string;
+  onTargetLanguageChange?: (lang: string) => void;
+  selectedProvider?: OcrProviderId;
+  onProviderChange?: (provider: OcrProviderId) => void;
   onSavedToHistory?: () => void;
 }
 
 export const HandwritingPad: React.FC<HandwritingPadProps> = ({
   ocrProviders,
+  ocrLanguage,
+  onOcrLanguageChange,
+  targetLanguage,
+  onTargetLanguageChange,
+  selectedProvider,
+  onProviderChange,
   onSavedToHistory,
 }) => {
   const { t } = useI18n();
@@ -57,17 +69,50 @@ export const HandwritingPad: React.FC<HandwritingPadProps> = ({
   // Image load state
   const [loadedImage, setLoadedImage] = useState<HTMLImageElement | null>(null);
 
-  // Engine & Language Settings
+  // Engine & Language Settings (kept in sync with parent ScreenTranslationView)
   const [providerId, setProviderId] = useState<OcrProviderId>(
-    settings.screenTranslation?.ocrProvider || 'windows-native'
+    selectedProvider || settings.screenTranslation?.ocrProvider || 'windows-native'
   );
   const [sourceLang, setSourceLang] = useState<string>(
-    settings.screenTranslation?.ocrLanguage || 'auto'
+    ocrLanguage || settings.screenTranslation?.ocrLanguage || 'auto'
   );
   const [targetLang, setTargetLang] = useState<string>(
-    settings.targetLanguages?.[0] || 'vi'
+    targetLanguage || settings.targetLanguages?.[0] || 'vi'
   );
   const [profile, setProfile] = useState<'handwritten' | 'high-contrast' | 'none'>('handwritten');
+
+  useEffect(() => {
+    if (ocrLanguage && ocrLanguage !== sourceLang) {
+      setSourceLang(ocrLanguage);
+    }
+  }, [ocrLanguage]);
+
+  useEffect(() => {
+    if (targetLanguage && targetLanguage !== targetLang) {
+      setTargetLang(targetLanguage);
+    }
+  }, [targetLanguage]);
+
+  useEffect(() => {
+    if (selectedProvider && selectedProvider !== providerId) {
+      setProviderId(selectedProvider);
+    }
+  }, [selectedProvider]);
+
+  const handleProviderSelect = (newProvider: OcrProviderId) => {
+    setProviderId(newProvider);
+    onProviderChange?.(newProvider);
+  };
+
+  const handleSourceLangSelect = (newLang: string) => {
+    setSourceLang(newLang);
+    onOcrLanguageChange?.(newLang);
+  };
+
+  const handleTargetLangSelect = (newTarget: string) => {
+    setTargetLang(newTarget);
+    onTargetLanguageChange?.(newTarget);
+  };
 
   // Recognition and Translation Results
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
@@ -549,7 +594,7 @@ export const HandwritingPad: React.FC<HandwritingPadProps> = ({
               </label>
               <GlassSelect
                 value={providerId}
-                onChange={(e) => setProviderId(e.target.value as OcrProviderId)}
+                onChange={(e) => handleProviderSelect(e.target.value as OcrProviderId)}
                 className="text-xs h-8"
               >
                 {ocrProviders.map((p) => (
@@ -561,36 +606,36 @@ export const HandwritingPad: React.FC<HandwritingPadProps> = ({
             </div>
 
             {/* Source Language */}
-            <div className="w-36">
+            <div className="w-44">
               <label className="text-[10px] font-medium text-muted-foreground block mb-0.5">
                 {t('ocr.handwriting.sourceLang', 'Language')}
               </label>
               <GlassSelect
                 value={sourceLang}
-                onChange={(e) => setSourceLang(e.target.value)}
+                onChange={(e) => handleSourceLangSelect(e.target.value)}
                 className="text-xs h-8"
               >
                 {OCR_SUPPORTED_LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.name}
+                    {l.name} {l.nativeName && l.nativeName !== l.name ? `(${l.nativeName})` : ''}
                   </option>
                 ))}
               </GlassSelect>
             </div>
 
             {/* Target Language */}
-            <div className="w-36">
+            <div className="w-40">
               <label className="text-[10px] font-medium text-muted-foreground block mb-0.5">
                 {t('ocr.handwriting.targetLang', 'Translate To')}
               </label>
               <GlassSelect
                 value={targetLang}
-                onChange={(e) => setTargetLang(e.target.value)}
+                onChange={(e) => handleTargetLangSelect(e.target.value)}
                 className="text-xs h-8"
               >
                 {TARGET_LANGUAGES.map((l) => (
                   <option key={l.code} value={l.code}>
-                    {l.name}
+                    {l.name} {l.nativeName && l.nativeName !== l.name ? `(${l.nativeName})` : ''}
                   </option>
                 ))}
               </GlassSelect>

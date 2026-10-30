@@ -161,31 +161,43 @@ export class ScreenTranslationService {
       try {
         const result = await dotnetBridge.handwriting.recognize(req.strokes, req.language);
         if (result && !result.error && result.text) {
-          const lines = (result.lines || []).map((l) => ({
-            text: l.text,
-            confidence: l.confidence ?? 0.95,
-            words: (l.words || []).map((w) => ({
-              text: w.text,
-              confidence: w.confidence ?? 0.95,
-              boundingBox: w.boundingBox,
-            })),
-          }));
+          const isCjkText = (text: string) => /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF]/.test(text);
+          const requestedChinese = req.language && (req.language.startsWith('zh') || req.language.toLowerCase().includes('chinese'));
+          const strokeProducedChinese = isCjkText(result.text);
 
-          return normalizeOcrResponse({
-            text: result.text,
-            blocks: [
-              {
-                text: result.text,
-                confidence: result.confidence ?? 0.95,
-                lines,
-              },
-            ],
-            lines,
-            confidence: result.confidence ?? 0.95,
-            language: req.language || 'auto',
-            durationMs: Date.now() - start,
-            providerId: 'windows-native',
-          });
+          // If the user explicitly requested Chinese, but native stroke recognition did not produce any Chinese characters
+          // (which happens if the Windows machine lacks the Chinese handwriting language pack), fall back to raster OCR
+          if (requestedChinese && !strokeProducedChinese && req.imageBuffer) {
+            this.log.info('Windows native stroke recognition did not detect Chinese characters; falling back to raster OCR');
+          } else {
+            const lines = (result.lines || []).map((l) => ({
+              text: l.text,
+              confidence: l.confidence ?? 0.95,
+              words: (l.words || []).map((w) => ({
+                text: w.text,
+                confidence: w.confidence ?? 0.95,
+                boundingBox: w.boundingBox,
+              })),
+            }));
+
+            const effectiveLang = result.detectedLanguage || req.language || (strokeProducedChinese ? 'zh' : 'auto');
+
+            return normalizeOcrResponse({
+              text: result.text,
+              blocks: [
+                {
+                  text: result.text,
+                  confidence: result.confidence ?? 0.95,
+                  lines,
+                },
+              ],
+              lines,
+              confidence: result.confidence ?? 0.95,
+              language: effectiveLang,
+              durationMs: Date.now() - start,
+              providerId: 'windows-native',
+            });
+          }
         }
       } catch (err) {
         this.log.warn('Windows native stroke handwriting recognition failed, falling back to raster OCR:', err);

@@ -121,6 +121,7 @@ export interface HandwritingRecognizeResult {
   lines: OcrLineDto[];
   candidates: string[];
   confidence: number;
+  detectedLanguage?: string;
   error?: string;
 }
 

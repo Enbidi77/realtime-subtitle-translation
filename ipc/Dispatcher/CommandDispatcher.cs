@@ -110,6 +110,12 @@ public class CommandDispatcher
         });
 
         // Handwriting
+        Register("handwriting:recognizers", _ =>
+        {
+            var list = _handwritingService.GetInstalledRecognizers();
+            return Task.FromResult<object?>(list);
+        });
+
         Register("handwriting:recognize", async payload =>
         {
             if (payload == null || payload.Value.ValueKind != JsonValueKind.Object)

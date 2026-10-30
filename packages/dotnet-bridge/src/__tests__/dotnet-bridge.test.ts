@@ -184,4 +184,30 @@ describe("DotnetBridge & DotnetBinaryLocator", () => {
     expect(result.lines).toHaveLength(1);
     expect(result.candidates).toContain("a");
   });
+
+  it("lists installed handwriting recognizers", async () => {
+    if (process.platform !== "win32") return;
+
+    const recognizers = await dotnetBridge.handwriting.getInstalledRecognizers();
+    expect(Array.isArray(recognizers)).toBe(true);
+    expect(recognizers.length).toBeGreaterThan(0);
+  });
+
+  it("recognizes Chinese handwriting strokes with languageTag zh and auto", async () => {
+    if (process.platform !== "win32") return;
+
+    const strokeShi = [
+      { points: [{ x: 100, y: 200 }, { x: 300, y: 200 }] },
+      { points: [{ x: 200, y: 100 }, { x: 200, y: 300 }] },
+    ];
+
+    const resultZh = await dotnetBridge.handwriting.recognize(strokeShi, "zh");
+    expect(resultZh).toBeDefined();
+    expect(resultZh.text).toBe("十");
+    expect(resultZh.candidates).toContain("十");
+
+    const resultAuto = await dotnetBridge.handwriting.recognize(strokeShi, "auto");
+    expect(resultAuto).toBeDefined();
+    expect(resultAuto.text).toBe("十");
+  });
 });

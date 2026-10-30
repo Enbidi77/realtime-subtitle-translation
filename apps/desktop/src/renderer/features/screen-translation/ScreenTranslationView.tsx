@@ -1190,6 +1190,12 @@ export const ScreenTranslationView: React.FC = () => {
         {activeTab === "handwriting" && (
           <HandwritingPad
             ocrProviders={ocrProviders}
+            ocrLanguage={ocrLanguage}
+            onOcrLanguageChange={handleOcrLanguageChange}
+            targetLanguage={targetLanguage}
+            onTargetLanguageChange={handleTargetLanguageChange}
+            selectedProvider={selectedProvider}
+            onProviderChange={(p) => setSelectedProvider(p)}
             onSavedToHistory={() => loadHistory(historySearch)}
           />
         )}

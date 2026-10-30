@@ -193,6 +193,9 @@ public class HandwritingRecognizeResult
     [JsonPropertyName("confidence")]
     public double Confidence { get; set; } = 0.95;
 
+    [JsonPropertyName("detectedLanguage")]
+    public string? DetectedLanguage { get; set; }
+
     [JsonPropertyName("error")]
     public string? Error { get; set; }
 }

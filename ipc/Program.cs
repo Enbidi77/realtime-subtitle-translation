@@ -88,6 +88,7 @@ public static class Program
                 {
                     var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "speech:recognizers" });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 if (action == "transcribe")
@@ -105,6 +106,7 @@ public static class Program
                         Payload = payload
                     });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 break;
@@ -117,6 +119,7 @@ public static class Program
                 {
                     var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "ocr:languages" });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 if (action == "recognize")
@@ -134,6 +137,7 @@ public static class Program
                         Payload = payload
                     });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 break;
@@ -141,7 +145,14 @@ public static class Program
 
             case "handwriting":
             {
-                var action = args.Length > 1 ? args[1].ToLowerInvariant() : "recognize";
+                var action = args.Length > 1 ? args[1].ToLowerInvariant() : "recognizers";
+                if (action == "recognizers" || action == "list" || action == "--list")
+                {
+                    var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "handwriting:recognizers" });
+                    Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
+                    return response.Success ? 0 : 1;
+                }
                 if (action == "recognize" && args.Length > 2)
                 {
                     var jsonStr = args[2];
@@ -152,6 +163,7 @@ public static class Program
                         Payload = doc.RootElement.Clone()
                     });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 break;

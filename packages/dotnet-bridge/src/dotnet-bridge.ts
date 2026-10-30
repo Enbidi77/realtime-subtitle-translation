@@ -37,6 +37,7 @@ export class DotnetBridge {
   };
 
   public readonly handwriting: {
+    getInstalledRecognizers: () => Promise<string[]>;
     recognize: (
       strokes: HandwritingStrokeDto[],
       languageTag?: string,
@@ -87,6 +88,9 @@ export class DotnetBridge {
     };
 
     this.handwriting = {
+      getInstalledRecognizers: async (): Promise<string[]> => {
+        return this.process.execute<undefined, string[]>("handwriting:recognizers");
+      },
       recognize: async (
         strokes: HandwritingStrokeDto[],
         languageTag?: string,
