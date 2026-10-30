@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+import { app } from 'electron';
 import {
   ContinuousOcrConfig,
   ContinuousOcrState,
@@ -79,9 +82,22 @@ export class ScreenTranslationService {
   constructor() {
     this.ocrRegistry = new OcrRegistry();
 
+    // Prepare dedicated traineddata cache directory in userData to avoid permission issues
+    let tessCachePath: string | undefined;
+    try {
+      if (app && typeof app.getPath === 'function') {
+        tessCachePath = path.join(app.getPath('userData'), 'tessdata');
+        if (!fs.existsSync(tessCachePath)) {
+          fs.mkdirSync(tessCachePath, { recursive: true });
+        }
+      }
+    } catch {
+      // Ignore when running in mock or test environments
+    }
+
     // Register local providers
     this.ocrRegistry.register(new WindowsNativeOcrProvider());
-    this.ocrRegistry.register(new TesseractOcrProvider());
+    this.ocrRegistry.register(new TesseractOcrProvider({ cachePath: tessCachePath }));
     this.ocrRegistry.register(new MockOcrProvider());
 
     // Register Google Cloud Vision provider

@@ -12,6 +12,8 @@ import {
   MockOcrProvider,
   WindowsNativeOcrProvider,
   GoogleVisionOcrProvider,
+  TesseractOcrProvider,
+  resolveTesseractWorkerPath,
 } from '@echo-lingo/provider-adapters';
 import { OcrRegistry } from '@echo-lingo/ocr-core';
 
@@ -405,6 +407,32 @@ describe('Provider Adapters', () => {
         })
       ).rejects.toThrow('Google Cloud Vision API Key is not configured');
     });
+    it('reports capability and supported languages for TesseractOcrProvider', () => {
+      const tesseract = new TesseractOcrProvider();
+      expect(tesseract.id).toBe('tesseract');
+      expect(tesseract.isLocal).toBe(true);
+
+      const cap = tesseract.getCapability();
+      expect(cap.id).toBe('tesseract');
+      expect(cap.isLocal).toBe(true);
+      expect(cap.isAvailable).toBe(true);
+      expect(cap.supportedLanguages.length).toBeGreaterThan(10);
+    });
+
+    it('resolves physical tesseract worker path without throwing', () => {
+      const workerPath = resolveTesseractWorkerPath();
+      expect(typeof workerPath === 'string' || workerPath === undefined).toBe(true);
+      if (workerPath) {
+        expect(workerPath.endsWith('index.js')).toBe(true);
+      }
+    });
+
+    it('accepts custom worker options in TesseractOcrProvider', () => {
+      const tesseract = new TesseractOcrProvider({
+        workerPath: 'C:\\custom\\worker.js',
+        cachePath: 'C:\\custom\\cache',
+      });
+      expect(tesseract).toBeDefined();
+    });
   });
 });
-
