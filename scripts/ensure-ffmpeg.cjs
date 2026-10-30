@@ -175,3 +175,4 @@ main().catch((err) => {
   console.error(`[ensure-ffmpeg] Unexpected error:`, err);
   process.exit(1);
 });
+

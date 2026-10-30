@@ -1,7 +1,7 @@
 {
   "name": "echo-lingo",
   "productName": "EchoLingo",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "private": true,
   "packageManager": "pnpm@10.33.4",
   "description": "Real-Time Subtitle & Translation Desktop App",

@@ -60,3 +60,4 @@ describe('VideoService FFmpeg Resolution & Installation', () => {
     expect(progressCalls).toContain(100);
   });
 });
+

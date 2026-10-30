@@ -7,7 +7,7 @@ import { getDictionary } from "@/app/i18n/index.js";
 
 export const SplashScreen: React.FC = () => {
   const [locale, setLocale] = useState<string>("en");
-  const [appVersion, setAppVersion] = useState<string>("1.0.2");
+  const [appVersion, setAppVersion] = useState<string>("1.0.5");
   const [status, setStatus] = useState<SplashStatusEvent>({
     message: "Starting EchoLingo...",
     step: 1,
