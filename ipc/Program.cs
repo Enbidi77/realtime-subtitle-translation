@@ -21,6 +21,7 @@ public static class Program
         WriteIndented = false
     };
 
+    [STAThread]
     public static async Task<int> Main(string[] args)
     {
         // Ensure UTF-8 output encoding for international speech/OCR texts

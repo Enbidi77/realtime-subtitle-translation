@@ -154,4 +154,34 @@ describe("DotnetBridge & DotnetBinaryLocator", () => {
       await legacyCliBridge.dispose();
     }
   });
+
+  it("recognizes handwriting strokes via DotnetBridge", async () => {
+    if (process.platform !== "win32") return;
+
+    const sampleStrokes = [
+      {
+        points: [
+          { x: 400, y: 68 }, { x: 399, y: 66 }, { x: 398, y: 64 }, { x: 397, y: 63 },
+          { x: 395, y: 61 }, { x: 389, y: 57 }, { x: 378, y: 54 }, { x: 361, y: 50 },
+          { x: 327, y: 46 }, { x: 303, y: 46 }, { x: 284, y: 50 }, { x: 271, y: 57 },
+          { x: 262, y: 68 }, { x: 257, y: 81 }, { x: 255, y: 85 }, { x: 253, y: 95 },
+          { x: 254, y: 101 }, { x: 257, y: 106 }, { x: 263, y: 113 }, { x: 269, y: 118 },
+          { x: 283, y: 122 }, { x: 294, y: 124 }, { x: 303, y: 124 }, { x: 309, y: 124 },
+          { x: 317, y: 122 }, { x: 325, y: 114 }, { x: 335, y: 104 }, { x: 343, y: 93 },
+          { x: 350, y: 83 }, { x: 355, y: 77 }, { x: 358, y: 73 }, { x: 360, y: 70 },
+          { x: 360, y: 68 }, { x: 360, y: 67 }, { x: 361, y: 71 }, { x: 363, y: 78 },
+          { x: 365, y: 85 }, { x: 368, y: 97 }, { x: 369, y: 105 }, { x: 373, y: 115 },
+          { x: 376, y: 121 }, { x: 379, y: 124 }, { x: 383, y: 127 }, { x: 387, y: 130 },
+          { x: 392, y: 132 }, { x: 399, y: 132 }, { x: 405, y: 130 }, { x: 414, y: 121 },
+          { x: 421, y: 112 }, { x: 429, y: 106 }
+        ]
+      }
+    ];
+
+    const result = await dotnetBridge.handwriting.recognize(sampleStrokes, "en-US");
+    expect(result).toBeDefined();
+    expect(result.text).toBe("a");
+    expect(result.lines).toHaveLength(1);
+    expect(result.candidates).toContain("a");
+  });
 });
