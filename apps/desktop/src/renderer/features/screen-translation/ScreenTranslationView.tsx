@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useCallback, useTransition } from "react";
 import {
   OcrProviderCapability,
-  OcrResponse,
-  TranslationResult,
   OcrHistoryItem,
   ContinuousOcrStats,
   OcrProfile,
@@ -10,43 +8,19 @@ import {
 } from "@echo-lingo/contracts";
 import {
   OCR_SUPPORTED_LANGUAGES,
-  SUPPORTED_LANGUAGES,
   TARGET_LANGUAGES,
 } from "@echo-lingo/config";
 import { createRendererLogger } from "@echo-lingo/logger";
-import {
-  GlassButton,
-  GlassCard,
-  GlassBadge,
-  GlassSelect,
-  GlassInput,
-} from "@/components/ui/index.js";
+import { GlassButton, GlassSelect } from "@/components/ui/index.js";
 import { useSettingsStore } from "@/stores/settings-store.js";
 import { useI18n } from "@/app/i18n/index.js";
-import { HandwritingPad } from "./components/HandwritingPad.js";
 import {
-  Crop,
-  Copy,
-  Check,
-  Play,
-  Square,
-  Pause,
-  RotateCw,
-  Trash2,
-  Download,
-  Search,
-  Sparkles,
-  SlidersHorizontal,
-  History,
-  Activity,
-  Zap,
-  Clock,
-  Layers,
-  ExternalLink,
-  ChevronRight,
-  Info,
-  PenTool,
-} from "lucide-react";
+  CaptureTab,
+  ContinuousTab,
+  HandwritingPad,
+  HistoryTab,
+} from "./components/index.js";
+import { Crop, Info, PenTool } from "lucide-react";
 
 const log = createRendererLogger("ScreenTranslationView");
 
@@ -148,9 +122,6 @@ export const ScreenTranslationView: React.FC = () => {
   // Results State
   const [isCapturing, setIsCapturing] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
-  const [capturedImageData, setCapturedImageData] = useState<string | null>(
-    null,
-  );
   const [recognizedText, setRecognizedText] = useState<string>("");
   const [editedText, setEditedText] = useState<string>("");
   const [confidence, setConfidence] = useState<number>(0);
@@ -626,564 +597,53 @@ export const ScreenTranslationView: React.FC = () => {
       <div className="flex-1 overflow-y-auto space-y-4">
         {/* ================= TAB 1: ONE-TIME CAPTURE ================= */}
         {activeTab === "capture" && (
-          <div className="space-y-4">
-            {/* Control Bar & Presets */}
-            <GlassCard variant="subtle" className="p-4 space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                <div>
-                  <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    {t("ocr.presets.label", "Preprocessing Preset")}
-                  </label>
-                  <GlassSelect
-                    value={profile}
-                    onChange={(e) =>
-                      handleProfileChange(e.target.value as OcrProfile)
-                    }
-                  >
-                    <option value="none">
-                      {t("ocr.presets.none", "No Preprocessing (Default)")}
-                    </option>
-                    <option value="general">
-                      {t(
-                        "ocr.presets.general",
-                        "General Desktop Text",
-                      )}
-                    </option>
-                    <option value="handwritten">
-                      {t(
-                        "ocr.presets.handwritten",
-                        "Handwritten & Notes (Adaptive Filter)",
-                      )}
-                    </option>
-                    <option value="game-subtitles">
-                      {t(
-                        "ocr.presets.gameSubtitles",
-                        "Game Subtitles (High Contrast)",
-                      )}
-                    </option>
-                    <option value="small-ui">
-                      {t("ocr.presets.smallUi", "Small UI Text (2x Upscale)")}
-                    </option>
-                    <option value="high-contrast">
-                      {t(
-                        "ocr.presets.highContrast",
-                        "High Contrast (Otsu Binarize)",
-                      )}
-                    </option>
-                    <option value="cjk">
-                      {t("ocr.presets.cjk", "Japanese & Chinese Characters")}
-                    </option>
-                  </GlassSelect>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    {t("ocr.ocrLangHint", "OCR Language Hint")}
-                  </label>
-                  <GlassSelect
-                    value={ocrLanguage}
-                    onChange={(e) => handleOcrLanguageChange(e.target.value)}
-                  >
-                    {OCR_SUPPORTED_LANGUAGES.map((l) => (
-                      <option key={l.code} value={l.code}>
-                        {l.name}{" "}
-                        {l.nativeName && l.nativeName !== l.name
-                          ? `(${l.nativeName})`
-                          : ""}
-                      </option>
-                    ))}
-                  </GlassSelect>
-                </div>
-
-                <div>
-                  <label className="text-[11px] font-medium text-muted-foreground block mb-1">
-                    {t("ocr.translateInto", "Translate Into")}
-                  </label>
-                  <GlassSelect
-                    value={targetLanguage}
-                    onChange={(e) => handleTargetLanguageChange(e.target.value)}
-                  >
-                    {TARGET_LANGUAGES.map((l) => (
-                      <option key={l.code} value={l.code}>
-                        {l.name} {l.nativeName ? `(${l.nativeName})` : ""}
-                      </option>
-                    ))}
-                  </GlassSelect>
-                </div>
-
-                <div className="flex flex-col justify-end gap-1.5 pb-1">
-                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
-                    <input
-                      type="checkbox"
-                      checked={skipPreview}
-                      onChange={(e) => setSkipPreview(e.target.checked)}
-                      className="rounded accent-primary w-4 h-4 cursor-pointer"
-                    />
-                    <span className="text-foreground">
-                      {t(
-                        "ocr.skipPreview",
-                        "Skip preview & translate instantly",
-                      )}
-                    </span>
-                  </label>
-
-                  <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
-                    <input
-                      type="checkbox"
-                      checked={keepMainWindowHidden}
-                      onChange={(e) => {
-                        const val = e.target.checked;
-                        setKeepMainWindowHidden(val);
-                        updateSettings({
-                          screenTranslation: {
-                            ...settings.screenTranslation,
-                            keepMainWindowHiddenAfterCapture: val,
-                          },
-                        });
-                      }}
-                      className="rounded accent-primary w-4 h-4 cursor-pointer"
-                    />
-                    <span className="text-foreground">
-                      {t(
-                        "ocr.keepMainWindowHidden",
-                        "Keep main window hidden after capture",
-                      )}
-                    </span>
-                  </label>
-                </div>
-              </div>
-            </GlassCard>
-
-            {/* Results Grid: OCR Editor & Translation Card */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Left Column: Recognized OCR Text & Manual Correction */}
-              <GlassCard className="p-4 flex flex-col space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-foreground">
-                      {t(
-                        "ocr.editor.recognizedTitle",
-                        "Recognized Text (Editable)",
-                      )}
-                    </span>
-                    {confidence > 0 && (
-                      <GlassBadge
-                        variant={confidence > 0.8 ? "success" : "warning"}
-                      >
-                        {Math.round(confidence * 100)}%{" "}
-                        {t("ocr.editor.conf", "Conf")}
-                      </GlassBadge>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    {recognizedText && (
-                      <GlassButton
-                        variant="subtle"
-                        size="xs"
-                        icon={
-                          copiedKey === "ocr" ? (
-                            <Check className="w-3 h-3 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3 h-3" />
-                          )
-                        }
-                        onClick={() => handleCopy(editedText, "ocr")}
-                      >
-                        {copiedKey === "ocr"
-                          ? t("ocr.editor.copied", "Copied")
-                          : t("ocr.editor.copy", "Copy")}
-                      </GlassButton>
-                    )}
-                  </div>
-                </div>
-
-                <textarea
-                  value={editedText}
-                  onChange={(e) => setEditedText(e.target.value)}
-                  placeholder={t(
-                    "ocr.editor.placeholder",
-                    "Captured OCR text will appear here. You can manually edit or correct any words before re-translating...",
-                  )}
-                  rows={8}
-                  className="glass-input w-full flex-1 p-3 text-xs text-foreground font-mono resize-none leading-relaxed"
-                />
-
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-                  <span>
-                    {editedText.length}{" "}
-                    {t("ocr.editor.characters", "characters")} •{" "}
-                    {editedText.trim()
-                      ? editedText.trim().split(/\s+/).length
-                      : 0}{" "}
-                    {t("ocr.editor.words", "words")}
-                  </span>
-
-                  <GlassButton
-                    variant="glass"
-                    size="xs"
-                    icon={<RotateCw className="w-3 h-3" />}
-                    isLoading={isTranslating}
-                    disabled={!editedText.trim()}
-                    onClick={handleRetranslate}
-                  >
-                    {t("ocr.editor.retranslate", "Re-Translate")}
-                  </GlassButton>
-                </div>
-              </GlassCard>
-
-              {/* Right Column: Translated Result Output */}
-              <GlassCard className="p-4 flex flex-col space-y-3 bg-gradient-to-br from-glass to-primary/5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold text-foreground">
-                      {t("ocr.result.title", "Translation")} (
-                      {targetLanguage.toUpperCase()})
-                    </span>
-                    {durationMs > 0 && (
-                      <GlassBadge variant="neutral">
-                        <Clock className="w-2.5 h-2.5 mr-1" />
-                        {durationMs}ms
-                      </GlassBadge>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-1.5">
-                    {translatedText && (
-                      <>
-                        <GlassButton
-                          variant="subtle"
-                          size="xs"
-                          icon={
-                            copiedKey === "trans" ? (
-                              <Check className="w-3 h-3 text-emerald-400" />
-                            ) : (
-                              <Copy className="w-3 h-3" />
-                            )
-                          }
-                          onClick={() => handleCopy(translatedText, "trans")}
-                        >
-                          {copiedKey === "trans"
-                            ? t("ocr.result.copied", "Copied")
-                            : t("ocr.result.copy", "Copy")}
-                        </GlassButton>
-                        <GlassButton
-                          variant="subtle"
-                          size="xs"
-                          onClick={() =>
-                            handleCopy(
-                              `${editedText}\n\n${translatedText}`,
-                              "both",
-                            )
-                          }
-                        >
-                          {copiedKey === "both"
-                            ? t("ocr.result.copiedBoth", "Copied Both")
-                            : t("ocr.result.copyBoth", "Copy Both")}
-                        </GlassButton>
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex-1 glass-panel-subtle p-3 overflow-y-auto">
-                  {translatedText ? (
-                    <p className="text-sm font-medium text-foreground leading-relaxed whitespace-pre-wrap select-text">
-                      {translatedText}
-                    </p>
-                  ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-center p-6 text-muted-foreground">
-                      <Sparkles className="w-8 h-8 opacity-20 mb-2" />
-                      <p className="text-xs font-medium">
-                        {t("ocr.result.readyTitle", "Ready to translate")}
-                      </p>
-                      <p className="text-[11px] text-muted-foreground/75 mt-0.5">
-                        {t(
-                          "ocr.result.readyDesc",
-                          'Press "Capture Region" or press Ctrl+Shift+T anytime',
-                        )}
-                      </p>
-                    </div>
-                  )}
-                </div>
-
-                {/* Floating panel trigger */}
-                {translatedText && (
-                  <div className="flex items-center justify-between text-[11px] text-muted-foreground pt-1">
-                    <span>
-                      {t("ocr.result.provider", "Provider:")}{" "}
-                      {settings.translationProvider || "Google Web"}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const effectiveSource =
-                          ocrLanguage && ocrLanguage !== "auto"
-                            ? ocrLanguage
-                            : "auto";
-                        window.electronAPI?.screenTranslation.showFloatingPanel(
-                          {
-                            originalText: editedText,
-                            translatedText,
-                            sourceLanguage: effectiveSource,
-                            targetLanguage,
-                            confidence,
-                            durationMs,
-                          },
-                        );
-                      }}
-                      className="text-primary hover:underline flex items-center gap-1"
-                    >
-                      <ExternalLink className="w-3 h-3" />
-                      <span>
-                        {t(
-                          "ocr.result.openFloatingPanel",
-                          "Open Floating Panel",
-                        )}
-                      </span>
-                    </button>
-                  </div>
-                )}
-              </GlassCard>
-            </div>
-          </div>
+          <CaptureTab
+            profile={profile}
+            onProfileChange={handleProfileChange}
+            ocrLanguage={ocrLanguage}
+            onOcrLanguageChange={handleOcrLanguageChange}
+            targetLanguage={targetLanguage}
+            onTargetLanguageChange={handleTargetLanguageChange}
+            skipPreview={skipPreview}
+            onSkipPreviewChange={setSkipPreview}
+            keepMainWindowHidden={keepMainWindowHidden}
+            onKeepMainWindowHiddenChange={(val) => {
+              setKeepMainWindowHidden(val);
+              updateSettings({
+                screenTranslation: {
+                  ...settings.screenTranslation,
+                  keepMainWindowHiddenAfterCapture: val,
+                },
+              });
+            }}
+            recognizedText={recognizedText}
+            editedText={editedText}
+            onEditedTextChange={setEditedText}
+            confidence={confidence}
+            durationMs={durationMs}
+            translatedText={translatedText}
+            isTranslating={isTranslating}
+            onRetranslate={handleRetranslate}
+            copiedKey={copiedKey}
+            onCopy={handleCopy}
+          />
         )}
 
         {/* ================= TAB 2: CONTINUOUS MONITORING ================= */}
         {activeTab === "continuous" && (
-          <div className="space-y-4">
-            <GlassCard variant="subtle" className="p-4 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xs font-semibold text-foreground flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" />
-                    <span>
-                      {t(
-                        "ocr.continuous.title",
-                        "Real-Time Screen Text Monitoring",
-                      )}
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground mt-0.5">
-                    {t(
-                      "ocr.continuous.subtitle",
-                      "Continuously scans a target region (e.g. video subtitles or game dialogue) and translates only meaningful changes.",
-                    )}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <GlassButton
-                    variant="glass"
-                    size="sm"
-                    icon={<Crop className="w-3.5 h-3.5" />}
-                    onClick={handleSelectContinuousRegion}
-                  >
-                    {continuousRegion
-                      ? t("ocr.continuous.changeRegion", "Change Region")
-                      : t("ocr.continuous.selectRegion", "Select Region")}
-                  </GlassButton>
-
-                  <GlassButton
-                    variant={
-                      continuousState !== "idle" &&
-                      continuousState !== "stopping"
-                        ? "destructive"
-                        : "primary"
-                    }
-                    size="sm"
-                    icon={
-                      continuousState !== "idle" &&
-                      continuousState !== "stopping" ? (
-                        <Square className="w-3.5 h-3.5" />
-                      ) : (
-                        <Play className="w-3.5 h-3.5" />
-                      )
-                    }
-                    onClick={handleToggleContinuous}
-                  >
-                    {continuousState !== "idle" &&
-                    continuousState !== "stopping"
-                      ? t("ocr.continuous.stopMonitoring", "Stop Monitoring")
-                      : t("ocr.continuous.startMonitoring", "Start Monitoring")}
-                  </GlassButton>
-
-                  {continuousState !== "idle" &&
-                    continuousState !== "stopping" && (
-                      <GlassButton
-                        variant="glass"
-                        size="sm"
-                        icon={
-                          continuousState === "paused" ? (
-                            <Play className="w-3.5 h-3.5" />
-                          ) : (
-                            <Pause className="w-3.5 h-3.5" />
-                          )
-                        }
-                        onClick={handlePauseResumeContinuous}
-                      >
-                        {continuousState === "paused"
-                          ? t("ocr.continuous.resume", "Resume")
-                          : t("ocr.continuous.pause", "Pause")}
-                      </GlassButton>
-                    )}
-                </div>
-              </div>
-
-              {/* Sliders for Performance & Deduplication */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-glass-border">
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      {t("ocr.continuous.interval", "Capture Interval")}
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {(intervalMs / 1000).toFixed(1)}s
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={500}
-                    max={5000}
-                    step={250}
-                    value={intervalMs}
-                    onChange={(e) => setIntervalMs(Number(e.target.value))}
-                    className="w-full accent-primary cursor-pointer"
-                  />
-                  <div className="flex justify-between text-[10px] text-muted-foreground/75">
-                    <span>{t("ocr.continuous.fast", "Fast (0.5s)")}</span>
-                    <span>
-                      {t("ocr.continuous.balanced", "Balanced (2.0s)")}
-                    </span>
-                    <span>{t("ocr.continuous.eco", "Eco (5.0s)")}</span>
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-muted-foreground">
-                      {t(
-                        "ocr.continuous.sensitivity",
-                        "Change Sensitivity Threshold",
-                      )}
-                    </span>
-                    <span className="font-semibold text-foreground">
-                      {Math.round(changeThreshold * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0.05}
-                    max={0.5}
-                    step={0.05}
-                    value={changeThreshold}
-                    onChange={(e) => setChangeThreshold(Number(e.target.value))}
-                    className="w-full accent-primary cursor-pointer"
-                  />
-                  <div className="flex justify-between text-[10px] text-muted-foreground/75">
-                    <span>
-                      {t("ocr.continuous.sensitive", "Sensitive (5%)")}
-                    </span>
-                    <span>{t("ocr.continuous.normal", "Normal (15%)")}</span>
-                    <span>
-                      {t("ocr.continuous.distinct", "Distinct Only (50%)")}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Live Statistics Cards */}
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-2">
-                <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                    {t("ocr.continuous.state", "State")}
-                  </span>
-                  <p className="text-sm font-bold text-primary capitalize mt-0.5">
-                    {t(
-                      `ocr.continuous.states.${continuousState}`,
-                      continuousState,
-                    )}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                    {t("ocr.continuous.framesScanned", "Frames Scanned")}
-                  </span>
-                  <p className="text-sm font-bold text-foreground mt-0.5">
-                    {continuousStats.capturedCount}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                    {t("ocr.continuous.translated", "Translated")}
-                  </span>
-                  <p className="text-sm font-bold text-emerald-400 mt-0.5">
-                    {continuousStats.translatedCount}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                    {t(
-                      "ocr.continuous.duplicatesSkipped",
-                      "Duplicates Skipped",
-                    )}
-                  </span>
-                  <p className="text-sm font-bold text-amber-400 mt-0.5">
-                    {continuousStats.skippedCount}
-                  </p>
-                </div>
-                <div className="p-2.5 rounded-xl bg-glass border border-glass-border text-center">
-                  <span className="text-[10px] uppercase font-bold text-muted-foreground">
-                    {t("ocr.continuous.avgLatency", "Avg Latency")}
-                  </span>
-                  <p className="text-sm font-bold text-foreground mt-0.5">
-                    {continuousStats.averageDurationMs}ms
-                  </p>
-                </div>
-              </div>
-            </GlassCard>
-
-            {/* Continuous Live Translation Stream */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-semibold text-foreground">
-                {t("ocr.continuous.streamChanges", "Detected Stream Changes")}
-              </h4>
-              {continuousHistory.length > 0 ? (
-                <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                  {continuousHistory.map((item) => (
-                    <GlassCard
-                      key={item.id}
-                      variant="subtle"
-                      className="p-3 text-xs space-y-1"
-                    >
-                      <div className="flex justify-between text-[10px] text-muted-foreground">
-                        <span>
-                          {new Date(item.createdAt).toLocaleTimeString()}
-                        </span>
-                        <span>
-                          {Math.round(item.confidence * 100)}%{" "}
-                          {t("ocr.editor.conf", "Conf")} • {item.durationMs}ms
-                        </span>
-                      </div>
-                      <p className="text-muted-foreground font-mono text-[11px]">
-                        {item.originalText}
-                      </p>
-                      <p className="text-foreground font-semibold text-xs text-primary">
-                        {item.translatedText}
-                      </p>
-                    </GlassCard>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 text-center text-xs text-muted-foreground bg-glass-subtle rounded-xl border border-glass-border">
-                  {t(
-                    "ocr.continuous.emptyStream",
-                    "Start continuous monitoring to view real-time text detections.",
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
+          <ContinuousTab
+            continuousRegion={continuousRegion}
+            continuousState={continuousState}
+            continuousStats={continuousStats}
+            continuousHistory={continuousHistory}
+            intervalMs={intervalMs}
+            onIntervalMsChange={setIntervalMs}
+            changeThreshold={changeThreshold}
+            onChangeThresholdChange={setChangeThreshold}
+            onSelectRegion={handleSelectContinuousRegion}
+            onToggleContinuous={handleToggleContinuous}
+            onPauseResumeContinuous={handlePauseResumeContinuous}
+          />
         )}
 
         {/* ================= TAB 3: HANDWRITING RECOGNITION ================= */}
@@ -1202,144 +662,19 @@ export const ScreenTranslationView: React.FC = () => {
 
         {/* ================= TAB 4: HISTORY ================= */}
         {activeTab === "history" && (
-          <div className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex-1 max-w-sm">
-                <GlassInput
-                  placeholder={t(
-                    "ocr.history.searchPlaceholder",
-                    "Search captured text or translations...",
-                  )}
-                  value={historySearch}
-                  leftIcon={<Search className="w-3.5 h-3.5" />}
-                  onChange={(e) => {
-                    setHistorySearch(e.target.value);
-                    loadHistory(e.target.value);
-                  }}
-                  onClear={() => {
-                    setHistorySearch("");
-                    loadHistory("");
-                  }}
-                />
-              </div>
-
-              <div className="flex items-center gap-2">
-                <GlassButton
-                  variant="subtle"
-                  size="xs"
-                  icon={<Download className="w-3 h-3" />}
-                  onClick={() => handleExportHistory("txt")}
-                >
-                  {t("ocr.history.exportTxt", "Export TXT")}
-                </GlassButton>
-                <GlassButton
-                  variant="subtle"
-                  size="xs"
-                  icon={<Download className="w-3 h-3" />}
-                  onClick={() => handleExportHistory("json")}
-                >
-                  {t("ocr.history.exportJson", "Export JSON")}
-                </GlassButton>
-                <GlassButton
-                  variant="destructive"
-                  size="xs"
-                  icon={<Trash2 className="w-3 h-3" />}
-                  onClick={handleClearHistory}
-                >
-                  {t("ocr.history.clearHistory", "Clear History")}
-                </GlassButton>
-              </div>
-            </div>
-
-            {historyItems.length > 0 ? (
-              <div className="space-y-2.5">
-                {historyItems.map((item) => (
-                  <GlassCard key={item.id} className="p-3.5 text-xs space-y-2">
-                    <div className="flex items-center justify-between text-[11px] text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-foreground">
-                          {new Date(item.createdAt).toLocaleString()}
-                        </span>
-                        <GlassBadge variant="neutral">
-                          {item.ocrLanguage.toUpperCase()} →{" "}
-                          {item.targetLanguage.toUpperCase()}
-                        </GlassBadge>
-                        <GlassBadge variant="neutral">
-                          {item.ocrProvider}
-                        </GlassBadge>
-                      </div>
-
-                      <div className="flex items-center gap-1.5">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleCopy(
-                              `${item.originalText}\n\n${item.translatedText}`,
-                              item.id,
-                            )
-                          }
-                          className="p-1 hover:text-foreground text-muted-foreground"
-                          title={t(
-                            "ocr.history.copyBothTooltip",
-                            "Copy Original and Translation",
-                          )}
-                        >
-                          {copiedKey === item.id ? (
-                            <Check className="w-3.5 h-3.5 text-emerald-400" />
-                          ) : (
-                            <Copy className="w-3.5 h-3.5" />
-                          )}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteHistoryItem(item.id)}
-                          className="p-1 hover:text-destructive text-muted-foreground"
-                          title={t(
-                            "ocr.history.deleteTooltip",
-                            "Delete Record",
-                          )}
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 bg-glass-subtle p-2.5 rounded-lg border border-glass-border/40">
-                      <div>
-                        <span className="text-[10px] font-bold uppercase text-muted-foreground block mb-0.5">
-                          {t("ocr.history.originalText", "Original Text")}
-                        </span>
-                        <p className="text-foreground/90 font-mono text-[11px] whitespace-pre-wrap">
-                          {item.originalText}
-                        </p>
-                      </div>
-                      <div>
-                        <span className="text-[10px] font-bold uppercase text-primary block mb-0.5">
-                          {t("ocr.history.translation", "Translation")}
-                        </span>
-                        <p className="text-foreground font-medium text-xs whitespace-pre-wrap">
-                          {item.translatedText}
-                        </p>
-                      </div>
-                    </div>
-                  </GlassCard>
-                ))}
-              </div>
-            ) : (
-              <div className="p-12 text-center text-xs text-muted-foreground bg-glass-subtle rounded-2xl border border-glass-border">
-                <History className="w-8 h-8 opacity-25 mx-auto mb-2" />
-                <p className="font-medium text-foreground">
-                  {t("ocr.history.noHistory", "No translation history found")}
-                </p>
-                <p className="text-[11px] text-muted-foreground/80 mt-1">
-                  {t(
-                    "ocr.history.noHistoryDesc",
-                    "Captured OCR translations will be persisted here for easy searching and export.",
-                  )}
-                </p>
-              </div>
-            )}
-          </div>
+          <HistoryTab
+            historyItems={historyItems}
+            historySearch={historySearch}
+            onSearchChange={(query) => {
+              setHistorySearch(query);
+              loadHistory(query);
+            }}
+            onClearHistory={handleClearHistory}
+            onExportHistory={handleExportHistory}
+            onDeleteItem={handleDeleteHistoryItem}
+            copiedKey={copiedKey}
+            onCopy={handleCopy}
+          />
         )}
       </div>
     </div>
