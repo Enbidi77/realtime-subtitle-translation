@@ -11,6 +11,8 @@ pids
 *.pid
 *.seed
 *.pid.lock
+*.traineddata
+*.traineddata.gz
 
 # Dependency directories
 node_modules/

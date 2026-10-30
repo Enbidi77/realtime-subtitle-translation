@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "Capture Unique",
       "continuous": "Surveillance Continue",
+      "handwriting": "Bloc manuscrit",
       "history": "Historique"
     },
     "engine": "Moteur :",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "Préréglage de Prétraitement",
       "general": "Texte de Bureau Standard",
+      "handwritten": "Écriture manuscrite et notes (Filtre adaptatif)",
       "gameSubtitles": "Sous-titres de Jeu (Contraste Élevé)",
       "smallUi": "Petite Police d'Interface (Agrandissement 2x)",
       "highContrast": "Binarisation Haut Contraste (Otsu)",
       "cjk": "Caractères Japonais et Chinois (Sans Espaces)",
       "none": "Aucun Prétraitement (Défaut)"
+    },
+    "handwriting": {
+      "title": "Reconnaissance d'écriture manuscrite et encre numérique",
+      "badge": "HTR Neuronal IA",
+      "subtitle": "Dessinez au stylet ou à la souris, ou déposez des photos de notes pour reconnaître et traduire instantanément.",
+      "engine": "Moteur OCR",
+      "sourceLang": "Langue",
+      "targetLang": "Traduire en",
+      "preset": "Amélioration",
+      "tools": {
+        "pen": "Stylo",
+        "eraser": "Gomme",
+        "undo": "Annuler",
+        "clear": "Effacer",
+        "upload": "Importer une note"
+      },
+      "recognizeBtn": "Reconnaître et traduire",
+      "recognizing": "Reconnaissance en cours...",
+      "canvasHint": "Écrivez ici avec la souris ou un stylet, ou déposez une photo de notes manuscrites.",
+      "canvasSubhint": "Prend en charge l'anglais cursif, les diacritiques vietnamiens, les caractères CJK et les symboles.",
+      "emptyCanvas": "Veuillez d'abord écrire ou importer une image manuscrite.",
+      "noTextDetected": "Aucun texte manuscrit détecté. Essayez d'écrire plus distinctement ou changez de moteur OCR.",
+      "recognizedLabel": "Texte manuscrit reconnu",
+      "recognizedPlaceholder": "Le texte reconnu apparaîtra ici. Vous pouvez le modifier ou le corriger librement...",
+      "retranslate": "Retraduire",
+      "translationLabel": "Traduction en direct",
+      "translating": "Traduction de l'écriture manuscrite...",
+      "translatedPlaceholder": "La traduction s'affichera ici.",
+      "saveToHistory": "Enregistrer dans l'historique",
+      "savedToHistory": "Enregistré dans l'historique"
     },
     "ocrLangHint": "Indice de Langue OCR",
     "translateInto": "Traduire en",

@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "단일 캡처",
       "continuous": "연속 모니터링",
+      "handwriting": "필기 패드",
       "history": "기록"
     },
     "engine": "OCR 엔진:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "전처리 프리셋",
       "general": "일반 데스크톱 텍스트",
+      "handwritten": "손글씨 및 필기 노트 (적응형 필터)",
       "gameSubtitles": "게임 자막 (고대비 강화)",
       "smallUi": "작은 UI 글꼴 (2배 확대)",
       "highContrast": "고대비 이진화 (오츠 알고리즘)",
       "cjk": "한/중/일 문자 최적화 (공백 정돈)",
       "none": "전처리 없음 (기본)"
+    },
+    "handwriting": {
+      "title": "손글씨 필기 인식 및 디지털 잉크 패드",
+      "badge": "AI 신경망 HTR",
+      "subtitle": "스타일러스 펜이나 마우스로 필기하거나 손글씨 사진을 드롭하여 즉시 인식 및 번역하세요.",
+      "engine": "OCR 엔진",
+      "sourceLang": "언어",
+      "targetLang": "번역 대상",
+      "preset": "화질 개선",
+      "tools": {
+        "pen": "펜",
+        "eraser": "지우개",
+        "undo": "실행 취소",
+        "clear": "지우기",
+        "upload": "노트 업로드"
+      },
+      "recognizeBtn": "인식 및 번역",
+      "recognizing": "인식 중...",
+      "canvasHint": "마우스나 스타일러스 펜으로 여기에 필기하거나 손글씨 메모 사진을 드래그 앤 드롭하세요.",
+      "canvasSubhint": "영어 필기체, 베트남어 성조 부호, 한자/한글 및 수학 기호를 지원합니다.",
+      "emptyCanvas": "먼저 손글씨를 작성하거나 이미지를 업로드하세요.",
+      "noTextDetected": "손글씨 텍스트를 감지하지 못했습니다. 더 명확하게 쓰거나 OCR 엔진을 변경해 보세요.",
+      "recognizedLabel": "인식된 손글씨",
+      "recognizedPlaceholder": "인식된 텍스트가 여기에 표시됩니다. 자유롭게 편집하거나 수정할 수 있습니다...",
+      "retranslate": "다시 번역",
+      "translationLabel": "실시간 번역",
+      "translating": "인식된 손글씨 번역 중...",
+      "translatedPlaceholder": "번역 결과가 여기에 표시됩니다.",
+      "saveToHistory": "기록에 저장",
+      "savedToHistory": "기록에 저장됨"
     },
     "ocrLangHint": "OCR 언어 힌트",
     "translateInto": "번역할 언어",

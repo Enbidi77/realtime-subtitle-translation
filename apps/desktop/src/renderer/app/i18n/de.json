@@ -121,6 +121,7 @@
     "tabs": {
       "capture": "Einzelerfassung",
       "continuous": "Dauerhafte Überwachung",
+      "handwriting": "Handschrift-Pad",
       "history": "Verlauf"
     },
     "engine": "Engine:",
@@ -129,11 +130,42 @@
     "presets": {
       "label": "Vorverarbeitungs-Profil",
       "general": "Allgemeiner Desktop-Text",
+      "handwritten": "Handschrift & Notizen (Adaptiver Filter)",
       "gameSubtitles": "Spiel-Untertitel (Hoher Kontrast)",
       "smallUi": "Kleine UI-Schrift (2x Skalierung)",
       "highContrast": "Hoher Kontrast Binarisiert (Otsu)",
       "cjk": "Japanisch & Chinesisch (Leerzeichen-Optimierung)",
       "none": "Keine Vorverarbeitung (Standard)"
+    },
+    "handwriting": {
+      "title": "Handschrifterkennung & Digitales Tinten-Pad",
+      "badge": "KI-Neuronales HTR",
+      "subtitle": "Mit Stylus/Maus zeichnen oder Fotos handschriftlicher Notizen ablegen, um sofort zu erkennen und zu übersetzen.",
+      "engine": "OCR-Engine",
+      "sourceLang": "Sprache",
+      "targetLang": "Übersetzen in",
+      "preset": "Verbesserung",
+      "tools": {
+        "pen": "Stift",
+        "eraser": "Radierer",
+        "undo": "Rückgängig",
+        "clear": "Löschen",
+        "upload": "Notiz hochladen"
+      },
+      "recognizeBtn": "Erkennen & Übersetzen",
+      "recognizing": "Erkennung läuft...",
+      "canvasHint": "Schreiben Sie hier mit Maus oder Eingabestift, oder ziehen Sie ein Foto handschriftlicher Notizen hinein.",
+      "canvasSubhint": "Unterstützt englische Schreibschrift, vietnamesische Tonzeichen, CJK-Zeichen und mathematische Symbole.",
+      "emptyCanvas": "Bitte schreiben Sie zuerst etwas oder laden Sie ein handschriftliches Bild hoch.",
+      "noTextDetected": "Kein handschriftlicher Text erkannt. Bitte deutlicher schreiben oder OCR-Engine wechseln.",
+      "recognizedLabel": "Erkannte Handschrift",
+      "recognizedPlaceholder": "Erkannter Text erscheint hier. Sie können ihn frei bearbeiten oder korrigieren...",
+      "retranslate": "Neu übersetzen",
+      "translationLabel": "Live-Übersetzung",
+      "translating": "Erkannte Handschrift wird übersetzt...",
+      "translatedPlaceholder": "Die Übersetzung wird hier angezeigt.",
+      "saveToHistory": "Im Verlauf speichern",
+      "savedToHistory": "Im Verlauf gespeichert"
     },
     "ocrLangHint": "OCR-Sprachhinweis",
     "translateInto": "Übersetzen in",

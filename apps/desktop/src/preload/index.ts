@@ -22,6 +22,7 @@ import {
   OcrPreprocessOptions,
   OcrProviderCapability,
   OcrRecognizeRequest,
+  HandwritingRecognizeRequest,
   OcrResponse,
   ScreenTranslateRequest,
   ContinuousOcrConfig,
@@ -213,6 +214,8 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.OCR_GET_PROVIDERS),
     recognize: (req: OcrRecognizeRequest): Promise<OcrResponse> =>
       ipcRenderer.invoke(IPC_CHANNELS.OCR_RECOGNIZE, req),
+    recognizeHandwriting: (req: HandwritingRecognizeRequest): Promise<OcrResponse> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_RECOGNIZE_HANDWRITING, req),
     translateRegion: (req: ScreenTranslateRequest): Promise<{
       ocrResult: OcrResponse;
       translationResult: TranslationResult;
@@ -255,6 +258,8 @@ const api = {
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_LIST, query),
     getHistoryItem: (id: string): Promise<OcrHistoryItem | null> =>
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_GET, { id }),
+    insertHistoryItem: (item: OcrHistoryItem): Promise<void> =>
+      ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_INSERT, item),
     deleteHistoryItem: (id: string): Promise<void> =>
       ipcRenderer.invoke(IPC_CHANNELS.OCR_HISTORY_DELETE, { id }),
     clearHistory: (): Promise<void> =>

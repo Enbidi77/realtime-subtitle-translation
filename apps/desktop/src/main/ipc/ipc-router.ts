@@ -13,6 +13,7 @@ import {
   ScreenTranslateRequestSchema,
   ContinuousOcrConfigSchema,
   OcrRecognizeRequestSchema,
+  HandwritingRecognizeRequestSchema,
   OcrHistoryQuerySchema,
   FloatingPanelPayloadSchema,
   VideoExportOptionsSchema,
@@ -369,6 +370,11 @@ export function registerIpcHandlers(): void {
   ipcMain.handle(IPC_CHANNELS.OCR_RECOGNIZE, async (_, req) => {
     const parsed = OcrRecognizeRequestSchema.parse(req);
     return screenTranslationService.recognize(parsed);
+  });
+
+  ipcMain.handle(IPC_CHANNELS.OCR_RECOGNIZE_HANDWRITING, async (_, req) => {
+    const parsed = HandwritingRecognizeRequestSchema.parse(req);
+    return screenTranslationService.recognizeHandwriting(parsed);
   });
 
   // ================= Screen Translation & Continuous =================

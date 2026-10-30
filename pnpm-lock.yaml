@@ -36,6 +36,9 @@ importers:
       sql.js:
         specifier: ^1.12.0
         version: 1.14.2
+      tesseract.js:
+        specifier: ^7.0.0
+        version: 7.0.0(encoding@0.1.13)
       winston:
         specifier: ^3.19.0
         version: 3.19.0

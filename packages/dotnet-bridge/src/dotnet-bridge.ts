@@ -2,6 +2,9 @@ import { DotnetProcess } from "./dotnet-process";
 import {
   DotnetBridgeTransport,
   DotnetProcessOptions,
+  HandwritingRecognizeRequest,
+  HandwritingRecognizeResult,
+  HandwritingStrokeDto,
   OcrLanguageDto,
   OcrRecognizeRequest,
   OcrRecognizeResult,
@@ -31,6 +34,14 @@ export class DotnetBridge {
       imagePath: string,
       languageTag?: string,
     ) => Promise<OcrRecognizeResult>;
+  };
+
+  public readonly handwriting: {
+    getInstalledRecognizers: () => Promise<string[]>;
+    recognize: (
+      strokes: HandwritingStrokeDto[],
+      languageTag?: string,
+    ) => Promise<HandwritingRecognizeResult>;
   };
 
   constructor(options: DotnetBridgeOptions = {}) {
@@ -73,6 +84,24 @@ export class DotnetBridge {
             languageTag,
           },
         );
+      },
+    };
+
+    this.handwriting = {
+      getInstalledRecognizers: async (): Promise<string[]> => {
+        return this.process.execute<undefined, string[]>("handwriting:recognizers");
+      },
+      recognize: async (
+        strokes: HandwritingStrokeDto[],
+        languageTag?: string,
+      ): Promise<HandwritingRecognizeResult> => {
+        return this.process.execute<
+          HandwritingRecognizeRequest,
+          HandwritingRecognizeResult
+        >("handwriting:recognize", {
+          strokes,
+          languageTag,
+        });
       },
     };
   }

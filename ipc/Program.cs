@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EchoLingo.Ipc.Dispatcher;
 using EchoLingo.Ipc.NamedPipe;
 using EchoLingo.Ipc.Protocol;
+using EchoLingo.Ipc.Services.Handwriting;
 using EchoLingo.Ipc.Services.Ocr;
 using EchoLingo.Ipc.Services.Speech;
 
@@ -20,6 +21,7 @@ public static class Program
         WriteIndented = false
     };
 
+    [STAThread]
     public static async Task<int> Main(string[] args)
     {
         // Ensure UTF-8 output encoding for international speech/OCR texts
@@ -28,7 +30,8 @@ public static class Program
 
         var speechService = new SapiSpeechService();
         var ocrService = new WindowsOcrService();
-        var dispatcher = new CommandDispatcher(speechService, ocrService);
+        var handwritingService = new WindowsHandwritingService();
+        var dispatcher = new CommandDispatcher(speechService, ocrService, handwritingService);
 
         // 1. Named Pipe mode (Default when no args, or when --pipe / --named-pipe specified)
         if (args.Length == 0 || HasArg(args, "--pipe") || HasArg(args, "--named-pipe"))
@@ -85,6 +88,7 @@ public static class Program
                 {
                     var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "speech:recognizers" });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 if (action == "transcribe")
@@ -102,6 +106,7 @@ public static class Program
                         Payload = payload
                     });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 break;
@@ -114,6 +119,7 @@ public static class Program
                 {
                     var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "ocr:languages" });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 if (action == "recognize")
@@ -131,6 +137,33 @@ public static class Program
                         Payload = payload
                     });
                     Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
+                    return response.Success ? 0 : 1;
+                }
+                break;
+            }
+
+            case "handwriting":
+            {
+                var action = args.Length > 1 ? args[1].ToLowerInvariant() : "recognizers";
+                if (action == "recognizers" || action == "list" || action == "--list")
+                {
+                    var response = await dispatcher.DispatchAsync(new IpcRequest { Command = "handwriting:recognizers" });
+                    Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
+                    return response.Success ? 0 : 1;
+                }
+                if (action == "recognize" && args.Length > 2)
+                {
+                    var jsonStr = args[2];
+                    using var doc = JsonDocument.Parse(jsonStr);
+                    var response = await dispatcher.DispatchAsync(new IpcRequest
+                    {
+                        Command = "handwriting:recognize",
+                        Payload = doc.RootElement.Clone()
+                    });
+                    Console.WriteLine(JsonSerializer.Serialize(response.Result, _jsonOpts));
+                    Environment.Exit(response.Success ? 0 : 1);
                     return response.Success ? 0 : 1;
                 }
                 break;

@@ -13,6 +13,9 @@ import {
   invert,
   scaleImage,
   preprocessImage,
+  denoise,
+  adaptiveThreshold,
+  morphologyClose,
 } from '@echo-lingo/ocr-core/image-processor.js';
 import {
   normalizeOcrText,
@@ -161,10 +164,104 @@ describe('OCR Core: Image Processor', () => {
         binarize: true,
         invert: false,
         scale: 1,
+        adaptiveThreshold: false,
+        morphologyClose: false,
+        denoise: false,
       }
     );
     expect(res.data[0]).toBe(0);
     expect(res.data[4]).toBe(255);
+  });
+
+  it('denoises image removing isolated salt-and-pepper noise', () => {
+    // 3x3 image with background 200 and a noisy center spike 20
+    const w = 3;
+    const h = 3;
+    const src = new Uint8Array(w * h * 4).fill(200);
+    // Center pixel (1, 1) is corrupted with noise (0)
+    const centerIdx = (1 * w + 1) * 4;
+    src[centerIdx] = 0;
+    src[centerIdx + 1] = 0;
+    src[centerIdx + 2] = 0;
+
+    const filtered = denoise(src, w, h);
+    // Median filter should replace the noisy center pixel with 200
+    expect(filtered[centerIdx]).toBe(200);
+  });
+
+  it('performs adaptive thresholding for uneven lighting and shadows', () => {
+    const w = 16;
+    const h = 16;
+    const src = new Uint8Array(w * h * 4).fill(200); // Light paper background
+
+    // Draw a dark ink stroke at row 8, columns 4..12 (lum = 30)
+    for (let x = 4; x <= 12; x++) {
+      const idx = (8 * w + x) * 4;
+      src[idx] = 30;
+      src[idx + 1] = 30;
+      src[idx + 2] = 30;
+    }
+
+    const binarized = adaptiveThreshold(src, w, h);
+    // The ink stroke pixels should be classified as ink (0)
+    expect(binarized[(8 * w + 8) * 4]).toBe(0);
+    // Background pixels should be classified as paper (255)
+    expect(binarized[(2 * w + 2) * 4]).toBe(255);
+  });
+
+  it('performs morphological closing to connect broken ink strokes', () => {
+    // 5x5 image with dark ink line having a 1-pixel gap at (2, 2)
+    const w = 5;
+    const h = 5;
+    const src = new Uint8Array(w * h * 4).fill(255); // White background
+
+    // Horizontal line on row 2, except pixel (2, 2)
+    for (let x = 0; x < 5; x++) {
+      if (x !== 2) {
+        const idx = (2 * w + x) * 4;
+        src[idx] = 0;
+        src[idx + 1] = 0;
+        src[idx + 2] = 0;
+      }
+    }
+
+    const closed = morphologyClose(src, w, h);
+    // The broken gap at (2, 2) should now be closed (ink = 0)
+    expect(closed[(2 * w + 2) * 4]).toBe(0);
+  });
+
+  it('applies handwritten preset with adaptive threshold and morphological closure', () => {
+    const w = 16;
+    const h = 16;
+    const src = new Uint8Array(w * h * 4).fill(180);
+
+    // Draw ink mark
+    for (let x = 6; x <= 10; x++) {
+      const idx = (8 * w + x) * 4;
+      src[idx] = 40;
+      src[idx + 1] = 40;
+      src[idx + 2] = 40;
+    }
+
+    const res = preprocessImage(
+      { data: src, width: w, height: h },
+      {
+        profile: 'handwritten',
+        grayscale: true,
+        contrastStretch: true,
+        binarize: true,
+        invert: false,
+        scale: 2,
+        adaptiveThreshold: true,
+        morphologyClose: true,
+        denoise: true,
+      }
+    );
+
+    // Upscaled from 16x16 to 32x32
+    expect(res.width).toBe(32);
+    expect(res.height).toBe(32);
+    expect(res.data.length).toBe(32 * 32 * 4);
   });
 });
 
