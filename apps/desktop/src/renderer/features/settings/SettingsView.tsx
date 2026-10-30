@@ -65,7 +65,7 @@ export const SettingsView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-4xl mx-auto bg-transparent">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 w-full bg-transparent">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -290,7 +290,7 @@ export const SettingsView: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
           {/* UI Display Language */}
           <div className="space-y-1.5">
             <label className="text-muted-foreground font-medium flex items-center gap-1.5">
@@ -420,7 +420,7 @@ export const SettingsView: React.FC = () => {
         {/* Live Subtitle Preview Box */}
         <div className="p-6 rounded-2xl border border-dashed border-glass-border flex items-center justify-center bg-black/25 backdrop-blur-md">
           <div
-            className="p-5 rounded-2xl shadow-xl transition-all duration-150 max-w-lg w-full border border-white/20"
+            className="p-5 rounded-2xl shadow-xl transition-all duration-150 max-w-2xl w-full border border-white/20"
             style={{
               backgroundColor: settings.subtitleAppearance.backgroundColor,
               opacity: settings.subtitleAppearance.backgroundOpacity,
@@ -453,7 +453,7 @@ export const SettingsView: React.FC = () => {
         </div>
 
         {/* Customization Controls */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 text-xs pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 text-xs pt-2">
           {/* Font size */}
           <div className="space-y-2">
             <div className="flex justify-between">
@@ -774,7 +774,7 @@ export const SettingsView: React.FC = () => {
 
         <div className="space-y-3.5 text-xs">
           <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-subtle border border-glass-border">
-            <div className="space-y-0.5 max-w-xl">
+            <div className="space-y-0.5 flex-1 pr-4">
               <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                 <CreditCard className="w-3.5 h-3.5 text-primary" />
                 <span>
@@ -952,7 +952,7 @@ export const SettingsView: React.FC = () => {
 
           {/* Splash Screen Startup Toggle */}
           <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-subtle border border-glass-border mt-3">
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 flex-1 pr-4">
               <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>
@@ -1002,7 +1002,7 @@ export const SettingsView: React.FC = () => {
           <span>Keyboard Shortcuts</span>
         </h2>
 
-        <div className="space-y-2 text-xs">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1 text-xs">
           {Object.entries(settings.keyboardShortcuts).map(([key, shortcut]) => (
             <div
               key={key}

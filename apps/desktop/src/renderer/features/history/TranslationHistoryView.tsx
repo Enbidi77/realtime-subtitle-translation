@@ -55,7 +55,7 @@ export const TranslationHistoryView: React.FC = () => {
   });
 
   return (
-    <div className="flex-1 h-full flex flex-col overflow-hidden bg-transparent p-6 md:p-8 space-y-5 max-w-5xl mx-auto">
+    <div className="flex-1 h-full flex flex-col overflow-hidden bg-transparent p-6 md:p-8 space-y-5 w-full">
       {/* Header & Search */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

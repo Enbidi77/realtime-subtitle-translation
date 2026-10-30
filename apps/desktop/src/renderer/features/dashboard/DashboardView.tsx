@@ -82,7 +82,7 @@ export const DashboardView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-6xl mx-auto">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 w-full">
       {/* Header Greeting & Live Status */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -149,7 +149,7 @@ export const DashboardView: React.FC = () => {
         <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-bl from-primary/15 via-indigo-500/10 to-transparent rounded-full blur-3xl pointer-events-none" />
 
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-          <div className="space-y-2.5 max-w-xl">
+          <div className="space-y-2.5 flex-1 pr-6 max-w-3xl">
             <GlassBadge variant="accent" className="font-semibold">
               <Sparkles className="w-3.5 h-3.5 mr-1" />
               {t("dashboard.realtimeIntelligence", "Real-Time Intelligence")}

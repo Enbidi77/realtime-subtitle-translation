@@ -249,7 +249,7 @@ export const ProvidersView: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 max-w-5xl mx-auto">
+    <div className="flex-1 h-full overflow-y-auto p-6 md:p-8 space-y-6 w-full">
       <div>
         <h1 className="text-xl font-bold text-foreground flex items-center gap-2">
           <Cpu className="w-5 h-5 text-primary" />
