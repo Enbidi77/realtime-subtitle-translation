@@ -33,7 +33,7 @@ const log = createRendererLogger("SessionsView");
 
 export const SessionsView: React.FC = () => {
   const { t } = useI18n();
-  const { setActivePage } = useNavigationStore();
+  const { setActivePage, setBreadcrumbs, clearBreadcrumbs } = useNavigationStore();
   const { loadSession } = useSessionStore();
 
   const [sessions, setSessions] = useState<SessionMetadata[]>([]);
@@ -88,6 +88,25 @@ export const SessionsView: React.FC = () => {
     }
     loadSegments();
   }, [selectedSessionId]);
+
+  useEffect(() => {
+    if (selectedSessionId && sessions.length > 0) {
+      const current = sessions.find((s) => s.id === selectedSessionId);
+      if (current) {
+        setBreadcrumbs([
+          {
+            id: current.id,
+            label: current.title || current.id.slice(0, 8),
+          },
+        ]);
+      }
+    } else {
+      clearBreadcrumbs();
+    }
+    return () => {
+      clearBreadcrumbs();
+    };
+  }, [selectedSessionId, sessions, setBreadcrumbs, clearBreadcrumbs]);
 
   const handleDeleteSession = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();

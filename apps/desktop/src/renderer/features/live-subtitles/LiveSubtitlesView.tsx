@@ -6,7 +6,6 @@ import { formatDisplayTime } from "@echo-lingo/subtitle-core";
 import { GlassCard } from "@/components/ui/GlassCard.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassInput } from "@/components/ui/GlassInput.js";
-import { GlassBadge } from "@/components/ui/GlassBadge.js";
 import {
   Play,
   Pause,
@@ -15,7 +14,6 @@ import {
   Copy,
   ExternalLink,
   Check,
-  Zap,
   AlertTriangle,
   Radio,
   Mic,
@@ -31,8 +29,6 @@ export const LiveSubtitlesView: React.FC = () => {
     activePartial,
     isListening,
     isPaused,
-    audioRms,
-    pipelineLatencyMs,
     audioError,
     setAudioError,
     pauseSession,
@@ -44,7 +40,6 @@ export const LiveSubtitlesView: React.FC = () => {
     subtitleAppearance,
     autoScrollLiveSubtitles,
     audioSourceType,
-    speechEngine,
   } = useSettingsStore((s) => s.settings);
 
   const [searchFilter, setSearchFilter] = useState("");
@@ -140,29 +135,6 @@ export const LiveSubtitlesView: React.FC = () => {
               </GlassButton>
             </>
           )}
-
-          {/* Audio signal indicator */}
-          {isListening && !isPaused && (
-            <GlassBadge
-              variant="live"
-              pulse
-              className="ml-1 hidden sm:inline-flex"
-            >
-              RMS: {(audioRms * 100).toFixed(0)}%
-            </GlassBadge>
-          )}
-
-          {/* Active Engine Badge */}
-          {isListening && (
-            <GlassBadge
-              variant="accent"
-              className="hidden md:inline-flex font-mono text-[10px]"
-            >
-              {speechEngine === "groq-whisper"
-                ? "⚡ Groq Whisper"
-                : speechEngine}
-            </GlassBadge>
-          )}
         </div>
 
         {/* Search within session */}
@@ -179,16 +151,6 @@ export const LiveSubtitlesView: React.FC = () => {
 
         {/* Right Actions */}
         <div className="flex items-center gap-2">
-          {pipelineLatencyMs > 0 && (
-            <GlassBadge
-              variant="neutral"
-              className="hidden lg:inline-flex text-emerald-400 font-mono"
-            >
-              <Zap className="w-3 h-3 text-emerald-400" />
-              <span>{pipelineLatencyMs}ms</span>
-            </GlassBadge>
-          )}
-
           <GlassButton
             variant="glass"
             size="sm"

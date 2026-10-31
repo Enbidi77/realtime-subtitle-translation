@@ -6,6 +6,7 @@ import { useOnboardingStore } from "@/stores/onboarding-store.js";
 import { useI18n } from "@/app/i18n/index.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { TitleBarSearchButton } from "@/features/global-search/index.js";
+import { Breadcrumbs } from "./Breadcrumbs.js";
 import { createRendererLogger } from "@echo-lingo/logger";
 import appLogo from "@/assets/logo.png";
 import {
@@ -122,27 +123,34 @@ export const TitleBar: React.FC = () => {
       onDoubleClick={handleMaximize}
       className="glass-toolbar h-11 w-full flex items-center justify-between px-3.5 select-none z-50 cursor-default"
     >
-      {/* Brand & Status */}
-      <div className="flex items-center gap-2.5">
-        {/* EchoLingo brand logo */}
-        <img
-          src={appLogo}
-          alt="EchoLingo"
-          className="w-7 h-7 rounded-xl object-contain shadow-sm shadow-indigo-500/20 pointer-events-none select-none"
-        />
-
-        <div className="flex items-center gap-2">
-          <span className="font-semibold text-xs tracking-tight text-foreground">
+      {/* Brand, Breadcrumbs & Status */}
+      <div className="flex items-center gap-2 min-w-0 shrink-0">
+        {/* EchoLingo brand logo & quick home link */}
+        <button
+          type="button"
+          onClick={() => setActivePage("dashboard")}
+          className="flex items-center gap-2 cursor-pointer app-no-drag group select-none shrink-0"
+          title={`${t("app.title", "EchoLingo")} - ${t("nav.dashboard", "Home")}`}
+        >
+          <img
+            src={appLogo}
+            alt="EchoLingo"
+            className="w-7 h-7 rounded-xl object-contain shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform pointer-events-none select-none"
+          />
+          <span className="font-semibold text-xs tracking-tight text-foreground group-hover:text-primary transition-colors hidden sm:inline">
             EchoLingo
           </span>
-          <span className="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-glass-subtle border border-glass-border text-muted-foreground hidden sm:inline">
-            v1.0
-          </span>
-        </div>
+        </button>
+
+        {/* Breadcrumb separator line */}
+        <div className="h-4 w-px bg-glass-border mx-0.5 hidden sm:block shrink-0" />
+
+        {/* Dynamic Breadcrumbs Navigation */}
+        <Breadcrumbs />
 
         {/* Live session status pill */}
         {isListening && (
-          <div className="flex items-center gap-1.5 ml-2 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-xs">
+          <div className="flex items-center gap-1.5 ml-1 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 shadow-xs shrink-0">
             <span
               className={`w-1.5 h-1.5 rounded-full ${
                 isPaused ? "bg-amber-400" : "bg-emerald-400 animate-pulse"
@@ -152,7 +160,7 @@ export const TitleBar: React.FC = () => {
               {isPaused ? t("app.status.paused") : t("app.status.listening")}
             </span>
             {activeSession && (
-              <span className="text-[10px] opacity-75 hidden md:inline font-mono">
+              <span className="text-[10px] opacity-75 hidden xl:inline font-mono">
                 ({activeSession.sourceLanguage} →{" "}
                 {activeSession.targetLanguages.join(", ")})
               </span>
@@ -165,7 +173,7 @@ export const TitleBar: React.FC = () => {
       <div
         onMouseDown={handleStartDrag}
         onDoubleClick={handleMaximize}
-        className="flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium px-4 cursor-move"
+        className="flex-1 h-full flex items-center justify-center text-center text-xs text-muted-foreground font-medium px-4 cursor-move min-w-0"
       >
         <TitleBarSearchButton />
       </div>
