@@ -16,6 +16,8 @@ import { GlassCard } from "@/components/ui/GlassCard.js";
 import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassSelect } from "@/components/ui/GlassSelect.js";
 import { GlassBadge } from "@/components/ui/GlassBadge.js";
+import { GlassRadio, GlassRadioGroup } from "@/components/ui/GlassRadio.js";
+import { GlassCheckbox } from "@/components/ui/GlassCheckbox.js";
 import {
   Settings,
   Palette,
@@ -573,7 +575,8 @@ export const SettingsView: React.FC = () => {
         </h2>
 
         <div className="space-y-3.5 text-xs">
-          <label className="flex items-center justify-between cursor-pointer">
+
+          <div className="flex items-center justify-between">
             <div>
               <div className="font-medium text-foreground">
                 {t("settings.alwaysOnTop")}
@@ -582,8 +585,7 @@ export const SettingsView: React.FC = () => {
                 Keep subtitle overlay floating over other windows
               </div>
             </div>
-            <input
-              type="checkbox"
+            <GlassCheckbox
               checked={settings.overlaySettings.alwaysOnTop}
               onChange={(e) => {
                 updateSettings({
@@ -594,11 +596,11 @@ export const SettingsView: React.FC = () => {
                 });
                 showSaved();
               }}
-              className="rounded accent-primary w-4 h-4"
+              size="sm"
             />
-          </label>
+          </div>
 
-          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
+          <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">
                 {t("settings.clickThrough")}
@@ -607,8 +609,7 @@ export const SettingsView: React.FC = () => {
                 Clicks pass through directly to background windows
               </div>
             </div>
-            <input
-              type="checkbox"
+            <GlassCheckbox
               checked={settings.overlaySettings.clickThrough}
               onChange={(e) => {
                 updateSettings({
@@ -620,11 +621,11 @@ export const SettingsView: React.FC = () => {
                 window.electronAPI?.overlay.setClickThrough(e.target.checked);
                 showSaved();
               }}
-              className="rounded accent-primary w-4 h-4"
+              size="sm"
             />
-          </label>
+          </div>
 
-          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
+          <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">
                 {t("settings.hideOnCapture")}
@@ -633,8 +634,7 @@ export const SettingsView: React.FC = () => {
                 {t("settings.hideOnCaptureDesc")}
               </div>
             </div>
-            <input
-              type="checkbox"
+            <GlassCheckbox
               checked={settings.overlaySettings.hideOnCapture ?? true}
               onChange={(e) => {
                 updateSettings({
@@ -649,11 +649,11 @@ export const SettingsView: React.FC = () => {
                 });
                 showSaved();
               }}
-              className="rounded accent-primary w-4 h-4"
+              size="sm"
             />
-          </label>
+          </div>
 
-          <label className="flex items-center justify-between pt-3 border-t border-glass-border cursor-pointer">
+          <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
               <div className="font-medium text-foreground">
                 {t("settings.keepMainWindowHiddenAfterCapture")}
@@ -662,8 +662,7 @@ export const SettingsView: React.FC = () => {
                 {t("settings.keepMainWindowHiddenAfterCaptureDesc")}
               </div>
             </div>
-            <input
-              type="checkbox"
+            <GlassCheckbox
               checked={
                 settings.screenTranslation?.keepMainWindowHiddenAfterCapture ?? false
               }
@@ -676,9 +675,9 @@ export const SettingsView: React.FC = () => {
                 });
                 showSaved();
               }}
-              className="rounded accent-primary w-4 h-4"
+              size="sm"
             />
-          </label>
+          </div>
 
           <div className="flex items-center justify-between pt-3 border-t border-glass-border">
             <div>
@@ -791,32 +790,29 @@ export const SettingsView: React.FC = () => {
                 )}
               </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-4">
-              <input
-                type="checkbox"
-                checked={settings.showPaidProviders ?? false}
-                onChange={(e) => {
-                  const checked = e.target.checked;
-                  const updates: Partial<AppSettings> = {
-                    showPaidProviders: checked,
-                  };
-                  if (!checked) {
-                    if (isPaidSpeechEngine(settings.speechEngine)) {
-                      updates.speechEngine = "whisper-local";
-                    }
-                    if (
-                      isPaidTranslationProvider(settings.translationProvider)
-                    ) {
-                      updates.translationProvider = "google-web";
-                    }
+            <GlassCheckbox
+              variant="switch"
+              checked={settings.showPaidProviders ?? false}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                const updates: Partial<AppSettings> = {
+                  showPaidProviders: checked,
+                };
+                if (!checked) {
+                  if (isPaidSpeechEngine(settings.speechEngine)) {
+                    updates.speechEngine = "whisper-local";
                   }
-                  updateSettings(updates);
-                  showSaved();
-                }}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-slate-700/60 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-            </label>
+                  if (
+                    isPaidTranslationProvider(settings.translationProvider)
+                  ) {
+                    updates.translationProvider = "google-web";
+                  }
+                }
+                updateSettings(updates);
+                showSaved();
+              }}
+              containerClassName="shrink-0 ml-4"
+            />
           </div>
         </div>
       </GlassCard>
@@ -854,101 +850,49 @@ export const SettingsView: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* Option 1: Minimize to Tray */}
-            <button
-              type="button"
-              onClick={() => {
-                updateSettings({ closeBehavior: "minimize-to-tray" });
-                showSaved();
-              }}
-              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === "minimize-to-tray"
-                  ? "bg-primary/10 border-primary/50 text-foreground shadow-sm shadow-primary/10"
-                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full mb-1.5">
-                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
-                  <Minimize2 className="w-3.5 h-3.5 text-primary" />
-                  <span>
-                    {t("settings.minimizeToTrayTitle", "Minimize to Tray")}
-                  </span>
-                </span>
-                {settings.closeBehavior === "minimize-to-tray" && (
-                  <Check className="w-3.5 h-3.5 text-primary" />
-                )}
-              </div>
-              <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t(
-                  "settings.minimizeToTrayDesc",
-                  "Stays running in background for hotkeys and overlay.",
-                )}
-              </span>
-            </button>
-
-            {/* Option 2: Close Application */}
-            <button
-              type="button"
-              onClick={() => {
-                updateSettings({ closeBehavior: "quit" });
-                showSaved();
-              }}
-              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === "quit"
-                  ? "bg-destructive/10 border-destructive/50 text-foreground shadow-sm shadow-destructive/10"
-                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full mb-1.5">
-                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
-                  <Power className="w-3.5 h-3.5 text-destructive" />
-                  <span>{t("settings.quitAppTitle", "Close Application")}</span>
-                </span>
-                {settings.closeBehavior === "quit" && (
-                  <Check className="w-3.5 h-3.5 text-destructive" />
-                )}
-              </div>
-              <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t(
-                  "settings.quitAppDesc",
-                  "Completely terminates app and background tasks.",
-                )}
-              </span>
-            </button>
-
-            {/* Option 3: Always Ask */}
-            <button
-              type="button"
-              onClick={() => {
-                updateSettings({ closeBehavior: "ask" });
-                showSaved();
-              }}
-              className={`flex flex-col text-left p-3.5 rounded-xl border transition-all cursor-pointer ${
-                settings.closeBehavior === "ask"
-                  ? "bg-amber-500/10 border-amber-500/50 text-foreground shadow-sm shadow-amber-500/10"
-                  : "bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              <div className="flex items-center justify-between w-full mb-1.5">
-                <span className="font-semibold text-xs text-foreground flex items-center gap-1.5">
-                  <HelpCircle className="w-3.5 h-3.5 text-amber-400" />
-                  <span>
-                    {t("settings.askEveryTimeTitle", "Ask Every Time")}
-                  </span>
-                </span>
-                {settings.closeBehavior === "ask" && (
-                  <Check className="w-3.5 h-3.5 text-amber-400" />
-                )}
-              </div>
-              <span className="text-[11px] text-muted-foreground leading-relaxed">
-                {t(
-                  "settings.askEveryTimeDesc",
-                  "Prompts with dialog options before closing.",
-                )}
-              </span>
-            </button>
-          </div>
+          {/* Close Behavior Radio Group */}
+          <GlassRadioGroup
+            name="closeBehavior"
+            value={settings.closeBehavior}
+            onChange={(val) => {
+              updateSettings({ closeBehavior: val as any });
+              showSaved();
+            }}
+            variant="card"
+            cardLayout="vertical"
+            className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+          >
+            <GlassRadio
+              value="minimize-to-tray"
+              color="primary"
+              icon={<Minimize2 className="w-3.5 h-3.5 text-primary" />}
+              label={t("settings.minimizeToTrayTitle", "Minimize to Tray")}
+              description={t(
+                "settings.minimizeToTrayDesc",
+                "Stays running in background for hotkeys and overlay.",
+              )}
+            />
+            <GlassRadio
+              value="quit"
+              color="destructive"
+              icon={<Power className="w-3.5 h-3.5 text-destructive" />}
+              label={t("settings.quitAppTitle", "Close Application")}
+              description={t(
+                "settings.quitAppDesc",
+                "Completely terminates app and background tasks.",
+              )}
+            />
+            <GlassRadio
+              value="ask"
+              color="amber"
+              icon={<HelpCircle className="w-3.5 h-3.5 text-amber-400" />}
+              label={t("settings.askEveryTimeTitle", "Ask Every Time")}
+              description={t(
+                "settings.askEveryTimeDesc",
+                "Prompts with dialog options before closing.",
+              )}
+            />
+          </GlassRadioGroup>
 
           {/* Splash Screen Startup Toggle */}
           <div className="flex items-center justify-between p-3.5 rounded-xl bg-glass-subtle border border-glass-border mt-3">
@@ -969,18 +913,14 @@ export const SettingsView: React.FC = () => {
                 )}
               </p>
             </div>
-            <label className="relative inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={settings.enableSplashScreen ?? true}
-                onChange={(e) => {
-                  updateSettings({ enableSplashScreen: e.target.checked });
-                  showSaved();
-                }}
-                className="sr-only peer"
-              />
-              <div className="w-9 h-5 bg-slate-700/60 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
-            </label>
+            <GlassCheckbox
+              variant="switch"
+              checked={settings.enableSplashScreen ?? true}
+              onChange={(e) => {
+                updateSettings({ enableSplashScreen: e.target.checked });
+                showSaved();
+              }}
+            />
           </div>
 
           <div className="flex items-start gap-2.5 p-3 rounded-xl bg-glass-subtle border border-glass-border mt-3">

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassModal } from '@/components/ui/GlassModal.js';
+import { GlassCheckbox } from '@/components/ui/index.js';
 import {
   Film,
   Download,
@@ -303,20 +304,17 @@ export const VideoExportModal: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col justify-end">
-                    <label className="flex items-center gap-2 p-2 rounded-lg bg-background/80 dark:bg-glass border border-input dark:border-white/10 cursor-pointer text-xs text-foreground">
-                      <input
-                        type="checkbox"
+                    <div className="p-2 rounded-lg bg-background/80 dark:bg-glass border border-input dark:border-white/10 text-xs text-foreground">
+                      <GlassCheckbox
                         checked={includeOriginal}
                         onChange={(e) => setIncludeOriginal(e.target.checked)}
-                        className="rounded border-input text-blue-600 focus:ring-blue-500"
-                      />
-                      <span>
-                        {t(
+                        size="sm"
+                        label={t(
                           'video.export.includeOriginal',
                           'Include original language (Bilingual dual subtitles)'
                         )}
-                      </span>
-                    </label>
+                      />
+                    </div>
                   </div>
                 </div>
 

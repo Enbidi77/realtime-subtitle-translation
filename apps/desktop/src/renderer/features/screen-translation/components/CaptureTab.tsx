@@ -9,6 +9,7 @@ import {
   GlassCard,
   GlassBadge,
   GlassSelect,
+  GlassCheckbox,
 } from "@/components/ui/index.js";
 import { useSettingsStore } from "@/stores/settings-store.js";
 import { useI18n } from "@/app/i18n/index.js";
@@ -150,33 +151,23 @@ export const CaptureTab: React.FC<CaptureTabProps> = ({
             </GlassSelect>
           </div>
 
-          <div className="flex flex-col justify-end gap-1.5 pb-1">
-            <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
-              <input
-                type="checkbox"
-                checked={skipPreview}
-                onChange={(e) => onSkipPreviewChange(e.target.checked)}
-                className="rounded accent-primary w-4 h-4 cursor-pointer"
-              />
-              <span className="text-foreground">
-                {t("ocr.skipPreview", "Skip preview & translate instantly")}
-              </span>
-            </label>
+          <div className="flex flex-col justify-end gap-2 pb-1">
+            <GlassCheckbox
+              checked={skipPreview}
+              onChange={(e) => onSkipPreviewChange(e.target.checked)}
+              label={t("ocr.skipPreview", "Skip preview & translate instantly")}
+              size="sm"
+            />
 
-            <label className="flex items-center gap-2 cursor-pointer text-xs select-none">
-              <input
-                type="checkbox"
-                checked={keepMainWindowHidden}
-                onChange={(e) => onKeepMainWindowHiddenChange(e.target.checked)}
-                className="rounded accent-primary w-4 h-4 cursor-pointer"
-              />
-              <span className="text-foreground">
-                {t(
-                  "ocr.keepMainWindowHidden",
-                  "Keep main window hidden after capture",
-                )}
-              </span>
-            </label>
+            <GlassCheckbox
+              checked={keepMainWindowHidden}
+              onChange={(e) => onKeepMainWindowHiddenChange(e.target.checked)}
+              label={t(
+                "ocr.keepMainWindowHidden",
+                "Keep main window hidden after capture",
+              )}
+              size="sm"
+            />
           </div>
         </div>
       </GlassCard>

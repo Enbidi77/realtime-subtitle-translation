@@ -5,6 +5,7 @@ import { useNavigationStore } from '@/stores/navigation-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { GlassButton } from '@/components/ui/GlassButton.js';
 import { GlassBadge } from '@/components/ui/GlassBadge.js';
+import { GlassRadio, GlassRadioGroup } from '@/components/ui/GlassRadio.js';
 import appLogo from '@/assets/logo.png';
 import {
   Sparkles,
@@ -160,23 +161,22 @@ export const InteractiveTourModal: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
+            <GlassRadioGroup
+              name="audioSourceType"
+              value={settings.audioSourceType}
+              onChange={(val) => handleSelectAudioSource(val as 'system' | 'microphone')}
+              variant="card"
+              cardLayout="vertical"
+              className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1"
+            >
               {/* Option 1: System Audio */}
-              <button
-                type="button"
-                onClick={() => handleSelectAudioSource('system')}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
-                  settings.audioSourceType === 'system'
-                    ? 'bg-blue-500/15 border-blue-500/60 shadow-lg shadow-blue-500/10 text-foreground'
-                    : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 font-semibold text-xs text-foreground">
-                    <Volume2 className="w-4 h-4 text-primary" />
-                    <span>{t('onboarding.systemAudio', 'System Audio')}</span>
-                  </div>
-                  {settings.audioSourceType === 'system' ? (
+              <GlassRadio
+                value="system"
+                color="primary"
+                icon={<Volume2 className="w-4 h-4 text-primary" />}
+                label={t('onboarding.systemAudio', 'System Audio')}
+                badge={
+                  settings.audioSourceType === 'system' ? (
                     <GlassBadge variant="success">
                       <Check className="w-3 h-3 mr-1" />
                       Active
@@ -185,35 +185,27 @@ export const InteractiveTourModal: React.FC = () => {
                     <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
                       {t('onboarding.clickToSelect', 'Click to select')}
                     </span>
-                  )}
-                </div>
-                <div className="text-[10px] font-semibold text-primary mb-1">
+                  )
+                }
+                description={t(
+                  'onboarding.steps.1.systemDesc',
+                  'Captures internal PC sound directly from browsers, media players, and conferencing apps without room echo.'
+                )}
+                containerClassName="p-4 rounded-2xl"
+              >
+                <div className="text-[10px] font-semibold text-primary mb-1 mt-1">
                   ⭐ Recommended for YouTube, Zoom, Netflix
                 </div>
-                <p className="text-[11px] leading-relaxed">
-                  {t(
-                    'onboarding.steps.1.systemDesc',
-                    'Captures internal PC sound directly from browsers, media players, and conferencing apps without room echo.'
-                  )}
-                </p>
-              </button>
+              </GlassRadio>
 
               {/* Option 2: Microphone */}
-              <button
-                type="button"
-                onClick={() => handleSelectAudioSource('microphone')}
-                className={`p-4 rounded-2xl border text-left transition-all cursor-pointer relative overflow-hidden group ${
-                  settings.audioSourceType === 'microphone'
-                    ? 'bg-indigo-500/15 border-indigo-500/60 shadow-lg shadow-indigo-500/10 text-foreground'
-                    : 'bg-glass-subtle hover:bg-glass border-glass-border text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2 font-semibold text-xs text-foreground">
-                    <Mic className="w-4 h-4 text-indigo-400" />
-                    <span>{t('onboarding.microphone', 'Microphone')}</span>
-                  </div>
-                  {settings.audioSourceType === 'microphone' ? (
+              <GlassRadio
+                value="microphone"
+                color="primary"
+                icon={<Mic className="w-4 h-4 text-indigo-400" />}
+                label={t('onboarding.microphone', 'Microphone')}
+                badge={
+                  settings.audioSourceType === 'microphone' ? (
                     <GlassBadge variant="success">
                       <Check className="w-3 h-3 mr-1" />
                       Active
@@ -222,19 +214,19 @@ export const InteractiveTourModal: React.FC = () => {
                     <span className="text-[10px] text-muted-foreground group-hover:text-foreground">
                       {t('onboarding.clickToSelect', 'Click to select')}
                     </span>
-                  )}
-                </div>
-                <div className="text-[10px] font-semibold text-indigo-400 mb-1">
+                  )
+                }
+                description={t(
+                  'onboarding.steps.1.micDesc',
+                  'Captures your physical microphone when you are speaking or presenting.'
+                )}
+                containerClassName="p-4 rounded-2xl"
+              >
+                <div className="text-[10px] font-semibold text-indigo-400 mb-1 mt-1">
                   🎙️ For your physical voice
                 </div>
-                <p className="text-[11px] leading-relaxed">
-                  {t(
-                    'onboarding.steps.1.micDesc',
-                    'Captures your physical microphone when you are speaking or presenting.'
-                  )}
-                </p>
-              </button>
-            </div>
+              </GlassRadio>
+            </GlassRadioGroup>
 
             <div className="p-3 rounded-xl bg-black/20 border border-white/5 flex items-center justify-between text-xs">
               <span className="text-muted-foreground text-[11px]">

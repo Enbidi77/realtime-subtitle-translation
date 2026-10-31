@@ -15,6 +15,7 @@ import { GlassButton } from "@/components/ui/GlassButton.js";
 import { GlassInput } from "@/components/ui/GlassInput.js";
 import { GlassBadge } from "@/components/ui/GlassBadge.js";
 import { GlassModal } from "@/components/ui/GlassModal.js";
+import { GlassCheckbox } from "@/components/ui/GlassCheckbox.js";
 import { createRendererLogger } from "@echo-lingo/logger";
 import {
   Cpu,
@@ -725,15 +726,14 @@ export const ProvidersView: React.FC = () => {
             />
           </div>
 
-          <label className="flex items-center gap-2 pt-1 cursor-pointer">
-            <input
-              type="checkbox"
+          <div className="pt-1">
+            <GlassCheckbox
               checked={caseSensitive}
               onChange={(e) => setCaseSensitive(e.target.checked)}
-              className="rounded accent-primary"
+              label="Case sensitive match"
+              size="sm"
             />
-            <span className="text-foreground">Case sensitive match</span>
-          </label>
+          </div>
 
           <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
             <GlassButton

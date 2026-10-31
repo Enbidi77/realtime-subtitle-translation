@@ -2,6 +2,7 @@ import React from 'react';
 import { useVideoSubtitleStore } from '../stores/video-subtitle-store.js';
 import { useI18n } from '@/app/i18n/index.js';
 import { SUBTITLE_STYLE_PRESETS } from '@echo-lingo/config';
+import { GlassCheckbox } from '@/components/ui/index.js';
 import { SubtitleAlignment, SubtitleLayoutMode } from '@echo-lingo/contracts';
 import {
   Palette,
@@ -170,29 +171,23 @@ export const SubtitleStyleBar: React.FC = () => {
 
       {/* Advanced Toggles: Background Box & Bilingual Layout */}
       <div className="flex items-center gap-4 pt-2 border-t border-white/5 text-xs text-muted-foreground flex-wrap">
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={style.backgroundBox}
-            onChange={(e) => updateStyle({ backgroundBox: e.target.checked })}
-            className="w-4 h-4 rounded border-white/20 bg-glass text-blue-600 focus:ring-0 cursor-pointer"
-          />
-          <span>{t('video.style.backgroundBox', 'Background Pill Box')}</span>
-        </label>
+        <GlassCheckbox
+          checked={style.backgroundBox}
+          onChange={(e) => updateStyle({ backgroundBox: e.target.checked })}
+          label={t('video.style.backgroundBox', 'Background Pill Box')}
+          size="sm"
+        />
 
-        <label className="flex items-center gap-2 cursor-pointer select-none">
-          <input
-            type="checkbox"
-            checked={style.layoutMode === 'bilingual-stacked'}
-            onChange={(e) =>
-              updateStyle({
-                layoutMode: e.target.checked ? 'bilingual-stacked' : 'single-line',
-              })
-            }
-            className="w-4 h-4 rounded border-white/20 bg-glass text-blue-600 focus:ring-0 cursor-pointer"
-          />
-          <span>{t('video.style.bilingualStacked', 'Bilingual Stacked (Original + Translation)')}</span>
-        </label>
+        <GlassCheckbox
+          checked={style.layoutMode === 'bilingual-stacked'}
+          onChange={(e) =>
+            updateStyle({
+              layoutMode: e.target.checked ? 'bilingual-stacked' : 'single-line',
+            })
+          }
+          label={t('video.style.bilingualStacked', 'Bilingual Stacked (Original + Translation)')}
+          size="sm"
+        />
 
         {style.layoutMode === 'bilingual-stacked' && (
           <div className="flex items-center gap-2">

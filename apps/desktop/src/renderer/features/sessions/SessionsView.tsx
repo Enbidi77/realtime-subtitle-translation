@@ -15,6 +15,7 @@ import { GlassInput } from "@/components/ui/GlassInput.js";
 import { GlassSelect } from "@/components/ui/GlassSelect.js";
 import { GlassBadge } from "@/components/ui/GlassBadge.js";
 import { GlassModal } from "@/components/ui/GlassModal.js";
+import { GlassCheckbox } from "@/components/ui/GlassCheckbox.js";
 import {
   FolderKanban,
   Download,
@@ -463,18 +464,15 @@ export const SessionsView: React.FC = () => {
             </GlassSelect>
           </div>
 
-          <label className="flex items-center gap-2 pt-1 cursor-pointer">
-            <input
-              type="checkbox"
+          <div className="pt-1">
+            <GlassCheckbox
               id="includeOrig"
               checked={includeOriginal}
               onChange={(e) => setIncludeOriginal(e.target.checked)}
-              className="rounded accent-primary"
+              label={t("sessions.includeOriginal", "Include original language")}
+              size="sm"
             />
-            <span className="text-foreground">
-              {t("sessions.includeOriginal", "Include original language")}
-            </span>
-          </label>
+          </div>
 
           <div className="flex justify-end gap-2 pt-3 border-t border-glass-border">
             <GlassButton

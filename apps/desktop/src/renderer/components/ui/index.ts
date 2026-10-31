@@ -5,4 +5,5 @@ export * from './GlassInput.js';
 export * from './GlassSelect.js';
 export * from './GlassBadge.js';
 export * from './GlassModal.js';
-
+export * from './GlassRadio.js';
+export * from './GlassCheckbox.js';
